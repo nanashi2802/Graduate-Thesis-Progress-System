@@ -1,31 +1,56 @@
-# SPPQ — PUP CpE Thesis Progress Monitoring System
+# SPPQ — PUP CpE Thesis Progress System
 
-Frontend-first workspace for the PUP Graduate Computer Engineering thesis progress prototype. The governing specifications and the Stitch Mode A reference are in this repo. Application code has not been started.
+A role-separated workspace for one graduate thesis at a time. A student submits a versioned manuscript, the adviser and later the panel leave comments on a specific revision, and a gate has to pass before the next stage opens.
 
-## Governing documents
+This repository is the frontend prototype and the documents that govern it. Application code has not started.
 
-Read these in order before changing the product:
+## Open the prototype
 
-1. `docs/governing/PUP CpE Thesis Progress System - Architectural Scratchpad.md` — glossary, ADR-001 through ADR-010, functional requirements, and the decision to defer the AI agents.
-2. `docs/governing/PUP CpE Thesis Progress System - Operational Flow & Tech Stack Specification.md` — Stages 0–6, the consultation gap matrix, and the technology mapping.
-3. `docs/governing/PUP CpE Thesis Progress System - SITEMAP & Frontend Specification.md` — routes, mock accounts, screen contracts, design tokens, and the Mode A acceptance checks.
+Open [`design/stitch/document-ingestion-processor/code.html`](design/stitch/document-ingestion-processor/code.html) in a browser. It needs a network connection for Tailwind, Inter, JetBrains Mono, and Lucide. There is no install step and no server.
 
-When the documents overlap, the sitemap screen contracts and the later ADRs govern the prototype. Parked actions GAP-02 (defense schedule confirmation) and GAP-03 (physical evaluation encoding) stay inside the Program Coordinator portal.
+The account switcher sits at the bottom right. Drag it if it covers a control. Click it to change accounts. Each account has one role.
 
-## Design reference
+| Account | Role | What you land on |
+| --- | --- | --- |
+| Juan Dela Cruz | Student | EchoWood, Stage 2, proposal manuscript in review |
+| Liza Navarro | Student | Estero flood-sensor thesis, Stage 4, oral defense approved |
+| Dr. Elena Reyes | Thesis Adviser | Both advisees, then the manuscript and comment thread |
+| Engr. Marco Santos | Panel Member | Lead panelist. Juan’s manuscript stays locked until the adviser endorses it |
+| Dr. Clara Mendoza | Panel Member | Same panel pages, without the lead label |
+| Prof. Arturo Cruz | Program Coordinator | Program counts, templates, and accounts |
 
-Stitch project **Document Ingestion Processor**, screen **PUP CpE Thesis Progress Monitoring System - Unified Artifact (Mode A)**:
+`Graduate Thesis Progress System V1.0.html` in the same folder is an earlier snapshot. `code.html` is the file to open and edit.
 
-- `design/stitch/document-ingestion-processor/code.html` — single-file reference for the full multi-role prototype
-- `design/stitch/document-ingestion-processor/screen.png` — exported view of the Program Coordinator portal
-- `design/stitch/document-ingestion-processor/stitch_document_ingestion_processor.zip` — original export
+## What the prototype already does
 
-The HTML is the visual and interaction reference. It is not the application source.
+- Student pages for the thesis home, deliverables, templates, schedule, and submission.
+- Submission opens as a document list. The manuscript row opens the paper and the comment thread. Comments belong to a manuscript revision.
+- Adviser review, Gate 1 endorsement when every comment is resolved, and panel reading after that endorsement.
+- Panel comments and Gate 2 after a defense result is recorded.
+- Consultation booking with the adviser, separate from defense booking. Defense booking stays closed until Gate 1.
+- Coordinator views for program counts, the stand-in template library, and committee assignment. One person cannot hold two committee seats.
 
-## Locked phase
+Account creation, template replacement, sign-in, stored files, and email are shown only where the screen needs the control, and they do not run. The embedded AI checks described in the product note are not on these screens.
 
-ADR-007 keeps this phase frontend-only. Data lives in a deterministic mock store. UI slots for the AI Pre-Flight and Revision Synthesizer stay visible and inactive. The later application stack is Next.js (App Router), React, TypeScript, Tailwind CSS, and Lucide. Supabase, Inngest or Trigger.dev, Resend, and the embedded AI agents stay out of this phase.
+The file names follow the PUP Graduate School TDW forms and the 2017 University Thesis and Dissertation Manual. They are a stand-in. CpE has not issued its own packet, and these screens are not copies of the official forms.
 
-## Not started
+## Read before changing the product
 
-Frontend implementation and visual fine-tuning. That work begins only after this source set is the working baseline.
+1. [`docs/Graduate Thesis Progress System.md`](docs/Graduate%20Thesis%20Progress%20System.md) — what the system is, who it is for, and the open process questions.
+2. [`docs/governing/PUP CpE Thesis Progress System - Architectural Scratchpad.md`](docs/governing/PUP%20CpE%20Thesis%20Progress%20System%20-%20Architectural%20Scratchpad.md) — glossary, ADR-001 through ADR-010, and functional requirements.
+3. [`docs/governing/PUP CpE Thesis Progress System - Operational Flow & Tech Stack Specification.md`](docs/governing/PUP%20CpE%20Thesis%20Progress%20System%20-%20Operational%20Flow%20%26%20Tech%20Stack%20Specification.md) — stages 0–6 and the technology mapping.
+4. [`docs/governing/PUP CpE Thesis Progress System - SITEMAP & Frontend Specification.md`](docs/governing/PUP%20CpE%20Thesis%20Progress%20System%20-%20SITEMAP%20%26%20Frontend%20Specification.md) — routes, accounts, and screen contracts.
+
+When those sources overlap, the sitemap screen contracts and the later architectural decisions govern the prototype. The product note governs what the system is for and which questions are still open.
+
+## Still unresolved
+
+The mentorship loop can be demonstrated. The institutional loop cannot be locked until the program answers the five gaps in the product note:
+
+- Whether the lead panelist can approve anything the other panelists cannot.
+- Who confirms a defense date and room, and whether a payment receipt is required first.
+- Who collects the paper evaluation sheet and who encodes the verdict.
+- Whether Gate 2 needs every panelist, or the chair or the adviser alone.
+- Which hardbound copy or clearance receipt closes the thesis.
+
+The later application stack named in the specifications is Next.js, React, TypeScript, Tailwind CSS, Supabase, an event worker, Resend, and the Vercel AI SDK. That stack is a plan, not a build in this repository.
