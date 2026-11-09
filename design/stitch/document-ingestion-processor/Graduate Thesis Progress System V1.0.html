@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PUP CpE Thesis Progress Monitoring System</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              maroon: '#800000',
+              'maroon-hover': '#660000',
+              'maroon-tint': '#FDF2F2',
+              gold: '#D97706',
+              'gold-tint': '#FFFBEB'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #F8FAFC;
+      color: #0F172A;
+      font-family: 'Inter', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #F1F5F9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 3px;
+    }
+    .badge-mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-feature-settings: "tnum";
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col relative selection:bg-red-100 selection:text-brand-maroon">
+
+  <!-- Top Global Bar -->
+  <header class="h-14 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-40">
+    <div class="flex items-center space-x-3">
+      <div class="w-7 h-7 bg-brand-maroon rounded flex items-center justify-center text-white font-bold text-xs tracking-wider shadow-sm">
+        PUP
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="font-semibold text-slate-900 text-sm tracking-tight">PUP Graduate CpE</span>
+        <span class="text-slate-300">/</span>
+        <span class="text-xs text-slate-500 font-medium">Thesis Progress</span>
+      </div>
+    </div>
+
+    <div class="flex items-center space-x-2 text-xs text-slate-600">
+      <div class="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center font-semibold text-slate-700 text-xs" id="top-user-avatar">
+        JD
+      </div>
+      <div class="hidden sm:block text-left">
+        <div class="font-medium text-slate-900 leading-tight" id="top-user-name">Juan Dela Cruz</div>
+        <div class="text-[10px] text-slate-500" id="top-user-role">Student</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Root App Shell Container (Sidebar + Content Workspace) -->
+  <div class="flex-1 flex overflow-hidden min-h-[calc(100vh-3.5rem)]">
+    <!-- Sidebar Navigation -->
+    <aside id="main-sidebar" class="w-60 bg-white border-r border-slate-200 flex flex-col justify-between flex-shrink-0 transition-all duration-200">
+      <div class="p-4 space-y-6">
+        <nav id="sidebar-nav-links" class="space-y-1"></nav>
+
+        <div>
+          <div class="bg-slate-50 rounded-lg p-3 border border-slate-200 text-xs space-y-2">
+            <div class="font-semibold text-slate-900 leading-snug line-clamp-2">EchoWood: Embedded Termite Detection via ESP32-S3</div>
+            <div class="flex items-center justify-between text-[11px] text-slate-500">
+              <span>Milestone:</span>
+              <span class="text-slate-700 font-medium">Proposal defense</span>
+            </div>
+            <div class="pt-1 border-t border-slate-200 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500">Status:</span>
+              <span id="sidebar-pr-status-pill" class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">In review</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- Main Content Dynamic View Area -->
+    <main id="app-workspace" class="flex-1 bg-[#F8FAFC] overflow-y-auto custom-scrollbar flex flex-col">
+      <!-- Injected view components render here -->
+    </main>
+  </div>
+
+  <div class="fixed bottom-4 right-4 z-50">
+    <div id="persona-switcher-menu" class="hidden mb-2 w-80 bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden">
+      <div class="p-3 border-b border-slate-200">
+        <span class="text-xs font-semibold text-slate-900">Switch account</span>
+      </div>
+      <div class="p-1 space-y-1 max-h-80 overflow-y-auto custom-scrollbar" id="persona-list-items"></div>
+    </div>
+
+    <!-- Toggle Trigger Pill Button -->
+    <button id="persona-switcher-trigger" class="flex items-center space-x-2.5 bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-2.5 rounded-full shadow-lg border border-slate-700 transition active:scale-95 text-xs font-medium focus:outline-none">
+      <i data-lucide="shield" class="w-4 h-4 text-emerald-400"></i>
+      <span class="font-semibold" id="trigger-user-name">Juan Dela Cruz</span>
+      <span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700" id="trigger-user-role">Student</span>
+      <i data-lucide="chevron-up" class="w-3.5 h-3.5 text-slate-400" id="trigger-chevron"></i>
+    </button>
+  </div>
+
+  <!-- Notification Toast Container -->
+  <div id="toast-container" class="fixed top-16 right-6 z-50 space-y-2 pointer-events-none"></div>
+
+  <script>
+    const STATE = {
+      accounts: [
+        {
+          id: 'USR-STU-01',
+          name: 'Juan Dela Cruz',
+          role: 'Student',
+          defaultRoute: '/student/dashboard',
+          assignedThesis: 'EchoWood: Embedded Termite Detection via ESP32-S3',
+          avatarInitials: 'JD'
+        },
+        {
+          id: 'USR-ADV-01',
+          name: 'Dr. Elena Reyes',
+          role: 'Thesis Adviser',
+          defaultRoute: '/adviser/dashboard',
+          assignedThesis: 'EchoWood: Embedded Termite Detection via ESP32-S3',
+          avatarInitials: 'ER'
+        },
+        {
+          id: 'USR-PAN-01',
+          name: 'Engr. Marco Santos',
+          role: 'Panel Member',
+          subRole: 'Lead Panelist',
+          defaultRoute: '/panel/dashboard',
+          assignedThesis: 'EchoWood: Embedded Termite Detection via ESP32-S3',
+          avatarInitials: 'MS'
+        },
+        {
+          id: 'USR-PAN-02',
+          name: 'Dr. Clara Mendoza',
+          role: 'Panel Member',
+          subRole: 'Panelist',
+          defaultRoute: '/panel/dashboard',
+          assignedThesis: 'EchoWood: Embedded Termite Detection via ESP32-S3',
+          avatarInitials: 'CM'
+        },
+        {
+          id: 'USR-ADM-01',
+          name: 'Prof. Arturo Cruz',
+          role: 'Program Coordinator',
+          defaultRoute: '/coordinator/dashboard',
+          assignedThesis: 'All CpE Cohorts',
+          avatarInitials: 'AC'
+        }
+      ],
+
+      // Global Active Session
+      activePersonaId: 'USR-STU-01',
+      currentRoute: '/student/dashboard',
+
+      thesis: {
+        title: 'EchoWood: Embedded Termite Detection via ESP32-S3 Acoustic Emission Modeling',
+        candidate: 'Juan Dela Cruz',
+        adviser: 'Dr. Elena Reyes',
+        panel: ['Engr. Marco Santos', 'Dr. Clara Mendoza'],
+        residencyStatus: 'ON TRACK',
+        stage: 'Stage 2: Proposal Defense',
+        prId: 104,
+        prStatus: 'GATE_1_REVIEW',
+        selectedCommit: 'v2',
+        commits: [
+          {
+            id: 'v1',
+            timestamp: '2025-02-14 09:30 AM',
+            filename: 'EchoWood_Proposal_v1.pdf',
+            pages: 14,
+            notes: 'First draft of chapters 1–3, including the acoustic sensor calibration.'
+          },
+          {
+            id: 'v2',
+            timestamp: '2025-02-28 04:15 PM',
+            filename: 'EchoWood_Proposal_v2.pdf',
+            pages: 18,
+            notes: 'Added the Fourier-transform window used to isolate chewing resonances.'
+          }
+        ],
+        critiqueThreads: [
+          {
+            id: 'CT-101',
+            anchoredCommit: 'v1',
+            authorId: 'USR-ADV-01',
+            authorName: 'Dr. Elena Reyes',
+            authorRole: 'Thesis Adviser',
+            timestamp: '2025-02-16 11:20 AM',
+            status: 'OPEN',
+            content: 'Section 3.2 lacks the sampling frequency specification for piezoelectric resonant transducers under 40kHz bandwidth. Clarify ESP32-S3 I2S ADC attenuation settings.',
+            replies: [
+              {
+                id: 'REP-01',
+                authorId: 'USR-STU-01',
+                authorName: 'Juan Dela Cruz',
+                timestamp: '2025-02-28 03:50 PM',
+                content: 'Updated section 3.2.1. The sampling rate is 96 ksps across two DMA buffers.'
+              }
+            ]
+          }
+        ]
+      },
+
+      availabilitySlots: [
+        {
+          id: 'SLOT-01',
+          facultyId: 'USR-ADV-01',
+          facultyName: 'Dr. Elena Reyes',
+          role: 'Thesis Adviser',
+          date: '2025-03-12',
+          timeWindow: '10:00 AM - 11:30 AM',
+          slotType: 'Consultation',
+          status: 'PENDING',
+          requestedBy: 'Juan Dela Cruz'
+        },
+        {
+          id: 'SLOT-02',
+          facultyId: 'USR-PAN-01',
+          facultyName: 'Engr. Marco Santos',
+          role: 'Panel Member',
+          date: '2025-03-20',
+          timeWindow: '01:00 PM - 03:00 PM',
+          slotType: 'Defense',
+          status: 'AVAILABLE',
+          requestedBy: null
+        },
+        {
+          id: 'SLOT-03',
+          facultyId: 'USR-PAN-02',
+          facultyName: 'Dr. Clara Mendoza',
+          role: 'Panel Member',
+          date: '2025-03-21',
+          timeWindow: '09:00 AM - 11:00 AM',
+          slotType: 'Defense',
+          status: 'AVAILABLE',
+          requestedBy: null
+        }
+      ],
+
+      parkedActions: {
+        defenseRequests: [
+          {
+            id: 'DEF-REQ-01',
+            studentName: 'Juan Dela Cruz',
+            thesisTitle: 'EchoWood: Embedded Termite Detection',
+            stage: 'Stage 2: Proposal Defense',
+            targetDate: '2025-03-25',
+            timeWindow: '02:00 PM - 04:00 PM',
+            assignedRoom: '',
+            status: 'PENDING_COORDINATOR'
+          }
+        ],
+        defenseVerdicts: [
+          {
+            id: 'VERD-01',
+            studentName: 'Juan Dela Cruz',
+            thesisTitle: 'EchoWood: Embedded Termite Detection',
+            stage: 'Stage 2: Proposal Defense',
+            verdict: 'Conditional Pass',
+            physicalSheetAttached: true,
+            status: 'PENDING_ENCODING'
+          }
+        ]
+      },
+
+      metrics: {
+        activeStudents: 24,
+        pendingGate1: 8,
+        awaitingDefense: 5,
+        gate2Revisions: 6
+      }
+    };
+
+    // Helper functions
+    function getActivePersona() {
+      return STATE.accounts.find(a => a.id === STATE.activePersonaId) || STATE.accounts[0];
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const colors = {
+        success: 'bg-emerald-800 text-white border-emerald-700',
+        warning: 'bg-amber-800 text-white border-amber-700',
+        error: 'bg-rose-800 text-white border-rose-700',
+        info: 'bg-slate-900 text-white border-slate-700'
+      };
+      toast.className = `px-4 py-2.5 rounded shadow-lg border text-xs flex items-center space-x-2 transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto ${colors[type] || colors.info}`;
+      toast.innerHTML = `<i data-lucide="${type === 'success' ? 'check-circle' : type === 'warning' ? 'alert-triangle' : 'info'}" class="w-4 h-4"></i><span>${message}</span>`;
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 20);
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    const ROLE_ROUTES = {
+      'Student': ['/student/dashboard', '/student/pr/104', '/student/schedule'],
+      'Thesis Adviser': ['/adviser/dashboard', '/adviser/pr/104', '/adviser/availability'],
+      'Panel Member': ['/panel/dashboard', '/panel/pr/104', '/panel/availability'],
+      'Program Coordinator': ['/coordinator/dashboard', '/coordinator/templates', '/coordinator/users']
+    };
+
+    function statusLabel(code) {
+      const labels = {
+        DRAFT_UPLOADED: 'Draft uploaded',
+        GATE_1_REVIEW: 'In review',
+        GATE_1_ENDORSED: 'Endorsed',
+        DEFENSE_SCHEDULED: 'Defense scheduled',
+        POST_DEFENSE_REVISIONS: 'Revisions open',
+        GATE_2_APPROVED: 'Approved',
+        OPEN: 'Open',
+        RESOLVED: 'Resolved',
+        PENDING: 'Pending',
+        CONFIRMED: 'Confirmed',
+        AVAILABLE: 'Open',
+        DECLINED: 'Declined',
+        UNLOCKED: 'Recorded',
+        PENDING_COORDINATOR: 'Pending',
+        PENDING_ENCODING: 'Needs a result',
+        ON_TRACK: 'On track'
+      };
+      return labels[code] || code;
+    }
+
+    function revisionName(id, latestId) {
+      const number = String(id).replace(/^v/i, '');
+      const latest = latestId && id === latestId ? ' — Latest' : '';
+      return `Revision ${number}${latest}`;
+    }
+
+    function navigateTo(route) {
+      const persona = getActivePersona();
+      const allowed = ROLE_ROUTES[persona.role] || [];
+      
+      if (!allowed.includes(route)) {
+        renderAccessDenied(route, persona.role);
+        return;
+      }
+
+      STATE.currentRoute = route;
+      renderApp();
+    }
+
+    function switchPersona(personaId) {
+      const newPersona = STATE.accounts.find(a => a.id === personaId);
+      if (!newPersona) return;
+      STATE.activePersonaId = personaId;
+      STATE.currentRoute = newPersona.defaultRoute;
+      showToast(`Signed in as ${newPersona.name}`, 'info');
+      renderApp();
+    }
+
+    function updateShellChrome() {
+      const persona = getActivePersona();
+      
+      document.getElementById('top-user-name').textContent = persona.name;
+      document.getElementById('top-user-role').textContent = persona.role;
+      document.getElementById('top-user-avatar').textContent = persona.avatarInitials;
+      
+      document.getElementById('trigger-user-name').textContent = persona.name;
+      document.getElementById('trigger-user-role').textContent = persona.role;
+
+      const prPill = document.getElementById('sidebar-pr-status-pill');
+      if (prPill) {
+        prPill.textContent = statusLabel(STATE.thesis.prStatus);
+        if (STATE.thesis.prStatus === 'GATE_1_REVIEW') {
+          prPill.className = 'font-mono px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200';
+        } else if (STATE.thesis.prStatus === 'GATE_1_ENDORSED' || STATE.thesis.prStatus === 'GATE_2_APPROVED') {
+          prPill.className = 'font-mono px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200';
+        } else {
+          prPill.className = 'font-mono px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200';
+        }
+      }
+
+      const navContainer = document.getElementById('sidebar-nav-links');
+      let navItems = [];
+
+      if (persona.role === 'Student') {
+        navItems = [
+          { path: '/student/dashboard', label: 'My thesis', icon: 'compass' },
+          { path: '/student/pr/104', label: 'Submission', icon: 'file-text' },
+          { path: '/student/schedule', label: 'Schedule', icon: 'calendar-clock' }
+        ];
+      } else if (persona.role === 'Thesis Adviser') {
+        navItems = [
+          { path: '/adviser/dashboard', label: 'Advisees', icon: 'users' },
+          { path: '/adviser/pr/104', label: 'Review', icon: 'file-text' },
+          { path: '/adviser/availability', label: 'Availability', icon: 'calendar' }
+        ];
+      } else if (persona.role === 'Panel Member') {
+        navItems = [
+          { path: '/panel/dashboard', label: 'Defenses', icon: 'clipboard-check' },
+          { path: '/panel/pr/104', label: 'Manuscript', icon: 'file-check-2' },
+          { path: '/panel/availability', label: 'Availability', icon: 'calendar' }
+        ];
+      } else if (persona.role === 'Program Coordinator') {
+        navItems = [
+          { path: '/coordinator/dashboard', label: 'Overview', icon: 'layout-grid' },
+          { path: '/coordinator/templates', label: 'Templates', icon: 'layers' },
+          { path: '/coordinator/users', label: 'Committee', icon: 'user-check' }
+        ];
+      }
+
+      navContainer.innerHTML = navItems.map(item => {
+        const isActive = STATE.currentRoute === item.path;
+        return `
+          <button onclick="navigateTo('${item.path}')" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-md text-xs font-medium transition ${
+            isActive 
+              ? 'bg-brand-maroon-tint text-brand-maroon font-semibold border border-red-200' 
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+          }">
+            <i data-lucide="${item.icon}" class="w-4 h-4 ${isActive ? 'text-brand-maroon' : 'text-slate-400'}"></i>
+            <span>${item.label}</span>
+          </button>
+        `;
+      }).join('');
+
+      const listContainer = document.getElementById('persona-list-items');
+      listContainer.innerHTML = STATE.accounts.map(acc => {
+        const isCurrent = acc.id === STATE.activePersonaId;
+        return `
+          <button onclick="switchPersona('${acc.id}'); togglePersonaMenu(false);" class="w-full text-left p-2 rounded flex items-center justify-between text-xs transition ${
+            isCurrent ? 'bg-red-50 border border-red-200 text-brand-maroon' : 'hover:bg-slate-50 text-slate-800'
+          }">
+            <div class="flex items-center space-x-2.5">
+              <span class="w-7 h-7 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-[11px]">
+                ${acc.avatarInitials}
+              </span>
+              <div>
+                <div class="font-medium text-slate-900">${acc.name}</div>
+                <div class="text-[10px] text-slate-500">${acc.role} ${acc.subRole ? '• ' + acc.subRole : ''}</div>
+              </div>
+            </div>
+            ${isCurrent ? '<i data-lucide="check" class="w-4 h-4 text-brand-maroon"></i>' : '<span class="text-[10px] font-mono text-slate-400">Select</span>'}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function togglePersonaMenu(forceState) {
+      const menu = document.getElementById('persona-switcher-menu');
+      const chevron = document.getElementById('trigger-chevron');
+      const isHidden = menu.classList.contains('hidden');
+      const shouldOpen = typeof forceState === 'boolean' ? forceState : isHidden;
+
+      if (shouldOpen) {
+        menu.classList.remove('hidden');
+        chevron.style.transform = 'rotate(180deg)';
+      } else {
+        menu.classList.add('hidden');
+        chevron.style.transform = 'rotate(0deg)';
+      }
+      lucide.createIcons();
+    }
+
+    function renderAccessDenied(attemptedRoute, role) {
+      const workspace = document.getElementById('app-workspace');
+      workspace.innerHTML = `
+        <div class="p-8 max-w-2xl mx-auto my-auto text-center">
+          <div class="w-12 h-12 rounded-full bg-red-100 text-rose-700 flex items-center justify-center mx-auto mb-4 border border-rose-200">
+            <i data-lucide="shield-alert" class="w-6 h-6"></i>
+          </div>
+          <h2 class="text-lg font-bold text-slate-900 mb-1">You don't have access</h2>
+          <p class="text-sm text-slate-600 mb-4">This page is not part of your account.</p>
+          <div class="inline-flex space-x-3">
+            <button onclick="navigateTo('${getActivePersona().defaultRoute}')" class="px-4 py-2 bg-brand-maroon text-white text-xs font-semibold rounded hover:bg-brand-maroon-hover transition">
+              Back to your dashboard
+            </button>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    function renderPrWorkspace() {
+      const persona = getActivePersona();
+      const pr = STATE.thesis;
+      const isPanel = persona.role === 'Panel Member';
+      const isAdviser = persona.role === 'Thesis Adviser';
+      const isStudent = persona.role === 'Student';
+
+      const isPanelPreGate1 = isPanel && (pr.prStatus === 'DRAFT_UPLOADED' || pr.prStatus === 'GATE_1_REVIEW');
+
+      if (isPanelPreGate1) {
+        document.getElementById('app-workspace').innerHTML = `
+          <div class="p-8 max-w-2xl mx-auto my-auto text-center bg-white rounded-lg border border-slate-200 shadow-sm p-8">
+            <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center mx-auto mb-3 border border-amber-200">
+              <i data-lucide="lock" class="w-6 h-6"></i>
+            </div>
+            <h2 class="text-base font-bold text-slate-900 mb-1">Manuscript not available yet</h2>
+            <p class="text-sm text-slate-600 mb-2">
+              Dr. Elena Reyes is still reviewing this submission. You can read it after she endorses it for defense.
+            </p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      const activeCommitData = pr.commits.find(c => c.id === pr.selectedCommit) || pr.commits[pr.commits.length - 1];
+      const openThreadsCount = pr.critiqueThreads.filter(t => t.status === 'OPEN').length;
+      const latestCommitId = pr.commits[pr.commits.length - 1].id;
+
+      document.getElementById('app-workspace').innerHTML = `
+        <div class="flex flex-col h-full">
+          <div class="h-14 bg-white border-b border-slate-200 px-6 flex items-center justify-between flex-shrink-0">
+            <div class="flex items-center space-x-3">
+              <span class="text-xs font-medium text-slate-800">${pr.stage}</span>
+              <span class="px-2 py-0.5 rounded text-[11px] font-semibold ${
+                pr.prStatus === 'GATE_1_ENDORSED' || pr.prStatus === 'GATE_2_APPROVED'
+                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                  : 'bg-amber-50 text-amber-700 border border-amber-200'
+              }">${statusLabel(pr.prStatus)}</span>
+
+              <div class="flex items-center space-x-1.5 ml-1 pl-3 border-l border-slate-200">
+                <span class="text-[11px] text-slate-500 font-medium">File</span>
+                <select id="pr-commit-select" onchange="changePrCommit(this.value)" class="text-xs bg-slate-50 border border-slate-200 rounded px-2 py-1 text-slate-800 font-medium focus:ring-1 focus:ring-brand-maroon focus:outline-none">
+                  ${pr.commits.map(c => `
+                    <option value="${c.id}" ${c.id === pr.selectedCommit ? 'selected' : ''}>
+                      ${revisionName(c.id, latestCommitId)}
+                    </option>
+                  `).join('')}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex-1 flex overflow-hidden">
+            <div class="w-[60%] border-r border-slate-200 flex flex-col bg-slate-100">
+              <div class="h-10 bg-white border-b border-slate-200 px-4 flex items-center justify-between text-xs">
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="file-text" class="w-4 h-4 text-brand-maroon"></i>
+                  <span class="font-mono font-medium text-slate-800">${activeCommitData.filename}</span>
+                  <span class="text-[10px] font-mono text-slate-400">(${activeCommitData.timestamp})</span>
+                </div>
+                <div class="flex items-center space-x-3 text-slate-500 font-mono text-[11px]">
+                  <span>Page 1 of ${activeCommitData.pages}</span>
+                  <button class="hover:text-slate-800" title="Zoom Out"><i data-lucide="zoom-out" class="w-3.5 h-3.5"></i></button>
+                  <button class="hover:text-slate-800" title="Zoom In"><i data-lucide="zoom-in" class="w-3.5 h-3.5"></i></button>
+                </div>
+              </div>
+
+              <div class="flex-1 overflow-y-auto p-6 flex justify-center custom-scrollbar">
+                <div class="w-full max-w-xl bg-white shadow-sm border border-slate-200 rounded p-8 min-h-[720px] text-slate-800 flex flex-col justify-between">
+                  <div class="space-y-6">
+                    <div class="border-b border-slate-100 pb-4">
+                      <div class="text-[10px] font-mono uppercase tracking-widest text-slate-400">Polytechnic University of the Philippines • Graduate School</div>
+                      <div class="text-[11px] font-mono text-brand-maroon font-semibold mt-0.5">Master of Science in Computer Engineering (MSCpE)</div>
+                      <h1 class="text-base font-bold text-slate-900 mt-3 leading-snug">${pr.title}</h1>
+                      <div class="text-xs text-slate-600 mt-2">Candidate: <span class="font-medium text-slate-900">${pr.candidate}</span></div>
+                      <div class="text-xs text-slate-600">Adviser: <span class="font-medium text-slate-900">${pr.adviser}</span></div>
+                    </div>
+
+                    <div class="space-y-3 text-xs leading-relaxed text-slate-700">
+                      <div class="font-semibold text-slate-900 uppercase text-[11px] tracking-wide border-b border-slate-100 pb-1">
+                        Abstract
+                      </div>
+                      <p>
+                        This thesis investigates real-time acoustic emission profiling of subterranean termites (Coptotermes gestroi) utilizing an embedded ESP32-S3 microcontroller coupled with high-sensitivity piezoelectric contact sensors. Acoustic signatures are windowed via continuous discrete Fourier transforms (DFT) to isolate chewing resonances between 12 kHz and 48 kHz.
+                      </p>
+                      
+                      <div class="p-3 bg-slate-50 border border-slate-200 rounded text-xs space-y-1">
+                        <div class="font-semibold text-slate-800 text-[11px]">Changes in this file</div>
+                        <p class="text-slate-600 font-mono text-[11px]">${activeCommitData.notes}</p>
+                      </div>
+
+                      <div class="p-3 border border-dashed border-slate-200 rounded bg-slate-50/50 text-[11px] space-y-1 text-slate-500">
+                        <div class="font-medium text-slate-700">Contents</div>
+                        <div class="grid grid-cols-2 gap-1 text-[10px]">
+                          <div>• 1.0 Problem Formulation</div>
+                          <div>• 3.2 Sensor Bandwidth Calibration</div>
+                          <div>• 2.1 Related Piezoelectric Work</div>
+                          <div>• 4.0 Expected Validation Protocol</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="border-t border-slate-100 pt-4 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                    <span>Page 1 / ${activeCommitData.pages}</span>
+                  </div>
+                </div>
+              </div>
+
+              ${isStudent ? `
+                <div class="p-3 bg-white border-t border-slate-200 flex items-center justify-between">
+                  <div class="text-xs text-slate-600">
+                    <span class="font-medium text-slate-800">Next revision</span>
+                  </div>
+                  <button onclick="uploadStudentCommit()" class="px-3 py-1.5 bg-brand-maroon hover:bg-brand-maroon-hover text-white rounded text-xs font-semibold flex items-center space-x-1.5 transition shadow-sm">
+                    <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                    <span>Upload revision</span>
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+
+            <div class="w-[40%] flex flex-col bg-white">
+              <div class="p-3 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <div class="flex items-center space-x-2 text-xs">
+                  <span class="font-semibold text-slate-800">Comments</span>
+                  <span class="font-mono text-[10px] bg-slate-200 text-slate-700 px-1.5 py-0.2 rounded-full font-bold">
+                    ${pr.critiqueThreads.length}
+                  </span>
+                </div>
+                <div class="flex items-center space-x-1 text-xs">
+                  <span class="text-[11px] text-slate-500 mr-1">Filter:</span>
+                  <button class="px-2 py-0.5 rounded text-[11px] font-medium bg-white border border-slate-200 text-slate-800 shadow-xs">All</button>
+                  <button class="px-2 py-0.5 rounded text-[11px] font-medium text-slate-500 hover:text-slate-800">Open (${openThreadsCount})</button>
+                </div>
+              </div>
+
+              <div class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                ${pr.critiqueThreads.map((thread, index) => {
+                  const isOutdated = pr.selectedCommit > thread.anchoredCommit;
+                  const canResolve = (isAdviser || isPanel);
+                  return `
+                    <div class="border border-slate-200 rounded-lg p-3.5 bg-white shadow-xs space-y-2.5">
+                      <div class="flex items-start justify-between">
+                        <div>
+                          <div class="flex items-center space-x-2">
+                            <span class="font-semibold text-xs text-slate-900">${thread.authorName}</span>
+                            <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 border border-slate-200 font-medium">${thread.authorRole}</span>
+                          </div>
+                          <div class="flex items-center space-x-2 mt-1">
+                            <span class="text-[11px] text-slate-500">On ${revisionName(thread.anchoredCommit)}</span>
+                            ${isOutdated ? `
+                              <span class="px-1.5 py-0.2 rounded text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                                Earlier file
+                              </span>
+                            ` : ''}
+                          </div>
+                        </div>
+
+                        <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                          thread.status === 'RESOLVED' 
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
+                            : 'bg-amber-50 text-amber-700 border border-amber-200'
+                        }">
+                          ${statusLabel(thread.status)}
+                        </span>
+                      </div>
+
+                      <p class="text-xs text-slate-700 leading-relaxed bg-slate-50/70 p-2.5 rounded border border-slate-100">
+                        ${thread.content}
+                      </p>
+
+                      ${thread.replies.length > 0 ? `
+                        <div class="space-y-1.5 pl-3 border-l-2 border-slate-200 pt-1">
+                          ${thread.replies.map(rep => `
+                            <div class="text-xs bg-slate-50 p-2 rounded border border-slate-100">
+                              <div class="flex items-center justify-between text-[10px] text-slate-500 mb-1">
+                                <span class="font-semibold text-slate-800">${rep.authorName}</span>
+                                <span class="font-mono">${rep.timestamp}</span>
+                              </div>
+                              <div class="text-slate-700 text-xs">${rep.content}</div>
+                            </div>
+                          `).join('')}
+                        </div>
+                      ` : ''}
+
+                      <div class="pt-2 border-t border-slate-100 flex items-center space-x-2">
+                        <input id="reply-input-${thread.id}" type="text" placeholder="Write a reply" class="flex-1 text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:ring-1 focus:ring-brand-maroon focus:outline-none" />
+                        <button onclick="postThreadReply('${thread.id}')" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded text-xs font-medium transition">
+                          Reply
+                        </button>
+                        ${canResolve ? `
+                          <button onclick="toggleThreadResolution('${thread.id}')" class="px-2.5 py-1.5 ${
+                            thread.status === 'RESOLVED' 
+                              ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' 
+                              : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
+                          } rounded text-xs font-semibold transition">
+                            ${thread.status === 'RESOLVED' ? 'Reopen' : 'Mark Resolved'}
+                          </button>
+                        ` : ''}
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+
+                ${(isAdviser || isPanel) ? `
+                  <div class="border border-slate-200 rounded-lg p-3.5 bg-slate-50 mt-4 space-y-2">
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs font-bold text-slate-800">New comment</span>
+                      <span class="text-[10px] text-slate-500">On ${revisionName(pr.selectedCommit)}</span>
+                    </div>
+                    <textarea id="new-thread-text" rows="2" placeholder="What should the student change?" class="w-full text-xs p-2 border border-slate-200 rounded bg-white focus:ring-1 focus:ring-brand-maroon focus:outline-none"></textarea>
+                    <div class="flex justify-end">
+                      <button onclick="postNewCritiqueThread()" class="px-3 py-1.5 bg-brand-maroon hover:bg-brand-maroon-hover text-white rounded text-xs font-semibold transition">
+                        Post comment
+                      </button>
+                    </div>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+
+          <div class="h-16 bg-white border-t border-slate-200 px-6 flex items-center justify-between flex-shrink-0">
+            <div class="flex items-center space-x-3 text-xs text-slate-600">
+              <span class="font-medium text-slate-800">Comments</span>
+              <span class="text-[11px] ${openThreadsCount === 0 ? 'text-emerald-700 font-semibold' : 'text-amber-700 font-semibold'}">
+                ${openThreadsCount === 0 ? 'All comments resolved' : `${openThreadsCount} still open`}
+              </span>
+            </div>
+
+            <div class="flex items-center space-x-3">
+              ${isStudent ? `
+                <span class="text-xs text-slate-500">Waiting for review</span>
+              ` : ''}
+
+              ${isAdviser ? `
+                <button onclick="executeGate1Endorsement()" ${openThreadsCount > 0 || pr.prStatus === 'GATE_1_ENDORSED' ? 'disabled' : ''} class="px-4 py-2 rounded text-xs font-semibold transition flex items-center space-x-2 ${
+                  openThreadsCount === 0 && pr.prStatus !== 'GATE_1_ENDORSED'
+                    ? 'bg-brand-maroon hover:bg-brand-maroon-hover text-white shadow-sm'
+                    : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                }">
+                  <i data-lucide="check-circle" class="w-4 h-4"></i>
+                  <span>${pr.prStatus === 'GATE_1_ENDORSED' ? 'Endorsed' : 'Endorse for defense'}</span>
+                </button>
+              ` : ''}
+
+              ${isPanel ? `
+                <button onclick="executeGate2SignOff()" ${openThreadsCount > 0 || pr.prStatus !== 'POST_DEFENSE_REVISIONS' ? 'disabled' : ''} class="px-4 py-2 rounded text-xs font-semibold transition flex items-center space-x-2 ${
+                  openThreadsCount === 0 && pr.prStatus === 'POST_DEFENSE_REVISIONS'
+                    ? 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm'
+                    : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                }">
+                  <i data-lucide="award" class="w-4 h-4"></i>
+                  <span>${pr.prStatus === 'GATE_2_APPROVED' ? 'Approved' : 'Approve revisions'}</span>
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    function renderAdviserDashboard() {
+      const pr = STATE.thesis;
+      const slots = STATE.availabilitySlots.filter(s => s.facultyId === 'USR-ADV-01');
+      const openThreadsCount = pr.critiqueThreads.filter(t => t.status === 'OPEN').length;
+
+      document.getElementById('app-workspace').innerHTML = `
+        <div class="p-6 max-w-7xl mx-auto space-y-6">
+          <h1 class="text-xl font-bold text-slate-900 tracking-tight">Advisees</h1>
+
+          <div class="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-xs">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50/50 text-slate-500 font-medium border-b border-slate-200">
+                  <tr>
+                    <th class="py-2.5 px-4">Student</th>
+                    <th class="py-2.5 px-4">Thesis</th>
+                    <th class="py-2.5 px-4">Stage</th>
+                    <th class="py-2.5 px-4">Latest file</th>
+                    <th class="py-2.5 px-4">Open comments</th>
+                    <th class="py-2.5 px-4">Status</th>
+                    <th class="py-2.5 px-4 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr class="hover:bg-slate-50/60 transition">
+                    <td class="py-3 px-4 font-medium text-slate-900">
+                      Juan Dela Cruz
+                    </td>
+                    <td class="py-3 px-4 text-slate-700 max-w-xs truncate" title="${pr.title}">
+                      ${pr.title}
+                    </td>
+                    <td class="py-3 px-4 font-medium text-slate-700">${pr.stage}</td>
+                    <td class="py-3 px-4 font-medium text-slate-800">${revisionName(pr.commits[pr.commits.length - 1].id)}</td>
+                    <td class="py-3 px-4">
+                      <span class="px-2 py-0.5 rounded text-[11px] font-mono font-semibold ${
+                        openThreadsCount === 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
+                      }">
+                        ${openThreadsCount} Open
+                      </span>
+                    </td>
+                    <td class="py-3 px-4">
+                      <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                        pr.prStatus === 'GATE_1_ENDORSED' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
+                      }">
+                        ${statusLabel(pr.prStatus)}
+                      </span>
+                    </td>
+                    <td class="py-3 px-4 text-right">
+                      <button onclick="navigateTo('/adviser/pr/104')" class="px-3 py-1.5 bg-brand-maroon hover:bg-brand-maroon-hover text-white rounded text-xs font-semibold transition">
+                        Review
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Expanded Detail Panel -->
+            <div class="bg-slate-50 p-4 border-t border-slate-200">
+              <div class="grid grid-cols-4 gap-2 text-xs">
+                <div class="p-2.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-800">
+                  <div class="font-bold text-[11px]">Stage 1: Title Proposal</div>
+                  <div class="text-[10px] mt-0.5 text-emerald-600">Complete</div>
+                </div>
+                <div class="p-2.5 rounded bg-amber-50 border border-amber-200 text-amber-800">
+                  <div class="font-bold text-[11px]">Stage 2: Proposal Defense</div>
+                  <div class="text-[10px] mt-0.5 text-amber-600">In review</div>
+                </div>
+                <div class="p-2.5 rounded bg-slate-100 border border-slate-200 text-slate-500">
+                  <div class="font-bold text-[11px]">Stage 3: Pre-Oral Defense</div>
+                  <div class="text-[10px] mt-0.5">Locked</div>
+                </div>
+                <div class="p-2.5 rounded bg-slate-100 border border-slate-200 text-slate-500">
+                  <div class="font-bold text-[11px]">Stage 4: Final Colloquium</div>
+                  <div class="text-[10px] mt-0.5">Locked</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white rounded-lg border border-slate-200 p-4 shadow-xs space-y-3">
+              <div class="flex items-center space-x-2 border-b border-slate-100 pb-2">
+                <i data-lucide="calendar-plus" class="w-4 h-4 text-brand-maroon"></i>
+                <span class="text-xs font-bold text-slate-800">Publish a time</span>
+              </div>
+              <div class="space-y-2 text-xs">
+                <div>
+                  <label class="block text-slate-600 mb-1">Date</label>
+                  <input id="adviser-slot-date" type="date" value="2025-03-15" class="w-full text-xs p-2 border border-slate-200 rounded font-mono" />
+                </div>
+                <div>
+                  <label class="block text-slate-600 mb-1">Time</label>
+                  <input id="adviser-slot-time" type="text" value="02:00 PM - 03:30 PM" class="w-full text-xs p-2 border border-slate-200 rounded font-mono" />
+                </div>
+                <div>
+                  <label class="block text-slate-600 mb-1">Type</label>
+                  <div class="grid grid-cols-2 gap-2">
+                    <button type="button" id="adviser-type-consult" onclick="setSlotTypeSelect('Consultation')" class="p-1.5 text-xs font-semibold rounded border border-brand-maroon bg-red-50 text-brand-maroon">Consultation</button>
+                    <button type="button" id="adviser-type-defense" onclick="setSlotTypeSelect('Defense')" class="p-1.5 text-xs font-medium rounded border border-slate-200 text-slate-600 hover:bg-slate-50">Defense</button>
+                  </div>
+                </div>
+                <div class="pt-2">
+                  <button onclick="publishAdviserSlot()" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-semibold flex items-center justify-center space-x-1.5 transition">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                    <span>Publish</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-lg border border-slate-200 p-4 shadow-xs space-y-3">
+              <div class="flex items-center space-x-2 border-b border-slate-100 pb-2">
+                <i data-lucide="calendar-check" class="w-4 h-4 text-emerald-700"></i>
+                <span class="text-xs font-bold text-slate-800">Requests</span>
+              </div>
+
+              <div class="space-y-2.5">
+                ${slots.length === 0 ? '<div class="text-xs text-slate-400 py-4 text-center">No active slots published.</div>' : ''}
+                ${slots.map(s => `
+                  <div class="p-3 rounded border border-slate-200 bg-slate-50 text-xs flex items-center justify-between">
+                    <div>
+                      <div class="font-semibold text-slate-800">${s.slotType} • <span class="font-mono text-slate-600">${s.date}</span></div>
+                      <div class="font-mono text-[11px] text-slate-500">${s.timeWindow}</div>
+                      <div class="text-[11px] text-slate-600 mt-1">
+                        <span class="font-semibold ${s.status === 'CONFIRMED' ? 'text-emerald-700' : 'text-amber-700'}">${statusLabel(s.status)}</span>
+                        ${s.requestedBy ? ` (${s.requestedBy})` : ''}
+                      </div>
+                    </div>
+                    <div class="flex items-center space-x-1.5">
+                      ${s.status === 'PENDING' ? `
+                        <button onclick="confirmAdviserRequest('${s.id}')" class="px-2.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded text-xs font-semibold transition">
+                          Confirm
+                        </button>
+                        <button onclick="declineAdviserRequest('${s.id}')" class="px-2.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded text-xs font-medium transition">
+                          Decline
+                        </button>
+                      ` : `
+                        <span class="px-2 py-1 rounded text-[10px] font-mono font-semibold bg-emerald-100 text-emerald-800">Active</span>
+                      `}
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    function renderCoordinatorDashboard() {
+      const m = STATE.metrics;
+      const defReqs = STATE.parkedActions.defenseRequests;
+      const verdicts = STATE.parkedActions.defenseVerdicts;
+
+      document.getElementById('app-workspace').innerHTML = `
+        <div class="p-6 max-w-7xl mx-auto space-y-6">
+          <h1 class="text-xl font-bold text-slate-900 tracking-tight">Overview</h1>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-xs">
+              <div class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Active students</div>
+              <div class="text-2xl font-bold font-mono text-slate-900 mt-1">${m.activeStudents}</div>
+            </div>
+            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-xs">
+              <div class="text-[11px] uppercase tracking-wide text-amber-700 font-medium">In review</div>
+              <div class="text-2xl font-bold font-mono text-amber-700 mt-1">${m.pendingGate1}</div>
+            </div>
+            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-xs">
+              <div class="text-[11px] uppercase tracking-wide text-brand-maroon font-medium">Awaiting a defense date</div>
+              <div class="text-2xl font-bold font-mono text-brand-maroon mt-1">${m.awaitingDefense}</div>
+            </div>
+            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-xs">
+              <div class="text-[11px] uppercase tracking-wide text-slate-600 font-medium">Open revisions</div>
+              <div class="text-2xl font-bold font-mono text-slate-800 mt-1">${m.gate2Revisions}</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white rounded-lg border border-slate-200 p-4 shadow-xs space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="layers" class="w-4 h-4 text-brand-maroon"></i>
+                  <span class="text-xs font-bold text-slate-800">Milestone templates</span>
+                </div>
+                <button onclick="showToast('Stage added', 'success')" class="text-xs text-brand-maroon hover:underline font-medium">Add stage</button>
+              </div>
+
+              <div class="space-y-2.5">
+                <div class="p-3 rounded border border-slate-200 bg-slate-50 text-xs space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="font-bold text-slate-900">Stage 1: Title Proposal</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">Adviser</span>
+                  </div>
+                  <div class="flex items-center space-x-1.5 text-[11px]">
+                    <span class="text-slate-500">Required:</span>
+                    <span class="font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200">Concept Note (PDF)</span>
+                    <span class="font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200">Adviser Endorsement</span>
+                  </div>
+                </div>
+
+                <div class="p-3 rounded border border-red-200 bg-red-50/40 text-xs space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="font-bold text-slate-900">Stage 2: Proposal Defense</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">Adviser and panel</span>
+                  </div>
+                  <div class="flex items-center space-x-1.5 text-[11px]">
+                    <span class="text-slate-500">Required:</span>
+                    <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Proposal manuscript</span>
+                    <span class="font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200">Ethics Clearance</span>
+                  </div>
+                </div>
+
+                <div class="p-3 rounded border border-slate-200 bg-slate-50 text-xs space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="font-bold text-slate-900">Stage 3 & 4: Pre-Oral & Final Defense</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">Adviser and panel</span>
+                  </div>
+                  <div class="flex items-center space-x-1.5 text-[11px]">
+                    <span class="text-slate-500">Required:</span>
+                    <span class="font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200">Full Manuscript</span>
+                    <span class="font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200">Turnitin Clearance &lt;15%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-lg border border-slate-200 p-4 shadow-xs space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="archive" class="w-4 h-4 text-brand-maroon"></i>
+                  <span class="text-xs font-bold text-slate-800">Defense actions</span>
+                </div>
+                <div class="flex space-x-1 text-xs">
+                  <button id="coord-tab-gap2" onclick="switchCoordinatorTab('gap2')" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-brand-maroon text-white">Schedule</button>
+                  <button id="coord-tab-gap3" onclick="switchCoordinatorTab('gap3')" class="px-2 py-0.5 rounded text-[11px] font-medium text-slate-600 hover:bg-slate-100">Evaluation</button>
+                </div>
+              </div>
+
+              <div id="coord-view-gap2" class="space-y-3">
+                <div class="text-xs text-slate-600">Set the room or meeting link.</div>
+                ${defReqs.map(req => `
+                  <div class="p-3 border border-slate-200 rounded-lg bg-slate-50 text-xs space-y-2">
+                    <div class="flex items-center justify-between">
+                      <span class="font-bold text-slate-900">${req.studentName}</span>
+                      <span class="text-[10px] px-1.5 py-0.5 rounded ${req.status === 'CONFIRMED' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${statusLabel(req.status)}</span>
+                    </div>
+                    <div class="text-[11px] text-slate-600 font-mono">Date: ${req.targetDate} (${req.timeWindow})</div>
+                    <div class="flex items-center space-x-2 pt-1">
+                      <input id="coord-room-input-${req.id}" type="text" placeholder="e.g. CpE Conference Hall / Zoom ID 892-120" value="${req.assignedRoom || 'CpE Simulation Lab 304'}" class="flex-1 text-xs px-2.5 py-1.5 border border-slate-200 rounded font-mono focus:ring-1 focus:ring-brand-maroon focus:outline-none" />
+                      <button onclick="confirmCoordinatorSchedule('${req.id}')" class="px-3 py-1.5 bg-brand-maroon hover:bg-brand-maroon-hover text-white rounded text-xs font-semibold transition">
+                        Confirm Schedule
+                      </button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+
+              <div id="coord-view-gap3" class="hidden space-y-3">
+                <div class="text-xs text-slate-600">Record the defense result so revisions can start.</div>
+                ${verdicts.map(v => `
+                  <div class="p-3 border border-slate-200 rounded-lg bg-slate-50 text-xs space-y-2">
+                    <div class="flex items-center justify-between">
+                      <span class="font-bold text-slate-900">${v.studentName}</span>
+                      <span class="text-[10px] px-1.5 py-0.5 rounded ${v.status === 'UNLOCKED' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${statusLabel(v.status)}</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                      <div>
+                        <label class="block text-[11px] text-slate-500 mb-1">Result</label>
+                        <select id="coord-verdict-select-${v.id}" class="w-full text-xs p-1.5 border border-slate-200 rounded bg-white font-medium">
+                          <option value="Conditional Pass" selected>Conditional Pass</option>
+                          <option value="Pass">Unconditional Pass</option>
+                          <option value="Re-Defense">Re-Defense</option>
+                        </select>
+                      </div>
+                      <div class="flex items-end">
+                        <label class="flex items-center space-x-1.5 text-[11px] text-slate-700 pb-1">
+                          <input type="checkbox" checked class="rounded text-brand-maroon focus:ring-brand-maroon" />
+                          <span>Evaluation sheet attached</span>
+                        </label>
+                      </div>
+                    </div>
+                    <div class="pt-2 flex justify-end">
+                      <button onclick="unlockGate2Revisions('${v.id}')" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded text-xs font-semibold transition">
+                        Open revisions
+                      </button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-xs">
+            <div class="p-3.5 bg-slate-50 border-b border-slate-200 flex items-center space-x-2">
+              <i data-lucide="shield-check" class="w-4 h-4 text-emerald-700"></i>
+              <span class="text-xs font-bold text-slate-800">Committee</span>
+            </div>
+
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50/50 text-slate-500 font-medium border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-4">Student</th>
+                  <th class="py-2.5 px-4">Adviser</th>
+                  <th class="py-2.5 px-4">Lead panelist</th>
+                  <th class="py-2.5 px-4">Panelist</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr>
+                  <td class="py-3 px-4 font-medium text-slate-900">Juan Dela Cruz</td>
+                  <td class="py-3 px-4 text-slate-800">Dr. Elena Reyes</td>
+                  <td class="py-3 px-4 text-slate-800">Engr. Marco Santos</td>
+                  <td class="py-3 px-4 text-slate-800">Dr. Clara Mendoza</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    function renderStudentDashboard() {
+      const pr = STATE.thesis;
+      const openCount = pr.critiqueThreads.filter(t => t.status === 'OPEN').length;
+      const resolvedCount = pr.critiqueThreads.filter(t => t.status === 'RESOLVED').length;
+      const isGate1Endorsed = pr.prStatus === 'GATE_1_ENDORSED' || pr.prStatus === 'DEFENSE_SCHEDULED' || pr.prStatus === 'POST_DEFENSE_REVISIONS' || pr.prStatus === 'GATE_2_APPROVED';
+
+      document.getElementById('app-workspace').innerHTML = `
+        <div class="p-6 max-w-7xl mx-auto space-y-6">
+          <div class="bg-white rounded-lg border border-slate-200 p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="space-y-1.5">
+              <h1 class="text-lg font-bold text-slate-900 leading-snug">${pr.title}</h1>
+              <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600">
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">${statusLabel(pr.residencyStatus)}</span>
+                <div>Adviser: <span class="font-medium text-slate-900">${pr.adviser}</span></div>
+                <div>•</div>
+                <div>Panel: <span class="font-medium text-slate-900">${pr.panel.join(', ')}</span></div>
+              </div>
+            </div>
+
+            <div class="flex items-center space-x-2">
+              <button onclick="navigateTo('/student/pr/104')" class="px-4 py-2 bg-brand-maroon hover:bg-brand-maroon-hover text-white rounded text-xs font-semibold transition flex items-center space-x-1.5 shadow-sm">
+                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                <span>Open submission</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-lg border border-slate-200 p-4 shadow-xs">
+            <div class="text-xs font-semibold text-slate-800 mb-3">Progress</div>
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+              <div class="p-3 rounded border border-emerald-200 bg-emerald-50 text-emerald-900">
+                <div class="flex items-center justify-between text-[11px] font-bold">
+                  <span>Stage 1: Title Proposal</span>
+                  <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+                </div>
+                <div class="text-[10px] text-emerald-700 mt-1">Complete</div>
+              </div>
+
+              <div class="p-3 rounded border border-amber-200 bg-amber-50 text-amber-900">
+                <div class="flex items-center justify-between text-[11px] font-bold">
+                  <span>Stage 2: Proposal Defense</span>
+                  <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                </div>
+                <div class="text-[10px] text-amber-700 mt-1 font-semibold">${statusLabel(pr.prStatus)}</div>
+              </div>
+
+              <div class="p-3 rounded border border-slate-200 bg-slate-50 text-slate-400">
+                <div class="flex items-center justify-between text-[11px] font-medium">
+                  <span>Stage 3: Pre-Oral Defense</span>
+                  <i data-lucide="lock" class="w-3.5 h-3.5 text-slate-400"></i>
+                </div>
+                <div class="text-[10px] mt-1">Locked</div>
+              </div>
+
+              <div class="p-3 rounded border border-slate-200 bg-slate-50 text-slate-400">
+                <div class="flex items-center justify-between text-[11px] font-medium">
+                  <span>Stage 4: Final Colloquium</span>
+                  <i data-lucide="lock" class="w-3.5 h-3.5 text-slate-400"></i>
+                </div>
+                <div class="text-[10px] mt-1">Locked</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white rounded-lg border border-slate-200 p-4 shadow-xs space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="file-text" class="w-4 h-4 text-brand-maroon"></i>
+                  <span class="text-xs font-bold text-slate-800">Current submission</span>
+                </div>
+              </div>
+
+              <div class="space-y-3 text-xs">
+                <div class="flex items-center justify-between p-2.5 rounded bg-slate-50 border border-slate-200">
+                  <span class="text-slate-600">Status</span>
+                  <span class="font-semibold px-2 py-0.5 rounded text-[11px] ${
+                    isGate1Endorsed ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
+                  }">${statusLabel(pr.prStatus)}</span>
+                </div>
+
+                <div class="flex items-center justify-between p-2.5 rounded bg-slate-50 border border-slate-200">
+                  <span class="text-slate-600">Latest file</span>
+                  <span class="font-medium text-slate-900">${revisionName(pr.commits[pr.commits.length - 1].id)}</span>
+                </div>
+
+                <div class="flex items-center justify-between p-2.5 rounded bg-slate-50 border border-slate-200">
+                  <span class="text-slate-600">Comments</span>
+                  <span class="font-mono text-xs">
+                    <span class="text-amber-700 font-semibold">${openCount} Open</span> / 
+                    <span class="text-emerald-700 font-semibold">${resolvedCount} Resolved</span>
+                  </span>
+                </div>
+
+                <div class="pt-2 flex items-center space-x-3">
+                  <button onclick="uploadStudentCommit()" class="flex-1 py-2 bg-brand-maroon hover:bg-brand-maroon-hover text-white rounded text-xs font-semibold flex items-center justify-center space-x-1.5 transition">
+                    <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                    <span>Upload revision</span>
+                  </button>
+                  <button onclick="navigateTo('/student/pr/104')" class="px-3 py-2 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded text-xs font-medium transition">
+                    Open manuscript
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-lg border border-slate-200 p-4 shadow-xs space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="calendar" class="w-4 h-4 text-emerald-700"></i>
+                  <span class="text-xs font-bold text-slate-800">Schedule</span>
+                </div>
+                <div class="flex space-x-1 text-xs">
+                  <button class="px-2 py-0.5 rounded text-[11px] font-semibold bg-brand-maroon text-white">Consultation</button>
+                  <button class="px-2 py-0.5 rounded text-[11px] font-medium ${isGate1Endorsed ? 'text-slate-700 hover:bg-slate-100' : 'text-slate-300 cursor-not-allowed flex items-center space-x-1'}" title="${isGate1Endorsed ? 'Open' : 'Available after your adviser endorses the manuscript'}">
+                    ${!isGate1Endorsed ? '<i data-lucide="lock" class="w-3 h-3 inline"></i>' : ''}
+                    <span>Defense</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="space-y-2.5">
+                ${STATE.availabilitySlots.map(slot => `
+                  <div class="p-3 rounded border border-slate-200 bg-slate-50 text-xs flex items-center justify-between">
+                    <div>
+                      <div class="font-semibold text-slate-900">${slot.facultyName} <span class="text-[10px] font-mono text-slate-500">(${slot.role})</span></div>
+                      <div class="font-mono text-[11px] text-slate-600">${slot.date} • ${slot.timeWindow}</div>
+                      <div class="text-[11px] text-slate-500 mt-0.5">${slot.slotType} · ${statusLabel(slot.status)}</div>
+                    </div>
+                    <div>
+                      ${slot.status === 'AVAILABLE' ? `
+                        <button onclick="requestAvailabilitySlot('${slot.id}')" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded text-xs font-semibold transition">
+                          Request
+                        </button>
+                      ` : `
+                        <span class="px-2 py-1 rounded text-[10px] font-mono font-medium ${slot.status === 'CONFIRMED' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                          ${statusLabel(slot.status)}
+                        </span>
+                      `}
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    function renderPanelDashboard() {
+      const pr = STATE.thesis;
+      const persona = getActivePersona();
+      const isEndorsed = pr.prStatus === 'GATE_1_ENDORSED' || pr.prStatus === 'DEFENSE_SCHEDULED';
+      const isPostDefense = pr.prStatus === 'POST_DEFENSE_REVISIONS';
+      const isLocked = pr.prStatus === 'DRAFT_UPLOADED' || pr.prStatus === 'GATE_1_REVIEW';
+
+      document.getElementById('app-workspace').innerHTML = `
+        <div class="p-6 max-w-7xl mx-auto space-y-6">
+          <div class="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-xs">
+            <div class="p-3.5 bg-slate-50 border-b border-slate-200 flex items-center space-x-2">
+              <i data-lucide="clipboard-check" class="w-4 h-4 text-brand-maroon"></i>
+              <span class="text-xs font-bold text-slate-800">Assigned defenses</span>
+            </div>
+
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50/50 text-slate-500 font-medium border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-4">Student</th>
+                  <th class="py-2.5 px-4">Thesis</th>
+                  <th class="py-2.5 px-4">Review</th>
+                  <th class="py-2.5 px-4">Defense</th>
+                  <th class="py-2.5 px-4">Evaluation</th>
+                  <th class="py-2.5 px-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr class="hover:bg-slate-50/60 transition">
+                  <td class="py-3.5 px-4 font-medium text-slate-900">Juan Dela Cruz</td>
+                  <td class="py-3.5 px-4 text-slate-700 max-w-xs truncate" title="${pr.title}">
+                    ${pr.title}
+                  </td>
+                  <td class="py-3.5 px-4">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                      isLocked ? 'bg-slate-100 text-slate-600' : 'bg-emerald-50 text-emerald-700'
+                    }">
+                      ${statusLabel(pr.prStatus)}
+                    </span>
+                  </td>
+                  <td class="py-3.5 px-4 font-mono text-[11px] text-slate-600">
+                    ${pr.prStatus === 'DEFENSE_SCHEDULED' ? '2025-03-25 · Lab 304' : 'Not scheduled'}
+                  </td>
+                  <td class="py-3.5 px-4">
+                    ${isLocked ? `
+                      <span class="px-2 py-0.5 rounded text-[10px] bg-slate-100 text-slate-500">Waiting for endorsement</span>
+                    ` : isEndorsed ? `
+                      <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-700 font-semibold">Ready to read</span>
+                    ` : `
+                      <span class="px-2 py-0.5 rounded text-[10px] bg-amber-50 text-amber-700 font-semibold">Revisions open</span>
+                    `}
+                  </td>
+                  <td class="py-3.5 px-4 text-right">
+                    ${isLocked ? `
+                      <button disabled class="px-3 py-1.5 bg-slate-100 text-slate-400 rounded text-xs font-medium cursor-not-allowed border border-slate-200">
+                        Locked
+                      </button>
+                    ` : isEndorsed ? `
+                      <button onclick="navigateTo('/panel/pr/104')" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 rounded text-xs font-semibold transition">
+                        Read manuscript
+                      </button>
+                    ` : `
+                      <button onclick="navigateTo('/panel/pr/104')" class="px-3 py-1.5 bg-brand-maroon hover:bg-brand-maroon-hover text-white rounded text-xs font-semibold transition">
+                        Review revisions
+                      </button>
+                    `}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="bg-white rounded-lg border border-slate-200 p-4 shadow-xs space-y-4 max-w-xl">
+            <div class="flex items-center space-x-2 border-b border-slate-100 pb-2">
+              <i data-lucide="calendar-plus" class="w-4 h-4 text-brand-maroon"></i>
+              <span class="text-xs font-bold text-slate-800">Defense availability</span>
+            </div>
+            <div class="space-y-3 text-xs">
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-slate-600 mb-1">Date</label>
+                  <input id="panel-slot-date" type="date" value="2025-03-22" class="w-full text-xs p-2 border border-slate-200 rounded font-mono" />
+                </div>
+                <div>
+                  <label class="block text-slate-600 mb-1">Time</label>
+                  <input id="panel-slot-time" type="text" value="09:00 AM - 12:00 PM" class="w-full text-xs p-2 border border-slate-200 rounded font-mono" />
+                </div>
+              </div>
+              <button onclick="publishPanelSlot()" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-semibold flex items-center justify-center space-x-1.5 transition">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                <span>Publish</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    function uploadStudentCommit() {
+      const nextVer = `v${STATE.thesis.commits.length + 1}`;
+      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const dateStr = new Date().toISOString().split('T')[0];
+
+      STATE.thesis.commits.push({
+        id: nextVer,
+        timestamp: `${dateStr} ${now}`,
+        filename: `EchoWood_Proposal_${nextVer}.pdf`,
+        pages: 20,
+        notes: 'Updated the sensor bandwidth section and the chapter 3 diagram.'
+      });
+
+      STATE.thesis.selectedCommit = nextVer;
+      showToast(`${revisionName(nextVer)} uploaded`, 'success');
+      renderApp();
+    }
+
+    function changePrCommit(val) {
+      STATE.thesis.selectedCommit = val;
+      renderApp();
+    }
+
+    function postThreadReply(threadId) {
+      const input = document.getElementById(`reply-input-${threadId}`);
+      if (!input || !input.value.trim()) return;
+
+      const persona = getActivePersona();
+      const thread = STATE.thesis.critiqueThreads.find(t => t.id === threadId);
+      if (!thread) return;
+
+      thread.replies.push({
+        id: `REP-${Date.now()}`,
+        authorId: persona.id,
+        authorName: persona.name,
+        timestamp: 'Just now',
+        content: input.value.trim()
+      });
+
+      showToast('Reply posted', 'info');
+      renderApp();
+    }
+
+    function toggleThreadResolution(threadId) {
+      const thread = STATE.thesis.critiqueThreads.find(t => t.id === threadId);
+      if (!thread) return;
+
+      thread.status = thread.status === 'RESOLVED' ? 'OPEN' : 'RESOLVED';
+      showToast(thread.status === 'RESOLVED' ? 'Comment resolved' : 'Comment reopened', thread.status === 'RESOLVED' ? 'success' : 'warning');
+      renderApp();
+    }
+
+    function postNewCritiqueThread() {
+      const textarea = document.getElementById('new-thread-text');
+      if (!textarea || !textarea.value.trim()) return;
+
+      const persona = getActivePersona();
+      const newId = `CT-${STATE.thesis.critiqueThreads.length + 101}`;
+
+      STATE.thesis.critiqueThreads.push({
+        id: newId,
+        anchoredCommit: STATE.thesis.selectedCommit,
+        authorId: persona.id,
+        authorName: persona.name,
+        authorRole: persona.role,
+        timestamp: 'Just now',
+        status: 'OPEN',
+        content: textarea.value.trim(),
+        replies: []
+      });
+
+      showToast('Comment posted', 'info');
+      renderApp();
+    }
+
+    function executeGate1Endorsement() {
+      STATE.thesis.prStatus = 'GATE_1_ENDORSED';
+      showToast('Endorsed for defense. The panel can now read the manuscript.', 'success');
+      renderApp();
+    }
+
+    function executeGate2SignOff() {
+      STATE.thesis.prStatus = 'GATE_2_APPROVED';
+      showToast('Revisions approved', 'success');
+      renderApp();
+    }
+
+    function confirmCoordinatorSchedule(reqId) {
+      const req = STATE.parkedActions.defenseRequests.find(r => r.id === reqId);
+      const input = document.getElementById(`coord-room-input-${reqId}`);
+      if (req && input) {
+        req.assignedRoom = input.value.trim() || 'CpE Simulation Hall';
+        req.status = 'CONFIRMED';
+        STATE.thesis.prStatus = 'DEFENSE_SCHEDULED';
+        showToast('Defense confirmed', 'success');
+        renderApp();
+      }
+    }
+
+    function unlockGate2Revisions(verdId) {
+      const verd = STATE.parkedActions.defenseVerdicts.find(v => v.id === verdId);
+      if (verd) {
+        verd.status = 'UNLOCKED';
+        STATE.thesis.prStatus = 'POST_DEFENSE_REVISIONS';
+        showToast('Defense result recorded. Revisions are open.', 'success');
+        renderApp();
+      }
+    }
+
+    function switchCoordinatorTab(tab) {
+      const v2 = document.getElementById('coord-view-gap2');
+      const v3 = document.getElementById('coord-view-gap3');
+      const b2 = document.getElementById('coord-tab-gap2');
+      const b3 = document.getElementById('coord-tab-gap3');
+
+      if (tab === 'gap2') {
+        v2.classList.remove('hidden');
+        v3.classList.add('hidden');
+        b2.className = 'px-2 py-0.5 rounded text-[11px] font-semibold bg-brand-maroon text-white';
+        b3.className = 'px-2 py-0.5 rounded text-[11px] font-medium text-slate-600 hover:bg-slate-100';
+      } else {
+        v2.classList.add('hidden');
+        v3.classList.remove('hidden');
+        b3.className = 'px-2 py-0.5 rounded text-[11px] font-semibold bg-brand-maroon text-white';
+        b2.className = 'px-2 py-0.5 rounded text-[11px] font-medium text-slate-600 hover:bg-slate-100';
+      }
+      lucide.createIcons();
+    }
+
+    let selectedAdviserSlotType = 'Consultation';
+    function setSlotTypeSelect(type) {
+      selectedAdviserSlotType = type;
+      const bc = document.getElementById('adviser-type-consult');
+      const bd = document.getElementById('adviser-type-defense');
+      if (type === 'Consultation') {
+        bc.className = 'p-1.5 text-xs font-semibold rounded border border-brand-maroon bg-red-50 text-brand-maroon';
+        bd.className = 'p-1.5 text-xs font-medium rounded border border-slate-200 text-slate-600 hover:bg-slate-50';
+      } else {
+        bd.className = 'p-1.5 text-xs font-semibold rounded border border-brand-maroon bg-red-50 text-brand-maroon';
+        bc.className = 'p-1.5 text-xs font-medium rounded border border-slate-200 text-slate-600 hover:bg-slate-50';
+      }
+    }
+
+    function publishAdviserSlot() {
+      const d = document.getElementById('adviser-slot-date').value;
+      const t = document.getElementById('adviser-slot-time').value;
+      STATE.availabilitySlots.push({
+        id: `SLOT-${Date.now()}`,
+        facultyId: 'USR-ADV-01',
+        facultyName: 'Dr. Elena Reyes',
+        role: 'Thesis Adviser',
+        date: d,
+        timeWindow: t,
+        slotType: selectedAdviserSlotType,
+        status: 'AVAILABLE',
+        requestedBy: null
+      });
+      showToast('Time published', 'success');
+      renderApp();
+    }
+
+    function publishPanelSlot() {
+      const d = document.getElementById('panel-slot-date').value;
+      const t = document.getElementById('panel-slot-time').value;
+      const persona = getActivePersona();
+      STATE.availabilitySlots.push({
+        id: `SLOT-${Date.now()}`,
+        facultyId: persona.id,
+        facultyName: persona.name,
+        role: 'Panel Member',
+        date: d,
+        timeWindow: t,
+        slotType: 'Defense',
+        status: 'AVAILABLE',
+        requestedBy: null
+      });
+      showToast('Time published', 'success');
+      renderApp();
+    }
+
+    function requestAvailabilitySlot(slotId) {
+      const slot = STATE.availabilitySlots.find(s => s.id === slotId);
+      if (slot) {
+        slot.status = 'PENDING';
+        slot.requestedBy = getActivePersona().name;
+        showToast(`Request sent to ${slot.facultyName}`, 'info');
+        renderApp();
+      }
+    }
+
+    function confirmAdviserRequest(slotId) {
+      const slot = STATE.availabilitySlots.find(s => s.id === slotId);
+      if (slot) {
+        slot.status = 'CONFIRMED';
+        showToast('Consultation confirmed', 'success');
+        renderApp();
+      }
+    }
+
+    function declineAdviserRequest(slotId) {
+      const slot = STATE.availabilitySlots.find(s => s.id === slotId);
+      if (slot) {
+        slot.status = 'AVAILABLE';
+        slot.requestedBy = null;
+        showToast('Request declined', 'info');
+        renderApp();
+      }
+    }
+
+    function renderApp() {
+      updateShellChrome();
+
+      const r = STATE.currentRoute;
+      if (r === '/student/dashboard' || r === '/student/schedule') {
+        renderStudentDashboard();
+      } else if (r === '/adviser/dashboard' || r === '/adviser/availability') {
+        renderAdviserDashboard();
+      } else if (r === '/coordinator/dashboard' || r === '/coordinator/templates' || r === '/coordinator/users') {
+        renderCoordinatorDashboard();
+      } else if (r === '/panel/dashboard' || r === '/panel/availability') {
+        renderPanelDashboard();
+      } else if (r === '/student/pr/104' || r === '/adviser/pr/104' || r === '/panel/pr/104') {
+        renderPrWorkspace();
+      } else {
+        renderStudentDashboard();
+      }
+
+      lucide.createIcons();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('persona-switcher-trigger').addEventListener('click', (e) => {
+        e.stopPropagation();
+        togglePersonaMenu();
+      });
+
+      document.addEventListener('click', (e) => {
+        const menu = document.getElementById('persona-switcher-menu');
+        const trigger = document.getElementById('persona-switcher-trigger');
+        if (!menu.contains(e.target) && !trigger.contains(e.target)) {
+          togglePersonaMenu(false);
+        }
+      });
+
+      renderApp();
+    });
+  </script>
+</body>
+</html>

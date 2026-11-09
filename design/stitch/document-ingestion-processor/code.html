@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PUP CpE Thesis Progress Monitoring System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              maroon: '#800000',
+              'maroon-hover': '#660000',
+              'maroon-tint': '#FDF2F2',
+              gold: '#D97706',
+              'gold-tint': '#FFFBEB'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #F8FAFC;
+      color: #0F172A;
+      font-family: 'Inter', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #F1F5F9; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+    #main-sidebar { transition: width 180ms ease; }
+    #main-sidebar[data-state="expanded"] { width: 240px; }
+    #main-sidebar[data-state="collapsed"] { width: 48px; }
+    [data-primitive="sidebar-rail"] span { background: transparent; }
+    [data-primitive="sidebar-rail"]:hover span { background: #800000; }
+    [data-primitive="tasks-table"] tbody tr.h-11 { height: 44px; }
+    @media (prefers-reduced-motion: reduce) {
+      #main-sidebar, .row-chevron { transition: none; }
+    }
+  </style>
+</head>
+<body class="h-screen overflow-hidden bg-[#F8FAFC] text-[#0F172A]">
+
+  <div id="app-shell" class="flex h-screen overflow-hidden">
+    <aside id="main-sidebar" data-primitive="sidebar-07" data-state="expanded" class="relative h-screen shrink-0 bg-white border-r border-[#E2E8F0] flex flex-col">
+      <div id="sidebar-header" data-primitive="sidebar-header" class="h-14 shrink-0 flex items-center gap-2.5 px-3 border-b border-[#E2E8F0]">
+        <div class="w-7 h-7 shrink-0 bg-brand-maroon rounded flex items-center justify-center text-white font-bold text-[10px] tracking-wider">PUP</div>
+        <span id="sidebar-wordmark" class="text-sm font-semibold text-slate-900 tracking-tight whitespace-nowrap">Thesis Progress</span>
+      </div>
+      <div data-primitive="sidebar-content" class="flex-1 overflow-y-auto custom-scrollbar py-3">
+        <div id="sidebar-group" data-primitive="sidebar-group" class="px-2">
+          <div id="sidebar-group-label" data-primitive="sidebar-group-label" class="px-2 pb-2 text-[11px] font-medium uppercase tracking-wide text-slate-400">Workspace</div>
+          <nav id="sidebar-nav-links" data-primitive="sidebar-menu" class="space-y-1"></nav>
+        </div>
+      </div>
+      <div id="sidebar-footer" data-primitive="sidebar-footer" class="shrink-0 p-3 border-t border-[#E2E8F0]">
+        <div class="bg-slate-50 rounded-lg p-3 border border-[#E2E8F0] text-xs space-y-2">
+          <div id="sidebar-thesis-title" class="font-semibold text-slate-900 leading-snug line-clamp-2">EchoWood: Embedded Termite Detection via ESP32-S3</div>
+          <div class="flex items-center justify-between text-[11px] text-slate-500">
+            <span>Milestone:</span>
+            <span id="sidebar-thesis-stage" class="text-slate-700 font-medium">Proposal defense</span>
+          </div>
+          <div class="pt-1 border-t border-[#E2E8F0] flex items-center justify-between text-[11px]">
+            <span class="text-slate-500">Status:</span>
+            <span id="sidebar-pr-status-pill" class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#FFFBEB] text-[#B45309] border border-amber-200">In review</span>
+          </div>
+        </div>
+      </div>
+      <button type="button" id="sidebar-rail" data-primitive="sidebar-rail" onclick="toggleSidebar()" title="Toggle sidebar" class="absolute inset-y-0 -right-1 z-30 w-2 cursor-ew-resize bg-transparent">
+        <span class="absolute inset-y-0 left-1/2 w-px -translate-x-1/2"></span>
+      </button>
+    </aside>
+
+    <main id="app-workspace" class="flex-1 min-w-0 h-screen flex flex-col overflow-hidden bg-[#F8FAFC]">
+      <div data-primitive="workspace-header" class="h-14 shrink-0 bg-white border-b border-[#E2E8F0] px-3 flex items-center gap-2">
+        <button type="button" id="sidebar-trigger" data-primitive="sidebar-trigger" onclick="toggleSidebar()" title="Toggle sidebar" aria-pressed="true" class="w-8 h-8 inline-flex items-center justify-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+          <i data-lucide="panel-left" class="w-5 h-5"></i>
+        </button>
+        <h1 id="workspace-title" class="text-sm font-semibold text-slate-900">My thesis</h1>
+        <div class="ml-auto flex items-center gap-2 text-xs text-slate-600">
+          <div class="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center font-semibold text-slate-700 text-xs" id="top-user-avatar">JD</div>
+          <div class="hidden sm:block text-left">
+            <div class="font-medium text-slate-900 leading-tight" id="top-user-name">Juan Dela Cruz</div>
+            <div class="text-[10px] text-slate-500" id="top-user-role">Student</div>
+          </div>
+        </div>
+      </div>
+      <div id="workspace-body" class="flex-1 min-h-0 overflow-y-auto"></div>
+    </main>
+  </div>
+
+  <div id="persona-switcher" class="fixed bottom-4 right-4 z-50">
+    <div id="persona-switcher-menu" class="hidden absolute bottom-full right-0 mb-2 w-80 bg-white rounded-lg shadow-lg border border-[#E2E8F0] overflow-hidden">
+      <div class="p-3 border-b border-[#E2E8F0]">
+        <span class="text-xs font-semibold text-slate-900">Switch account</span>
+      </div>
+      <div class="p-1 space-y-1 max-h-80 overflow-y-auto custom-scrollbar" id="persona-list-items"></div>
+    </div>
+    <button id="persona-switcher-trigger" type="button" title="Drag to move. Click to switch account." class="flex items-center space-x-2.5 bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-2.5 rounded-full shadow-lg border border-slate-700 transition-colors text-xs font-medium focus:outline-none cursor-grab active:cursor-grabbing touch-none">
+      <i data-lucide="shield" class="w-4 h-4 text-emerald-400"></i>
+      <span class="font-semibold" id="trigger-user-name">Juan Dela Cruz</span>
+      <span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700" id="trigger-user-role">Student</span>
+      <i data-lucide="chevron-up" class="w-3.5 h-3.5 text-slate-400" id="trigger-chevron"></i>
+    </button>
+  </div>
+
+  <div id="toast-container" class="fixed top-16 right-6 z-50 space-y-2 pointer-events-none"></div>
+
+  <script>
+    const STATE = {
+      accounts: [
+        { id: 'USR-STU-01', name: 'Juan Dela Cruz', role: 'Student', defaultRoute: '/student/dashboard', hasWorkspace: true, assignedThesis: 'EchoWood: Embedded Termite Detection via ESP32-S3', avatarInitials: 'JD' },
+        { id: 'USR-STU-02', name: 'Liza Navarro', role: 'Student', defaultRoute: '/student/dashboard', hasWorkspace: true, assignedThesis: 'Low-cost Flood Sensor Network for Estero Monitoring', avatarInitials: 'LN' },
+        { id: 'USR-ADV-01', name: 'Dr. Elena Reyes', role: 'Thesis Adviser', defaultRoute: '/adviser/dashboard', assignedThesis: 'EchoWood: Embedded Termite Detection via ESP32-S3', avatarInitials: 'ER' },
+        { id: 'USR-PAN-01', name: 'Engr. Marco Santos', role: 'Panel Member', subRole: 'Lead Panelist', defaultRoute: '/panel/dashboard', assignedThesis: 'EchoWood: Embedded Termite Detection via ESP32-S3', avatarInitials: 'MS' },
+        { id: 'USR-PAN-02', name: 'Dr. Clara Mendoza', role: 'Panel Member', subRole: 'Panelist', defaultRoute: '/panel/dashboard', assignedThesis: 'EchoWood: Embedded Termite Detection via ESP32-S3', avatarInitials: 'CM' },
+        { id: 'USR-ADM-01', name: 'Prof. Arturo Cruz', role: 'Program Coordinator', defaultRoute: '/coordinator/dashboard', assignedThesis: 'All CpE Cohorts', avatarInitials: 'AC' }
+      ],
+      activePersonaId: 'USR-STU-01',
+      currentRoute: '/student/dashboard',
+      sidebarMode: 'expanded',
+      threadPane: 'threads',
+      threadFilter: 'all',
+      tableQuery: { advisees: '', defenses: '', committee: '' },
+      tableStatus: { advisees: 'all', defenses: 'all', committee: 'all' },
+      tableSort: {
+        advisees: { column: 'student', direction: 'asc' },
+        defenses: { column: 'student', direction: 'asc' },
+        committee: { column: 'student', direction: 'asc' }
+      },
+      expandedAdvisee: false,
+      splitRatio: 60,
+      schedulePane: 'consultation',
+      activeThesisId: 'USR-STU-01',
+      submissionView: 'board',
+      openRows: { title: false, manuscript: true, instrument: false, appendices: false },
+      openChapters: { ch1: false, ch2: false, ch3: false },
+      selectedTemplateId: 'tdw-01',
+      committee: { adviserId: 'USR-ADV-01', leadId: 'USR-PAN-01', panelId: 'USR-PAN-02' },
+      theses: {
+        'USR-STU-01': {
+        ownerId: 'USR-STU-01',
+        title: 'EchoWood: Embedded Termite Detection via ESP32-S3 Acoustic Emission Modeling',
+        candidate: 'Juan Dela Cruz',
+        adviser: 'Dr. Elena Reyes',
+        panel: ['Engr. Marco Santos', 'Dr. Clara Mendoza'],
+        residencyStatus: 'ON TRACK',
+        stage: 'Stage 2: Proposal Defense',
+        filePrefix: 'EchoWood_Proposal',
+        defenseRecord: '',
+        titleFiled: '2025-01-18',
+        abstract: 'This thesis investigates real-time acoustic emission profiling of subterranean termites (Coptotermes gestroi) utilizing an embedded ESP32-S3 microcontroller coupled with high-sensitivity piezoelectric contact sensors. Acoustic signatures are windowed via continuous discrete Fourier transforms (DFT) to isolate chewing resonances between 12 kHz and 48 kHz.',
+        contents: ['1.0 Problem Formulation', '2.1 Related Piezoelectric Work', '3.2 Sensor Bandwidth Calibration', '4.0 Expected Validation Protocol'],
+        supportingFiles: { instrument: null, appendices: null },
+        prId: 104,
+        prStatus: 'GATE_1_REVIEW',
+        selectedCommit: 'v2',
+        commits: [
+          { id: 'v1', timestamp: '2025-02-14 09:30 AM', filename: 'EchoWood_Proposal_v1.pdf', pages: 14, notes: 'First draft of chapters 1–3, including the acoustic sensor calibration.' },
+          { id: 'v2', timestamp: '2025-02-28 04:15 PM', filename: 'EchoWood_Proposal_v2.pdf', pages: 18, notes: 'Added the Fourier-transform window used to isolate chewing resonances.' }
+        ],
+        critiqueThreads: [
+          {
+            id: 'CT-101',
+            anchoredCommit: 'v1',
+            authorId: 'USR-ADV-01',
+            authorName: 'Dr. Elena Reyes',
+            authorRole: 'Thesis Adviser',
+            timestamp: '2025-02-16 11:20 AM',
+            status: 'OPEN',
+            content: 'Section 3.2 lacks the sampling frequency specification for piezoelectric resonant transducers under 40kHz bandwidth. Clarify ESP32-S3 I2S ADC attenuation settings.',
+            replies: [
+              { id: 'REP-01', authorId: 'USR-STU-01', authorName: 'Juan Dela Cruz', timestamp: '2025-02-28 03:50 PM', content: 'Updated section 3.2.1. The sampling rate is 96 ksps across two DMA buffers.' }
+            ]
+          }
+        ]
+        },
+        'USR-STU-02': {
+          ownerId: 'USR-STU-02',
+          title: 'Low-cost Flood Sensor Network for Estero Monitoring',
+          candidate: 'Liza Navarro',
+          adviser: 'Dr. Elena Reyes',
+          panel: ['Engr. Marco Santos', 'Dr. Clara Mendoza'],
+          residencyStatus: 'GATE_2_APPROVED',
+          stage: 'Stage 4: Final Colloquium',
+          filePrefix: 'Estero_Manuscript',
+          defenseRecord: '2025-02-18 · Recorded',
+          titleFiled: '2025-01-06',
+          abstract: 'This thesis describes a low-cost network of water-level nodes for estero monitoring. Each node reads a level sensor, compares it with a warning threshold, and sends an alert when the estero rises.',
+          contents: ['1.0 The Flooding Problem', '2.0 Estero Monitoring Studies', '3.0 Node and Network Design', '5.0 Deployment Recommendations'],
+          supportingFiles: {
+            instrument: { filename: 'Estero_Instrument.pdf', timestamp: '2025-01-12 09:00 AM' },
+            appendices: { filename: 'Estero_Appendices.pdf', timestamp: '2025-01-12 09:05 AM' }
+          },
+          prId: 221,
+          prStatus: 'GATE_2_APPROVED',
+          selectedCommit: 'v2',
+          commits: [
+            { id: 'v1', timestamp: '2025-01-09 02:10 PM', filename: 'Estero_Manuscript_v1.pdf', pages: 64, notes: 'Proposal manuscript through Chapter 3, before data gathering.' },
+            { id: 'v2', timestamp: '2025-02-20 11:40 AM', filename: 'Estero_Manuscript_v2.pdf', pages: 92, notes: 'Final manuscript with the oral defense recommendations incorporated.' }
+          ],
+          critiqueThreads: [
+            {
+              id: 'CT-201',
+              anchoredCommit: 'v1',
+              authorId: 'USR-ADV-01',
+              authorName: 'Dr. Elena Reyes',
+              authorRole: 'Thesis Adviser',
+              timestamp: '2025-01-15 08:40 AM',
+              status: 'RESOLVED',
+              content: 'State the flood-warning threshold for the estero nodes and who receives the alert.',
+              replies: [
+                { id: 'REP-21', authorId: 'USR-STU-02', authorName: 'Liza Navarro', timestamp: '2025-01-22 04:05 PM', content: 'The nodes alert at 1.2 m and send the message to the barangay desk.' }
+              ]
+            }
+          ]
+        }
+      },
+      availabilitySlots: [
+        { id: 'SLOT-01', facultyId: 'USR-ADV-01', facultyName: 'Dr. Elena Reyes', role: 'Thesis Adviser', date: '2025-03-12', timeWindow: '10:00 AM - 11:30 AM', slotType: 'Consultation', status: 'PENDING', requestedBy: 'Juan Dela Cruz' },
+        { id: 'SLOT-02', facultyId: 'USR-PAN-01', facultyName: 'Engr. Marco Santos', role: 'Panel Member', date: '2025-03-20', timeWindow: '01:00 PM - 03:00 PM', slotType: 'Defense', status: 'AVAILABLE', requestedBy: null },
+        { id: 'SLOT-03', facultyId: 'USR-PAN-02', facultyName: 'Dr. Clara Mendoza', role: 'Panel Member', date: '2025-03-21', timeWindow: '09:00 AM - 11:00 AM', slotType: 'Defense', status: 'AVAILABLE', requestedBy: null }
+      ],
+      parkedActions: {
+        defenseRequests: [
+          { id: 'DEF-REQ-01', studentName: 'Juan Dela Cruz', thesisTitle: 'EchoWood: Embedded Termite Detection', stage: 'Stage 2: Proposal Defense', targetDate: '2025-03-25', timeWindow: '02:00 PM - 04:00 PM', assignedRoom: '', status: 'PENDING_COORDINATOR' }
+        ],
+        defenseVerdicts: [
+          { id: 'VERD-01', studentName: 'Juan Dela Cruz', thesisTitle: 'EchoWood: Embedded Termite Detection', stage: 'Stage 2: Proposal Defense', verdict: 'Conditional Pass', physicalSheetAttached: true, status: 'PENDING_ENCODING' }
+        ]
+      },
+      metrics: { activeStudents: 24, pendingGate1: 8, awaitingDefense: 5, gate2Revisions: 6 }
+    };
+
+    const ROLE_ROUTES = {
+      'Student': ['/student/dashboard', '/student/deliverables', '/student/templates', '/student/pr/104', '/student/schedule'],
+      'Thesis Adviser': ['/adviser/dashboard', '/adviser/pr/104', '/adviser/availability'],
+      'Panel Member': ['/panel/dashboard', '/panel/pr/104', '/panel/availability'],
+      'Program Coordinator': ['/coordinator/dashboard', '/coordinator/templates', '/coordinator/users']
+    };
+
+    const PAGE_TITLES = {
+      '/student/dashboard': 'My thesis',
+      '/student/deliverables': 'Deliverables',
+      '/student/templates': 'Templates',
+      '/student/schedule': 'Schedule',
+      '/student/pr/104': 'Submission',
+      '/adviser/dashboard': 'Advisees',
+      '/adviser/pr/104': 'Submission',
+      '/adviser/availability': 'Availability',
+      '/panel/dashboard': 'Defenses',
+      '/panel/pr/104': 'Submission',
+      '/panel/availability': 'Availability',
+      '/coordinator/dashboard': 'Overview',
+      '/coordinator/templates': 'Templates',
+      '/coordinator/users': 'Accounts',
+      '/account/liza': 'Liza Navarro'
+    };
+
+    const PR_ROUTES = ['/student/pr/104', '/adviser/pr/104', '/panel/pr/104'];
+    let pendingFocusId = null;
+    let selectedAdviserSlotType = 'Consultation';
+
+    const PACKET_NOTE = 'Stand-in for a masters thesis. File names and timing follow the PUP Graduate School TDW forms and the 2017 University Thesis and Dissertation Manual (ISBN 978-971-95208-8-7). The path in that manual is an application after the comprehensive examination, then a proposal presentation, a pre-oral defense, and an oral defense. Chapter 3 uses the Master of Science in Engineering headings from that manual. CpE has not issued a separate packet. These cards are not copies of the official forms.';
+
+    const JUAN_FILE = {
+      'tdw-01': 'Filed',
+      'tdw-02': 'Filed',
+      'tdw-04': 'Filed',
+      'tdw-05': 'Filed',
+      'tdw-06': 'Filed',
+      'proposal-ms': 'In review',
+      'tdw-07': 'In review',
+      'tdw-08': 'At the presentation',
+      'approved-proposal': 'Before data gathering',
+      'urec': 'Not required for this study',
+      'full-ms': 'Later',
+      'tdw-09': 'Later',
+      'tdw-10': 'Later',
+      'oral-ready': 'Later',
+      'defense-ms': 'Later',
+      'tdw-11': 'Later',
+      'tdw-12': 'Later',
+      'tdw-13': 'Later',
+      'editing': 'Later',
+      'stats': 'Later',
+      'hardbound': 'Later',
+      'copyright': 'Later'
+    };
+
+    const LIZA_FILE = {};
+    Object.keys(JUAN_FILE).forEach(function (key) {
+      LIZA_FILE[key] = key === 'urec' || key === 'stats' ? 'Not required for this study' : 'Filed';
+    });
+
+    function fileStatusFor(pr, id) {
+      const map = pr.ownerId === 'USR-STU-02' ? LIZA_FILE : JUAN_FILE;
+      return map[id] || 'Later';
+    }
+
+    const MILESTONES = [
+      {
+        id: 'title',
+        label: 'Stage 1 · Title and application',
+        when: 'After the comprehensive examination, and before the proposal presentation. The candidate files the title with the Program Chair. The Chair recommends an adviser and a panel to the Dean.',
+        files: [
+          ['tdw-01', 'TDW 01 Concept paper adviser endorsement', 'Candidate and adviser'],
+          ['tdw-02', 'TDW 02 Thesis advising contract', 'Candidate and adviser'],
+          ['tdw-04', 'TDW 04 Adviser appointment and acknowledgement', 'Dean and adviser'],
+          ['tdw-05', 'TDW 05 Confidentiality and non-disclosure', 'Candidate'],
+          ['tdw-06', 'TDW 06 Committee appointment and acceptance', 'Adviser and panel']
+        ]
+      },
+      {
+        id: 'proposal',
+        label: 'Stage 2 · Proposal presentation',
+        when: 'Before any data gathering. The candidate submits Chapters 1 to 3, the references, the instrument, and the appendices. The manual asks for four thesis copies to the Program Chair. A certification of the approved proposal is filed before data gathering starts.',
+        files: [
+          ['proposal-ms', 'Proposal manuscript (preliminaries, Chapters 1 to 3, references, appendices)', 'Candidate'],
+          ['tdw-07', 'TDW 07 Proposal defense endorsement', 'Adviser and Program Chair'],
+          ['tdw-08', 'TDW 08 Proposal evaluation sheet', 'Adviser and two evaluators, at the presentation'],
+          ['approved-proposal', 'Certification for the approved research proposal', 'Committee, before data gathering'],
+          ['urec', 'UREC 09, 10, and 11 ethics packet', 'Only when the study involves human participants']
+        ]
+      },
+      {
+        id: 'preoral',
+        label: 'Stage 3 · Pre-oral defense',
+        when: 'After Chapters 4 and 5 are complete and the adviser and the Program Chair endorse them. Copies are due at least seven days before the schedule. The same committee checks that the proposal recommendations were incorporated.',
+        files: [
+          ['full-ms', 'Full manuscript through Chapter 5, with the pre-oral preliminaries', 'Candidate'],
+          ['tdw-09', 'TDW 09 Pre-final defense endorsement', 'Adviser and Program Chair'],
+          ['tdw-10', 'TDW 10 Pre-final defense evaluation sheet', 'Same committee, at the pre-oral'],
+          ['oral-ready', 'Certification that the paper is ready for the oral defense', 'Committee, after the pre-oral']
+        ]
+      },
+      {
+        id: 'oral',
+        label: 'Stage 4 · Oral defense and submission',
+        when: 'After the pre-oral recommendations are in the manuscript and the adviser endorses it. Six thesis copies are due at least seven days before the oral defense. The Dean appoints the Panel on Oral Examination. After a passing defense, the hardbound copies, the editor certification, and the copyright filing come before the diploma is released.',
+        files: [
+          ['defense-ms', 'Revised manuscript for the oral defense', 'Candidate'],
+          ['tdw-11', 'TDW 11 Panel on oral defense appointment and acceptance', 'Dean and panel'],
+          ['tdw-12', 'TDW 12 Final defense endorsement', 'Adviser'],
+          ['tdw-13', 'TDW 13 Final defense evaluation sheet', 'Panel on Oral Examination'],
+          ['editing', 'Thesis editing endorsement', 'Professional editor, with the final copy'],
+          ['stats', 'Statistical services endorsement', 'When the study uses a statistical treatment'],
+          ['hardbound', 'Five maroon hardbound copies and two soft copies', 'Candidate, before the diploma is released'],
+          ['copyright', 'Copyright application through ITSO', 'Candidate. Engineering and information technology are filed with ITSO. The University is a co-owner.']
+        ]
+      }
+    ];
+
+    const TEMPLATES = [
+      { id: 'tdw-01', stage: 'Stage 1', name: 'TDW 01 Concept paper adviser endorsement', when: 'With the title, before the proposal presentation.', fields: ['Candidate', 'Program', 'Proposed title', 'Adviser comment', 'Adviser signature and date', 'Program chair endorsement and date'] },
+      { id: 'tdw-02', stage: 'Stage 1', name: 'TDW 02 Thesis advising contract', when: 'When the adviser accepts the candidate.', fields: ['Candidate', 'Adviser', 'Working title', 'Consultation expectation', 'Both signatures and date'] },
+      { id: 'tdw-04', stage: 'Stage 1', name: 'TDW 04 Adviser appointment and acknowledgement', when: 'When the Dean appoints the adviser.', fields: ['Candidate', 'Appointed adviser', 'Dean signature', 'Adviser acknowledgement and date'] },
+      { id: 'tdw-05', stage: 'Stage 1', name: 'TDW 05 Confidentiality and non-disclosure', when: 'Before the proposal is circulated to the committee.', fields: ['Candidate', 'Thesis title', 'What stays confidential', 'Candidate signature and date'] },
+      { id: 'tdw-06', stage: 'Stage 1', name: 'TDW 06 Committee appointment and acceptance', when: 'When the Dean appoints the adviser and the evaluators.', fields: ['Candidate', 'Adviser', 'Evaluator 1', 'Evaluator 2', 'Each acceptance signature and date'] },
+      { id: 'proposal-ms', stage: 'Stage 2', name: 'Proposal manuscript, Chapters 1 to 3', when: 'Submitted for the proposal presentation, before data gathering.', fields: ['Title page, table of contents, list of tables, list of figures', 'Chapter 1 The Problem and Its Setting: introduction, theoretical framework, conceptual framework, statement of the problem, hypothesis if any, scope and limitations, significance, definition of terms', 'Chapter 2 Review of Literature and Studies, arranged by theme, then a synthesis', 'Chapter 3 Methodology for a Master of Science in Engineering: research design, flowchart, instrument, material requirements, mix design, specimen details, laboratory or field experiment', 'References', 'Appendices: instrument, biographical statement, calendar of activities if any, estimated expenses if any'] },
+      { id: 'tdw-07', stage: 'Stage 2', name: 'TDW 07 Proposal defense endorsement', when: 'When the adviser and the Program Chair send the proposal to the Dean.', fields: ['Candidate', 'Title', 'Adviser endorsement', 'Program chair endorsement', 'Date'] },
+      { id: 'tdw-08', stage: 'Stage 2', name: 'TDW 08 Proposal evaluation sheet', when: 'At the proposal presentation.', fields: ['Candidate and title', 'Date of presentation', 'Recommendations', 'Decision to revise or to accept', 'Signatures of the adviser and the two evaluators'] },
+      { id: 'approved-proposal', stage: 'Stage 2', name: 'Certification for the approved research proposal', when: 'After the committee accepts the proposal, and before data gathering.', fields: ['Candidate and title', 'Statement that the proposal is accepted', 'Committee signatures', 'Date'] },
+      { id: 'urec', stage: 'Stage 2', name: 'UREC 09, 10, and 11 ethics packet', when: 'Before data gathering, and only when people take part in the study.', fields: ['UREC 09 Application for ethics review of a new protocol', 'UREC 10 Study protocol', 'UREC 11 Informed consent'] },
+      { id: 'full-ms', stage: 'Stage 3', name: 'Full manuscript through Chapter 5', when: 'For the pre-oral. Copies are due at least seven days before the schedule.', fields: ['Preliminaries: copyright page, title page, certification-and-approval sheet, acknowledgments, certification of originality, abstract, table of contents, list of tables, list of figures', 'Chapters 1 to 3, revised from the proposal', 'Chapter 4 Results and Discussion, with one heading for each problem in Chapter 1', 'Chapter 5 Summary of Findings, Conclusions, and Recommendations', 'References and appendices'] },
+      { id: 'tdw-09', stage: 'Stage 3', name: 'TDW 09 Pre-final defense endorsement', when: 'When Chapters 4 and 5 are complete.', fields: ['Candidate and title', 'Adviser endorsement', 'Program chair endorsement', 'Requested schedule'] },
+      { id: 'tdw-10', stage: 'Stage 3', name: 'TDW 10 Pre-final defense evaluation sheet', when: 'At the pre-oral defense.', fields: ['Candidate and title', 'Check that proposal recommendations were incorporated', 'Further recommendations', 'Committee signatures'] },
+      { id: 'oral-ready', stage: 'Stage 3', name: 'Certification ready for oral defense', when: 'After the pre-oral recommendations are done, and before the oral defense is scheduled.', fields: ['Candidate and title', 'Statement that the manuscript is ready for oral examination', 'Committee signatures', 'Date'] },
+      { id: 'defense-ms', stage: 'Stage 4', name: 'Manuscript for the oral defense', when: 'Six copies are due at least seven days before the oral defense.', fields: ['The pre-oral manuscript with the committee recommendations incorporated', 'Same chapter order as the full manuscript'] },
+      { id: 'tdw-11', stage: 'Stage 4', name: 'TDW 11 Panel appointment and acceptance', when: 'When the Dean appoints the Panel on Oral Examination.', fields: ['Candidate and title', 'Chair', 'Members', 'Each acceptance signature'] },
+      { id: 'tdw-12', stage: 'Stage 4', name: 'TDW 12 Final defense endorsement', when: 'When the adviser endorses the candidate for the oral defense.', fields: ['Candidate and title', 'Adviser endorsement', 'Date'] },
+      { id: 'tdw-13', stage: 'Stage 4', name: 'TDW 13 Final defense evaluation sheet', when: 'At the oral defense. The grade, the verdict, and the signatures stay on this sheet.', fields: ['Candidate and title', 'Date of oral defense', 'Verdict: Pass, Conditional Pass, or Re-Defense', 'Grade', 'Recommendations for the final copy', 'Panel signatures'] },
+      { id: 'editing', stage: 'Closing', name: 'Thesis editing endorsement', when: 'With the final hardbound copy.', fields: ['Candidate and title', 'Editor statement that the manuscript was edited', 'Editor signature and date'] },
+      { id: 'stats', stage: 'Closing', name: 'Statistical services endorsement', when: 'With the final copy, when the study uses a statistical treatment.', fields: ['Candidate and title', 'Statistical treatment used', 'Analyst signature and date'] },
+      { id: 'hardbound', stage: 'Closing', name: 'Hardbound and soft copies', when: 'After a passing defense, before the diploma is released.', fields: ['Five hardbound copies, maroon cover', 'Masters spine: two bars, author, title, PUP, year', 'Two labeled soft copies'] },
+      { id: 'copyright', stage: 'Closing', name: 'Copyright application', when: 'With the final soft copies. Engineering and information technology are filed with ITSO.', fields: ['Application', 'Affidavit naming the University as copyright co-owner', 'Official receipt', 'Soft copies for registration'] }
+    ];
+
+    function getActivePersona() {
+      return STATE.accounts.find(a => a.id === STATE.activePersonaId) || STATE.accounts[0];
+    }
+
+    function activeThesis() {
+      return STATE.theses[STATE.activeThesisId] || STATE.theses['USR-STU-01'];
+    }
+
+    function stageNumber(pr) {
+      const match = String(pr.stage).match(/Stage\s+(\d)/);
+      return match ? Number(match[1]) : 2;
+    }
+
+    function stageProgress(pr) {
+      const names = ['', 'Title and application', 'Proposal presentation', 'Pre-oral defense', 'Oral defense'];
+      const number = stageNumber(pr);
+      return [number + ' of 4', names[number] || 'Proposal presentation'];
+    }
+
+    function dueStageId(pr) {
+      return ['', 'title', 'proposal', 'preoral', 'oral'][stageNumber(pr)] || 'proposal';
+    }
+
+    function isPrRoute(route) {
+      return PR_ROUTES.indexOf(route) !== -1;
+    }
+
+    function sidebarIsCollapsed() {
+      return STATE.sidebarMode === 'collapsed';
+    }
+
+    function escapeHtml(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function statusLabel(code) {
+      const labels = {
+        DRAFT_UPLOADED: 'Draft uploaded',
+        GATE_1_REVIEW: 'In review',
+        GATE_1_ENDORSED: 'Endorsed',
+        DEFENSE_SCHEDULED: 'Defense scheduled',
+        POST_DEFENSE_REVISIONS: 'Revisions open',
+        GATE_2_APPROVED: 'Approved',
+        OPEN: 'Open',
+        RESOLVED: 'Resolved',
+        PENDING: 'Pending',
+        CONFIRMED: 'Confirmed',
+        AVAILABLE: 'Open',
+        DECLINED: 'Declined',
+        UNLOCKED: 'Recorded',
+        PENDING_COORDINATOR: 'Pending',
+        PENDING_ENCODING: 'Needs a result',
+        ON_TRACK: 'On track'
+      };
+      return labels[code] || code;
+    }
+
+    function revisionNumber(id) {
+      return parseInt(String(id).replace(/^v/i, ''), 10) || 0;
+    }
+
+    function revisionName(id, latestId) {
+      const number = String(id).replace(/^v/i, '');
+      const latest = latestId && id === latestId ? ' — Latest' : '';
+      return 'Revision ' + number + latest;
+    }
+
+    function statusBadgeClass(label) {
+      if (label === 'In review' || label === 'Open' || label === 'Revisions open' || label === 'Pending' || label === 'Needs a result') {
+        return 'bg-[#FFFBEB] text-[#B45309] border border-amber-200';
+      }
+      if (label === 'Endorsed' || label === 'Approved' || label === 'Resolved' || label === 'Confirmed' || label === 'On track' || label === 'Recorded') {
+        return 'bg-[#F0FDF4] text-[#15803D] border border-emerald-200';
+      }
+      return 'bg-slate-100 text-slate-600 border border-slate-200';
+    }
+
+    function statusBadge(label) {
+      return '<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold ' + statusBadgeClass(label) + '">' + escapeHtml(label) + '</span>';
+    }
+
+    function showToast(message, type) {
+      const kind = type || 'info';
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const colors = {
+        success: 'bg-emerald-800 text-white border-emerald-700',
+        warning: 'bg-amber-800 text-white border-amber-700',
+        error: 'bg-rose-800 text-white border-rose-700',
+        info: 'bg-slate-900 text-white border-slate-700'
+      };
+      const icon = kind === 'success' ? 'check-circle' : kind === 'warning' ? 'alert-triangle' : 'info';
+      toast.className = 'px-4 py-2.5 rounded shadow-lg border text-xs flex items-center space-x-2 transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto ' + (colors[kind] || colors.info);
+      toast.innerHTML = '<i data-lucide="' + icon + '" class="w-4 h-4"></i><span>' + escapeHtml(message) + '</span>';
+      container.appendChild(toast);
+      lucide.createIcons();
+      setTimeout(function () { toast.classList.remove('translate-y-2', 'opacity-0'); }, 20);
+      setTimeout(function () {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(function () { toast.remove(); }, 300);
+      }, 3500);
+    }
+
+    function navigateTo(route) {
+      const persona = getActivePersona();
+      const allowed = ROLE_ROUTES[persona.role] || [];
+      if (allowed.indexOf(route) === -1) {
+        renderAccessDenied(route, persona.role);
+        return;
+      }
+      if (isPrRoute(route)) STATE.submissionView = 'board';
+      STATE.currentRoute = route;
+      renderApp();
+    }
+
+    function switchPersona(personaId) {
+      const newPersona = STATE.accounts.find(a => a.id === personaId);
+      if (!newPersona) return;
+      STATE.activePersonaId = personaId;
+      if (newPersona.role === 'Student') STATE.activeThesisId = newPersona.id;
+      STATE.submissionView = 'board';
+      STATE.openRows = { title: false, manuscript: true, instrument: false, appendices: false };
+      STATE.openChapters = { ch1: false, ch2: false, ch3: false };
+      STATE.currentRoute = newPersona.defaultRoute;
+      showToast('Signed in as ' + newPersona.name, 'info');
+      renderApp();
+    }
+
+    function toggleSidebar() {
+      STATE.sidebarMode = STATE.sidebarMode === 'collapsed' ? 'expanded' : 'collapsed';
+      renderApp();
+    }
+
+    function navItemsFor(role) {
+      if (getActivePersona().hasWorkspace === false) return [];
+      if (role === 'Student') {
+        return [
+          { path: '/student/dashboard', label: 'My thesis', icon: 'compass' },
+          { path: '/student/deliverables', label: 'Deliverables', icon: 'list-checks' },
+          { path: '/student/templates', label: 'Templates', icon: 'files' },
+          { path: '/student/schedule', label: 'Schedule', icon: 'calendar-clock' },
+          { path: '/student/pr/104', label: 'Submission', icon: 'file-text' }
+        ];
+      }
+      if (role === 'Thesis Adviser') {
+        return [
+          { path: '/adviser/dashboard', label: 'Advisees', icon: 'users' },
+          { path: '/adviser/pr/104', label: 'Review', icon: 'file-text' },
+          { path: '/adviser/availability', label: 'Availability', icon: 'calendar' }
+        ];
+      }
+      if (role === 'Panel Member') {
+        return [
+          { path: '/panel/dashboard', label: 'Defenses', icon: 'clipboard-check' },
+          { path: '/panel/pr/104', label: 'Manuscript', icon: 'file-check-2' },
+          { path: '/panel/availability', label: 'Availability', icon: 'calendar' }
+        ];
+      }
+      return [
+        { path: '/coordinator/dashboard', label: 'Overview', icon: 'layout-grid' },
+        { path: '/coordinator/templates', label: 'Templates', icon: 'layers' },
+        { path: '/coordinator/users', label: 'Accounts', icon: 'user-check' }
+      ];
+    }
+
+    function updateShellChrome() {
+      const persona = getActivePersona();
+      const collapsed = sidebarIsCollapsed();
+      document.getElementById('top-user-name').textContent = persona.name;
+      document.getElementById('top-user-role').textContent = persona.role;
+      document.getElementById('top-user-avatar').textContent = persona.avatarInitials;
+      document.getElementById('trigger-user-name').textContent = persona.name;
+      document.getElementById('trigger-user-role').textContent = persona.role;
+      document.getElementById('workspace-title').textContent = PAGE_TITLES[STATE.currentRoute] || 'Thesis Progress';
+
+      const aside = document.getElementById('main-sidebar');
+      aside.dataset.state = collapsed ? 'collapsed' : 'expanded';
+      const sideHeader = document.getElementById('sidebar-header');
+      sideHeader.classList.toggle('justify-center', collapsed);
+      sideHeader.classList.toggle('px-3', !collapsed);
+      sideHeader.classList.toggle('gap-2.5', !collapsed);
+      document.getElementById('sidebar-group').className = collapsed ? 'px-1.5' : 'px-2';
+      document.getElementById('sidebar-wordmark').classList.toggle('hidden', collapsed);
+      document.getElementById('sidebar-group-label').classList.toggle('hidden', collapsed);
+      document.getElementById('sidebar-footer').classList.toggle('hidden', collapsed);
+      const trigger = document.getElementById('sidebar-trigger');
+      trigger.setAttribute('aria-pressed', collapsed ? 'false' : 'true');
+      trigger.title = collapsed ? 'Expand sidebar' : 'Collapse sidebar';
+      document.getElementById('sidebar-rail').title = trigger.title;
+
+      const viewed = activeThesis();
+      const viewedProgress = stageProgress(viewed);
+      document.getElementById('sidebar-thesis-title').textContent = viewed.title;
+      document.getElementById('sidebar-thesis-stage').textContent = viewedProgress[1];
+      const prPill = document.getElementById('sidebar-pr-status-pill');
+      const pillLabel = statusLabel(viewed.prStatus);
+      prPill.textContent = pillLabel;
+      prPill.className = 'px-1.5 py-0.5 rounded text-[10px] font-semibold border ' + statusBadgeClass(pillLabel);
+
+      const body = document.getElementById('workspace-body');
+      const showingManuscript = isPrRoute(STATE.currentRoute) && STATE.submissionView === 'manuscript';
+      body.className = showingManuscript
+        ? 'flex-1 min-h-0 overflow-hidden'
+        : 'flex-1 min-h-0 overflow-y-auto';
+
+      const navItems = navItemsFor(persona.role);
+      document.getElementById('sidebar-nav-links').innerHTML = navItems.length === 0
+        ? (collapsed ? '' : '<p class="px-2.5 text-[11px] leading-relaxed text-slate-400">No pages for this account.</p>')
+        : navItems.map(function (item) {
+        const active = STATE.currentRoute === item.path;
+        const tone = active
+          ? 'bg-brand-maroon-tint text-brand-maroon font-semibold border border-red-200'
+          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-transparent';
+        return '<button type="button" data-primitive="sidebar-menu-button" title="' + escapeHtml(item.label) + '" onclick="navigateTo(\'' + item.path + '\')" class="' + (collapsed ? 'w-9 mx-auto justify-center px-0' : 'w-full gap-2.5 px-2.5') + ' h-9 flex items-center rounded-md text-xs font-medium ' + tone + '">' +
+          '<i data-lucide="' + item.icon + '" class="w-5 h-5 shrink-0"></i>' +
+          '<span class="' + (collapsed ? 'sr-only' : 'truncate') + '">' + escapeHtml(item.label) + '</span>' +
+          '</button>';
+      }).join('');
+
+      document.getElementById('persona-list-items').innerHTML = STATE.accounts.map(function (acc) {
+        const isCurrent = acc.id === STATE.activePersonaId;
+        return '<button type="button" onclick="switchPersona(\'' + acc.id + '\'); togglePersonaMenu(false);" class="w-full text-left p-2 rounded flex items-center justify-between text-xs transition ' +
+          (isCurrent ? 'bg-red-50 border border-red-200 text-brand-maroon' : 'hover:bg-slate-50 text-slate-800') + '">' +
+          '<div class="flex items-center space-x-2.5"><span class="w-7 h-7 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-[11px]">' + escapeHtml(acc.avatarInitials) + '</span>' +
+          '<div><div class="font-medium text-slate-900">' + escapeHtml(acc.name) + '</div><div class="text-[10px] text-slate-500">' + escapeHtml(acc.role) + (acc.subRole ? ' • ' + escapeHtml(acc.subRole) : '') + '</div></div></div>' +
+          (isCurrent ? '<i data-lucide="check" class="w-4 h-4 text-brand-maroon"></i>' : '<span class="text-[10px] font-mono text-slate-400">Select</span>') +
+          '</button>';
+      }).join('');
+    }
+
+    function placePersonaMenu() {
+      const shell = document.getElementById('persona-switcher');
+      const menu = document.getElementById('persona-switcher-menu');
+      const openBelow = shell.getBoundingClientRect().top < 300;
+      menu.classList.toggle('bottom-full', !openBelow);
+      menu.classList.toggle('mb-2', !openBelow);
+      menu.classList.toggle('top-full', openBelow);
+      menu.classList.toggle('mt-2', openBelow);
+    }
+
+    function togglePersonaMenu(forceState) {
+      const menu = document.getElementById('persona-switcher-menu');
+      const chevron = document.getElementById('trigger-chevron');
+      const shouldOpen = typeof forceState === 'boolean' ? forceState : menu.classList.contains('hidden');
+      if (shouldOpen) {
+        placePersonaMenu();
+        menu.classList.remove('hidden');
+        chevron.style.transform = 'rotate(180deg)';
+      } else {
+        menu.classList.add('hidden');
+        chevron.style.transform = 'rotate(0deg)';
+      }
+      lucide.createIcons();
+    }
+
+    function renderAccessDenied() {
+      document.getElementById('workspace-body').innerHTML =
+        '<div class="h-full flex items-center justify-center p-8">' +
+          '<div class="max-w-md text-center">' +
+            '<div class="w-12 h-12 rounded-full bg-red-100 text-rose-700 flex items-center justify-center mx-auto mb-4 border border-rose-200"><i data-lucide="shield-alert" class="w-6 h-6"></i></div>' +
+            '<h2 class="text-lg font-bold text-slate-900 mb-1">You don\'t have access</h2>' +
+            '<p class="text-sm text-slate-600 mb-4">This page is not part of your account.</p>' +
+            '<button type="button" onclick="navigateTo(\'' + getActivePersona().defaultRoute + '\')" class="px-4 py-2 bg-brand-maroon text-white text-xs font-semibold rounded hover:bg-brand-maroon-hover">Back to your dashboard</button>' +
+          '</div>' +
+        '</div>';
+      lucide.createIcons();
+    }
+
+    function corrStepper(pr) {
+      pr = pr || activeThesis();
+      const current = stageNumber(pr) - 1;
+      const approved = pr.prStatus === 'GATE_2_APPROVED';
+      const labels = ['Title Proposal', 'Proposal Defense', 'Pre-Oral Defense', 'Final Colloquium'];
+      const steps = labels.map(function (label, index) {
+        if (approved || index < current) return { label: label, word: 'Complete', marker: 'complete' };
+        if (index === current) return { label: label, word: 'Current', marker: 'current' };
+        return { label: label, word: 'Locked', marker: 'locked' };
+      });
+      return '<ol data-primitive="corr-stepper" class="flex items-start w-full">' + steps.map(function (step, index) {
+        const last = index === steps.length - 1;
+        let marker = '<span class="w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center shrink-0"><i data-lucide="lock" class="w-3.5 h-3.5"></i></span>';
+        let wordClass = 'text-slate-400';
+        let line = 'bg-slate-200';
+        if (step.marker === 'complete') {
+          marker = '<span class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0"><i data-lucide="check" class="w-3.5 h-3.5"></i></span>';
+          wordClass = 'text-emerald-700';
+          line = 'bg-emerald-600';
+        } else if (step.marker === 'current') {
+          marker = '<span class="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center shrink-0"></span>';
+          wordClass = 'text-amber-700';
+          line = 'bg-slate-200';
+        }
+        return '<li class="flex-1 min-w-0">' +
+          '<div class="flex items-center">' + marker + (last ? '' : '<span class="h-px flex-1 ' + line + '"></span>') + '</div>' +
+          '<div class="mt-2 pr-3"><div class="text-[11px] font-semibold text-slate-900">' + step.label + '</div><div class="text-[10px] ' + wordClass + '">' + step.word + '</div></div>' +
+          '</li>';
+      }).join('') + '</ol>';
+    }
+
+    function countLabel(count, singular) {
+      const plural = singular === 'committee' ? 'committees' : singular + 's';
+      return count + ' ' + (count === 1 ? singular : plural);
+    }
+
+    function toggleTableSort(tableId, column) {
+      const current = STATE.tableSort[tableId] || { column: column, direction: 'asc' };
+      if (current.column === column) {
+        current.direction = current.direction === 'asc' ? 'desc' : 'asc';
+      } else {
+        current.column = column;
+        current.direction = 'asc';
+      }
+      STATE.tableSort[tableId] = current;
+      renderApp();
+    }
+
+    function onTableQuery(tableId, value) {
+      STATE.tableQuery[tableId] = value;
+      pendingFocusId = 'table-query-' + tableId;
+      renderApp();
+    }
+
+    function onTableStatus(tableId, value) {
+      STATE.tableStatus[tableId] = value;
+      renderApp();
+    }
+
+    function toggleExpandedAdvisee(event) {
+      if (event) event.stopPropagation();
+      STATE.expandedAdvisee = !STATE.expandedAdvisee;
+      renderApp();
+    }
+
+    function renderTasksTable(options) {
+      const query = (STATE.tableQuery[options.id] || '').trim().toLowerCase();
+      const facet = STATE.tableStatus[options.id] || 'all';
+      let rows = options.rows.filter(function (row) {
+        const nameOk = !query || row.student.toLowerCase().indexOf(query) !== -1;
+        const statusOk = facet === 'all' || row.status === facet;
+        return nameOk && statusOk;
+      });
+      const sort = STATE.tableSort[options.id];
+      if (sort) {
+        rows = rows.slice().sort(function (a, b) {
+          const cmp = String(a[sort.column] || '').localeCompare(String(b[sort.column] || ''));
+          return sort.direction === 'asc' ? cmp : -cmp;
+        });
+      }
+      const headers = (options.expandable ? '<th class="w-10"></th>' : '') + options.columns.map(function (column) {
+        if (!column.sortable) {
+          return '<th class="h-11 px-4 font-medium text-slate-500"><span data-primitive="data-table-column-header">' + column.label + '</span></th>';
+        }
+        const active = sort && sort.column === column.key;
+        const mark = active ? (sort.direction === 'asc' ? '↑' : '↓') : '';
+        return '<th class="h-11 px-4 font-medium text-slate-500"><button type="button" data-primitive="data-table-column-header" class="inline-flex items-center gap-1 hover:text-slate-900" onclick="toggleTableSort(\'' + options.id + '\',\'' + column.key + '\')">' + column.label + '<span class="text-[10px]">' + mark + '</span></button></th>';
+      }).join('') + (options.action ? '<th class="h-11 px-4"></th>' : '');
+
+      const body = rows.length === 0
+        ? '<tr><td colspan="' + (options.columns.length + (options.expandable ? 1 : 0) + (options.action ? 1 : 0)) + '" class="h-11 px-4 text-sm text-slate-500">No matching students.</td></tr>'
+        : rows.map(function (row) {
+            const cells = (options.expandable
+              ? '<td class="px-2">' + (row.detail ? '<button type="button" onclick="toggleExpandedAdvisee(event)" class="w-7 h-7 inline-flex items-center justify-center rounded hover:bg-slate-100 text-slate-500" title="Show progress"><i data-lucide="' + (STATE.expandedAdvisee ? 'chevron-down' : 'chevron-right') + '" class="w-4 h-4"></i></button>' : '') + '</td>'
+              : '') + options.columns.map(function (column) {
+                return '<td class="px-4 max-w-xs truncate">' + (row.values[column.key] || '') + '</td>';
+              }).join('') + (options.action ? '<td class="px-4 text-right">' + row.action + '</td>' : '');
+            const main = '<tr class="h-11 border-t border-[#E2E8F0] hover:bg-slate-50/60">' + cells + '</tr>';
+            if (!options.expandable || !STATE.expandedAdvisee || !row.detail) return main;
+            const span = options.columns.length + 2;
+            return main + '<tr><td colspan="' + span + '" class="bg-[#F8FAFC] px-4 py-4 border-t border-[#E2E8F0]">' + row.detail + '</td></tr>';
+          }).join('');
+
+      const facetOptions = ['all', 'In review', 'Endorsed', 'Revisions open', 'Approved'].map(function (value) {
+        const label = value === 'all' ? 'All' : value;
+        return '<option value="' + value + '"' + (facet === value ? ' selected' : '') + '>' + label + '</option>';
+      }).join('');
+
+      return '<div data-primitive="tasks-table" data-table-id="' + options.id + '" class="bg-white border border-[#E2E8F0] rounded-lg overflow-hidden">' +
+        '<div data-primitive="data-table-toolbar" class="flex flex-wrap items-center gap-2 p-3 border-b border-[#E2E8F0]">' +
+          '<input id="table-query-' + options.id + '" value="' + escapeHtml(STATE.tableQuery[options.id] || '') + '" oninput="onTableQuery(\'' + options.id + '\', this.value)" type="search" placeholder="Search students" class="h-8 w-56 text-xs px-2.5 border border-[#E2E8F0] rounded bg-white focus:outline-none focus:ring-1 focus:ring-brand-maroon" />' +
+          '<select data-primitive="data-table-faceted-filter" onchange="onTableStatus(\'' + options.id + '\', this.value)" class="h-8 text-xs px-2 border border-[#E2E8F0] rounded bg-white">' + facetOptions + '</select>' +
+        '</div>' +
+        '<div class="overflow-x-auto"><table class="w-full text-left text-xs text-slate-800"><thead class="text-slate-500"><tr>' + headers + '</tr></thead><tbody>' + body + '</tbody></table></div>' +
+        '<div class="border-t border-[#E2E8F0] px-4 py-2 text-xs text-slate-500">' + countLabel(rows.length, options.noun) + '</div>' +
+      '</div>';
+    }
+
+    function openReview(studentId) {
+      STATE.activeThesisId = studentId;
+      STATE.submissionView = 'board';
+      STATE.openRows = { title: false, manuscript: true, instrument: false, appendices: false };
+      STATE.openChapters = { ch1: false, ch2: false, ch3: false };
+      const role = getActivePersona().role;
+      STATE.currentRoute = role === 'Panel Member' ? '/panel/pr/104' : '/adviser/pr/104';
+      renderApp();
+    }
+
+    function thesisList() {
+      return [STATE.theses['USR-STU-01'], STATE.theses['USR-STU-02']];
+    }
+
+    function adviseeTable() {
+      return renderTasksTable({
+        id: 'advisees',
+        noun: 'advisee',
+        expandable: true,
+        action: true,
+        columns: [
+          { key: 'student', label: 'Student', sortable: true },
+          { key: 'thesis', label: 'Thesis', sortable: false },
+          { key: 'stage', label: 'Stage', sortable: false },
+          { key: 'file', label: 'Latest file', sortable: false },
+          { key: 'comments', label: 'Open comments', sortable: false },
+          { key: 'status', label: 'Status', sortable: true }
+        ],
+        rows: thesisList().map(function (pr) {
+          const openCount = pr.critiqueThreads.filter(function (thread) { return thread.status === 'OPEN'; }).length;
+          const label = statusLabel(pr.prStatus);
+          const review = '<button type="button" onclick="openReview(\'' + pr.ownerId + '\')" class="px-3 py-1.5 bg-brand-maroon hover:bg-brand-maroon-hover text-white rounded text-xs font-semibold">Review</button>';
+          return {
+            student: pr.candidate,
+            status: label,
+            values: {
+              student: escapeHtml(pr.candidate),
+              thesis: escapeHtml(pr.title),
+              stage: escapeHtml(pr.stage),
+              file: escapeHtml(revisionName(pr.commits[pr.commits.length - 1].id)),
+              comments: escapeHtml(String(openCount)) + ' Open',
+              status: statusBadge(label)
+            },
+            detail: corrStepper(pr) + currentFiles(dueStageId(pr), pr) + '<div class="mt-4">' + review + '</div>',
+            action: review
+          };
+        })
+      });
+    }
+
+    function defenseTable() {
+      return renderTasksTable({
+        id: 'defenses',
+        noun: 'defense',
+        action: true,
+        columns: [
+          { key: 'student', label: 'Student', sortable: true },
+          { key: 'thesis', label: 'Thesis', sortable: false },
+          { key: 'status', label: 'Status', sortable: true },
+          { key: 'access', label: 'Access', sortable: false },
+          { key: 'defense', label: 'Defense', sortable: false }
+        ],
+        rows: thesisList().map(function (pr) {
+          const locked = pr.prStatus === 'DRAFT_UPLOADED' || pr.prStatus === 'GATE_1_REVIEW';
+          const endorsed = pr.prStatus === 'GATE_1_ENDORSED' || pr.prStatus === 'DEFENSE_SCHEDULED';
+          const label = statusLabel(pr.prStatus);
+          let action = '<button type="button" disabled class="px-3 py-1.5 bg-slate-100 text-slate-400 rounded text-xs font-medium cursor-not-allowed border border-slate-200">Manuscript locked</button>';
+          if (!locked && endorsed) {
+            action = '<button type="button" onclick="openReview(\'' + pr.ownerId + '\')" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 rounded text-xs font-semibold">Read manuscript</button>';
+          } else if (!locked) {
+            action = '<button type="button" onclick="openReview(\'' + pr.ownerId + '\')" class="px-3 py-1.5 bg-brand-maroon hover:bg-brand-maroon-hover text-white rounded text-xs font-semibold">Review revisions</button>';
+          }
+          const defense = pr.defenseRecord || (pr.prStatus === 'DEFENSE_SCHEDULED' ? '2025-03-25 · Lab 304' : 'Not scheduled');
+          return {
+            student: pr.candidate,
+            status: label,
+            values: {
+              student: escapeHtml(pr.candidate),
+              thesis: escapeHtml(pr.title),
+              status: statusBadge(label),
+              access: escapeHtml(panelAccessLabel(pr.prStatus)),
+              defense: escapeHtml(defense)
+            },
+            action: action
+          };
+        })
+      });
+    }
+
+    function committeeTable() {
+      return renderTasksTable({
+        id: 'committee',
+        noun: 'committee',
+        action: false,
+        columns: [
+          { key: 'student', label: 'Student', sortable: true },
+          { key: 'adviser', label: 'Adviser', sortable: false },
+          { key: 'lead', label: 'Lead panelist', sortable: false },
+          { key: 'panelist', label: 'Panelist', sortable: false },
+          { key: 'status', label: 'Status', sortable: true }
+        ],
+        rows: thesisList().map(function (pr) {
+          const label = statusLabel(pr.prStatus);
+          return {
+            student: pr.candidate,
+            status: label,
+            values: {
+              student: escapeHtml(pr.candidate),
+              adviser: escapeHtml(pr.adviser),
+              lead: escapeHtml(pr.panel[0]),
+              panelist: escapeHtml(pr.panel[1]),
+              status: statusBadge(label)
+            }
+          };
+        })
+      });
+    }
+
+    function fileStatusBadge(label) {
+      let tone = 'bg-slate-100 text-slate-600 border border-slate-200';
+      if (label === 'Filed' || label === 'Endorsed' || label === 'Approved' || label === 'Defense scheduled') tone = 'bg-[#F0FDF4] text-[#15803D] border border-emerald-200';
+      if (label === 'In review' || label === 'At the presentation' || label === 'Needed' || label === 'Revisions open') tone = 'bg-[#FFFBEB] text-[#B45309] border border-amber-200';
+      return '<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap ' + tone + '">' + escapeHtml(label) + '</span>';
+    }
+
+    function panelAccessLabel(status) {
+      if (status === 'DRAFT_UPLOADED' || status === 'GATE_1_REVIEW') return 'Locked until endorsement';
+      if (status === 'GATE_1_ENDORSED' || status === 'DEFENSE_SCHEDULED') return 'Read only';
+      if (status === 'POST_DEFENSE_REVISIONS') return 'Revisions open';
+      if (status === 'GATE_2_APPROVED') return 'Approved';
+      return statusLabel(status);
+    }
+
+    function defenseUnlocked() {
+      return ['GATE_1_ENDORSED', 'DEFENSE_SCHEDULED', 'POST_DEFENSE_REVISIONS', 'GATE_2_APPROVED'].indexOf(activeThesis().prStatus) !== -1;
+    }
+
+    function milestoneById(id) {
+      return MILESTONES.filter(function (item) { return item.id === id; })[0];
+    }
+
+    function currentFiles(stageId, pr) {
+      pr = pr || activeThesis();
+      const stage = milestoneById(stageId);
+      if (!stage) return '';
+      return '<div class="mt-4 text-xs"><div class="font-semibold text-slate-800 mb-2">Files due at this stage</div><div class="space-y-1.5">' +
+        stage.files.map(function (file) {
+          return '<div class="flex items-center justify-between gap-3 bg-white border border-[#E2E8F0] rounded px-2.5 py-1.5"><span>' + escapeHtml(file[1]) + '</span>' + fileStatusBadge(fileStatusFor(pr, file[0])) + '</div>';
+        }).join('') + '</div></div>';
+    }
+
+    function staticCalendar() {
+      const marks = {
+        12: 'Consultation',
+        20: 'Defense slot',
+        21: 'Defense slot',
+        25: 'Defense request'
+      };
+      const pads = 5;
+      let cells = '';
+      for (let i = 0; i < pads; i += 1) cells += '<div class="h-16 border border-[#E2E8F0] bg-slate-50"></div>';
+      for (let day = 1; day <= 31; day += 1) {
+        const mark = marks[day];
+        cells += '<div class="h-16 border border-[#E2E8F0] p-1 ' + (mark ? 'bg-[#FDF2F2]' : 'bg-white') + '"><div class="text-[11px] font-mono text-slate-700">' + day + '</div>' +
+          (mark ? '<div class="text-[10px] leading-tight text-brand-maroon mt-0.5">' + escapeHtml(mark) + '</div>' : '') + '</div>';
+      }
+      const heads = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(function (name) {
+        return '<div class="text-[10px] font-medium uppercase tracking-wide text-slate-400 px-1">' + name + '</div>';
+      }).join('');
+      return '<div class="bg-white border border-[#E2E8F0] rounded-lg p-4"><div class="flex items-center justify-between mb-3"><div class="text-xs font-semibold text-slate-900">March 2025</div><div class="text-[11px] text-slate-500">Fixed calendar for this sample term</div></div>' +
+        '<div class="grid grid-cols-7 gap-1 mb-1">' + heads + '</div><div class="grid grid-cols-7 gap-px">' + cells + '</div></div>';
+    }
+
+    function renderDeliverables() {
+      const blocks = MILESTONES.map(function (stage) {
+        const rows = stage.files.map(function (file) {
+          return '<tr class="border-t border-[#E2E8F0]"><td class="px-3 py-2">' + escapeHtml(file[1]) + '</td><td class="px-3 py-2 text-slate-500">' + escapeHtml(file[2]) + '</td><td class="px-3 py-2 text-right">' + fileStatusBadge(fileStatusFor(activeThesis(), file[0])) + '</td><td class="px-3 py-2 text-right"><button type="button" onclick="openTemplate(\'' + file[0] + '\')" class="text-[11px] font-semibold text-brand-maroon hover:underline">Template</button></td></tr>';
+        }).join('');
+        return '<section class="bg-white border border-[#E2E8F0] rounded-lg overflow-hidden"><div class="px-4 py-3 border-b border-[#E2E8F0]"><div class="text-sm font-semibold text-slate-900">' + escapeHtml(stage.label) + '</div><p class="text-xs text-slate-600 mt-1 leading-relaxed">' + escapeHtml(stage.when) + '</p></div>' +
+          '<table class="w-full text-left text-xs"><thead class="text-slate-500"><tr><th class="px-3 py-2 font-medium">File</th><th class="px-3 py-2 font-medium">Who files it</th><th class="px-3 py-2 font-medium text-right">This thesis</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></section>';
+      }).join('');
+      return '<p class="text-xs text-slate-500 leading-relaxed">' + escapeHtml(PACKET_NOTE) + '</p>' + blocks;
+    }
+
+    function renderTemplateLibrary() {
+      const selected = TEMPLATES.filter(function (item) { return item.id === STATE.selectedTemplateId; })[0] || TEMPLATES[0];
+      const list = TEMPLATES.map(function (item) {
+        const active = item.id === selected.id;
+        return '<button type="button" onclick="selectTemplate(\'' + item.id + '\')" class="w-full text-left px-3 py-2 rounded-md border ' + (active ? 'border-red-200 bg-brand-maroon-tint' : 'border-transparent hover:bg-slate-50') + '"><div class="text-[10px] uppercase tracking-wide text-slate-400">' + escapeHtml(item.stage) + '</div><div class="text-xs font-medium text-slate-900">' + escapeHtml(item.name) + '</div></button>';
+      }).join('');
+      const fields = selected.fields.map(function (field) {
+        return '<li class="border-b border-[#E2E8F0] py-2 text-xs text-slate-700">' + escapeHtml(field) + '</li>';
+      }).join('');
+      const manage = getActivePersona().role === 'Program Coordinator'
+        ? '<div class="bg-white border border-[#E2E8F0] rounded-lg px-4 py-3 flex items-center justify-between gap-4"><div><div class="flex items-center gap-2"><span class="text-xs font-semibold text-slate-900">Template files</span><span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200">Later</span></div><p class="text-xs text-slate-500 mt-1">Replacing a stand-in and uploading a new template file are reserved for a later phase.</p></div><div class="flex items-center gap-2 shrink-0">' + laterControl('Replace file') + laterControl('Upload template') + '</div></div>'
+        : '';
+      return manage + '<p class="text-xs text-slate-500 leading-relaxed">' + escapeHtml(PACKET_NOTE) + '</p>' +
+        '<div class="grid grid-cols-1 lg:grid-cols-5 gap-4"><div class="lg:col-span-2 bg-white border border-[#E2E8F0] rounded-lg p-2 space-y-1 max-h-[640px] overflow-y-auto custom-scrollbar">' + list + '</div>' +
+        '<article class="lg:col-span-3 bg-white border border-[#E2E8F0] rounded-lg p-5"><div class="flex items-start justify-between gap-3"><div><div class="text-[11px] font-mono text-slate-400">' + escapeHtml(selected.stage) + '</div><h2 class="text-base font-semibold text-slate-900 mt-1">' + escapeHtml(selected.name) + '</h2></div>' +
+        (getActivePersona().role === 'Program Coordinator' ? laterControl('Upload new file') : '') +
+        '</div><p class="text-xs text-slate-600 mt-2">' + escapeHtml(selected.when) + '</p><div class="mt-4 text-[11px] uppercase tracking-wide text-slate-400">Stand-in outline</div><ol class="mt-1">' + fields + '</ol></article></div>';
+    }
+
+    function laterControl(label) {
+      return '<button type="button" disabled class="h-8 px-3 rounded text-xs font-medium bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed whitespace-nowrap">' + label + '</button>';
+    }
+
+    function stageCountStrip() {
+      const counts = [0, 0, 0, 0];
+      function addStage(stage) {
+        if (stage.indexOf('Stage 1') !== -1) counts[0] += 1;
+        else if (stage.indexOf('Stage 3') !== -1) counts[2] += 1;
+        else if (stage.indexOf('Stage 4') !== -1) counts[3] += 1;
+        else counts[1] += 1;
+      }
+      thesisList().forEach(function (pr) { addStage(pr.stage); });
+      const items = [['Title and application', counts[0]], ['Proposal presentation', counts[1]], ['Pre-oral defense', counts[2]], ['Oral defense', counts[3]]];
+      return '<div class="bg-white border border-[#E2E8F0] rounded-lg p-4"><div class="text-xs font-semibold text-slate-800 mb-3">Seeded theses by stage</div><div class="grid grid-cols-4 gap-3">' + items.map(function (item) {
+        return '<div><div class="text-[11px] text-slate-500">' + item[0] + '</div><div class="text-xl font-mono font-semibold text-slate-900">' + item[1] + '</div></div>';
+      }).join('') + '</div></div>';
+    }
+
+    function pageWrap(html) {
+      return '<div class="p-6 max-w-7xl mx-auto space-y-6">' + html + '</div>';
+    }
+
+    function sectionCards() {
+      const m = STATE.metrics;
+      const cards = [
+        ['Active students', m.activeStudents, 'text-slate-900'],
+        ['In review', m.pendingGate1, 'text-[#B45309]'],
+        ['Awaiting a defense date', m.awaitingDefense, 'text-brand-maroon'],
+        ['Open revisions', m.gate2Revisions, 'text-slate-800']
+      ];
+      return '<div data-primitive="section-cards" class="grid grid-cols-4 gap-4">' + cards.map(function (card) {
+        return '<div data-primitive="section-card" class="bg-white border border-[#E2E8F0] rounded-lg p-4">' +
+          '<div class="text-xs uppercase tracking-wide text-slate-500 font-medium">' + card[0] + '</div>' +
+          '<div class="text-2xl font-mono font-semibold mt-1 ' + card[2] + '">' + card[1] + '</div>' +
+        '</div>';
+      }).join('') + '</div>';
+    }
+
+    function defenseActionsCard() {
+      const requests = STATE.parkedActions.defenseRequests.map(function (req) {
+        return '<div class="p-3 border border-[#E2E8F0] rounded-lg bg-slate-50 text-xs space-y-2">' +
+          '<div class="flex items-center justify-between"><span class="font-bold text-slate-900">' + escapeHtml(req.studentName) + '</span>' + statusBadge(statusLabel(req.status)) + '</div>' +
+          '<div class="text-[11px] text-slate-600 font-mono">Date: ' + escapeHtml(req.targetDate) + ' (' + escapeHtml(req.timeWindow) + ')</div>' +
+          '<div class="flex items-center gap-2 pt-1"><input id="coord-room-input-' + req.id + '" type="text" placeholder="e.g. CpE Conference Hall / Zoom ID 892-120" value="' + escapeHtml(req.assignedRoom || 'CpE Simulation Lab 304') + '" class="flex-1 text-xs px-2.5 py-1.5 border border-[#E2E8F0] rounded font-mono focus:ring-1 focus:ring-brand-maroon focus:outline-none" />' +
+          '<button type="button" onclick="confirmCoordinatorSchedule(\'' + req.id + '\')" class="px-3 py-1.5 bg-brand-maroon hover:bg-brand-maroon-hover text-white rounded text-xs font-semibold">Confirm Schedule</button></div></div>';
+      }).join('');
+      const verdicts = STATE.parkedActions.defenseVerdicts.map(function (verdict) {
+        return '<div class="p-3 border border-[#E2E8F0] rounded-lg bg-slate-50 text-xs space-y-2">' +
+          '<div class="flex items-center justify-between"><span class="font-bold text-slate-900">' + escapeHtml(verdict.studentName) + '</span>' + statusBadge(statusLabel(verdict.status)) + '</div>' +
+          '<div class="grid grid-cols-2 gap-2"><div><label class="block text-[11px] text-slate-500 mb-1">Result</label>' +
+          '<select id="coord-verdict-select-' + verdict.id + '" class="w-full text-xs p-1.5 border border-[#E2E8F0] rounded bg-white font-medium"><option value="Conditional Pass" selected>Conditional Pass</option><option value="Pass">Unconditional Pass</option><option value="Re-Defense">Re-Defense</option></select></div>' +
+          '<div class="flex items-end"><label class="flex items-center gap-1.5 text-[11px] text-slate-700 pb-1"><input type="checkbox" checked class="rounded text-brand-maroon" /><span>Evaluation sheet attached</span></label></div></div>' +
+          '<div class="pt-2 flex justify-end"><button type="button" onclick="unlockGate2Revisions(\'' + verdict.id + '\')" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded text-xs font-semibold">Open revisions</button></div></div>';
+      }).join('');
+      return '<div class="bg-white rounded-lg border border-[#E2E8F0] p-4 space-y-4 max-w-3xl">' +
+        '<div class="flex items-center justify-between border-b border-slate-100 pb-2">' +
+          '<div class="flex items-center gap-2"><i data-lucide="archive" class="w-4 h-4 text-brand-maroon"></i><span class="text-xs font-bold text-slate-800">Defense actions</span></div>' +
+          '<div class="flex gap-1 text-xs"><button type="button" id="coord-tab-gap2" onclick="switchCoordinatorTab(\'gap2\')" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-brand-maroon text-white">Schedule</button>' +
+          '<button type="button" id="coord-tab-gap3" onclick="switchCoordinatorTab(\'gap3\')" class="px-2 py-0.5 rounded text-[11px] font-medium text-slate-600 hover:bg-slate-100">Evaluation</button></div></div>' +
+        '<div id="coord-view-gap2" class="space-y-3"><div class="text-xs text-slate-600">Set the room or meeting link.</div>' + requests + '</div>' +
+        '<div id="coord-view-gap3" class="hidden space-y-3"><div class="text-xs text-slate-600">Record the defense result so revisions can start.</div>' + verdicts + '</div></div>';
+    }
+
+    function templatesCard() {
+      return renderTemplateLibrary();
+    }
+
+    function renderCoordinatorDashboard() {
+      const route = STATE.currentRoute;
+      let html = '';
+      if (route === '/coordinator/templates') html = templatesCard();
+      else if (route === '/coordinator/users') html = accountControlsCard() + committeeTable() + assignmentCard();
+      else html = sectionCards() + stageCountStrip() + defenseActionsCard();
+      document.getElementById('workspace-body').innerHTML = pageWrap(html);
+    }
+
+    function slotRow(slot, action) {
+      return '<div class="p-3 rounded border border-[#E2E8F0] bg-slate-50 text-xs flex items-center justify-between gap-3">' +
+        '<div><div class="font-semibold text-slate-900">' + escapeHtml(slot.facultyName) + ' <span class="text-[10px] text-slate-500">(' + escapeHtml(slot.role) + ')</span></div>' +
+        '<div class="font-mono text-[11px] text-slate-600">' + escapeHtml(slot.date) + ' · ' + escapeHtml(slot.timeWindow) + '</div>' +
+        '<div class="text-[11px] text-slate-500 mt-0.5">' + escapeHtml(statusLabel(slot.status)) + (slot.requestedBy ? ' · ' + escapeHtml(slot.requestedBy) : '') + '</div></div><div>' + action + '</div></div>';
+    }
+
+    function scheduleCard() {
+      const pr = activeThesis();
+      const unlocked = defenseUnlocked();
+      const pane = STATE.schedulePane === 'defense' && unlocked ? 'defense' : 'consultation';
+      if (pane === 'defense' && pr.defenseRecord) {
+        return '<div class="bg-white rounded-lg border border-[#E2E8F0] p-4 space-y-4"><div class="flex items-center justify-between border-b border-slate-100 pb-2"><div class="text-xs font-bold text-slate-800">Defense</div><div class="flex gap-1 text-xs"><button type="button" onclick="setSchedulePane(\'consultation\')" class="px-2 py-0.5 rounded text-[11px] font-medium text-slate-600 hover:bg-slate-100">Consultation</button><button type="button" onclick="setSchedulePane(\'defense\')" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-brand-maroon text-white">Defense</button></div></div><p class="text-xs text-slate-600">This defense is already recorded.</p><div class="p-3 rounded border border-[#E2E8F0] bg-slate-50 text-xs"><div class="font-semibold text-slate-900">Oral defense</div><div class="font-mono text-[11px] text-slate-600 mt-1">' + escapeHtml(pr.defenseRecord) + '</div></div></div>';
+      }
+      const slots = STATE.availabilitySlots.filter(function (slot) {
+        if (slot.slotType !== (pane === 'defense' ? 'Defense' : 'Consultation')) return false;
+        return !slot.requestedBy || slot.requestedBy === pr.candidate;
+      });
+      const list = slots.length === 0
+        ? '<div class="text-xs text-slate-400 py-4 text-center">No open times.</div>'
+        : slots.map(function (slot) {
+            const handler = pane === 'defense' ? 'requestDefenseSlot' : 'requestAvailabilitySlot';
+            const control = slot.status === 'AVAILABLE'
+              ? '<button type="button" onclick="' + handler + '(\'' + slot.id + '\')" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded text-xs font-semibold">Request</button>'
+              : '<span class="px-2 py-1 rounded text-[10px] font-medium ' + statusBadgeClass(statusLabel(slot.status)) + '">' + escapeHtml(statusLabel(slot.status)) + '</span>';
+            return slotRow(slot, control);
+          }).join('');
+      const consultOn = pane === 'consultation';
+      return '<div class="bg-white rounded-lg border border-[#E2E8F0] p-4 space-y-4">' +
+        '<div class="flex items-center justify-between border-b border-slate-100 pb-2"><div class="text-xs font-bold text-slate-800">' + (consultOn ? 'Consultation' : 'Defense') + '</div>' +
+        '<div class="flex gap-1 text-xs"><button type="button" onclick="setSchedulePane(\'consultation\')" class="px-2 py-0.5 rounded text-[11px] font-semibold ' + (consultOn ? 'bg-brand-maroon text-white' : 'text-slate-600 hover:bg-slate-100') + '">Consultation</button>' +
+        '<button type="button" onclick="setSchedulePane(\'defense\')" class="px-2 py-0.5 rounded text-[11px] font-medium ' + (!consultOn ? 'bg-brand-maroon text-white' : (unlocked ? 'text-slate-700 hover:bg-slate-100' : 'text-slate-300')) + '">' + (unlocked ? '' : '<i data-lucide="lock" class="w-3 h-3 inline"></i> ') + 'Defense</button></div></div>' +
+        '<p class="text-xs text-slate-600">' + (consultOn ? 'A consultation request goes to your adviser, who confirms or declines it.' : 'A defense request goes to the coordinator, who sets the room. This stays closed until your adviser endorses the manuscript.') + '</p>' +
+        '<div class="space-y-2.5">' + list + '</div></div>';
+    }
+
+    function renderStudentDashboard() {
+      const route = STATE.currentRoute;
+      if (route === '/student/schedule') {
+        document.getElementById('workspace-body').innerHTML = pageWrap(scheduleCard());
+        return;
+      }
+      if (route === '/student/deliverables') {
+        document.getElementById('workspace-body').innerHTML = pageWrap(renderDeliverables());
+        return;
+      }
+      if (route === '/student/templates') {
+        document.getElementById('workspace-body').innerHTML = pageWrap(renderTemplateLibrary());
+        return;
+      }
+      const pr = activeThesis();
+      const progress = stageProgress(pr);
+      const openCount = pr.critiqueThreads.filter(function (thread) { return thread.status === 'OPEN'; }).length;
+      const resolvedCount = pr.critiqueThreads.filter(function (thread) { return thread.status === 'RESOLVED'; }).length;
+      const consult = STATE.availabilitySlots.filter(function (slot) { return slot.slotType === 'Consultation' && slot.requestedBy === pr.candidate; })[0];
+      const defenseLine = pr.defenseRecord || (defenseUnlocked() ? 'Booking is open' : 'Locked until your adviser endorses the manuscript');
+      const reviewLine = pr.prStatus === 'GATE_2_APPROVED'
+        ? 'The oral defense is recorded and this manuscript is approved.'
+        : 'The adviser is reviewing Revision ' + revisionNumber(pr.commits[pr.commits.length - 1].id) + '. ' + openCount + ' comment' + (openCount === 1 ? '' : 's') + ' still open, ' + resolvedCount + ' resolved.';
+      const upcoming = '<div class="bg-white rounded-lg border border-[#E2E8F0] p-4 space-y-3"><div class="text-xs font-bold text-slate-800">Upcoming</div>' +
+        '<div class="text-xs"><div class="text-slate-500">Consultation</div><div class="font-medium text-slate-900 mt-0.5">' + (consult ? escapeHtml(consult.date + ' · ' + consult.timeWindow + ' · ' + statusLabel(consult.status)) : 'None requested') + '</div></div>' +
+        '<div class="text-xs"><div class="text-slate-500">Defense</div><div class="font-medium text-slate-900 mt-0.5">' + escapeHtml(defenseLine) + '</div></div>' +
+        '<button type="button" onclick="navigateTo(\'/student/schedule\')" class="text-xs font-semibold text-brand-maroon hover:underline">Open schedule</button></div>';
+      const html = '<div class="bg-white rounded-lg border border-[#E2E8F0] p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">' +
+        '<div class="space-y-1.5"><div class="text-[11px] font-mono text-slate-400">Stage ' + escapeHtml(progress[0]) + ' · ' + escapeHtml(progress[1]) + '</div><h2 class="text-lg font-bold text-slate-900 leading-snug">' + escapeHtml(pr.title) + '</h2>' +
+        '<div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600">' + statusBadge(statusLabel(pr.residencyStatus)) +
+        '<div>Adviser: <span class="font-medium text-slate-900">' + escapeHtml(committeeName(STATE.committee.adviserId)) + '</span></div><div>Panel: <span class="font-medium text-slate-900">' + escapeHtml(committeeName(STATE.committee.leadId) + ', ' + committeeName(STATE.committee.panelId)) + '</span></div></div></div>' +
+        '<button type="button" onclick="navigateTo(\'/student/pr/104\')" class="px-4 py-2 bg-brand-maroon hover:bg-brand-maroon-hover text-white rounded text-xs font-semibold inline-flex items-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5"></i><span>Open submission</span></button></div>' +
+        '<div class="bg-white rounded-lg border border-[#E2E8F0] p-4"><div class="text-xs font-semibold text-slate-800 mb-3">Progress</div>' + corrStepper(pr) + '<p class="text-xs text-slate-600 mt-3">' + escapeHtml(reviewLine) + '</p></div>' +
+        '<div class="grid grid-cols-1 xl:grid-cols-5 gap-4"><div class="xl:col-span-3">' + staticCalendar() + '</div><div class="xl:col-span-2 space-y-4">' + upcoming +
+        '<div class="bg-white rounded-lg border border-[#E2E8F0] p-4 space-y-3"><div class="flex items-center justify-between"><div class="text-xs font-bold text-slate-800">Files due now</div><button type="button" onclick="navigateTo(\'/student/deliverables\')" class="text-[11px] font-semibold text-brand-maroon hover:underline">All stages</button></div>' +
+        currentFiles(dueStageId(pr), pr) +
+        '<div class="flex items-center gap-3"><button type="button" onclick="uploadStudentCommit()" class="flex-1 py-2 bg-brand-maroon hover:bg-brand-maroon-hover text-white rounded text-xs font-semibold">Upload revision</button>' +
+        '<button type="button" onclick="navigateTo(\'/student/templates\')" class="px-3 py-2 border border-[#E2E8F0] hover:bg-slate-50 text-slate-700 rounded text-xs font-medium">Templates</button></div></div></div></div>';
+      document.getElementById('workspace-body').innerHTML = pageWrap(html);
+    }
+
+    function slotTypeClass(active) {
+      return active
+        ? 'p-1.5 text-xs font-semibold rounded border border-brand-maroon bg-red-50 text-brand-maroon'
+        : 'p-1.5 text-xs font-medium rounded border border-[#E2E8F0] text-slate-600 hover:bg-slate-50';
+    }
+
+    function renderAdviserDashboard() {
+      if (STATE.currentRoute === '/adviser/availability') {
+        const slots = STATE.availabilitySlots.filter(function (slot) { return slot.facultyId === 'USR-ADV-01'; });
+        const list = slots.length === 0 ? '<div class="text-xs text-slate-400 py-4 text-center">No active slots published.</div>' : slots.map(function (slot) {
+          const actions = slot.status === 'PENDING'
+            ? '<button type="button" onclick="confirmAdviserRequest(\'' + slot.id + '\')" class="px-2.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded text-xs font-semibold">Confirm</button><button type="button" onclick="declineAdviserRequest(\'' + slot.id + '\')" class="px-2.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded text-xs font-medium">Decline</button>'
+            : '<span class="px-2 py-1 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800">Active</span>';
+          return '<div class="p-3 rounded border border-[#E2E8F0] bg-slate-50 text-xs flex items-center justify-between gap-3"><div><div class="font-semibold">' + escapeHtml(slot.slotType) + ' • <span class="font-mono">' + escapeHtml(slot.date) + '</span></div><div class="font-mono text-[11px] text-slate-500">' + escapeHtml(slot.timeWindow) + '</div><div class="text-[11px] mt-1 ' + (slot.status === 'CONFIRMED' ? 'text-emerald-700' : 'text-amber-700') + '">' + escapeHtml(statusLabel(slot.status)) + (slot.requestedBy ? ' (' + escapeHtml(slot.requestedBy) + ')' : '') + '</div></div><div class="flex gap-1.5">' + actions + '</div></div>';
+        }).join('');
+        const html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="bg-white rounded-lg border border-[#E2E8F0] p-4 space-y-3"><div class="flex items-center gap-2 border-b border-slate-100 pb-2"><i data-lucide="calendar-plus" class="w-4 h-4 text-brand-maroon"></i><span class="text-xs font-bold">Publish a time</span></div>' +
+          '<label class="block text-xs text-slate-600">Date<input id="adviser-slot-date" type="date" value="2025-03-15" class="mt-1 w-full text-xs p-2 border border-[#E2E8F0] rounded font-mono" /></label>' +
+          '<label class="block text-xs text-slate-600">Time<input id="adviser-slot-time" type="text" value="02:00 PM - 03:30 PM" class="mt-1 w-full text-xs p-2 border border-[#E2E8F0] rounded font-mono" /></label>' +
+          '<div class="text-xs text-slate-600">Type<div class="grid grid-cols-2 gap-2 mt-1"><button type="button" id="adviser-type-consult" onclick="setSlotTypeSelect(\'Consultation\')" class="' + slotTypeClass(selectedAdviserSlotType === 'Consultation') + '">Consultation</button><button type="button" id="adviser-type-defense" onclick="setSlotTypeSelect(\'Defense\')" class="' + slotTypeClass(selectedAdviserSlotType === 'Defense') + '">Defense</button></div></div>' +
+          '<button type="button" onclick="publishAdviserSlot()" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-semibold">Publish</button></div>' +
+          '<div class="bg-white rounded-lg border border-[#E2E8F0] p-4 space-y-3"><div class="flex items-center gap-2 border-b border-slate-100 pb-2"><i data-lucide="calendar-check" class="w-4 h-4 text-emerald-700"></i><span class="text-xs font-bold">Requests</span></div><div class="space-y-2.5">' + list + '</div></div></div>';
+        document.getElementById('workspace-body').innerHTML = pageWrap(html);
+        return;
+      }
+      document.getElementById('workspace-body').innerHTML = pageWrap(adviseeTable());
+    }
+
+    function renderPanelDashboard() {
+      if (STATE.currentRoute === '/panel/availability') {
+        const html = '<div class="bg-white rounded-lg border border-[#E2E8F0] p-4 space-y-4 max-w-xl"><div class="flex items-center gap-2 border-b border-slate-100 pb-2"><i data-lucide="calendar-plus" class="w-4 h-4 text-brand-maroon"></i><span class="text-xs font-bold">Defense availability</span></div>' +
+          '<div class="grid grid-cols-2 gap-3"><label class="block text-xs text-slate-600">Date<input id="panel-slot-date" type="date" value="2025-03-22" class="mt-1 w-full text-xs p-2 border border-[#E2E8F0] rounded font-mono" /></label>' +
+          '<label class="block text-xs text-slate-600">Time<input id="panel-slot-time" type="text" value="09:00 AM - 12:00 PM" class="mt-1 w-full text-xs p-2 border border-[#E2E8F0] rounded font-mono" /></label></div>' +
+          '<button type="button" onclick="publishPanelSlot()" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-semibold">Publish</button></div>' +
+          '<div class="bg-white rounded-lg border border-[#E2E8F0] p-4 space-y-2 max-w-xl"><div class="text-xs font-bold text-slate-800">Published times</div>' +
+          (function () {
+            const mine = STATE.availabilitySlots.filter(function (slot) { return slot.facultyId === getActivePersona().id && slot.slotType === 'Defense'; });
+            if (!mine.length) return '<div class="text-xs text-slate-400">None yet.</div>';
+            return mine.map(function (slot) {
+              return '<div class="text-xs flex items-center justify-between border border-[#E2E8F0] rounded px-3 py-2"><span class="font-mono">' + escapeHtml(slot.date) + ' · ' + escapeHtml(slot.timeWindow) + '</span>' + statusBadge(statusLabel(slot.status)) + '</div>';
+            }).join('');
+          })() + '</div>';
+        document.getElementById('workspace-body').innerHTML = pageWrap(html);
+        return;
+      }
+      document.getElementById('workspace-body').innerHTML = pageWrap(
+        '<div class="bg-white border border-[#E2E8F0] rounded-lg px-4 py-3 text-xs text-slate-700 flex items-start gap-2"><i data-lucide="shield-alert" class="w-4 h-4 text-amber-700 shrink-0 mt-0.5"></i><span>The manuscript stays hidden until the adviser endorses it. After endorsement it is read only until the defense result is recorded. Comments and Gate 2 open with that result.</span></div>' +
+        defenseTable()
+      );
+    }
+
+    function threadCards(persona) {
+      const pr = activeThesis();
+      const isAdviser = persona.role === 'Thesis Adviser';
+      const isPanel = persona.role === 'Panel Member';
+      const panelMayWrite = isPanel && pr.prStatus === 'POST_DEFENSE_REVISIONS';
+      const canResolve = isAdviser || panelMayWrite;
+      const threads = pr.critiqueThreads.filter(function (thread) {
+        if (STATE.threadFilter === 'open') return thread.status === 'OPEN';
+        if (STATE.threadFilter === 'resolved') return thread.status === 'RESOLVED';
+        return true;
+      });
+      const cards = threads.map(function (thread) {
+        const earlier = revisionNumber(pr.selectedCommit) > revisionNumber(thread.anchoredCommit);
+        const resolved = thread.status === 'RESOLVED';
+        const pillStyle = resolved ? 'color:#15803D;background:#F0FDF4' : 'color:#B45309;background:#FFFBEB';
+        const replies = thread.replies.length ? '<div class="space-y-1.5 pl-3 border-l border-[#E2E8F0]">' + thread.replies.map(function (reply) {
+          return '<div class="text-xs bg-slate-50 p-2 rounded border border-[#E2E8F0]"><div class="flex items-center justify-between text-[10px] text-slate-500 mb-1"><span class="font-semibold text-slate-800">' + escapeHtml(reply.authorName) + '</span><span class="font-mono">' + escapeHtml(reply.timestamp) + '</span></div><div>' + escapeHtml(reply.content) + '</div></div>';
+        }).join('') + '</div>' : '';
+        return '<article data-primitive="critique-thread-card" class="border border-[#E2E8F0] rounded-lg bg-white p-3.5 space-y-2.5">' +
+          '<div class="flex items-start justify-between gap-3"><div><div class="flex items-center gap-2 flex-wrap"><span class="font-semibold text-xs text-slate-900">' + escapeHtml(thread.authorName) + '</span><span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-[#E2E8F0]">' + escapeHtml(thread.authorRole) + '</span></div>' +
+          '<div class="flex items-center gap-2 mt-1 flex-wrap"><span class="font-mono text-[11px] px-1.5 py-0.5 rounded bg-slate-50 border border-[#E2E8F0] text-slate-700">' + escapeHtml(revisionName(thread.anchoredCommit)) + '</span>' +
+          (earlier ? '<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#FFFBEB] text-[#B45309] border border-amber-200">Earlier file</span>' : '') + '</div></div>' +
+          '<span class="px-2 py-0.5 rounded text-[10px] font-semibold border border-transparent" style="' + pillStyle + '">' + escapeHtml(statusLabel(thread.status)) + '</span></div>' +
+          '<p class="text-xs text-slate-700 leading-relaxed">' + escapeHtml(thread.content) + '</p>' + replies +
+          (isPanel && !panelMayWrite ? '' : '<div class="pt-2 border-t border-[#E2E8F0] flex items-center gap-2"><input id="reply-input-' + thread.id + '" type="text" placeholder="Write a reply" class="flex-1 text-xs px-2.5 py-1.5 border border-[#E2E8F0] rounded focus:ring-1 focus:ring-brand-maroon focus:outline-none" />' +
+          '<button type="button" onclick="postThreadReply(\'' + thread.id + '\')" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded text-xs font-medium">Reply</button>' +
+          (canResolve ? '<button type="button" onclick="toggleThreadResolution(\'' + thread.id + '\')" class="px-2.5 py-1.5 rounded text-xs font-semibold ' + (resolved ? 'bg-slate-100 text-slate-600' : 'bg-[#F0FDF4] text-[#15803D] border border-emerald-200') + '">' + (resolved ? 'Reopen' : 'Mark Resolved') + '</button>' : '') +
+          '</div>') + '</article>';
+      }).join('');
+      const composer = canResolve
+        ? '<div class="border border-[#E2E8F0] rounded-lg p-3.5 bg-slate-50 space-y-2"><div class="flex items-center justify-between"><span class="text-xs font-bold text-slate-800">New comment</span><span class="text-[10px] text-slate-500">On ' + escapeHtml(revisionName(pr.selectedCommit)) + '</span></div><textarea id="new-thread-text" rows="2" placeholder="What should the student change?" class="w-full text-xs p-2 border border-[#E2E8F0] rounded bg-white focus:ring-1 focus:ring-brand-maroon focus:outline-none"></textarea><div class="flex justify-end"><button type="button" onclick="postNewCritiqueThread()" class="px-3 py-1.5 bg-brand-maroon hover:bg-brand-maroon-hover text-white rounded text-xs font-semibold">Post comment</button></div></div>'
+        : '';
+      return '<div class="space-y-3">' + cards + composer + '</div>';
+    }
+
+    function commitTimeline() {
+      const pr = activeThesis();
+      const commits = pr.commits.map(function (commit) {
+        const selected = commit.id === pr.selectedCommit;
+        return '<li><button type="button" onclick="selectCommit(\'' + commit.id + '\')" class="relative text-left w-full pl-1 pb-5">' +
+          '<span class="absolute -left-6 top-1 w-3 h-3 rounded-full border-2 ' + (selected ? 'border-brand-maroon bg-brand-maroon' : 'border-slate-300 bg-white') + '"></span>' +
+          '<div class="font-mono text-[11px] text-slate-500">' + escapeHtml(commit.timestamp) + '</div>' +
+          '<div class="text-xs font-semibold text-slate-900">' + escapeHtml(revisionName(commit.id)) + ' uploaded</div>' +
+          '<div class="font-mono text-[11px] text-slate-600">' + escapeHtml(commit.filename) + '</div>' +
+          '<div class="text-[11px] text-slate-600 mt-0.5">' + escapeHtml(commit.notes) + '</div></button></li>';
+      }).join('');
+      const endorsed = ['GATE_1_ENDORSED', 'DEFENSE_SCHEDULED', 'POST_DEFENSE_REVISIONS', 'GATE_2_APPROVED'].indexOf(pr.prStatus) !== -1;
+      const approved = pr.prStatus === 'GATE_2_APPROVED';
+      const markers = (endorsed ? '<li class="relative pb-5 pl-1"><span class="absolute -left-6 top-1 w-3 h-3 rounded-full bg-emerald-600"></span><div class="text-xs font-semibold text-emerald-800">Endorsed for defense</div></li>' : '') +
+        (approved ? '<li class="relative pl-1"><span class="absolute -left-6 top-1 w-3 h-3 rounded-full bg-emerald-600"></span><div class="text-xs font-semibold text-emerald-800">Revisions approved</div></li>' : '');
+      return '<ol data-primitive="commit-timeline" class="relative ml-3 pl-6"><span class="absolute left-0 top-1 bottom-1 w-px bg-[#E2E8F0]"></span>' + commits + markers + '</ol>';
+    }
+
+    function segmentButton(label, active, onclick) {
+      return '<button type="button" onclick="' + onclick + '" class="px-2.5 py-1 rounded text-[11px] font-semibold ' + (active ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800') + '">' + label + '</button>';
+    }
+
+    function panelManuscriptLocked(pr) {
+      return getActivePersona().role === 'Panel Member' && (pr.prStatus === 'DRAFT_UPLOADED' || pr.prStatus === 'GATE_1_REVIEW');
+    }
+
+    function toggleSubmissionRow(id) {
+      STATE.openRows[id] = !STATE.openRows[id];
+      renderApp();
+    }
+
+    function toggleChapter(id) {
+      STATE.openChapters[id] = !STATE.openChapters[id];
+      renderApp();
+    }
+
+    function openManuscript() {
+      STATE.submissionView = 'manuscript';
+      renderApp();
+    }
+
+    function closeManuscript() {
+      STATE.submissionView = 'board';
+      renderApp();
+    }
+
+    function attachSupportingFile(id) {
+      const prefix = activeThesis().filePrefix || 'EchoWood_Proposal';
+      const names = { instrument: prefix + '_Instrument.pdf', appendices: prefix + '_Appendices.pdf' };
+      const filename = names[id];
+      if (!filename) return;
+      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const dateStr = new Date().toISOString().split('T')[0];
+      const replacing = !!activeThesis().supportingFiles[id];
+      activeThesis().supportingFiles[id] = { filename: filename, timestamp: dateStr + ' ' + now };
+      STATE.openRows[id] = true;
+      showToast((replacing ? 'Replaced ' : 'Added ') + filename, 'success');
+      renderApp();
+    }
+
+    function submissionSummary(pr) {
+      const latest = pr.commits[pr.commits.length - 1];
+      const openCount = pr.critiqueThreads.filter(function (thread) { return thread.status === 'OPEN'; }).length;
+      const filed = 2 + (pr.supportingFiles.instrument ? 1 : 0) + (pr.supportingFiles.appendices ? 1 : 0);
+      const progress = stageProgress(pr);
+      const cards = [
+        ['Stage', progress[0], progress[1]],
+        ['Manuscript', 'Revision ' + revisionNumber(latest.id), statusLabel(pr.prStatus)],
+        ['Comments', String(openCount), openCount === 0 ? 'All resolved' : 'Still open'],
+        ['Documents', filed + ' of 4', 'On this submission']
+      ];
+      return '<div class="grid grid-cols-2 lg:grid-cols-4 gap-3">' + cards.map(function (card) {
+        return '<div class="bg-white border border-[#E2E8F0] rounded-lg p-4"><div class="text-[11px] font-medium uppercase tracking-wide text-slate-500">' + card[0] + '</div><div class="text-xl font-mono font-semibold text-slate-900 mt-1">' + escapeHtml(card[1]) + '</div><div class="text-xs text-slate-500 mt-1">' + escapeHtml(card[2]) + '</div></div>';
+      }).join('') + '</div>';
+    }
+
+    function submissionRow(id, primary, icon, title, meta, status, body) {
+      const open = !!STATE.openRows[id];
+      return '<article class="' + (primary ? 'border-l-2 border-l-brand-maroon ' : '') + 'bg-white">' +
+        '<button type="button" aria-expanded="' + (open ? 'true' : 'false') + '" onclick="toggleSubmissionRow(\'' + id + '\')" class="w-full cursor-pointer text-left px-4 py-3.5 flex items-center gap-3 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-maroon">' +
+          '<i data-lucide="chevron-right" class="row-chevron w-4 h-4 text-slate-400 shrink-0 transition-transform ' + (open ? 'rotate-90' : '') + '"></i>' +
+          '<span class="w-9 h-9 rounded-md shrink-0 flex items-center justify-center ' + (primary ? 'bg-brand-maroon-tint text-brand-maroon' : 'bg-slate-100 text-slate-600') + '"><i data-lucide="' + icon + '" class="w-4 h-4"></i></span>' +
+          '<span class="min-w-0 flex-1"><span class="block text-sm font-semibold text-slate-900">' + escapeHtml(title) + '</span><span class="block text-[11px] font-mono text-slate-500 truncate mt-0.5">' + escapeHtml(meta) + '</span></span>' +
+          fileStatusBadge(status) +
+        '</button>' +
+        (open ? '<div class="px-4 pb-4 pl-[4.25rem]">' + body + '</div>' : '') +
+      '</article>';
+    }
+
+    function chapterBlock(pr) {
+      if (panelManuscriptLocked(pr)) {
+        return '<div class="mt-3 text-xs text-slate-600 bg-slate-50 border border-[#E2E8F0] rounded-lg px-3 py-3 flex items-start gap-2"><i data-lucide="lock" class="w-4 h-4 text-amber-700 shrink-0 mt-0.5"></i><span>The pages and chapter notes stay hidden until the adviser endorses this submission.</span></div>';
+      }
+      const chapters = [
+        ['ch1', 'Chapter 1', 'The problem and its setting: introduction, theoretical framework, conceptual framework, statement of the problem, scope and limitations, significance, and definition of terms.'],
+        ['ch2', 'Chapter 2', 'Review of literature and studies, arranged by theme, then a synthesis.'],
+        ['ch3', 'Chapter 3', 'Methodology: research design, flowchart, instrument, material requirements, mix design, specimen details, and the laboratory or field experiment.']
+      ];
+      if (stageNumber(pr) >= 3) {
+        chapters.push(['ch4', 'Chapter 4', 'Results and discussion, with one heading for each problem in Chapter 1.']);
+        chapters.push(['ch5', 'Chapter 5', 'Summary of findings, conclusions, and recommendations.']);
+      }
+      return '<div class="mt-3 border border-[#E2E8F0] rounded-lg divide-y divide-[#E2E8F0]">' + chapters.map(function (chapter) {
+        const open = !!STATE.openChapters[chapter[0]];
+        return '<div><button type="button" aria-expanded="' + (open ? 'true' : 'false') + '" onclick="toggleChapter(\'' + chapter[0] + '\')" class="w-full cursor-pointer text-left px-3 py-2.5 flex items-center gap-2 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-maroon"><i data-lucide="chevron-right" class="row-chevron w-3.5 h-3.5 text-slate-400 transition-transform ' + (open ? 'rotate-90' : '') + '"></i><span class="text-xs font-semibold text-slate-800">' + chapter[1] + '</span><span class="text-[11px] text-slate-400">Part of this file</span></button>' +
+          (open ? '<p class="px-3 pb-3 pl-8 text-xs leading-relaxed text-slate-600">' + chapter[2] + '</p>' : '') +
+        '</div>';
+      }).join('') + '</div>';
+    }
+
+    function manuscriptBody(persona, pr) {
+      const latest = pr.commits[pr.commits.length - 1];
+      const active = pr.commits.find(function (commit) { return commit.id === pr.selectedCommit; }) || latest;
+      const locked = panelManuscriptLocked(pr);
+      const revisions = pr.commits.map(function (commit) {
+        const selected = commit.id === pr.selectedCommit;
+        return '<button type="button" onclick="selectCommit(\'' + commit.id + '\')" class="w-full cursor-pointer text-left px-3 py-2 flex items-center justify-between gap-3 ' + (selected ? 'bg-brand-maroon-tint' : 'hover:bg-slate-50') + '"><span><span class="block text-xs font-semibold text-slate-900">' + escapeHtml(revisionName(commit.id, latest.id)) + '</span><span class="block font-mono text-[11px] text-slate-500">' + escapeHtml(commit.filename) + ' · ' + escapeHtml(commit.timestamp) + '</span></span>' +
+          (selected ? '<span class="text-[10px] font-semibold text-brand-maroon">Showing</span>' : '') + '</button>';
+      }).join('');
+      const note = locked ? '' : '<p class="text-xs text-slate-600 mt-2">' + escapeHtml(active.notes) + '</p>';
+      const upload = persona.role === 'Student'
+        ? '<button type="button" onclick="uploadStudentCommit()" class="cursor-pointer px-3 py-1.5 border border-[#E2E8F0] hover:bg-slate-50 text-slate-800 rounded text-xs font-semibold inline-flex items-center gap-1.5"><i data-lucide="upload" class="w-3.5 h-3.5"></i><span>Upload revision</span></button>'
+        : '';
+      return '<div class="text-xs text-slate-500">Current file</div><div class="text-sm font-semibold text-slate-900 mt-0.5">' + escapeHtml(active.filename) + '</div><div class="font-mono text-[11px] text-slate-500">' + escapeHtml(active.timestamp) + ' · ' + active.pages + ' pages</div>' + note +
+        '<div class="mt-3 border border-[#E2E8F0] rounded-lg divide-y divide-[#E2E8F0]">' + revisions + '</div>' +
+        chapterBlock(pr) +
+        '<div class="mt-3 flex flex-wrap items-center gap-2"><button type="button" onclick="openManuscript()" class="cursor-pointer px-3 py-1.5 bg-brand-maroon hover:bg-brand-maroon-hover text-white rounded text-xs font-semibold inline-flex items-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5"></i><span>Open manuscript</span></button>' + upload + '</div>';
+    }
+
+    function supportingBody(id, prompt) {
+      const file = activeThesis().supportingFiles[id];
+      const student = getActivePersona().role === 'Student';
+      if (!file) {
+        if (!student) return '<p class="text-xs text-slate-500">The candidate has not added this file.</p>';
+        return '<button type="button" onclick="attachSupportingFile(\'' + id + '\')" class="w-full cursor-pointer border border-dashed border-slate-300 rounded-lg bg-slate-50 hover:bg-brand-maroon-tint hover:border-brand-maroon px-4 py-5 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-maroon"><i data-lucide="upload" class="w-4 h-4 mx-auto text-slate-500"></i><div class="text-xs font-semibold text-slate-800 mt-2">' + escapeHtml(prompt) + '</div><div class="text-[11px] text-slate-500 mt-1">PDF. This file stays on this row and does not create a manuscript revision.</div></button>';
+      }
+      const replace = student
+        ? '<button type="button" onclick="attachSupportingFile(\'' + id + '\')" class="cursor-pointer text-xs font-semibold text-brand-maroon hover:underline">Replace file</button>'
+        : '';
+      return '<div class="flex items-center justify-between gap-3"><div><div class="text-sm font-semibold text-slate-900">' + escapeHtml(file.filename) + '</div><div class="font-mono text-[11px] text-slate-500">' + escapeHtml(file.timestamp) + '</div></div>' + replace + '</div>';
+    }
+
+    function submissionBoard(persona, pr) {
+      const latest = pr.commits[pr.commits.length - 1];
+      const instrument = activeThesis().supportingFiles.instrument;
+      const appendices = activeThesis().supportingFiles.appendices;
+      const rows = submissionRow('title', false, 'file-check', 'Title proposal', 'Filed ' + pr.titleFiled + ' · Program Chair', 'Filed',
+          '<div class="text-sm font-semibold text-slate-900">' + escapeHtml(pr.title) + '</div><p class="text-xs text-slate-600 mt-2 leading-relaxed">Filed with the Program Chair on ' + escapeHtml(pr.titleFiled) + ', before the proposal presentation. The adviser and the panel were recommended from this title.</p>') +
+        submissionRow('manuscript', true, 'file-text', 'Manuscript', latest.filename + ' · ' + revisionName(latest.id), statusLabel(pr.prStatus), manuscriptBody(persona, pr)) +
+        submissionRow('instrument', false, 'paperclip', 'Instrument', instrument ? instrument.filename + ' · ' + instrument.timestamp : 'Not in yet', instrument ? 'Filed' : 'Needed', supportingBody('instrument', 'Choose the instrument file')) +
+        submissionRow('appendices', false, 'files', 'Appendices', appendices ? appendices.filename + ' · ' + appendices.timestamp : 'Not in yet', appendices ? 'Filed' : 'Needed', supportingBody('appendices', 'Choose the appendices'));
+      return '<div class="space-y-1"><div class="text-[11px] font-mono text-slate-400">PR #' + pr.prId + ' · ' + escapeHtml(pr.candidate) + '</div><h2 class="text-lg font-semibold text-slate-900 leading-snug">' + escapeHtml(pr.title) + '</h2><p class="text-xs text-slate-500">Adviser: ' + escapeHtml(pr.adviser) + '</p></div>' +
+        submissionSummary(pr) +
+        '<section class="bg-white border border-[#E2E8F0] rounded-lg overflow-hidden"><div class="px-4 py-3 border-b border-[#E2E8F0]"><div class="text-sm font-semibold text-slate-900">Submitted documents</div><p class="text-xs text-slate-500 mt-0.5">Open a row to see the file. The manuscript is the file under review.</p></div><div class="divide-y divide-[#E2E8F0]">' + rows + '</div></section>';
+    }
+
+    function renderPrWorkspace() {
+      const persona = getActivePersona();
+      const pr = activeThesis();
+      const isPanel = persona.role === 'Panel Member';
+      const isAdviser = persona.role === 'Thesis Adviser';
+      const isStudent = persona.role === 'Student';
+      if (STATE.submissionView !== 'manuscript') {
+        document.getElementById('workspace-body').innerHTML = pageWrap(submissionBoard(persona, pr));
+        return;
+      }
+      if (isPanel && (pr.prStatus === 'DRAFT_UPLOADED' || pr.prStatus === 'GATE_1_REVIEW')) {
+        document.getElementById('workspace-body').innerHTML =
+          '<div class="h-full flex flex-col min-h-0"><div class="h-12 shrink-0 bg-white border-b border-[#E2E8F0] px-4 flex items-center"><button type="button" onclick="closeManuscript()" class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900"><i data-lucide="arrow-left" class="w-3.5 h-3.5"></i><span>Submission</span></button></div>' +
+          '<div class="flex-1 flex items-center justify-center p-8"><div class="max-w-md text-center bg-white rounded-lg border border-[#E2E8F0] p-8">' +
+          '<div class="w-12 h-12 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center mx-auto mb-3 border border-amber-200"><i data-lucide="lock" class="w-6 h-6"></i></div>' +
+          '<h2 class="text-base font-bold text-slate-900 mb-1">Manuscript not available yet</h2>' +
+          '<p class="text-sm text-slate-600">Dr. Elena Reyes is still reviewing this submission. You can read it after she endorses it for defense.</p></div></div></div>';
+        return;
+      }
+
+      const active = pr.commits.find(function (commit) { return commit.id === pr.selectedCommit; }) || pr.commits[pr.commits.length - 1];
+      const latestId = pr.commits[pr.commits.length - 1].id;
+      const openCount = pr.critiqueThreads.filter(function (thread) { return thread.status === 'OPEN'; }).length;
+      const ratio = Math.max(45, Math.min(75, STATE.splitRatio));
+      const fileOptions = pr.commits.map(function (commit) {
+        return '<option value="' + commit.id + '"' + (commit.id === pr.selectedCommit ? ' selected' : '') + '>' + escapeHtml(revisionName(commit.id, latestId)) + '</option>';
+      }).join('');
+      const filter = STATE.threadPane === 'threads'
+        ? '<div data-primitive="thread-filter" class="inline-flex rounded-md bg-slate-200/70 p-0.5">' +
+            segmentButton('All', STATE.threadFilter === 'all', "setThreadFilter('all')") +
+            segmentButton('Open', STATE.threadFilter === 'open', "setThreadFilter('open')") +
+            segmentButton('Resolved', STATE.threadFilter === 'resolved', "setThreadFilter('resolved')") +
+          '</div>'
+        : '';
+      const adviserEnabled = openCount === 0 && (pr.prStatus === 'GATE_1_REVIEW' || pr.prStatus === 'DRAFT_UPLOADED');
+      const panelEnabled = openCount === 0 && pr.prStatus === 'POST_DEFENSE_REVISIONS';
+      function gateButton(enabled) {
+        return 'px-4 py-2 rounded text-xs font-semibold inline-flex items-center gap-2 bg-brand-maroon text-white ' + (enabled ? 'hover:bg-brand-maroon-hover' : 'opacity-40 cursor-not-allowed');
+      }
+      const adviserButton = isAdviser
+        ? '<button type="button" onclick="executeGate1Endorsement()"' + (adviserEnabled ? '' : ' disabled') + ' class="' + gateButton(adviserEnabled) + '"><i data-lucide="check-circle" class="w-4 h-4"></i><span>' + (adviserEnabled || pr.prStatus === 'GATE_1_REVIEW' || pr.prStatus === 'DRAFT_UPLOADED' ? 'Endorse for defense' : 'Endorsed') + '</span></button>'
+        : '';
+      const panelButton = isPanel
+        ? '<button type="button" onclick="executeGate2SignOff()"' + (panelEnabled ? '' : ' disabled') + ' class="' + gateButton(panelEnabled) + '"><i data-lucide="award" class="w-4 h-4"></i><span>' + (pr.prStatus === 'GATE_2_APPROVED' ? 'Approved' : 'Approve revisions') + '</span></button>'
+        : '';
+
+      const panelMayWrite = isPanel && pr.prStatus === 'POST_DEFENSE_REVISIONS';
+      const readOnlyNote = isPanel && !panelMayWrite
+        ? '<div class="mx-3 mt-3 text-xs text-slate-600 bg-[#F8FAFC] border border-[#E2E8F0] rounded px-3 py-2">Read only. You can leave comments after the defense result is recorded.</div>'
+        : '';
+      document.getElementById('workspace-body').innerHTML =
+        '<div class="h-full flex flex-col min-h-0">' +
+        '<div class="h-12 shrink-0 bg-white border-b border-[#E2E8F0] px-4 flex items-center justify-between gap-3">' +
+          '<div class="min-w-0 flex items-center gap-3"><button type="button" onclick="closeManuscript()" class="cursor-pointer shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900"><i data-lucide="arrow-left" class="w-3.5 h-3.5"></i><span>Submission</span></button><span class="w-px h-4 bg-[#E2E8F0]"></span><div class="min-w-0"><div class="text-xs font-semibold text-slate-900 truncate">' + escapeHtml(pr.stage) + ' · PR #' + pr.prId + '</div><div class="text-[11px] font-mono text-slate-500 truncate">' + escapeHtml(revisionName(active.id, latestId)) + ' · ' + escapeHtml(active.filename) + '</div></div></div>' +
+          statusBadge(statusLabel(pr.prStatus)) +
+        '</div>' +
+        '<div id="split-group" data-primitive="resizable-panel-group" class="flex flex-1 min-h-0 overflow-hidden">' +
+          '<section data-primitive="manuscript-pane" style="flex:0 0 ' + ratio + '%" class="min-w-0 flex flex-col bg-[#F1F5F9]">' +
+            '<div class="h-10 shrink-0 bg-white border-b border-[#E2E8F0] px-4 flex items-center justify-between gap-3 text-xs">' +
+              '<div class="flex items-center gap-2 min-w-0"><i data-lucide="file-text" class="w-4 h-4 text-brand-maroon shrink-0"></i><span class="font-mono font-medium text-slate-800 truncate">' + escapeHtml(active.filename) + '</span><span class="font-mono text-[10px] text-slate-400 shrink-0">' + escapeHtml(active.timestamp) + '</span></div>' +
+              '<div class="flex items-center gap-3 shrink-0"><span class="font-mono text-[11px] text-slate-500">Page 1 of ' + active.pages + '</span>' + statusBadge(statusLabel(pr.prStatus)) +
+              '<select id="pr-commit-select" onchange="changePrCommit(this.value)" class="text-xs bg-slate-50 border border-[#E2E8F0] rounded px-2 py-1">' + fileOptions + '</select></div></div>' +
+            '<div class="flex-1 overflow-y-auto p-6 custom-scrollbar"><div class="mx-auto w-full max-w-xl bg-white border border-[#E2E8F0] shadow-sm rounded p-8 min-h-[720px] flex flex-col justify-between">' +
+              '<div class="space-y-6"><div class="border-b border-slate-100 pb-4"><div class="text-[10px] font-mono uppercase tracking-widest text-slate-400">Polytechnic University of the Philippines • Graduate School</div><div class="text-[11px] font-mono text-brand-maroon font-semibold mt-0.5">Master of Science in Computer Engineering (MSCpE)</div><h2 class="text-base font-bold text-slate-900 mt-3 leading-snug">' + escapeHtml(pr.title) + '</h2><div class="text-xs text-slate-600 mt-2">Candidate: <span class="font-medium text-slate-900">' + escapeHtml(pr.candidate) + '</span></div><div class="text-xs text-slate-600">Adviser: <span class="font-medium text-slate-900">' + escapeHtml(pr.adviser) + '</span></div></div>' +
+              '<div class="space-y-3 text-xs leading-relaxed text-slate-700"><div class="font-semibold text-slate-900 uppercase text-[11px] tracking-wide border-b border-slate-100 pb-1">Abstract</div><p>' + escapeHtml(pr.abstract) + '</p>' +
+              '<div class="p-3 bg-slate-50 border border-[#E2E8F0] rounded space-y-1"><div class="font-semibold text-slate-800 text-[11px]">Changes in this file</div><p id="manuscript-note" class="text-slate-600 font-mono text-[11px]">' + escapeHtml(active.notes) + '</p></div>' +
+              '<div class="p-3 border border-dashed border-[#E2E8F0] rounded bg-slate-50/50 text-[11px] text-slate-500"><div class="font-medium text-slate-700">Contents</div><div class="grid grid-cols-2 gap-1 text-[10px] mt-1">' + pr.contents.map(function (item) { return '<div>• ' + escapeHtml(item) + '</div>'; }).join('') + '</div></div></div></div>' +
+              '<div class="border-t border-slate-100 pt-4 text-[11px] text-slate-400 font-mono">Page 1 / ' + active.pages + '</div></div></div>' +
+            (isStudent ? '<div class="shrink-0 p-3 bg-white border-t border-[#E2E8F0] flex items-center justify-between"><span class="text-xs font-medium text-slate-800">Next revision</span><button type="button" onclick="uploadStudentCommit()" class="px-3 py-1.5 bg-brand-maroon hover:bg-brand-maroon-hover text-white rounded text-xs font-semibold inline-flex items-center gap-1.5"><i data-lucide="upload" class="w-3.5 h-3.5"></i><span>Upload revision</span></button></div>' : '') +
+          '</section>' +
+          '<div data-primitive="resizable-handle" onmousedown="startSplitDrag(event)" class="relative w-px shrink-0 bg-[#E2E8F0] cursor-col-resize"><div class="absolute inset-y-0 -left-1.5 w-3"></div></div>' +
+          '<section data-primitive="review-pane" style="flex:0 0 ' + (100 - ratio) + '%" class="min-w-0 flex flex-col bg-white">' +
+            '<div class="shrink-0 bg-[#F1F5F9] border-b border-[#E2E8F0] px-3 py-2 flex items-center justify-between gap-2">' +
+              '<div data-primitive="thread-pane-switch" class="inline-flex rounded-md bg-slate-200/70 p-0.5">' +
+                segmentButton('Threads', STATE.threadPane === 'threads', "setThreadPane('threads')") +
+                segmentButton('History', STATE.threadPane === 'history', "setThreadPane('history')") +
+              '</div>' + filter + '</div>' +
+            '<div class="flex-1 overflow-y-auto p-3 custom-scrollbar">' + (STATE.threadPane === 'history' ? commitTimeline() : readOnlyNote + threadCards(persona)) + '</div>' +
+            '<div class="h-16 shrink-0 bg-[#F1F5F9] border-t border-[#E2E8F0] px-4 flex items-center justify-between">' +
+              '<div class="text-xs"><span class="font-medium text-slate-800">Comments</span> <span class="' + (openCount === 0 ? 'text-emerald-700' : 'text-[#B45309]') + ' font-semibold">' + (openCount === 0 ? 'All comments resolved' : openCount + ' still open') + '</span></div>' +
+              '<div class="flex items-center gap-3">' + (isStudent ? '<span class="text-xs text-slate-500">Waiting for review</span>' : '') + adviserButton + panelButton + '</div></div>' +
+          '</section></div></div>';
+    }
+
+    function setThreadPane(pane) {
+      STATE.threadPane = pane;
+      renderApp();
+    }
+
+    function setThreadFilter(filter) {
+      STATE.threadFilter = filter;
+      renderApp();
+    }
+
+    function selectCommit(id) {
+      activeThesis().selectedCommit = id;
+      renderApp();
+    }
+
+    function startSplitDrag(event) {
+      event.preventDefault();
+      const group = document.getElementById('split-group');
+      if (!group) return;
+      function move(e) {
+        const rect = group.getBoundingClientRect();
+        const raw = ((e.clientX - rect.left) / rect.width) * 100;
+        STATE.splitRatio = Math.max(45, Math.min(75, raw));
+        applySplitRatio(STATE.splitRatio);
+      }
+      function up() {
+        STATE.splitRatio = Math.max(45, Math.min(75, STATE.splitRatio));
+        applySplitRatio(STATE.splitRatio);
+        window.removeEventListener('mousemove', move);
+        window.removeEventListener('mouseup', up);
+        document.body.style.userSelect = '';
+      }
+      document.body.style.userSelect = 'none';
+      window.addEventListener('mousemove', move);
+      window.addEventListener('mouseup', up);
+    }
+
+    function applySplitRatio(ratio) {
+      const left = document.querySelector('[data-primitive="manuscript-pane"]');
+      const right = document.querySelector('[data-primitive="review-pane"]');
+      if (left) left.style.flex = '0 0 ' + ratio + '%';
+      if (right) right.style.flex = '0 0 ' + (100 - ratio) + '%';
+    }
+
+    function uploadStudentCommit() {
+      const nextVer = 'v' + (activeThesis().commits.length + 1);
+      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const dateStr = new Date().toISOString().split('T')[0];
+      activeThesis().commits.push({
+        id: nextVer,
+        timestamp: dateStr + ' ' + now,
+        filename: (activeThesis().filePrefix || 'EchoWood_Proposal') + '_' + nextVer + '.pdf',
+        pages: 20,
+        notes: 'Updated the sensor bandwidth section and the chapter 3 diagram.'
+      });
+      activeThesis().selectedCommit = nextVer;
+      showToast(revisionName(nextVer) + ' uploaded', 'success');
+      renderApp();
+    }
+
+    function changePrCommit(val) {
+      activeThesis().selectedCommit = val;
+      renderApp();
+    }
+
+    function postThreadReply(threadId) {
+      const input = document.getElementById('reply-input-' + threadId);
+      if (!input || !input.value.trim()) return;
+      const persona = getActivePersona();
+      const thread = activeThesis().critiqueThreads.find(function (item) { return item.id === threadId; });
+      if (!thread) return;
+      thread.replies.push({ id: 'REP-' + Date.now(), authorId: persona.id, authorName: persona.name, timestamp: 'Just now', content: input.value.trim() });
+      showToast('Reply posted', 'info');
+      renderApp();
+    }
+
+    function toggleThreadResolution(threadId) {
+      const thread = activeThesis().critiqueThreads.find(function (item) { return item.id === threadId; });
+      if (!thread) return;
+      thread.status = thread.status === 'RESOLVED' ? 'OPEN' : 'RESOLVED';
+      showToast(thread.status === 'RESOLVED' ? 'Comment resolved' : 'Comment reopened', thread.status === 'RESOLVED' ? 'success' : 'warning');
+      renderApp();
+    }
+
+    function postNewCritiqueThread() {
+      const textarea = document.getElementById('new-thread-text');
+      if (!textarea || !textarea.value.trim()) return;
+      const persona = getActivePersona();
+      activeThesis().critiqueThreads.push({
+        id: 'CT-' + (activeThesis().critiqueThreads.length + 101),
+        anchoredCommit: activeThesis().selectedCommit,
+        authorId: persona.id,
+        authorName: persona.name,
+        authorRole: persona.role,
+        timestamp: 'Just now',
+        status: 'OPEN',
+        content: textarea.value.trim(),
+        replies: []
+      });
+      showToast('Comment posted', 'info');
+      renderApp();
+    }
+
+    function executeGate1Endorsement() {
+      if (activeThesis().critiqueThreads.some(function (thread) { return thread.status === 'OPEN'; })) return;
+      if (activeThesis().prStatus !== 'GATE_1_REVIEW' && activeThesis().prStatus !== 'DRAFT_UPLOADED') return;
+      activeThesis().prStatus = 'GATE_1_ENDORSED';
+      showToast('Endorsed for defense. The panel can now read the manuscript.', 'success');
+      renderApp();
+    }
+
+    function executeGate2SignOff() {
+      if (activeThesis().critiqueThreads.some(function (thread) { return thread.status === 'OPEN'; })) return;
+      if (activeThesis().prStatus !== 'POST_DEFENSE_REVISIONS') return;
+      activeThesis().prStatus = 'GATE_2_APPROVED';
+      showToast('Revisions approved', 'success');
+      renderApp();
+    }
+
+    function confirmCoordinatorSchedule(reqId) {
+      const req = STATE.parkedActions.defenseRequests.find(function (item) { return item.id === reqId; });
+      const input = document.getElementById('coord-room-input-' + reqId);
+      if (req && input) {
+        req.assignedRoom = input.value.trim() || 'CpE Simulation Hall';
+        req.status = 'CONFIRMED';
+        STATE.theses['USR-STU-01'].prStatus = 'DEFENSE_SCHEDULED';
+        showToast('Defense confirmed', 'success');
+        renderApp();
+      }
+    }
+
+    function unlockGate2Revisions(verdId) {
+      const verd = STATE.parkedActions.defenseVerdicts.find(function (item) { return item.id === verdId; });
+      if (verd) {
+        verd.status = 'UNLOCKED';
+        STATE.theses['USR-STU-01'].prStatus = 'POST_DEFENSE_REVISIONS';
+        showToast('Defense result recorded. Revisions are open.', 'success');
+        renderApp();
+      }
+    }
+
+    function switchCoordinatorTab(tab) {
+      const schedule = document.getElementById('coord-view-gap2');
+      const evaluation = document.getElementById('coord-view-gap3');
+      const scheduleButton = document.getElementById('coord-tab-gap2');
+      const evaluationButton = document.getElementById('coord-tab-gap3');
+      if (!schedule || !evaluation) return;
+      const showSchedule = tab === 'gap2';
+      schedule.classList.toggle('hidden', !showSchedule);
+      evaluation.classList.toggle('hidden', showSchedule);
+      scheduleButton.className = 'px-2 py-0.5 rounded text-[11px] ' + (showSchedule ? 'font-semibold bg-brand-maroon text-white' : 'font-medium text-slate-600 hover:bg-slate-100');
+      evaluationButton.className = 'px-2 py-0.5 rounded text-[11px] ' + (!showSchedule ? 'font-semibold bg-brand-maroon text-white' : 'font-medium text-slate-600 hover:bg-slate-100');
+      lucide.createIcons();
+    }
+
+    function setSlotTypeSelect(type) {
+      selectedAdviserSlotType = type;
+      const consult = document.getElementById('adviser-type-consult');
+      const defense = document.getElementById('adviser-type-defense');
+      if (consult) consult.className = slotTypeClass(type === 'Consultation');
+      if (defense) defense.className = slotTypeClass(type === 'Defense');
+    }
+
+    function publishAdviserSlot() {
+      const dateInput = document.getElementById('adviser-slot-date');
+      const timeInput = document.getElementById('adviser-slot-time');
+      STATE.availabilitySlots.push({
+        id: 'SLOT-' + Date.now(),
+        facultyId: 'USR-ADV-01',
+        facultyName: 'Dr. Elena Reyes',
+        role: 'Thesis Adviser',
+        date: dateInput.value,
+        timeWindow: timeInput.value,
+        slotType: selectedAdviserSlotType,
+        status: 'AVAILABLE',
+        requestedBy: null
+      });
+      showToast('Time published', 'success');
+      renderApp();
+    }
+
+    function publishPanelSlot() {
+      const dateInput = document.getElementById('panel-slot-date');
+      const timeInput = document.getElementById('panel-slot-time');
+      const persona = getActivePersona();
+      STATE.availabilitySlots.push({
+        id: 'SLOT-' + Date.now(),
+        facultyId: persona.id,
+        facultyName: persona.name,
+        role: 'Panel Member',
+        date: dateInput.value,
+        timeWindow: timeInput.value,
+        slotType: 'Defense',
+        status: 'AVAILABLE',
+        requestedBy: null
+      });
+      showToast('Time published', 'success');
+      renderApp();
+    }
+
+    function committeeName(id) {
+      const acc = STATE.accounts.find(function (item) { return item.id === id; });
+      return acc ? acc.name : '';
+    }
+
+    function selectTemplate(id) {
+      STATE.selectedTemplateId = id;
+      renderApp();
+    }
+
+    function openTemplate(id) {
+      STATE.selectedTemplateId = id;
+      const role = getActivePersona().role;
+      if (role === 'Program Coordinator') navigateTo('/coordinator/templates');
+      else navigateTo('/student/templates');
+    }
+
+    function setSchedulePane(pane) {
+      if (pane === 'defense' && !defenseUnlocked()) {
+        showToast('Defense booking opens after your adviser endorses the manuscript.', 'warning');
+        return;
+      }
+      STATE.schedulePane = pane;
+      renderApp();
+    }
+
+    function setCommitteeSeat(seat, accountId) {
+      const next = {
+        adviserId: STATE.committee.adviserId,
+        leadId: STATE.committee.leadId,
+        panelId: STATE.committee.panelId
+      };
+      next[seat] = accountId;
+      if (next.adviserId === next.leadId || next.adviserId === next.panelId || next.leadId === next.panelId) {
+        showToast('The adviser and the two panelists have to be three different people.', 'warning');
+        renderApp();
+        return;
+      }
+      STATE.committee = next;
+      Object.keys(STATE.theses).forEach(function (id) {
+        STATE.theses[id].adviser = committeeName(next.adviserId);
+        STATE.theses[id].panel = [committeeName(next.leadId), committeeName(next.panelId)];
+      });
+      showToast('Committee updated', 'success');
+      renderApp();
+    }
+
+    function accountControlsCard() {
+      const rows = STATE.accounts.map(function (acc) {
+        return '<tr class="border-t border-[#E2E8F0]"><td class="px-4 py-3">' + escapeHtml(acc.name) + '</td><td class="px-4 py-3 whitespace-nowrap">' + escapeHtml(acc.role) + (acc.subRole ? ' · ' + escapeHtml(acc.subRole) : '') + '</td><td class="px-4 py-3 text-slate-500">' + escapeHtml(acc.assignedThesis) + '</td><td class="px-4 py-3"><span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-[#F0FDF4] text-[#15803D] border border-emerald-200">Active</span></td><td class="px-4 py-3"><div class="flex items-center justify-end gap-2">' + laterControl('Change role') + laterControl('Deactivate') + '</div></td></tr>';
+      }).join('');
+      return '<section class="bg-white border border-[#E2E8F0] rounded-lg overflow-hidden">' +
+        '<div class="px-4 py-3 border-b border-[#E2E8F0] flex items-start justify-between gap-4"><div><div class="flex items-center gap-2"><span class="text-xs font-semibold text-slate-900">Account controls</span><span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200">Later</span></div><p class="text-xs text-slate-500 mt-1">Adding an account, changing a role, and closing an account are reserved for a later phase. The directory is the current demo set.</p></div>' +
+        laterControl('Add account') + '</div>' +
+        '<div class="grid grid-cols-1 md:grid-cols-4 gap-3 px-4 py-3 border-b border-[#E2E8F0] bg-[#F8FAFC]">' +
+          '<label class="text-[11px] text-slate-500">Name<input disabled placeholder="Full name" class="mt-1 w-full text-xs p-2 border border-[#E2E8F0] rounded bg-white text-slate-400 cursor-not-allowed" /></label>' +
+          '<label class="text-[11px] text-slate-500">Role<select disabled class="mt-1 w-full text-xs p-2 border border-[#E2E8F0] rounded bg-white text-slate-400 cursor-not-allowed"><option>Student</option><option>Thesis Adviser</option><option>Panel Member</option><option>Program Coordinator</option></select></label>' +
+          '<label class="text-[11px] text-slate-500 md:col-span-2">Sign-in<input disabled placeholder="University email" class="mt-1 w-full text-xs p-2 border border-[#E2E8F0] rounded bg-white text-slate-400 cursor-not-allowed" /></label>' +
+        '</div>' +
+        '<div class="overflow-x-auto"><table class="w-full text-left text-xs text-slate-800"><thead class="text-slate-500"><tr><th class="h-11 px-4 font-medium">Name</th><th class="h-11 px-4 font-medium">Role</th><th class="h-11 px-4 font-medium">Thesis</th><th class="h-11 px-4 font-medium">Status</th><th class="h-11 px-4"></th></tr></thead><tbody>' + rows + '</tbody></table></div></section>';
+    }
+
+    function assignmentCard() {
+      const seats = [
+        ['adviserId', 'Adviser'],
+        ['leadId', 'Lead panelist'],
+        ['panelId', 'Panelist']
+      ];
+      const faculty = STATE.accounts.filter(function (acc) {
+        return acc.role === 'Thesis Adviser' || acc.role === 'Panel Member';
+      });
+      return '<div class="bg-white border border-[#E2E8F0] rounded-lg p-4 space-y-3"><div class="text-xs font-semibold text-slate-800">Assignment for Juan Dela Cruz</div><div class="grid grid-cols-1 md:grid-cols-3 gap-3">' +
+        seats.map(function (seat) {
+          const options = faculty.map(function (acc) {
+            return '<option value="' + acc.id + '"' + (acc.id === STATE.committee[seat[0]] ? ' selected' : '') + '>' + escapeHtml(acc.name) + '</option>';
+          }).join('');
+          return '<label class="text-xs text-slate-600">' + seat[1] + '<select onchange="setCommitteeSeat(\'' + seat[0] + '\', this.value)" class="mt-1 w-full text-xs p-2 border border-[#E2E8F0] rounded bg-white">' + options + '</select></label>';
+        }).join('') +
+        '</div><p class="text-[11px] text-slate-500">One person cannot hold two of these seats. The lead-panelist label does not add a separate approval.</p></div>';
+    }
+
+    function requestDefenseSlot(slotId) {
+      if (!defenseUnlocked()) {
+        showToast('Defense booking opens after your adviser endorses the manuscript.', 'warning');
+        return;
+      }
+      const slot = STATE.availabilitySlots.find(function (item) { return item.id === slotId; });
+      if (!slot) return;
+      slot.status = 'PENDING';
+      slot.requestedBy = getActivePersona().name;
+      const pending = STATE.parkedActions.defenseRequests.filter(function (item) { return item.status === 'PENDING_COORDINATOR'; })[0];
+      if (pending) {
+        pending.targetDate = slot.date;
+        pending.timeWindow = slot.timeWindow;
+      }
+      showToast('Defense request sent to the coordinator', 'info');
+      renderApp();
+    }
+
+    function requestAvailabilitySlot(slotId) {
+      const slot = STATE.availabilitySlots.find(function (item) { return item.id === slotId; });
+      if (!slot) return;
+      slot.status = 'PENDING';
+      slot.requestedBy = getActivePersona().name;
+      showToast('Request sent to ' + slot.facultyName, 'info');
+      renderApp();
+    }
+
+    function confirmAdviserRequest(slotId) {
+      const slot = STATE.availabilitySlots.find(function (item) { return item.id === slotId; });
+      if (!slot) return;
+      slot.status = 'CONFIRMED';
+      showToast('Consultation confirmed', 'success');
+      renderApp();
+    }
+
+    function declineAdviserRequest(slotId) {
+      const slot = STATE.availabilitySlots.find(function (item) { return item.id === slotId; });
+      if (!slot) return;
+      slot.status = 'AVAILABLE';
+      slot.requestedBy = null;
+      showToast('Request declined', 'info');
+      renderApp();
+    }
+
+    function renderRosterOnlyAccount() {
+      const persona = getActivePersona();
+      document.getElementById('workspace-body').innerHTML = pageWrap(
+        '<div class="max-w-xl bg-white border border-[#E2E8F0] rounded-lg p-6 space-y-3">' +
+          '<div class="text-[11px] font-mono text-slate-400">Stage 4 of 4 · Oral defense</div>' +
+          '<h2 class="text-lg font-semibold text-slate-900">' + escapeHtml(persona.name) + '</h2>' +
+          '<p class="text-sm text-slate-700">' + escapeHtml(persona.assignedThesis) + '</p>' +
+          '<p class="text-xs text-slate-500 leading-relaxed">This account is on the adviser, panel, and coordinator lists. It has no pages in this prototype.</p>' +
+          statusBadge('Approved') +
+        '</div>'
+      );
+    }
+
+    function renderApp() {
+      updateShellChrome();
+      const route = STATE.currentRoute;
+      if (getActivePersona().hasWorkspace === false) renderRosterOnlyAccount();
+      else if (route === '/student/dashboard' || route === '/student/deliverables' || route === '/student/templates' || route === '/student/schedule') renderStudentDashboard();
+      else if (route === '/adviser/dashboard' || route === '/adviser/availability') renderAdviserDashboard();
+      else if (route === '/coordinator/dashboard' || route === '/coordinator/templates' || route === '/coordinator/users') renderCoordinatorDashboard();
+      else if (route === '/panel/dashboard' || route === '/panel/availability') renderPanelDashboard();
+      else if (isPrRoute(route)) renderPrWorkspace();
+      else renderStudentDashboard();
+      lucide.createIcons();
+      if (pendingFocusId) {
+        const field = document.getElementById(pendingFocusId);
+        pendingFocusId = null;
+        if (field) {
+          field.focus();
+          const length = field.value.length;
+          field.setSelectionRange(length, length);
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const personaShell = document.getElementById('persona-switcher');
+      const personaTrigger = document.getElementById('persona-switcher-trigger');
+      let personaDrag = null;
+      let personaSuppressClick = false;
+
+      function movePersonaSwitcher(left, top) {
+        const width = personaTrigger.offsetWidth;
+        const height = personaTrigger.offsetHeight;
+        const nextLeft = Math.max(8, Math.min(left, window.innerWidth - width - 8));
+        const nextTop = Math.max(8, Math.min(top, window.innerHeight - height - 8));
+        personaShell.style.left = nextLeft + 'px';
+        personaShell.style.top = nextTop + 'px';
+        personaShell.style.right = 'auto';
+        personaShell.style.bottom = 'auto';
+      }
+
+      personaTrigger.addEventListener('pointerdown', function (event) {
+        if (event.button !== 0) return;
+        const rect = personaShell.getBoundingClientRect();
+        personaDrag = { dx: event.clientX - rect.left, dy: event.clientY - rect.top, moved: false };
+        try { personaTrigger.setPointerCapture(event.pointerId); } catch (err) { /* synthetic pointers */ }
+      });
+      personaTrigger.addEventListener('pointermove', function (event) {
+        if (!personaDrag) return;
+        const rect = personaShell.getBoundingClientRect();
+        const travel = Math.hypot(event.clientX - (rect.left + personaDrag.dx), event.clientY - (rect.top + personaDrag.dy));
+        if (travel > 4) personaDrag.moved = true;
+        if (!personaDrag.moved) return;
+        movePersonaSwitcher(event.clientX - personaDrag.dx, event.clientY - personaDrag.dy);
+        if (!document.getElementById('persona-switcher-menu').classList.contains('hidden')) placePersonaMenu();
+      });
+      personaTrigger.addEventListener('pointerup', function () {
+        if (personaDrag && personaDrag.moved) personaSuppressClick = true;
+        personaDrag = null;
+      });
+      personaTrigger.addEventListener('click', function (event) {
+        event.stopPropagation();
+        if (personaSuppressClick) {
+          personaSuppressClick = false;
+          return;
+        }
+        togglePersonaMenu();
+      });
+      document.addEventListener('click', function (event) {
+        const menu = document.getElementById('persona-switcher-menu');
+        const trigger = document.getElementById('persona-switcher-trigger');
+        if (!menu.contains(event.target) && !trigger.contains(event.target)) togglePersonaMenu(false);
+      });
+      renderApp();
+    });
+  </script>
+</body>
+</html>
