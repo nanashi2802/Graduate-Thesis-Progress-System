@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[C7] Clearance Management & Outside Statuses — PUP CpE Thesis Progress System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              maroon: '#800000',
+              'maroon-hover': '#660000',
+              'maroon-tint': '#FDF2F2',
+              gold: '#D97706',
+              'gold-hover': '#B45309',
+              'gold-tint': '#FFFBEB'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #F8FAFC; color: #0F172A; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #F1F5F9; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+  </style>
+</head>
+<body class="h-screen overflow-hidden bg-[#F8FAFC] text-[#0F172A] font-sans flex flex-col">
+  <!-- Top Utility Bar for Standalone Screen Navigation -->
+  <div class="h-10 shrink-0 bg-slate-900 text-slate-200 px-4 flex items-center justify-between text-xs border-b border-slate-800 z-30">
+    <div class="flex items-center gap-2">
+      <span class="px-2 py-0.5 rounded font-bold uppercase tracking-wider text-[10px] bg-brand-maroon text-white font-mono">C7</span>
+      <span class="font-medium text-slate-100">Clearance Management & Outside Statuses</span>
+      <span class="text-slate-500 hidden md:inline">• Update Ethics, IPMO, RPO, and Copyright statuses to grant CLEARED</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="../index.html" class="inline-flex items-center gap-1.5 text-slate-300 hover:text-white transition">
+        <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-brand-gold"></i>
+        <span>Sitemap Directory Hub</span>
+      </a>
+      <span class="text-slate-700">|</span>
+      <a href="../../code.html" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-brand-maroon hover:bg-brand-maroon-hover text-white font-semibold transition">
+        <i data-lucide="play" class="w-3.5 h-3.5"></i>
+        <span>Launch Interactive Prototype (code.html)</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="flex-1 min-h-0 flex overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-64 shrink-0 bg-white border-r border-slate-200 flex flex-col">
+      <div class="h-16 shrink-0 flex items-center gap-3 px-4 border-b border-slate-200">
+        <div class="w-9 h-9 shrink-0 bg-brand-maroon rounded flex items-center justify-center text-white font-bold text-xs tracking-wider shadow">PUP</div>
+        <div class="min-w-0">
+          <span class="block text-xs font-bold text-slate-900 leading-tight">PUP Graduate School</span>
+          <span class="block text-[11px] text-brand-maroon font-semibold">CpE Thesis Progress System</span>
+        </div>
+      </div>
+      
+      <div class="flex-1 overflow-y-auto custom-scrollbar py-4 px-3 space-y-1">
+        <div class="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Coordinator Portal</div>
+        
+            <a href="c1_dashboard.html" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+              <i data-lucide="bar-chart-3" class="w-4 h-4 text-slate-400 shrink-0"></i>
+              <span class="truncate">Program Overview</span>
+            </a>
+            
+            <a href="c2_students.html" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+              <i data-lucide="user-plus" class="w-4 h-4 text-slate-400 shrink-0"></i>
+              <span class="truncate">Student Accounts (C2)</span>
+            </a>
+            
+            <a href="c3_committees.html" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+              <i data-lucide="users" class="w-4 h-4 text-slate-400 shrink-0"></i>
+              <span class="truncate">Committees & NDAs (C3)</span>
+            </a>
+            
+            <a href="c4_compliance.html" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+              <i data-lucide="file-check" class="w-4 h-4 text-slate-400 shrink-0"></i>
+              <span class="truncate">Document Compliance (C4)</span>
+            </a>
+            
+            <a href="c5_schedule.html" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+              <i data-lucide="calendar-check" class="w-4 h-4 text-slate-400 shrink-0"></i>
+              <span class="truncate">Defense Schedule (C5)</span>
+            </a>
+            
+            <a href="c6_defense.html" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+              <i data-lucide="award" class="w-4 h-4 text-slate-400 shrink-0"></i>
+              <span class="truncate">Defense & Minutes (C6)</span>
+            </a>
+            
+            <a href="c7_clearance.html" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold bg-brand-maroon text-white shadow-sm transition">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-white shrink-0"></i>
+              <span class="truncate">Clearance & Status (C7)</span>
+            </a>
+            
+            <a href="c8_templates.html" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+              <i data-lucide="sliders" class="w-4 h-4 text-slate-400 shrink-0"></i>
+              <span class="truncate">Milestone Templates (C8)</span>
+            </a>
+            
+            <a href="c9_users.html" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+              <i data-lucide="shield-check" class="w-4 h-4 text-slate-400 shrink-0"></i>
+              <span class="truncate">Faculty & Users (C9)</span>
+            </a>
+            
+            <a href="c10_audit.html" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+              <i data-lucide="file-clock" class="w-4 h-4 text-slate-400 shrink-0"></i>
+              <span class="truncate">Audit Trail (C10)</span>
+            </a>
+            
+            <a href="../shared/submission_view.html" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+              <i data-lucide="archive" class="w-4 h-4 text-slate-400 shrink-0"></i>
+              <span class="truncate">Shared Dossier (SV)</span>
+            </a>
+            
+      </div>
+
+      <div class="shrink-0 p-3 border-t border-slate-200 bg-slate-50/70 text-xs">
+        <div class="bg-white rounded-lg p-3 border border-slate-200 space-y-1.5 shadow-sm">
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="text-slate-500 font-medium">Active Candidate:</span>
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-red-50 text-brand-maroon border border-red-200">Master's</span>
+          </div>
+          <div class="font-semibold text-slate-900 leading-snug line-clamp-2 text-xs">EchoWood: Embedded Termite Detection via ESP32-S3</div>
+          <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-100">
+            <span>Milestone:</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">Proposal Defense</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 min-w-0 h-full flex flex-col overflow-hidden bg-[#F8FAFC]">
+      <header class="h-16 shrink-0 bg-white border-b border-slate-200 px-6 flex items-center justify-between">
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base font-bold text-slate-900 leading-tight">Clearance Management & Outside Statuses</h1>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-slate-100 text-slate-600 border border-slate-200">/coordinator/clearance</span>
+          </div>
+          <p class="text-xs text-slate-500">Update Ethics, IPMO, RPO, and Copyright statuses to grant CLEARED</p>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <div class="w-9 h-9 rounded-full bg-brand-maroon text-white flex items-center justify-center font-bold text-xs shadow">AC</div>
+          <div class="hidden sm:block text-left text-xs">
+            <div class="font-semibold text-slate-900">Dr. Arturo S. Cruz</div>
+            <div class="text-[11px] text-slate-500">Program Chair & Graduate School Secretary (Closes Stages)</div>
+          </div>
+        </div>
+      </header>
+
+      <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-6">
+        
+<div class="space-y-6">
+  <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <h2 class="text-base font-bold text-slate-900">Clearance Management & Outside Status Controls</h2>
+      <p class="text-xs text-slate-500">Update official outside office statuses and grant final CLEARED status (BR-02, BR-14, FR-CLR-04)</p>
+    </div>
+    <button class="px-4 py-2 rounded-lg bg-emerald-700 text-white text-xs font-semibold shadow">
+      Grant CLEARED (Issue Compliance Cert)
+    </button>
+  </div>
+</div>
+
+      </div>
+    </main>
+  </div>
+
+  <script>lucide.createIcons();</script>
+</body>
+</html>

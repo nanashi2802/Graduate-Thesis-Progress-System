@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — PUP CpE Thesis Progress System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              maroon: '#800000',
+              'maroon-hover': '#660000',
+              'maroon-tint': '#FDF2F2',
+              gold: '#D97706',
+              'gold-hover': '#B45309'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="min-h-screen bg-[#F8FAFC] text-[#0F172A] font-sans flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="w-14 h-14 bg-brand-maroon rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg mx-auto">PUP</div>
+    <h2 class="mt-4 text-center text-xl font-bold tracking-tight text-slate-900">PUP Graduate School</h2>
+    <p class="text-center text-xs text-brand-maroon font-semibold">Department of Computer Engineering</p>
+    <p class="mt-1 text-center text-xs text-slate-500">CpE Thesis Progress System (ThesIsko)</p>
+  </div>
+
+  <div class="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="bg-white py-8 px-6 shadow-xl rounded-2xl border border-slate-200 sm:px-10 space-y-5">
+      <form class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Institutional WebMail (@pup.edu.ph)</label>
+          <input type="email" placeholder="username@pup.edu.ph" class="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-brand-maroon">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Password</label>
+          <input type="password" placeholder="••••••••" class="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-brand-maroon">
+        </div>
+        <a href="../../code.html" class="w-full block text-center py-2.5 rounded-lg bg-brand-maroon hover:bg-brand-maroon-hover text-white text-xs font-bold shadow transition">
+          Sign In
+        </a>
+      </form>
+
+      <div class="pt-4 border-t border-slate-200 text-center space-y-3">
+        <span class="text-[11px] text-slate-400 uppercase tracking-wider font-bold block">1-Click Portal Jump</span>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <a href="../student/s1_dashboard.html" class="p-2 rounded border border-slate-200 hover:bg-slate-50 font-medium text-slate-700">Student Portal</a>
+          <a href="../adviser/a1_dashboard.html" class="p-2 rounded border border-slate-200 hover:bg-slate-50 font-medium text-slate-700">Adviser Portal</a>
+          <a href="../panel/p1_dashboard.html" class="p-2 rounded border border-slate-200 hover:bg-slate-50 font-medium text-slate-700">Panel Member</a>
+          <a href="../coordinator/c1_dashboard.html" class="p-2 rounded border border-slate-200 hover:bg-slate-50 font-medium text-slate-700">Coordinator</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

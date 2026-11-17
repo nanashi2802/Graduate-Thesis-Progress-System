@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[P2] Panel Manuscript Reader & Gate 1b Endorsement — PUP CpE Thesis Progress System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              maroon: '#800000',
+              'maroon-hover': '#660000',
+              'maroon-tint': '#FDF2F2',
+              gold: '#D97706',
+              'gold-hover': '#B45309',
+              'gold-tint': '#FFFBEB'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #F8FAFC; color: #0F172A; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #F1F5F9; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+  </style>
+</head>
+<body class="h-screen overflow-hidden bg-[#F8FAFC] text-[#0F172A] font-sans flex flex-col">
+  <!-- Top Utility Bar for Standalone Screen Navigation -->
+  <div class="h-10 shrink-0 bg-slate-900 text-slate-200 px-4 flex items-center justify-between text-xs border-b border-slate-800 z-30">
+    <div class="flex items-center gap-2">
+      <span class="px-2 py-0.5 rounded font-bold uppercase tracking-wider text-[10px] bg-brand-maroon text-white font-mono">P2</span>
+      <span class="font-medium text-slate-100">Panel Manuscript Reader & Gate 1b Endorsement</span>
+      <span class="text-slate-500 hidden md:inline">• Review locked manuscript and resolve committee critique threads</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="../index.html" class="inline-flex items-center gap-1.5 text-slate-300 hover:text-white transition">
+        <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-brand-gold"></i>
+        <span>Sitemap Directory Hub</span>
+      </a>
+      <span class="text-slate-700">|</span>
+      <a href="../../code.html" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-brand-maroon hover:bg-brand-maroon-hover text-white font-semibold transition">
+        <i data-lucide="play" class="w-3.5 h-3.5"></i>
+        <span>Launch Interactive Prototype (code.html)</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="flex-1 min-h-0 flex overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-64 shrink-0 bg-white border-r border-slate-200 flex flex-col">
+      <div class="h-16 shrink-0 flex items-center gap-3 px-4 border-b border-slate-200">
+        <div class="w-9 h-9 shrink-0 bg-brand-maroon rounded flex items-center justify-center text-white font-bold text-xs tracking-wider shadow">PUP</div>
+        <div class="min-w-0">
+          <span class="block text-xs font-bold text-slate-900 leading-tight">PUP Graduate School</span>
+          <span class="block text-[11px] text-brand-maroon font-semibold">CpE Thesis Progress System</span>
+        </div>
+      </div>
+      
+      <div class="flex-1 overflow-y-auto custom-scrollbar py-4 px-3 space-y-1">
+        <div class="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Panel Member Portal</div>
+        
+            <a href="p1_dashboard.html" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+              <i data-lucide="briefcase" class="w-4 h-4 text-slate-400 shrink-0"></i>
+              <span class="truncate">Assigned Committees</span>
+            </a>
+            
+            <a href="p2_manuscript.html" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold bg-brand-maroon text-white shadow-sm transition">
+              <i data-lucide="book-open" class="w-4 h-4 text-white shrink-0"></i>
+              <span class="truncate">Manuscript Reader</span>
+            </a>
+            
+            <a href="p3_availability.html" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+              <i data-lucide="calendar" class="w-4 h-4 text-slate-400 shrink-0"></i>
+              <span class="truncate">Defense Availability</span>
+            </a>
+            
+            <a href="p4_defense.html" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+              <i data-lucide="award" class="w-4 h-4 text-slate-400 shrink-0"></i>
+              <span class="truncate">Defense Day & Verdict</span>
+            </a>
+            
+            <a href="../shared/submission_view.html" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+              <i data-lucide="archive" class="w-4 h-4 text-slate-400 shrink-0"></i>
+              <span class="truncate">Shared Dossier (SV)</span>
+            </a>
+            
+      </div>
+
+      <div class="shrink-0 p-3 border-t border-slate-200 bg-slate-50/70 text-xs">
+        <div class="bg-white rounded-lg p-3 border border-slate-200 space-y-1.5 shadow-sm">
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="text-slate-500 font-medium">Active Candidate:</span>
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-red-50 text-brand-maroon border border-red-200">Master's</span>
+          </div>
+          <div class="font-semibold text-slate-900 leading-snug line-clamp-2 text-xs">EchoWood: Embedded Termite Detection via ESP32-S3</div>
+          <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-100">
+            <span>Milestone:</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">Proposal Defense</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 min-w-0 h-full flex flex-col overflow-hidden bg-[#F8FAFC]">
+      <header class="h-16 shrink-0 bg-white border-b border-slate-200 px-6 flex items-center justify-between">
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base font-bold text-slate-900 leading-tight">Panel Manuscript Reader & Gate 1b Endorsement</h1>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-slate-100 text-slate-600 border border-slate-200">/panel/pr/104</span>
+          </div>
+          <p class="text-xs text-slate-500">Review locked manuscript and resolve committee critique threads</p>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <div class="w-9 h-9 rounded-full bg-brand-maroon text-white flex items-center justify-center font-bold text-xs shadow">MS</div>
+          <div class="hidden sm:block text-left text-xs">
+            <div class="font-semibold text-slate-900">Engr. Marco V. Santos, PECE, Ph.D.</div>
+            <div class="text-[11px] text-slate-500">Associate Professor IV (Lead Panel Member M1 / Panel Chair M3)</div>
+          </div>
+        </div>
+      </header>
+
+      <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-6">
+        
+<div class="h-full flex flex-col space-y-4">
+  <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-wrap items-center justify-between gap-3 shrink-0">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold text-slate-900">Candidate: Juan Dela Cruz (Master's)</span>
+        <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">COMMITTEE_ENDORSED</span>
+      </div>
+      <h2 class="text-sm font-bold text-slate-900 leading-snug mt-0.5">EchoWood: Embedded Termite Detection via ESP32-S3 Acoustic Emission Modeling</h2>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="px-3 py-2 rounded-lg border border-rose-300 text-rose-700 hover:bg-rose-50 text-xs font-semibold transition flex items-center gap-1.5">
+        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+        <span>Return with Reason</span>
+      </button>
+      <button class="px-4 py-2 rounded-lg bg-brand-maroon hover:bg-brand-maroon-hover text-white shadow text-xs font-semibold transition flex items-center gap-1.5">
+        <i data-lucide="check-circle" class="w-4 h-4"></i>
+        <span>Endorse Gate 1b (Lock Manuscript)</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-5 overflow-hidden">
+    <div class="lg:col-span-7 bg-white rounded-xl border border-slate-200 flex flex-col overflow-hidden shadow-sm">
+      <div class="p-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between text-xs">
+        <span class="font-bold text-slate-900">Manuscript Reader — Commit v2 (Current)</span>
+        <span class="text-slate-400 font-mono text-[11px]">sha256-f8319e</span>
+      </div>
+      <div class="flex-1 overflow-y-auto custom-scrollbar p-6 bg-slate-100 text-xs font-serif leading-relaxed">
+        <div class="max-w-2xl mx-auto bg-white p-8 rounded shadow border border-slate-200 space-y-4">
+          <h3 class="text-sm font-bold text-slate-900 font-sans border-b pb-2">Chapter 2: Literature & Acoustic Peak Frequency Profiling</h3>
+          <p class="text-justify text-slate-700">Previous studies on acoustic detection of wood-boring pests report acoustic energy release between 20 kHz and 100 kHz. Mandibular chewing impulses of subterranean Coptotermes gestroi species exhibit distinct resonant spikes at 28.5 kHz and 37.2 kHz.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-5 bg-white rounded-xl border border-slate-200 flex flex-col overflow-hidden shadow-sm">
+      <div class="p-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between text-xs">
+        <span class="font-bold text-slate-900">Committee Review Threads (Context B)</span>
+      </div>
+      <div class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3 text-xs">
+        <div class="p-3.5 rounded-lg border border-amber-200 bg-amber-50/50 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-900">CT-102 • Engr. Marco V. Santos</span>
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-amber-100 text-amber-800">OPEN</span>
+          </div>
+          <p class="text-slate-700">Please cross-reference recent IEEE Transactions on Industrial Informatics (2025) papers regarding drywood vs subterranean acoustic peak PSD.</p>
+          <div class="pt-2 flex justify-end">
+            <button class="px-2.5 py-1 rounded bg-emerald-600 text-white text-[11px] font-semibold">Resolve Thread</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+      </div>
+    </main>
+  </div>
+
+  <script>lucide.createIcons();</script>
+</body>
+</html>

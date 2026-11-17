@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PUP CpE Thesis Progress System — Sitemap & Screen Catalog</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              maroon: '#800000',
+              'maroon-hover': '#660000',
+              'maroon-tint': '#FDF2F2',
+              gold: '#D97706',
+              'gold-hover': '#B45309'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#F8FAFC] text-[#0F172A] font-sans min-h-screen">
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 px-6 py-5 shadow-sm">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-brand-maroon rounded-xl flex items-center justify-center text-white font-bold text-sm shadow">PUP</div>
+        <div>
+          <h1 class="text-lg font-bold text-slate-900 leading-tight">PUP CpE Thesis Progress System (ThesIsko)</h1>
+          <p class="text-xs text-brand-maroon font-semibold">Master's & Doctoral Academic Progression Sitemap & Screen Catalog</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="../code.html" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-maroon hover:bg-brand-maroon-hover text-white text-xs font-bold shadow transition">
+          <i data-lucide="play" class="w-4 h-4"></i>
+          <span>Launch Interactive Prototype (code.html)</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+    <!-- Architecture Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1">
+        <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Architecture</span>
+        <div class="font-bold text-slate-900 text-sm">3 Milestones + Clearance</div>
+        <p class="text-slate-500 text-[11px]">Proposal (M1), Pre-Final (M2), Final & Clearance (M3). Stage 0 outside.</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1">
+        <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Strict Segregation</span>
+        <div class="font-bold text-slate-900 text-sm">1 Role Per Account</div>
+        <p class="text-slate-500 text-[11px]">Rule BR-03: Advisers are never Panel Members; Coordinator is neither.</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1">
+        <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Sitemap Coverage</span>
+        <div class="font-bold text-slate-900 text-sm">30 Official Routes</div>
+        <p class="text-slate-500 text-[11px]">Partitioned across Student, Adviser, Panel Member, and Coordinator.</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1">
+        <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Compliance Standards</span>
+        <div class="font-bold text-slate-900 text-sm">ASD-STE100 & 107 FRs</div>
+        <p class="text-slate-500 text-[11px]">Two-Layer Approval: Scans provisional until physical paper verified.</p>
+      </div>
+    </div>
+
+    <!-- Student Portal Section -->
+    <section class="space-y-4">
+      <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+        <span class="w-3 h-3 rounded-full bg-brand-maroon"></span>
+        <h2 class="text-base font-bold text-slate-900">Student Portal (Screens S1 - S6 & SV)</h2>
+        <span class="text-xs text-slate-500">— Candidate workspace for submission, scheduling, and tracking</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+        <a href="student/s1_dashboard.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-brand-maroon text-white">S1</span>
+            <span class="font-mono text-slate-400 text-[11px]">/student/dashboard</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Thesis Tracker & Stepper</div>
+          <p class="text-slate-500 text-[11px]">Identity card, 3-milestone progress stepper, next-action card, readiness checklist, outside-status chips, key dates.</p>
+        </a>
+
+        <a href="student/s2_manuscript.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-brand-maroon text-white">S2</span>
+            <span class="font-mono text-slate-400 text-[11px]">/student/pr/104</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Manuscript Review Workspace</div>
+          <p class="text-slate-500 text-[11px]">Commit selector (v1, v2), PDF reader mock, critique threads feed (All/Open/Resolved), change note authoring, export responses.</p>
+        </a>
+
+        <a href="student/s3_documents.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-brand-maroon text-white">S3</span>
+            <span class="font-mono text-slate-400 text-[11px]">/student/documents</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Deliverables & Form Uploads</div>
+          <p class="text-slate-500 text-[11px]">Official deliverables checklist (TDW 03, 05, 06, 07), prefilled PDF generator, ZIP form pack bundle, provisional scan upload.</p>
+        </a>
+
+        <a href="student/s4_schedule.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-brand-maroon text-white">S4</span>
+            <span class="font-mono text-slate-400 text-[11px]">/student/schedule</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Consultations & Defense Scheduler</div>
+          <p class="text-slate-500 text-[11px]">Book adviser slots with protected online meeting links, choose defense date from common free dates (minimum 7-day rule).</p>
+        </a>
+
+        <a href="student/s5_defense_results.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-brand-maroon text-white">S5</span>
+            <span class="font-mono text-slate-400 text-[11px]">/student/defense/[id]</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Defense Results & Minutes</div>
+          <p class="text-slate-500 text-[11px]">Visible after Coordinator verification. Collective verdict banner, member weighted rubric scores (no grade equivalents), Minutes download.</p>
+        </a>
+
+        <a href="student/s6_clearance.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-brand-maroon text-white">S6</span>
+            <span class="font-mono text-slate-400 text-[11px]">/student/clearance</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Post-Defense Clearance</div>
+          <p class="text-slate-500 text-[11px]">7-item clearance tracker: IPMO, RPO, Gate 2, copyright, hardbound copies, conference presentation cert, journal publication.</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- Adviser Portal Section -->
+    <section class="space-y-4">
+      <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+        <span class="w-3 h-3 rounded-full bg-amber-600"></span>
+        <h2 class="text-base font-bold text-slate-900">Adviser Portal (Screens A1 - A5 & SV)</h2>
+        <span class="text-xs text-slate-500">— Faculty adviser workspace for reviewing commits, gates, and consultations</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+        <a href="adviser/a1_dashboard.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-amber-600 text-white">A1</span>
+            <span class="font-mono text-slate-400 text-[11px]">/adviser/dashboard</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Advisee Roster & Action Queue</div>
+          <p class="text-slate-500 text-[11px]">Prioritized action queue with aging in days, advisee table with pacing flags (days in milestone, days since commit).</p>
+        </a>
+
+        <a href="adviser/a2_review.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-amber-600 text-white">A2</span>
+            <span class="font-mono text-slate-400 text-[11px]">/adviser/pr/104</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Manuscript Review & Gate 1a</div>
+          <p class="text-slate-500 text-[11px]">Split screen review, Gate 1a endorsement button with open thread blocker tooltip, Return with written reason modal.</p>
+        </a>
+
+        <a href="adviser/a3_consultations.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-amber-600 text-white">A3</span>
+            <span class="font-mono text-slate-400 text-[11px]">/adviser/consultations</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">TDW Form 03 Consultation Log</div>
+          <p class="text-slate-500 text-[11px]">Official consultation log builder, student agenda, adviser recommendations, upload signed scan, export PDF.</p>
+        </a>
+
+        <a href="adviser/a4_availability.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-amber-600 text-white">A4</span>
+            <span class="font-mono text-slate-400 text-[11px]">/adviser/availability</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Availability & Slots Publisher</div>
+          <p class="text-slate-500 text-[11px]">Publish in-person and online consultation hours, meeting link protection, pending student requests confirmation.</p>
+        </a>
+
+        <a href="adviser/a5_defense.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-amber-600 text-white">A5</span>
+            <span class="font-mono text-slate-400 text-[11px]">/adviser/defense/[id]</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Defense Day Evaluation Sheet</div>
+          <p class="text-slate-500 text-[11px]">Encode TDW 08 (Proposal) or TDW 10 (Pre-Final) evaluation criteria. Notice: Adviser completes no TDW 13 at Final.</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- Panel Member Portal Section -->
+    <section class="space-y-4">
+      <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+        <span class="w-3 h-3 rounded-full bg-blue-600"></span>
+        <h2 class="text-base font-bold text-slate-900">Panel Member Portal (Screens P1 - P4 & SV)</h2>
+        <span class="text-xs text-slate-500">— Committee examination workspace for reviewing locked manuscripts and encoding verdicts</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+        <a href="panel/p1_dashboard.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-blue-600 text-white">P1</span>
+            <span class="font-mono text-slate-400 text-[11px]">/panel/dashboard</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Assigned Committees & Queue</div>
+          <p class="text-slate-500 text-[11px]">Overview of assigned Master's and Doctoral defense panels. Access locked until TDW 06/11 and NDA recorded.</p>
+        </a>
+
+        <a href="panel/p2_manuscript.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-blue-600 text-white">P2</span>
+            <span class="font-mono text-slate-400 text-[11px]">/panel/pr/104</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Manuscript Reader & Gate 1b</div>
+          <p class="text-slate-500 text-[11px]">Review locked manuscript, resolve committee critique threads, endorse Gate 1b to lock manuscript for scheduling.</p>
+        </a>
+
+        <a href="panel/p3_availability.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-blue-600 text-white">P3</span>
+            <span class="font-mono text-slate-400 text-[11px]">/panel/availability</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Defense Availability Publisher</div>
+          <p class="text-slate-500 text-[11px]">Set available days and times to calculate common free dates for candidate defense proposals.</p>
+        </a>
+
+        <a href="panel/p4_defense.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-blue-600 text-white">P4</span>
+            <span class="font-mono text-slate-400 text-[11px]">/panel/defense/[id]</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Defense Day & Collective Verdict</div>
+          <p class="text-slate-500 text-[11px]">Encode individual rubric sheets (TDW 08 / 13). Lead Panel Member / Panel Chair records collective verdict.</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- Coordinator Portal Section -->
+    <section class="space-y-4">
+      <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+        <span class="w-3 h-3 rounded-full bg-slate-900"></span>
+        <h2 class="text-base font-bold text-slate-900">Coordinator Portal (Screens C1 - C10 & SV)</h2>
+        <span class="text-xs text-slate-500">— Program Chair and Secretary management hub (Only role that closes stages)</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+        <a href="coordinator/c1_dashboard.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-slate-900 text-white">C1</span>
+            <span class="font-mono text-slate-400 text-[11px]">/coordinator/dashboard</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Program Overview & KPIs</div>
+          <p class="text-slate-500 text-[11px]">Master KPI strip, candidate roster, aging reports, CSV export triggers.</p>
+        </a>
+
+        <a href="coordinator/c2_students.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-slate-900 text-white">C2</span>
+            <span class="font-mono text-slate-400 text-[11px]">/coordinator/students</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Student Accounts & Eligibility</div>
+          <p class="text-slate-500 text-[11px]">Register eligible students after Stage 0 concept paper & enrollment confirmation.</p>
+        </a>
+
+        <a href="coordinator/c3_committees.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-slate-900 text-white">C3</span>
+            <span class="font-mono text-slate-400 text-[11px]">/coordinator/committees</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Committee Appointments & NDAs</div>
+          <p class="text-slate-500 text-[11px]">Late binding committee appointments after Gate 1a, upload TDW 06/11 and NDAs.</p>
+        </a>
+
+        <a href="coordinator/c4_compliance.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-slate-900 text-white">C4</span>
+            <span class="font-mono text-slate-400 text-[11px]">/coordinator/documents</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Document Compliance & Verification</div>
+          <p class="text-slate-500 text-[11px]">Verify wet-signed paper scans against digital files, flag mismatches (BR-12).</p>
+        </a>
+
+        <a href="coordinator/c5_schedule.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-slate-900 text-white">C5</span>
+            <span class="font-mono text-slate-400 text-[11px]">/coordinator/schedule</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Schedule & Printed Copies</div>
+          <p class="text-slate-500 text-[11px]">Confirm defense venue and audit physical printed copies match against locked SHA-256 hash.</p>
+        </a>
+
+        <a href="coordinator/c6_defense.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-slate-900 text-white">C6</span>
+            <span class="font-mono text-slate-400 text-[11px]">/coordinator/defense/[id]</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Defense Verification & Minutes</div>
+          <p class="text-slate-500 text-[11px]">Verify signed rubric sheets, upload official Minutes, close defense stage to unlock manuscript.</p>
+        </a>
+
+        <a href="coordinator/c7_clearance.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-slate-900 text-white">C7</span>
+            <span class="font-mono text-slate-400 text-[11px]">/coordinator/clearance</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Clearance & Outside Statuses</div>
+          <p class="text-slate-500 text-[11px]">Control Ethics, IPMO, RPO, and Copyright statuses, verify evidence, grant CLEARED.</p>
+        </a>
+
+        <a href="coordinator/c8_templates.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-slate-900 text-white">C8</span>
+            <span class="font-mono text-slate-400 text-[11px]">/coordinator/templates</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Milestone Templates & Parameters</div>
+          <p class="text-slate-500 text-[11px]">Configure required TDW forms, 7-day defense notice rules, and rubric weights (total = 100%).</p>
+        </a>
+
+        <a href="coordinator/c9_users.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-slate-900 text-white">C9</span>
+            <span class="font-mono text-slate-400 text-[11px]">/coordinator/users</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Faculty & User Registry</div>
+          <p class="text-slate-500 text-[11px]">Enforce strict 1-role-per-account compliance (BR-03). Advisers cannot be Panel Members.</p>
+        </a>
+
+        <a href="coordinator/c10_audit.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-slate-900 text-white">C10</span>
+            <span class="font-mono text-slate-400 text-[11px]">/coordinator/audit</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">System Audit Trail & Log</div>
+          <p class="text-slate-500 text-[11px]">Immutable, append-only log of gate actions, returns, uploads, and transactional email events.</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- Shared & Auth Section -->
+    <section class="space-y-4">
+      <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+        <span class="w-3 h-3 rounded-full bg-emerald-600"></span>
+        <h2 class="text-base font-bold text-slate-900">Shared & Authentication Views</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <a href="shared/submission_view.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-emerald-700 text-white">SV</span>
+            <span class="font-mono text-slate-400 text-[11px]">/*/submission/[id]</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Candidate Submission Dossier (Shared View)</div>
+          <p class="text-slate-500 text-[11px]">Universal read-only dossier opened at Gate 1b. Accessible to student, adviser, panel members, and coordinator.</p>
+        </a>
+
+        <a href="auth/login.html" class="p-4 rounded-xl border border-slate-200 bg-white hover:border-brand-maroon hover:shadow-md transition block space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-slate-700 text-white">AUTH</span>
+            <span class="font-mono text-slate-400 text-[11px]">/login</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm">Official Sign In Portal</div>
+          <p class="text-slate-500 text-[11px]">PUP Graduate School authentication portal with 1-click quick demo login buttons for all four roles.</p>
+        </a>
+      </div>
+    </section>
+  </main>
+  <script>lucide.createIcons();</script>
+</body>
+</html>
