@@ -8,6 +8,8 @@ The candidate submits a versioned manuscript, the adviser and appointed evaluati
 
 ## 1. Prototype & Screen Artifacts
 
+> **Prototype only. Not a reference.** The screens below are the initial design from Google Stitch. They are not a source for the design, the process or the system behavior. Use [`DESIGN.md`](DESIGN.md), the `spec/` files and the `docs/` files instead. See [`design/stitch/README.md`](design/stitch/README.md).
+
 ### A. Master Interactive Prototype
 Open [`design/stitch/document-ingestion-processor/code.html`](design/stitch/document-ingestion-processor/code.html) directly in any modern browser.
 - **Zero build or install step**: Runs directly in the browser via CDN dependencies (Tailwind CSS, Inter, JetBrains Mono, Lucide Icons).
@@ -108,6 +110,7 @@ Governing documents live in [`docs/`](docs/). Agent rules live in [`AGENTS.md`](
 | [`spec/SITEMAP.md`](spec/SITEMAP.md) | 30 routes, navigation, screens, access rules |
 | [`spec/DFD.md`](spec/DFD.md) | Data flow diagram: elements, flows, trust boundaries |
 | [`spec/ERD.md`](spec/ERD.md) | Data model: tables, enums, invariants, state machines |
+| [`spec/BUILD_PLAN.md`](spec/BUILD_PLAN.md) | Build phases, epics and tasks |
 | [`PUP_CpE_Thesis_Progress_System_Functional_Requirements_v1.1.md`](docs/PUP_CpE_Thesis_Progress_System_Functional_Requirements_v1.1.md) | FR, BR, NFR and AS IDs. The spec. |
 | [`PUP_CpE_Thesis_Progress_System_Operational_Flow_DFD_Sitemap_v3.1.md`](docs/PUP_CpE_Thesis_Progress_System_Operational_Flow_DFD_Sitemap_v3.1.md) | Process, data flows, 30 routes |
 | [`PUP_CpE_Thesis_Progress_System_Unified_Thesis_Process_v1.1.md`](docs/PUP_CpE_Thesis_Progress_System_Unified_Thesis_Process_v1.1.md) | Source of truth for the thesis process |

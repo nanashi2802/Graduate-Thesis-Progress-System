@@ -1,0 +1,36 @@
+# CI commit check (AGENTS.md §3). The same check as the local hook.
+# Make this check required on `main` in the repository settings.
+name: commit-policy
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check commits for AI authors and AI attribution
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.event.after }}
+        run: |
+          chmod +x scripts/check-commit-policy.sh
+          if [ "$EVENT" = "pull_request" ]; then
+            scripts/check-commit-policy.sh --range "$PR_BASE..$PR_HEAD"
+          elif [ "$PUSH_BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            scripts/check-commit-policy.sh --commit "$PUSH_AFTER"
+          else
+            scripts/check-commit-policy.sh --range "$PUSH_BEFORE..$PUSH_AFTER"
+          fi

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Local commit check (AGENTS.md §3). Turn it on once per clone:
+#   git config core.hooksPath .githooks
+exec "$(git rev-parse --show-toplevel)/scripts/check-commit-policy.sh" --message "$1"

@@ -4,7 +4,7 @@
 
 **Change in v1.1:** Terms. "Evaluator" is now "Panel Member". "Lead Evaluator" is now "Lead Panel Member". "Final Panel Chair" is now "Panel Chair". v1.0 stays unchanged as history.
 
-**Sync in v1.1 (22 Nov 2026):** This version also adds the owner decisions of 17 and 18 Nov 2026. They were already in the Functional Requirements v1.1 and the Operational Flow v3.1. The changes: 30 routes (C10 audit, shared submission view), three comment contexts, Defense Day threads at the Final Defense (BR-20, FR-REV-12), revision items at Proposal and Pre-Final only (FR-REV-13), Gate 2 needs the member's own threads resolved (FR-WFL-07), Panel Members can Return (FR-WFL-05), consultation mode and meeting link (FR-SCH-01 to 04), notifications (FR-NTF), key dates and pacing flags (FR-TRK-05, 06). The owner made no new decision in this sync. One owner decision (22 Nov 2026) is added: RETURNED goes back to DRAFT. The Student sees the written reason.
+**Sync in v1.1 (22 Nov 2026):** This version also adds the owner decisions of 17 and 18 Nov 2026. They were already in the Functional Requirements v1.1 and the Operational Flow v3.1. The changes: 30 routes (C10 audit, shared submission view), three comment contexts, Defense Day threads at the Final Defense (BR-20, FR-REV-12), revision items at Proposal and Pre-Final only (FR-REV-13), Gate 2 needs the member's own threads resolved (FR-WFL-07), Panel Members can Return (FR-WFL-05), consultation mode and meeting link (FR-SCH-01 to 04), notifications (FR-NTF), key dates and pacing flags (FR-TRK-05, 06). The owner made no new decision in this sync. One owner decision (22 Nov 2026) is added: RETURNED goes back to DRAFT. The Student sees the written reason. Source check (22 Nov 2026): the Gate 2 record is the final manuscript signed by the Committee, the Final Panel and the Dean/OU Director (Guidelines C.23), not an approval sheet. G15 expanded. G24 and G25 added.
 
 **Status:** All earlier recommendations are accepted. Items for the Graduate School keep a default answer (see Part 5).
 
@@ -293,7 +293,7 @@ These steps follow the Final Defense. They come from the Guidelines (C.18 to C.2
 | 1 | Revise using the Defense Day threads and the Minutes of the Final Defense | Student, Adviser, Panel Members | The manuscript unlocks. The Student replies and uploads new commits. Each Panel Member resolves their own threads. The Adviser supervises. Skipped if the verdict is Approved without revisions. |
 | 2 | Run the similarity check, then send the manuscript to the IPMO with the Adviser's written endorsement (outside the system) | Student, Adviser | The Coordinator sets the IPMO status. `FAILED` means resubmit. |
 | 3 | Endorse the manuscript to the RPO for editing (outside the system). Revise after the editing. | Coordinator, Student, Adviser | The Coordinator sets the RPO status. The Adviser supervises the revision. |
-| 4 | **Gate 2** | Committee, Final Panel, Coordinator | Each member marks the final manuscript as approved. All sign the approval sheet on paper. The Dean signs. The Coordinator records it. Needs IPMO `PASSED`, RPO `DONE` and no open threads for that member (BR-20). Result: `FINAL_APPROVED`. |
+| 4 | **Gate 2** | Committee, Final Panel, Coordinator | Each member marks the final manuscript as approved. The Committee, the Final Panel and the Dean/OU Director sign the final manuscript on paper (Guidelines C.23). The Coordinator records it. Needs IPMO `PASSED`, RPO `DONE` and no open threads for that member (BR-20). Result: `FINAL_APPROVED`. |
 | 5 | Apply for copyright registration (outside the system) | Student, Coordinator | The Coordinator sets the copyright status. |
 | 6 | Give the final copy to the Coordinator | Student, Coordinator | The Coordinator records receipt and checks it against the approved manuscript. |
 | 7 | Upload the conference presentation certification | Student | The Coordinator verifies it. |
@@ -738,7 +738,7 @@ The principles are in Section 1.4. The decisions below are final in this version
 | Results | The Student sees scores, comments, the verdict and the Minutes after the Coordinator verifies the sheets. |
 | Sheets | The Adviser completes a TDW 08 and a TDW 10 sheet. The Adviser completes no TDW 13 sheet. |
 | M2 | The IPMO check shows status only. IPMO `PASSED` is needed before Gate 1a. There is no Certification at Pre-Final. |
-| M3 | Clearance is part of Milestone 3. The Final Panel reads only before the defense. Gate 2 is process intent, with the paper approval sheet as the record. IPMO, RPO and copyright show status only. |
+| M3 | Clearance is part of Milestone 3. The Final Panel reads only before the defense. Gate 2 is process intent, with the signed final manuscript as the record (Guidelines C.23). IPMO, RPO and copyright show status only. |
 | Data gathering | One Adviser mark records approval to start data gathering. It follows `CERTIFIED`. |
 | Left out | IDSA statistician endorsement, questionnaire editing by the RPO, and translation. These stay outside the system. |
 | Substitute | The Coordinator records the substitute. The substitute signs the NDA, gets read access and completes the absent member's sheet. |
@@ -756,7 +756,7 @@ Each question has a default in this document. None blocks the work.
 | G12 | Is the residency limit a block or only a warning? (The 5-year and 7-year values are unverified.) | Warning only. |
 | G13 | What happens if the printed copies arrive late? | The Coordinator sees a warning. |
 | G14 | Which ethics board applies to the CpE program (GSREB or CREB)? Who sets the status? | The Coordinator sets it. |
-| G15 | Does the Certification of Proposal Approval have an official form? | It is not one of the 13 TDW forms. The paper form is whatever the Graduate School supplies. |
+| G15 | Not one of the 13 TDW forms. Guidelines B.12 says the committee **issues** it after the defense. B.16 says the committee **signs** it after the revision. B.17 says the Secretary receives it with the revised proposal. Is this one paper or two? | One paper, signed by the committee after the revision and linked to the revised proposal commit (B.16, B.17). |
 | G16 | How many printed copies are needed at Pre-Final and Final, and when are they due? | At least 7 days before. The count is not defined. |
 | G18 | Does the Adviser complete a TDW 13 sheet? | No. |
 | G19 | Do the conference and journal items block the clearance? In which order? | Both are required, in any order. |
@@ -765,6 +765,8 @@ Each question has a default in this document. None blocks the work.
 | G22 | Which office handles the copyright application? | The system tracks the status only. |
 | G23 | Is GS Form 08 (Application for Graduation) part of this flow? | It is not in the flow. |
 | PK2 | Does a substitute panelist need a paper amendment to TDW 06 or TDW 11? | The Coordinator records the substitute. The paper rule follows the Graduate School. |
+| G24 | Does the Program set a target date for each milestone? Is it one value for the cohort or a date for each Student? (The Guidelines and TDW forms set no milestone duration.) | No target date. Pacing flags and the B2 reminder stay off until the Program Chair sets one. |
+| G25 | TDW 05 item 11: which submission is the "approved revised copy" for each milestone? Does the system track each Evaluator's written certification that all copies are deleted? | Access ends when the Coordinator records the final copy (Guidelines C.25). The deletion certification stays on paper, outside the system. |
 
 # Appendices
 

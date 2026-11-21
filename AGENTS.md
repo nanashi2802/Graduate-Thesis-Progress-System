@@ -88,6 +88,7 @@ The human must also require the CI check and pull requests on `main` in the repo
 | User flows | `spec/USERFLOW.md` | How each role moves through the process. Derived. |
 | Sitemap | `spec/SITEMAP.md` | 30 routes, navigation, screens, access rules. Derived. |
 | DFD | `spec/DFD.md` | Entities, processes, stores, flows, trust boundaries. Derived. |
+| Build plan | `spec/BUILD_PLAN.md` | Phases, epics, tasks. Expand it one level at a time (§0). |
 | ERD | `spec/ERD.md` | Tables, enums, invariants (`INV-nn`), state machines, row access. Read it before you write a migration or a data-layer check. |
 | Functional Requirements | `docs/PUP_CpE_Thesis_Progress_System_Functional_Requirements_v1.1.md` | FR, BR, NFR and AS IDs. The spec. |
 | Operational Flow, DFD and Sitemap | `docs/PUP_CpE_Thesis_Progress_System_Operational_Flow_DFD_Sitemap_v3.1.md` | Process, data flows, 30 routes |
@@ -97,8 +98,9 @@ The human must also require the CI check and pull requests on `main` in the repo
 
 - If two documents disagree, the Unified Thesis Process wins for process rules. The Functional Requirements win for system behavior. `USERFLOW.md`, `SITEMAP.md`, `DFD.md` and `ERD.md` hold no process rules: correct them to match.
 - `docs/stale/` holds superseded versions. Use them as history only.
+- `design/stitch/` holds the initial Google Stitch screens. They are a prototype only, not a reference. Do not take design, routes, process or rules from them. The documents above win.
 
-## 7. Domain rules you must not break (full list: BR-01 to BR-20)
+## 7. Domain rules you must not break (full list: BR-01 to BR-21)
 
 | ID | Rule |
 | :---- | :---- |

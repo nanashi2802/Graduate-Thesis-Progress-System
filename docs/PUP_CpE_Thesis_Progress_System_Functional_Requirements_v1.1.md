@@ -5,7 +5,7 @@
 **Source of truth:** *Unified Thesis Process, Screens and Sitemap* v1.1 (22 Nov 2026)
 **Companion files:** `PUP_CpE_Thesis_Progress_System_Operational_Flow_DFD_Sitemap_v3.1.md` (flow, DFD, sitemap)
 **Status:** Draft for approval. Input for the PRD, the updated DFD and the first ERD.
-**Change log:** 17 Nov 2026 — AS-01 closed (Defense Day threads, FR-REV-12). Revision tracker: Option A (FR-REV-13). BR-20 added. NF-04 pre-check paused (Section 1.4). Role model: one role per account (AS-04 closed). "Evaluator" renamed to "Panel Member". AS-02, AS-03, AS-05, AS-06, AS-08, AS-10 confirmed. 18 Nov 2026 — free-tier platform rules: NFR-06 rewritten, NFR-10 size set, NFR-12 and NFR-13 added, digest window set to one day, daily job time added, AS-11 to AS-13 added. Stack confirmed by the owner (see PRD Section 11). AS-11 and AS-12 stay open. 22 Nov 2026 (v1.1) — references only: companion file set to Operational Flow v3.1, source of truth set to Unified v1.1, FR-WFL-02 and FR-WFL-13 point to Operational Flow v3.1. Owner decision: RETURNED goes back to DRAFT with the reason shown (FR-WFL-02).
+**Change log:** 17 Nov 2026 — AS-01 closed (Defense Day threads, FR-REV-12). Revision tracker: Option A (FR-REV-13). BR-20 added. NF-04 pre-check paused (Section 1.4). Role model: one role per account (AS-04 closed). "Evaluator" renamed to "Panel Member". AS-02, AS-03, AS-05, AS-06, AS-08, AS-10 confirmed. 18 Nov 2026 — free-tier platform rules: NFR-06 rewritten, NFR-10 size set, NFR-12 and NFR-13 added, digest window set to one day, daily job time added, AS-11 to AS-13 added. Stack confirmed by the owner (see PRD Section 11). AS-11 and AS-12 stay open. 22 Nov 2026 (v1.1) — references only: companion file set to Operational Flow v3.1, source of truth set to Unified v1.1, FR-WFL-02 and FR-WFL-13 point to Operational Flow v3.1. Owner decision: RETURNED goes back to DRAFT with the reason shown (FR-WFL-02). Checked against the Guidelines and TDW forms: FR-WFL-06 and FR-WFL-07 cite Guidelines B.16, B.17 and C.23. Gate 2 record is the signed final manuscript, not an approval sheet. BR-21 added from TDW 05 item 11 (`[CONFIRM]`). G15 expanded. G24 and G25 added. NFR-07 points to the PUP Data Protection Officer.
 **Rule for this file:** It holds requirements only. It holds no code, no table design and no technology choice.
 
 ---
@@ -120,6 +120,7 @@ Each account has one role. "Lead Panel Member" and "Panel Chair" are designation
 | BR-18 | Every disabled action shows its reason on screen. |
 | BR-19 | Commits, locked scans and audit records are never changed or deleted. |
 | BR-20 | The Final Panel comment window runs from the scheduled start of the Final Defense until Gate 2. Before the start, the panel reads only. The Student sees the threads when the defense closes. |
+| BR-21 | `[CONFIRM]` A Panel Member's access to the manuscript ends when the approved revised copy is submitted. Each Evaluator then certifies in writing that all copies are returned or deleted, within 10 days (TDW 05 item 11). Default event: the Coordinator records the final copy (Guidelines C.25). See G25. |
 
 ---
 
@@ -180,8 +181,8 @@ Each account has one role. "Lead Panel Member" and "Panel Chair" are designation
 | FR-WFL-03 | **Gate 1a.** The Adviser must be able to endorse a Ready commit for committee review, or Return it. The system must block the endorsement while the Adviser has open threads. In Milestone 2 it must also block it until IPMO is PASSED. | M | FR-ADV-03, UD | A2 | 5.0 |
 | FR-WFL-04 | **Gate 1b.** The Adviser and every Panel Member must each endorse the commit. The system must block a member's endorsement while that member has open threads. In Milestone 3 each member must also mark the Pre-Final revisions as accepted. When all endorse, the system must lock the manuscript (BR-07) and set COMMITTEE_ENDORSED. | M | FR-ADV-03, FR-PAN-04, UD | A2, P2 | 5.0 |
 | FR-WFL-05 | The Adviser, a Panel Member and the Coordinator must be able to Return an item with a written reason (BR-13). The system must notify the author of the item. | M | UD | A2, P2, C4, C5 | 5.0 |
-| FR-WFL-06 | **Certification (Milestone 1).** Each committee member must be able to accept the Proposal revisions. When all accept and the paper is received, the Coordinator must be able to record CERTIFIED. | M | UD | P2, A2, C6 | 5.0 |
-| FR-WFL-07 | **Gate 2 (Milestone 3).** Each member of the committee and the Final Panel must be able to mark the final manuscript approved. The system must block Gate 2 until IPMO is PASSED, RPO is DONE and the member has no open threads (BR-20). After the paper approval sheet is received, the Coordinator must be able to record FINAL_APPROVED. | M | FR-PAN-04, UD | P2, A2, C7 | 5.0 |
+| FR-WFL-06 | **Certification (Milestone 1).** Each committee member must be able to accept the Proposal revisions. When all accept and the paper is received, the Coordinator must be able to record CERTIFIED. The Certification is one paper signed by the committee. The system must link its scan to the commit of the revised proposal (Guidelines B.16, B.17). | M | UD | P2, A2, C6 | 5.0 |
+| FR-WFL-07 | **Gate 2 (Milestone 3).** Each member of the committee and the Final Panel must be able to mark the final manuscript approved. The system must block Gate 2 until IPMO is PASSED, RPO is DONE and the member has no open threads (BR-20). The Committee, the Final Panel and the Dean/OU Director sign the final manuscript on paper (Guidelines C.23). After the signed final manuscript is received, the Coordinator must be able to record FINAL_APPROVED. The system must link its scan to the approved commit. | M | FR-PAN-04, UD | P2, A2, C7 | 5.0 |
 | FR-WFL-08 | The system must allow only the Coordinator to set CLOSED, CERTIFIED, FINAL_APPROVED and CLEARED (BR-02). | M | UD | C6, C7 | 5.0 |
 | FR-WFL-09 | When the verdict is Disapproved, the system must keep the defense open and restart the cycle at the review step. It must keep every attempt in the history. | M | UD | C6, S5 | 5.0 |
 | FR-WFL-10 | The Coordinator must be able to set the outside statuses. **Ethics:** NOT_SUBMITTED, UNDER_REVIEW, CHANGES_REQUIRED, APPROVED. **IPMO:** NOT_SUBMITTED, UNDER_CHECK, FAILED, PASSED. **RPO:** NOT_SUBMITTED, UNDER_EDITING, DONE. **Copyright:** NOT_APPLIED, APPLIED, REGISTERED. Other roles must see them read-only. In Milestone 1 the system must block date confirmation until Ethics is APPROVED. | M | UD | C7, S1 | 5.0 |
@@ -198,7 +199,7 @@ Each account has one role. "Lead Panel Member" and "Panel Chair" are designation
 | FR-CMT-02 | The appointment board must show each faculty member's workload and availability. | S | UD | C3 | 4.0 |
 | FR-CMT-03 | Each proposed member must have a status: Proposed, Accepted or Declined. A declined seat needs a replacement. | M | UD | C3 | 4.0 |
 | FR-CMT-04 | The Coordinator must be able to upload the TDW 06 or TDW 11 scan and the NDA scans, then mark the member Appointed. The Dean assigns on paper. | M | UD | C3 | 4.0 |
-| FR-CMT-05 | The system must open the manuscript to a member when the form and that member's NDA are both recorded (BR-08). It must notify the member. | M | FR-PAN-02, UD | P1, C3 | 4.0 |
+| FR-CMT-05 | The system must open the manuscript to a member when the form and that member's NDA are both recorded (BR-08). It must notify the member. The system must end the access at the event in BR-21. | M | FR-PAN-02, UD | P1, C3 | 4.0 |
 | FR-CMT-06 | Before the defense, the Coordinator must be able to record a substitute panelist. The substitute must be an existing Panel Member account. The substitute must sign an NDA and gets read access to the locked manuscript. The system must let the substitute complete the absent member's sheet. | M | UD | C3, P4 | 4.0 |
 
 ### 4.5 REV — Manuscript and review
@@ -362,7 +363,7 @@ Each account has one role. "Lead Panel Member" and "Panel Chair" are designation
 | NFR-04 | Each role must have one landing screen that shows the next action. |
 | NFR-05 | An email failure must never block a workflow step. The in-app event must always be recorded. |
 | NFR-06 | The system must use one third-party feature service only: a transactional mail service. Hosting, database, authentication and file storage are infrastructure. All infrastructure must run on free tiers. PDF reading and file bundling run inside the app. |
-| NFR-07 | Email and logs must hold the least personal data the flow needs. The retention period is to be set. |
+| NFR-07 | Email and logs must hold the least personal data the flow needs. The retention period is to be set. No Graduate School source sets it. Ask the PUP Data Protection Officer (RA 10173). |
 | NFR-08 | The PRD must set response-time and availability targets. They are not set here. |
 | NFR-09 | The Defense Day page and the manuscript viewer must work on laptop and tablet screen widths. |
 | NFR-10 | The manuscript must be a PDF. Scans must be PDF or image. The system must reject other file types and files over 50 MB at upload. (Proposed limit. See AS-11.) |
@@ -516,7 +517,7 @@ This list is a start. It holds no keys and no relations.
 | G12 | Is the residency limit a block or a warning? | Warning only. (WFL-12) |
 | G13 | Late printed copies? | Coordinator sees a warning. (DEF-04) |
 | G14 | Which ethics board applies? | Coordinator sets the status. (WFL-10) |
-| G15 | Official form for the Certification of Proposal Approval? | Paper form from the Graduate School. (WFL-06) |
+| G15 | Not one of the 13 TDW forms. Guidelines B.12 says the committee **issues** it after the defense. B.16 says the committee **signs** it after the revision. B.17 says the Secretary receives it with the revised proposal. Is this one paper or two? | One paper, signed by the committee after the revision and linked to the revised proposal commit (B.16, B.17). (WFL-06) |
 | G16, G21 | Printed copy and final copy counts and due dates | Count not defined. (DEF-04, CLR-03) |
 | G18 | Does the Adviser complete a TDW 13 sheet? | No. (DEF-06) |
 | G19 | Do conference and journal items block clearance? | Both required, any order. (CLR-02) |
@@ -524,6 +525,8 @@ This list is a start. It holds no keys and no relations.
 | G22 | Which office handles copyright? | Status only. (WFL-10) |
 | G23 | Is GS Form 08 in this flow? | Not in the flow. |
 | PK2 | Does a substitute need a paper amendment? | Coordinator records the substitute. (CMT-06) |
+| G24 | Does the Program set a target date for each milestone? Is it one value for the cohort or a date for each Student? (The Guidelines and TDW forms set no milestone duration.) | No target date. Pacing flags and the B2 reminder stay off until the Program Chair sets one. (TPL-05, TRK-06) |
+| G25 | TDW 05 item 11: which submission is the "approved revised copy" for each milestone? Does the system track each Evaluator's written certification that all copies are deleted? | Access ends when the Coordinator records the final copy (Guidelines C.25). The deletion certification stays on paper, outside the system. (CMT-05, BR-21) |
 
 ---
 

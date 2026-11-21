@@ -24,7 +24,7 @@
 | 1 | Each route is open only to its role. Other access shows an **Access Denied** banner. | FR-ACC-02 |
 | 2 | The server checks the data scope on every read and write. The screen is not enough. | FR-ACC-03, NFR-01 |
 | 3 | A Student sees only their own data. An Adviser sees only their own advisees. A Panel Member sees only assigned Students. | BR-04 |
-| 4 | The manuscript is locked to a Panel Member until the appointment form and that member's NDA are recorded. | BR-08 |
+| 4 | The manuscript is locked to a Panel Member until the appointment form and that member's NDA are recorded. The access ends when the approved revised copy is submitted (`[CONFIRM]` G25). | BR-08, BR-21 |
 | 5 | A Defense Day page opens only at the scheduled start. | BR-10 |
 | 6 | Defense results show only after the Coordinator verifies the sheets. | BR-11 |
 | 7 | Clearance screens appear from Milestone 3. | FR-CLR-01 |

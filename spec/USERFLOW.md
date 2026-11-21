@@ -239,7 +239,7 @@ sequenceDiagram
 | 1 | Revise using the Defense Day threads and the Minutes. Each Panel Member resolves own threads. | Student, Adviser, Panel Members | S2, A2, P2 |
 | 2 | Similarity check, then IPMO (outside). The Coordinator sets the status. | Student, Adviser, Coordinator | C7 |
 | 3 | RPO editing (outside). Revise after editing. | Coordinator, Student, Adviser | C7 |
-| 4 | **Gate 2.** Each member approves. Needs IPMO PASSED, RPO DONE, own threads resolved. Paper approval sheet signed. | Committee, Final Panel, Coordinator | A2, P2, C7 |
+| 4 | **Gate 2.** Each member approves. Needs IPMO PASSED, RPO DONE, own threads resolved. The Committee, the Final Panel and the Dean/OU Director sign the final manuscript (Guidelines C.23). | Committee, Final Panel, Coordinator | A2, P2, C7 |
 | 5 | Copyright application (outside). | Student, Coordinator | C7 |
 | 6 | Final copy to the Coordinator. | Student, Coordinator | S6, C7 |
 | 7 | Conference presentation certification. | Student | S6 |

@@ -8,7 +8,7 @@
 | Item | Value |
 | :---- | :---- |
 | Product | PUP CpE Thesis Progress Monitoring System |
-| Version | 2.0 draft |
+| Version | 2.2 draft |
 | Date | 22 Nov 2026 |
 | Owner | Nanashi |
 | Program | PUP Graduate Computer Engineering (Master's and Doctoral) |
@@ -157,7 +157,7 @@ flowchart LR
 
 ## 7. Key product rules
 
-The full list is BR-01 to BR-20 in the Functional Requirements.
+The full list is BR-01 to BR-21 in the Functional Requirements.
 
 | ID | Rule |
 | :---- | :---- |
@@ -174,7 +174,7 @@ The full list is BR-01 to BR-20 in the Functional Requirements.
 | BR-19 | Commits, locked scans and audit records are never changed or deleted. |
 | BR-20 | The Final Panel comments from the scheduled start of the Final Defense until Gate 2. |
 
-## 8. Release phases `[CONFIRM]`
+## 8. Release phases (approved 22 Nov 2026, D-22)
 
 | Phase | Name | Content | Exit test |
 | :---- | :---- | :---- | :---- |
@@ -326,6 +326,7 @@ The free tier gives pilot scale: a few cohorts, not the whole program.
 | D-19 | One daily job. Digests group per day. | Cron limit |
 | D-20 | File limit 50 MB. | Proposed |
 | D-21 | RETURNED goes back to DRAFT. The Student sees the written reason. | Owner, 22 Nov 2026 (FR-WFL-02) |
+| D-22 | Release phases 0 to 4 in Section 8 are approved. Work starts with Phase 0. | Owner, 22 Nov 2026. Build plan: `spec/BUILD_PLAN.md` |
 
 ## 14. Open items
 
@@ -340,8 +341,9 @@ The free tier gives pilot scale: a few cohorts, not the whole program.
 | Q5 | How many commits does a milestone usually have? | 5 |
 | Q6 | What are the real sizes and page counts of the TDW forms? | 90 MB per Student for forms and evidence |
 | Q7 | Which hosting will the system use long term? | Vercel Hobby for now |
+| Q8 | How long does the system keep emails, notifications and logs? No Graduate School source sets it. Ask the PUP Data Protection Officer (RA 10173). | Keep all rows. No purge. |
 
-**Graduate School questions** (G3 to G23, PK2) keep the defaults in the Unified Thesis Process, Part 5.2. None blocks the work.
+**Graduate School questions** (G3 to G25, PK2) keep the defaults in the Unified Thesis Process, Part 5.2. None blocks the work.
 
 ## 15. Document map
 
@@ -352,6 +354,7 @@ The free tier gives pilot scale: a few cohorts, not the whole program.
 | `spec/SITEMAP.md` | Routes, navigation, screens and access rules |
 | `spec/DFD.md` | Data flows, stores and trust boundaries |
 | `spec/ERD.md` | Data model, invariants and state machines |
+| `spec/BUILD_PLAN.md` | Phases, epics and tasks for the build |
 | `docs/PUP_CpE_Thesis_Progress_System_Unified_Thesis_Process_v1.1.md` | Source of truth for process rules |
 | `docs/PUP_CpE_Thesis_Progress_System_Functional_Requirements_v1.1.md` | Source of truth for system behavior (FR, BR, NFR, AS) |
 | `docs/PUP_CpE_Thesis_Progress_System_Operational_Flow_DFD_Sitemap_v3.1.md` | Operational flow and the first DFD |
@@ -365,3 +368,5 @@ The free tier gives pilot scale: a few cohorts, not the whole program.
 | :---- | :---- | :---- |
 | 1.0 to 1.3 draft | 18 to 22 Nov 2026 | See `docs/stale/PUP_CpE_Thesis_Progress_System_PRD_v1.3.md` |
 | 2.0 draft | 22 Nov 2026 | One PRD file. Adds the companion files `USERFLOW.md` and `SITEMAP.md`. Adds BR-05, BR-08, BR-18, BR-19 and BR-20 to the key rules. Shortens the capacity table. Removes the self-review and the template notes (kept in v1.3). Adds D-21 (RETURNED goes back to DRAFT). |
+| 2.1 draft | 22 Nov 2026 | Source check against the Guidelines and TDW forms: BR-21 (`[CONFIRM]`), Q8 (retention), G24 and G25. No product rule invented. |
+| 2.2 draft | 22 Nov 2026 | Section 8 approved (D-22). Adds `BUILD_PLAN.md` to the document map. |

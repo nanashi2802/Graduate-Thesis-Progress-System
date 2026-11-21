@@ -2,6 +2,7 @@
 
 **Status:** Draft v0.1 (22 Nov 2026). No UI code exists yet.
 **Scope:** The visual and interaction design of the web app (30 routes) and the system emails.
+**Not a source:** The Google Stitch screens in `design/stitch/` are a prototype only. This file does not derive from them. If they disagree, this file wins.
 **Fixed input from the owner:** Use the PUP colors (dark maroon and golden yellow). Do not use the PUP logo, seal or any image symbol (intellectual property constraint). Everything else in this file is a proposal.
 **Sources:** Unified Thesis Process v1.1 (Sections 1.6, 1.7, 2.3, 3), Functional Requirements v1.1 (NFR-04, NFR-09, BR-01, BR-07, BR-15, BR-17, BR-18, BR-19), [PUP Logo and Symbols](https://www.pup.edu.ph/about/logosymbols).
 

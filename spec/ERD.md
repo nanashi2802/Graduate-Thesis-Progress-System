@@ -1,7 +1,8 @@
 # ERD — PUP CpE Thesis Progress Monitoring System
 
 **Compliance standard:** Simplified Technical English (ASD-STE100) at about 80%
-**Version:** 1.0 draft · 22 Nov 2026 · `[CONFIRM]` first ERD, for owner review
+**Version:** 1.1 draft · 22 Nov 2026 · `[CONFIRM]` first ERD, for owner review
+**Change in 1.1:** Checked against the Guidelines and TDW forms (`docs/reference/`). `GATE_2_SHEET` is now `SIGNED_FINAL_MANUSCRIPT` (C.23). `document_record.linked_commit_id` added (B.17, C.23). Access end added (BR-21, TDW 05 item 11). ERD-Q1 to Q3 resolved or sent to the Graduate School.
 **Derived from:** Functional Requirements v1.1 (§2 business rules, §4 FRs, §6.3 candidate entities), `DFD.md` (stores D1 to D13), `PRD.md` §11 (Neon Postgres, design rules)
 **Rule for this file:** This is the logical data model. It adds no process rule. It decides table shape only. If it disagrees with the Functional Requirements, the Functional Requirements win. Correct this file.
 **Companion files:** `DFD.md`, `USERFLOW.md`, `SITEMAP.md`
@@ -58,7 +59,7 @@
 | `gate_kind` | `gate_1a`, `gate_1b`, `certification`, `gate_2`, `date_confirmation`, `stage_close`, `clearance_close`, `data_gathering` | FR-WFL-03 to 11 |
 | `gate_result` | `endorsed`, `returned`, `accepted`, `approved`, `recorded` | FR-WFL-14 |
 | `document_state` | `not_started`, `prepared`, `scan_uploaded`, `locked_as_submitted`, `physical_received`, `verified`, `mismatch`, `returned` | FR-DOC-02 |
-| `form_code` | `TDW_03` to `TDW_13`, `OR`, `ETHICS_CERT`, `CERTIFICATION`, `GATE_2_SHEET`, `MINUTES`, `FINAL_COPY`, `CONFERENCE_CERT`, `JOURNAL_PUB`, `SUPPORTING` | Unified App. A |
+| `form_code` | `TDW_03` to `TDW_13`, `OR`, `ETHICS_CERT`, `CERTIFICATION`, `SIGNED_FINAL_MANUSCRIPT`, `MINUTES`, `FINAL_COPY`, `CONFERENCE_CERT`, `JOURNAL_PUB`, `SUPPORTING` | Unified App. A, Guidelines B.16, C.23, C.25 |
 | `outside_kind` | `ethics`, `ipmo`, `rpo`, `copyright` | BR-14 |
 | `outside_value` | Ethics: `NOT_SUBMITTED`, `UNDER_REVIEW`, `CHANGES_REQUIRED`, `APPROVED`. IPMO: `NOT_SUBMITTED`, `UNDER_CHECK`, `FAILED`, `PASSED`. RPO: `NOT_SUBMITTED`, `UNDER_EDITING`, `DONE`. Copyright: `NOT_APPLIED`, `APPLIED`, `REGISTERED`. | FR-WFL-10 |
 | `slot_type` | `consultation`, `defense` | FR-SCH-01, 07 |
@@ -310,6 +311,7 @@ erDiagram
         uuid template_required_item_id FK "nullable for extras"
         form_code form_code
         uuid subject_user_id FK "nullable, the member for an NDA or a sheet"
+        uuid linked_commit_id FK "CERTIFICATION and SIGNED_FINAL_MANUSCRIPT: the commit signed (B.17, C.23)"
         document_state state
     }
     document_file {
@@ -503,6 +505,7 @@ erDiagram
     milestone_instance ||--o{ gate_action : "logs"
     document_file ||--o{ document_comment : "receives"
     manuscript_commit ||--o{ document_comment : "receives"
+    manuscript_commit ||--o{ document_record : "is signed in"
     app_user ||--o{ notification : "receives"
     notification ||--o{ email_log : "sends"
     app_user ||--o{ notification_preference : "sets"
@@ -516,7 +519,7 @@ erDiagram
 | :---- | :---- | :---- |
 | Outdated badge | The thread is `OPEN` and a commit with a higher `ordinal` exists in the same `submission_pr`. | BR-06, FR-REV-05 |
 | Manuscript locked | `submission_pr.locked_at` is not null. | BR-07 |
-| Member has access | `committee.appointment_document_id` is verified and the member's `nda_document_id` is verified. | BR-08 |
+| Member has access | `committee.appointment_document_id` is verified, the member's `nda_document_id` is verified, and the access has not ended: the `final_copy` clearance item is not yet recorded (default event, `[CONFIRM]` G25). | BR-08, BR-21 |
 | Current outside status | The latest `outside_status_event` for the milestone and kind. | BR-14 |
 | Earliest defense date | The `gate_1b` completion time + `template_version.min_notice_days`. | BR-09, FR-TRK-05 |
 | Printed copies due date | `defense_attempt.scheduled_start_at` − `printed_copies_due_days`. | BR-09 |
@@ -583,6 +586,8 @@ erDiagram
 | INV-30 | A failed email never rolls back the event. The `notification` row is written first. | `notification`, `email_log` | DL | NFR-05 |
 | INV-31 | `document_comment` has exactly one target: `document_file_id` or `commit_id`. M1 and M2 only. | `document_comment` | DB check + DL | FR-REV-11 |
 | INV-32 | No table holds a grade or grade equivalent. | All | Review | BR-15 |
+| INV-33 | `[CONFIRM]` A Panel Member's read access to commits and files ends at the event in BR-21. Default: the Coordinator records the `final_copy` clearance item. No new signed read link is issued after that. | `manuscript_commit`, `document_file`, `clearance_item` | DL | BR-21, TDW 05 item 11 |
+| INV-34 | A `CERTIFICATION` or `SIGNED_FINAL_MANUSCRIPT` record has a `linked_commit_id` in the same milestone. Each milestone has at most one of each. | `document_record` | DB check + unique partial index | Guidelines B.17, C.23 |
 
 ## 7. State machines
 
@@ -603,8 +608,8 @@ erDiagram
 | `DEFENSE_SCHEDULED` | `DEFENSE_HELD` | Lead Panel Member or Panel Chair | INV-15 |
 | `DEFENSE_HELD` | `CLOSED` | Coordinator | INV-16. Clears `locked_at`. |
 | `DEFENSE_HELD` | `DRAFT` | System | Verdict Disapproved. New `defense_attempt` later (FR-WFL-09). |
-| `CLOSED` | `CERTIFIED` | Coordinator | M1: every member accepted the revision items |
-| `CLOSED` | `FINAL_APPROVED` | Coordinator | M3: INV-22 for every member, paper received |
+| `CLOSED` | `CERTIFIED` | Coordinator | M1: every member accepted the revision items. The `CERTIFICATION` document is verified (INV-34). |
+| `CLOSED` | `FINAL_APPROVED` | Coordinator | M3: INV-22 for every member. The `SIGNED_FINAL_MANUSCRIPT` document is verified (INV-34). |
 | `FINAL_APPROVED` | `CLEARED` | Coordinator | M3: every `clearance_item` verified |
 
 Each change writes one `gate_action` or `audit_record` row.
@@ -627,7 +632,7 @@ The data layer applies this on every read and write (NFR-01, FR-ACC-03).
 | :---- | :---- | :---- |
 | Student | Own `thesis_instance` and all child rows. Defense Day threads only after close. Results only after verification. | Commits, replies, Addressed tags, bookings, agenda, Ready mark, date proposal, own uploads, revision item links |
 | Adviser | Theses where `adviser_user_id` = self, and their child rows | Threads, gates, Returns, slots, log entries, TDW 03 upload, own evaluation entry, revision acceptance, data-gathering approval |
-| Panel Member | Theses where the user has a `committee_member` or `defense_substitute` row. Manuscript only with access (§4.2). | Threads, document comments, gates, Returns, defense slots, own evaluation entry, verdict (designation only), revision acceptance |
+| Panel Member | Theses where the user has a `committee_member` or `defense_substitute` row. Manuscript only with access (§4.2), until the access ends (INV-33). | Threads, document comments, gates, Returns, defense slots, own evaluation entry, verdict (designation only), revision acceptance |
 | Coordinator | All rows | Accounts, templates, committees, documents, outside statuses, schedule, sheets, Minutes, closes, clearance |
 
 No role reads another user's `notification`, `notification_preference` or `saved_filter` rows.
@@ -636,12 +641,13 @@ No role reads another user's `notification`, `notification_preference` or `saved
 
 | ID | Point | Default in this file |
 | :---- | :---- | :---- |
-| ERD-Q1 | `[CONFIRM]` Is the target date set per milestone instance (one Student) or per template (all Students)? | Per `milestone_instance.target_date` |
-| ERD-Q2 | `[CONFIRM]` Does the Certification of Proposal Approval need its own table, or is it a `document_record` (`CERTIFICATION`) plus `gate_action` rows? | `document_record` + `gate_action` |
-| ERD-Q3 | `[CONFIRM]` Is the Gate 2 approval sheet one document per milestone (`GATE_2_SHEET`)? | Yes |
+| ERD-Q1 | **Sent to the Program Chair (G24).** The Guidelines and TDW forms set no milestone duration. Target dates are a pacing feature, not a Graduate School rule. | Keep `milestone_instance.target_date` nullable, with no default. Move it only if G24 says one value for the cohort. |
+| ERD-Q2 | **Resolved from source (B.16, B.17); open part sent to G15.** The Certification is one paper signed by the committee and received with the revised proposal. It has no defined fields. | `document_record` (`CERTIFICATION`) with `linked_commit_id` + `gate_action`. No own table. |
+| ERD-Q3 | **Resolved from source (C.23).** The Committee, the Final Panel and the Dean/OU Director sign the final manuscript. There is no separate approval sheet. | One `document_record` (`SIGNED_FINAL_MANUSCRIPT`) for each milestone, with `linked_commit_id` |
+| G25 | `[CONFIRM]` Which event ends Panel Member access (TDW 05 item 11)? Do we track the deletion certification? | Access ends at the `final_copy` record. The certification stays on paper. |
 | AS-11, AS-12 | File sizes and page counts are open. | 50 MB proposed |
 | AS-13 | Download transfer limits are open. | No schema effect |
-| NFR-07 | The retention period for emails and logs is not set. | Keep all rows |
+| NFR-07 | The retention period for emails and logs is not set. No Graduate School source sets it. Ask the PUP Data Protection Officer (RA 10173). | Keep all rows. No purge. |
 
 ## 10. Traceability to the candidate entities (FR §6.3)
 

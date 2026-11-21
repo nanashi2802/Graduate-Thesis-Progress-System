@@ -243,7 +243,7 @@ The diagram shows the main flows only. Section 4 lists every flow.
 | F1 | E4 | P1.0 | New account data | Only after eligibility. One role per account. | FR-ACC-04, BR-03 |
 | F2 | E1 | P2.0 | New commit (metadata; bytes go by T2) | Blocked while locked. Clears Ready. Marks older open threads Outdated. | BR-07, FR-REV-02, BR-06 |
 | F3 | E2, E3 | P2.0 | Thread, reply, resolve | Only the author resolves. | BR-05 |
-| F4 | P2.0 | E2, E3 | Manuscript, threads | Panel Member reads only after the form and that member's NDA are recorded. | BR-08 |
+| F4 | P2.0 | E2, E3 | Manuscript, threads | Panel Member reads only after the form and that member's NDA are recorded, and until the access ends. | BR-08, BR-21 |
 | F5 | E1 | P3.0 | Consultation request, agenda, linked threads | Slot goes Available, Pending, Confirmed. | FR-SCH-02, FR-SCH-04 |
 | F6 | E2, E3 | P3.0 | Slot, confirmation, log edit | No minimum consultation count. | BR-16 |
 | F7 | E4 | P4.0 | Appointment, NDA scans, substitute | Panel Member accounts only. Never the Student's Adviser. | BR-03, FR-CMT-06 |
