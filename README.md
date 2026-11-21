@@ -99,7 +99,19 @@ Switch between personas via the floating button at bottom-right in `code.html`:
 
 ## 4. Documentation Sources of Truth
 
-All specifications in this repository conform to:
-1. **[`docs/Updated Docs/PUP_CpE_Thesis_Progress_System_Operational_Flow_DFD_Sitemap_v3.md`](docs/Updated%20Docs/PUP_CpE_Thesis_Progress_System_Operational_Flow_DFD_Sitemap_v3.md)** — Operational Flow v3, Level 0 & Level 1 DFDs, 30 routes sitemap, and ASD-STE100 compliance.
-2. **[`docs/Updated Docs/PUP_CpE_Thesis_Progress_System_Functional_Requirements_v1.md`](docs/Updated%20Docs/PUP_CpE_Thesis_Progress_System_Functional_Requirements_v1.md)** — 107 Functional Requirements (FRs), 20 Business Rules (BR-01 to BR-20), and notification use cases.
-3. Historical reference documents in [`docs/governing/`](docs/governing/) and [`docs/Graduate Thesis Progress System.md`](docs/Graduate%20Thesis%20Progress%20System.md).
+Governing documents live in [`docs/`](docs/). Agent rules live in [`AGENTS.md`](AGENTS.md) (`CLAUDE.md` points to it).
+
+| Document | Role |
+| :--- | :--- |
+| [`spec/PRD.md`](spec/PRD.md) | Goals, scope, stack, risks, decision log (v2.0 draft) |
+| [`spec/USERFLOW.md`](spec/USERFLOW.md) | Journey, 14-step defense cycle, role flows, exceptions |
+| [`spec/SITEMAP.md`](spec/SITEMAP.md) | 30 routes, navigation, screens, access rules |
+| [`spec/DFD.md`](spec/DFD.md) | Data flow diagram: elements, flows, trust boundaries |
+| [`spec/ERD.md`](spec/ERD.md) | Data model: tables, enums, invariants, state machines |
+| [`PUP_CpE_Thesis_Progress_System_Functional_Requirements_v1.1.md`](docs/PUP_CpE_Thesis_Progress_System_Functional_Requirements_v1.1.md) | FR, BR, NFR and AS IDs. The spec. |
+| [`PUP_CpE_Thesis_Progress_System_Operational_Flow_DFD_Sitemap_v3.1.md`](docs/PUP_CpE_Thesis_Progress_System_Operational_Flow_DFD_Sitemap_v3.1.md) | Process, data flows, 30 routes |
+| [`PUP_CpE_Thesis_Progress_System_Unified_Thesis_Process_v1.1.md`](docs/PUP_CpE_Thesis_Progress_System_Unified_Thesis_Process_v1.1.md) | Source of truth for the thesis process |
+
+If two documents disagree, the Unified Thesis Process wins for process rules. The Functional Requirements win for system behavior.
+
+Old documents are in [`docs/stale/`](docs/stale/). They are history only. Do not use them as a source.
