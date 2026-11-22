@@ -194,3 +194,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Correction (22 Nov 2026, after the agent-r review of #8):** the first version sent B1 7 days before the due date (14 days before the defense). That broke FR-NTF-06, and no B1 was sent when the date was confirmed less than 14 days ahead.
 - **Risk:** low. B2 stays off until a target date exists (G24). B6 uses the unverified residency limit (R7).
 - **Undo:** Change `REMINDER_DAYS`, or move the days into `template_version`.
+
+### AD-B-016 — One pure module for the TDW 08, TDW 10 and TDW 13 sheet rules
+- **Task:** P2-E02-T01 (look-ahead). P1-E09 (`agent-a`) and P3-E01 use it too.
+- **Options:** each epic writes its own sheet rules (P1-E09 TDW 08, P2-E02 TDW 10, P3-E01 TDW 13); one pure module in `src/server/domain/evaluation.ts` for all three forms now
+- **Decision and reason:** One module now. The three forms share INV-14, INV-16, BR-11 and FR-DEF-07. Only the score part differs (TDW 10 has comment boxes only). `src/server/domain/` belongs to `agent-b`, and P1-E09 is the next user of the rules. The expected sheets come from the appointed members, plus the Adviser at Proposal and Pre-Final (FR-DEF-06). A substitute takes the absent member's sheet (FR-CMT-06). So the count follows FR §3 when the committee has its template size. Scores are from 0 to the line weight (ERD `evaluation_score.score`). The total is the plain sum, with no grade equivalent (BR-15).
+- **Risk:** low. `agent-a` can wire it in P1-E09 or keep its own rules. The verdict and the close stay in `milestone.ts`.
+- **Undo:** revert the commits with AD-B-016.

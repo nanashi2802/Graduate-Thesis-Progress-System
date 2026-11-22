@@ -587,6 +587,27 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [x] Tests cover both group kinds and the held Defense Day items.
 - **Tests:** unit (Vitest)
 
+### 4.2 P2-E02 TDW 09 and TDW 10 (Track B, `agent-b`)
+
+**Decisions:** AD-B-016. T01 is pure code and look-ahead. P1-E09 (`agent-a`) and P3-E01 use it too.
+
+### P2-E02-T01 — Evaluation sheet rules for TDW 08, 10 and 13 (pure)
+- **Goal:** One module gives the form, the expected sheets, the edit window, the score and comment checks, and the close inputs for each milestone.
+- **Covers:** FR-DEF-05, FR-DEF-06, FR-DEF-07, FR-CMT-06, INV-14, INV-16, INV-25, BR-10, BR-11, BR-15, BR-17
+- **Changes:** `src/server/domain/evaluation.ts`, `tests/unit/domain/evaluation.test.ts`
+- **Depends on:** none
+- **Done when:**
+  - [x] Tests cover the edit window (INV-14), the weights (INV-25), the score range, the TDW 10 comment boxes and the sheet part of INV-16.
+  - [x] The Adviser has a sheet at Proposal and Pre-Final, and none at Final. A substitute takes the absent member's sheet.
+  - [x] A different Action Taken gives a warning only (BR-17).
+- **Tests:** unit (Vitest)
+
+### P2-E02-T02 — TDW 09 endorsement and TDW 10 sheet wiring
+- **Goal:** The Pre-Final endorsement form (TDW 09) and the comments-only sheet (TDW 10) work through the data layer and the P4 screen.
+- **Covers:** FR-DEF-02, FR-DEF-05, FR-DOC-08
+- **Depends on:** T01, P1-E09
+- **Done when:** `[ ]` An end-to-end step at Pre-Final encodes a TDW 10 sheet, and the Coordinator verifies it.
+
 ---
 
 ## 5. Phase 3 — Milestone 3 and clearance
