@@ -186,3 +186,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** Fixed texts in code. FR-NTF-10 (edit and version the wording) is priority C and sits in Phase 4 (`spec/BUILD_PLAN.md` §6). FR-NTF-02 needs fixed templates with no free text, and constants meet it. A test checks that no text holds a verdict, score or link word (FR-NTF-03, BR-15).
 - **Risk:** low. When Phase 4 adds FR-NTF-10, the constants become the first template version.
 - **Undo:** Load the texts from the template table in `buildNotificationEmail`.
+
+### AD-B-015 — Reminder days that FR §3 leaves open (B1, B2, B6)
+- **Task:** P2-E04-T01 (look-ahead)
+- **Options:** for B1, remind on the due date (FR §3 row "7 days before the defense") or 7 days before the due date (FR §4.10 "due in 7 days"); for B2 and B6, any days, because FR §3 gives none
+- **Decision and reason:** B1 fires 7 days before the printed-copies due date, as the B1 trigger text says. B2 fires 7 days before the target date and 1 day after it. B6 fires 90 and 30 days before the residency end date. Each rule fires on exact days, so one daily run sends each reminder once with no extra state. All days sit in `REMINDER_DAYS` in `src/server/notify/reminders.ts`.
+- **Risk:** medium. B1: if the Coordinator confirms the date less than 14 days before the defense, the B1 day is already past, and no B1 is sent. The A2 email still gives the date. B2 stays off until a target date exists (G24). B6 uses the unverified residency limit (R7).
+- **Undo:** Change `REMINDER_DAYS`, or move the days into `template_version`.

@@ -568,6 +568,17 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 | P2-E04 | Event emails, digests and preferences | FR-NTF-02 to 09, NFR-05, INV-28 to INV-30 |
 | P2-E05 | Milestone 2 end-to-end test | Exit test |
 
+### 4.1 P2-E04 look-ahead (Track B, `agent-b`)
+
+### P2-E04-T01 — Reminder rules (pure)
+- **Goal:** Give the reminders due today for one thesis, from its dates (A4, B1, B2, B6).
+- **Covers:** FR-NTF-06, FR §3 reminder parameters, BR-09, NFR-11. **Decision:** AD-B-015.
+- **Changes:** `src/server/notify/reminders.ts`, `tests/unit/notify-reminders.test.ts`
+- **Done when:**
+  - [x] Each rule has a test on its day and on the days next to it.
+  - [x] B2 stays off with no target date (G24).
+- **Tests:** unit (Vitest)
+
 ---
 
 ## 5. Phase 3 — Milestone 3 and clearance
