@@ -151,6 +151,27 @@ describe("panelDashboard (P1)", () => {
     expect((await panelDashboard(panel(), new Date("2026-11-19T00:00:00Z"))).assignments[0]!.actionRequired).toBeNull();
   });
 
+  it("tells a member with a proposed seat to answer the Coordinator", async () => {
+    const m = await seat(seed.panel[0]!.id, "none", true);
+    await db.update(s.committeeMember).set({ status: "proposed" }).where(eq(s.committeeMember.id, m.id));
+    const [a] = (await panelDashboard(panel())).assignments;
+    expect(a!.actionRequired).toBe("You are proposed for this seat. Tell the Coordinator your answer.");
+  });
+
+  it("lists one assignment for each committee that holds the member on one thesis", async () => {
+    await seat(seed.panel[0]!.id, "lead_panel_member", true);
+    const [fin] = await db
+      .insert(s.milestoneInstance)
+      .values({ thesisInstanceId: seed.thesis.id, templateVersionId: seed.versions.final.id, milestoneCode: "final", status: "DRAFT" })
+      .returning();
+    const [panelCom] = await db.insert(s.committee).values({ thesisInstanceId: seed.thesis.id, kind: "final_panel" }).returning();
+    await db.insert(s.committeeMember).values({ committeeId: panelCom!.id, memberUserId: seed.panel[0]!.id, designation: "panel_chair", status: "accepted" });
+    const list = (await panelDashboard(panel())).assignments;
+    expect(list.map((a) => a.milestone).sort()).toEqual(["final", "proposal"]);
+    expect(list.find((a) => a.milestone === "final")).toMatchObject({ milestoneId: fin!.id, designation: "panel_chair" });
+    expect(list.find((a) => a.milestone === "proposal")!.designation).toBe("lead_panel_member");
+  });
+
   it("shows only the member's own seats, and refuses other roles (NFR-01)", async () => {
     await seat(seed.panel[0]!.id, "none", true);
     expect((await panelDashboard(panel(1))).assignments).toEqual([]);

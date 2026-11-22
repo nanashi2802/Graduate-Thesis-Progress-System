@@ -207,7 +207,7 @@ export async function panelDashboard(ctx: DataContext, now: Date = new Date()): 
   const student = alias(appUser, "student");
   // Seats that are not declined, and substitute seats. One assignment for each thesis (the committee applies to its milestones).
   const seats = await ctx.db
-    .select({ thesisId: committee.thesisInstanceId, kind: committee.kind, designation: committeeMember.designation })
+    .select({ thesisId: committee.thesisInstanceId, kind: committee.kind, designation: committeeMember.designation, status: committeeMember.status })
     .from(committeeMember)
     .innerJoin(committee, eq(committee.id, committeeMember.committeeId))
     .where(and(eq(committeeMember.memberUserId, me), ne(committeeMember.status, "declined")));
@@ -237,15 +237,22 @@ export async function panelDashboard(ctx: DataContext, now: Date = new Date()): 
     .where(inArray(milestoneInstance.thesisInstanceId, thesisIds))
     .orderBy(asc(milestoneInstance.openedAt));
 
+  // One assignment for each role the member holds: each seat (the Evaluation Committee and the Final Panel can both
+  // hold the member on one thesis), and each substitute turn. A seat wins over a substitute turn on the same milestone.
+  const roles = [
+    ...seats.map((seat) => ({ thesisId: seat.thesisId, seat, milestoneId: null as string | null })),
+    ...subs.map((sub) => ({ thesisId: sub.thesisId, seat: undefined, milestoneId: sub.milestoneId as string | null })),
+  ];
   const out: Assignment[] = [];
-  for (const thesisId of thesisIds) {
+  const seen = new Set<string>();
+  for (const { thesisId, seat, milestoneId } of roles) {
     const own = ms.filter((m) => m.thesisId === thesisId);
-    const seat = seats.find((s) => s.thesisId === thesisId);
     const isSubstitute = !seat;
     // The Final Panel sits at Milestone 3. The Evaluation Committee sits at Milestones 1 and 2 (FR-CMT-01).
-    const applies = (code: MilestoneCode) => (isSubstitute ? subs.some((s) => own.find((m) => m.milestoneId === s.milestoneId)?.code === code) : seat!.kind === "final_panel" ? code === "final" : code !== "final");
-    const m = [...own].reverse().find((x) => applies(x.code));
-    if (!m) continue;
+    const applies = (code: MilestoneCode) => (seat!.kind === "final_panel" ? code === "final" : code !== "final");
+    const m = isSubstitute ? own.find((x) => x.milestoneId === milestoneId) : [...own].reverse().find((x) => applies(x.code));
+    if (!m || seen.has(m.milestoneId)) continue;
+    seen.add(m.milestoneId);
 
     const access = await canReadManuscript(ctx, thesisId);
     const [attempt] = await ctx.db
@@ -257,7 +264,7 @@ export async function panelDashboard(ctx: DataContext, now: Date = new Date()): 
     const startsAt = attempt?.scheduledStartAt ?? null;
     const dayReached = !!startsAt && pstDate(now) >= pstDate(startsAt);
 
-    let actionRequired: string | null = null;
+    let actionRequired: string | null = seat?.status === "proposed" ? "You are proposed for this seat. Tell the Coordinator your answer." : null;
     if (access.ok && m.readyCommitId && (m.status === "COMMITTEE_APPOINTED" || (m.status === "ADVISER_ENDORSED" && m.code === "pre_final"))) {
       const sinceReturn = await lastReturnGateId(ctx.db, m.milestoneId);
       const [done] = await ctx.db
