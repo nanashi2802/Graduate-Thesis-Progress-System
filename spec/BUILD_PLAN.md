@@ -585,8 +585,8 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Depends on:** T01, P1-E09, P1-E10
 - **Done when:**
   - [x] C1: a test shows the KPI strip, the grouped queue and the Student table. Each KPI count equals its queue. The pacing flag is information only. Any other role is refused.
-  - [ ] A1: the action queue (Gate 1a, 1b, data gathering, TDW 03, consultation requests) and the advisee roster, with a test.
-  - [ ] P1: the assignment list with designation, access status, action required and defense schedule, with a test.
+  - [x] A1: the action queue (Gate 1a, Gate 1b, data gathering, TDW 03, consultation requests) and the advisee roster: `adviserDashboard` in `src/server/data/queues.ts`, with tests. Gate 2 and consultation log entries are not queued yet (they wait for the Gate 2 and log screens).
+  - [x] P1: the assignment list with designation, access status and reason, action required (Gate 1b, sheet, verdict) and defense schedule: `panelDashboard`, with tests.
 
 ### P1-E11-T04 — Dashboard screens S1, A1, P1, C1
 - **Goal:** Each role lands on its dashboard with the next action (NFR-04). Each disabled action shows its reason.
