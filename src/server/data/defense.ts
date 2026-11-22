@@ -14,7 +14,7 @@ import {
   rubricTotal,
   type Tdw10Section,
 } from "@/server/domain/evaluation";
-import type { Verdict } from "@/server/domain/milestone";
+import { addDays, type Verdict } from "@/server/domain/milestone";
 import { pstDate } from "@/server/notify/time";
 import { uploadProblem } from "@/server/files/rules";
 import { AccessDeniedError, requireActive, type DataContext } from "./access";
@@ -30,7 +30,9 @@ import {
   evaluationEntry,
   evaluationScore,
   minutes,
+  printedCopyReceipt,
   rubricIndicator,
+  templateVersion,
 } from "./schema";
 import { requireThesisRead } from "./scope";
 
@@ -361,6 +363,60 @@ export async function closeDefense(ctx: DataContext, milestoneId: string, now: D
     if (!a) throw new InputProblem("The defense has no attempt.");
     await transitionMilestone({ db: tx, actor: ctx.actor }, milestoneId, "CLOSED");
     await tx.update(defenseAttempt).set({ status: "closed", closedAt: now }).where(eq(defenseAttempt.id, a.id));
+  });
+}
+
+// ---- Printed copies (FR-DEF-04, BR-09) ----
+
+export type PrintedCopyStatus = {
+  /** Printed copies are due `printed_copies_due_days` before the defense date (PST date). */
+  dueDate: string | null;
+  expectedCount: number;
+  receipt: typeof printedCopyReceipt.$inferSelect | null;
+  /** BR-09: a late or missing receipt is a warning only (BR-17). */
+  late: boolean;
+};
+
+export async function printedCopyStatus(ctx: DataContext, attemptId: string, now: Date = new Date()): Promise<PrintedCopyStatus> {
+  const { attempt, mctx } = await loadAttempt(ctx, attemptId);
+  const [v] = await ctx.db.select().from(templateVersion).where(eq(templateVersion.id, mctx.milestone.templateVersionId));
+  const [receipt] = await ctx.db.select().from(printedCopyReceipt).where(eq(printedCopyReceipt.defenseAttemptId, attemptId));
+  const dueDate = attempt.scheduledStartAt ? addDays(pstDate(attempt.scheduledStartAt), -(v?.printedCopiesDueDays ?? 7)) : null;
+  const doctoral = mctx.degreeLevel === "doctoral";
+  const receivedOn = receipt ? pstDate(receipt.receivedAt) : null;
+  return {
+    dueDate,
+    expectedCount: (doctoral ? v?.printedCopiesDoctoral : v?.printedCopiesMasters) ?? 0,
+    receipt: receipt ?? null,
+    late: dueDate !== null && (receivedOn ? receivedOn > dueDate : pstDate(now) > dueDate),
+  };
+}
+
+/** FR-DEF-04: the Coordinator records the receipt of the printed copies. A warning for a late receipt never blocks (BR-17). */
+export async function recordPrintedCopies(ctx: DataContext, attemptId: string, copyCount: number, now: Date = new Date()): Promise<void> {
+  requireCoordinator(ctx, "records printed copies");
+  const { attempt } = await loadAttempt(ctx, attemptId);
+  if (!Number.isInteger(copyCount) || copyCount <= 0) throw new InputProblem("Enter the number of copies, one or more.");
+  if (!isOpen(attempt)) throw new InputProblem("The defense is not open for printed copies.");
+  await ctx.db.transaction(async (tx) => {
+    const [found] = await tx.select().from(printedCopyReceipt).where(eq(printedCopyReceipt.defenseAttemptId, attemptId));
+    if (found?.matchResult === "matched") throw new InputProblem("The copies are checked already.");
+    if (found) await tx.update(printedCopyReceipt).set({ copyCount, receivedAt: now, matchResult: "pending" }).where(eq(printedCopyReceipt.id, found.id));
+    else await tx.insert(printedCopyReceipt).values({ defenseAttemptId: attemptId, copyCount, receivedAt: now });
+    await recordAudit({ db: tx, actor: ctx.actor }, { action: "printed.receive", targetTable: "defense_attempt", targetId: attemptId, detail: { copyCount } });
+  });
+}
+
+/** FR-DEF-04, FR-DEF-09: the Coordinator checks the printed copies against the locked manuscript. */
+export async function checkPrintedCopies(ctx: DataContext, attemptId: string, result: "matched" | "mismatch"): Promise<void> {
+  requireCoordinator(ctx, "checks printed copies");
+  const { attempt } = await loadAttempt(ctx, attemptId);
+  if (!isOpen(attempt)) throw new InputProblem("The defense is not open for printed copies.");
+  const [found] = await ctx.db.select().from(printedCopyReceipt).where(eq(printedCopyReceipt.defenseAttemptId, attemptId));
+  if (!found) throw new InputProblem("Record the receipt of the copies first.");
+  await ctx.db.transaction(async (tx) => {
+    await tx.update(printedCopyReceipt).set({ matchResult: result }).where(eq(printedCopyReceipt.id, found.id));
+    await recordAudit({ db: tx, actor: ctx.actor }, { action: `printed.${result}`, targetTable: "defense_attempt", targetId: attemptId });
   });
 }
 
