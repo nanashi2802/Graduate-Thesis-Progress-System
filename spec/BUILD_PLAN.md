@@ -648,7 +648,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Covers:** FR-TPL-02, FR-TPL-03
 - **Changes:** `db/migrations/0003_default_templates.sql`, `tests/unit/data/templates.test.ts`
 - **Done when:**
-  - [ ] A test shows three templates, their required items, and rubric weights that total 100% on Proposal and Final.
+  - [x] A test shows three templates, their required items, and rubric weights that total 100% on Proposal and Final.
 - **Tests:** unit (Vitest with PGlite)
 
 ### P1-E03-T02 — Template versions and target dates (C8 data)
@@ -656,9 +656,9 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Covers:** FR-TPL-01, FR-TPL-03, FR-TPL-04, FR-TPL-05, INV-26, NFR-01, NFR-03
 - **Changes:** `src/server/data/templates.ts`, `tests/unit/data/templates.test.ts`
 - **Done when:**
-  - [ ] A rubric that does not total 100% is refused (FR-TPL-03).
-  - [ ] A new milestone uses the latest version. An old milestone keeps its version (FR-TPL-04).
-  - [ ] Only the Coordinator writes. Each write has an audit record.
+  - [x] A rubric that does not total 100% is refused (FR-TPL-03).
+  - [x] A new milestone uses the latest version. An old milestone keeps its version (FR-TPL-04).
+  - [x] Only the Coordinator writes. Each write has an audit record.
 - **Tests:** unit (Vitest with PGlite)
 
 ### P1-E03-T03 — Student account with thesis and Milestone 1 (C2 data)
@@ -666,7 +666,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Covers:** FR-ACC-04, FR-ACC-07, BR-03, INV-02, INV-04, NFR-03
 - **Changes:** `src/server/data/students.ts`, `tests/unit/data/students.test.ts`
 - **Done when:**
-  - [ ] A test shows the three rows and the audit record. A non-Adviser as Adviser is refused with a reason. A failed write leaves no rows.
+  - [x] A test shows the three rows and the audit record. A non-Adviser as Adviser is refused with a reason. A failed write leaves no rows.
 - **Tests:** unit (Vitest with PGlite)
 
 ### P1-E03-T04 — Users: edit, role and deactivate (C9 data)
@@ -674,8 +674,8 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Covers:** FR-ACC-05, FR-ACC-06, BR-03, NFR-03
 - **Changes:** `src/server/data/users.ts`, `tests/unit/data/users.test.ts`
 - **Done when:**
-  - [ ] A role change for a user with a thesis or a seat is refused with the reason (AD-A-016).
-  - [ ] A Coordinator cannot deactivate their own account.
+  - [x] A role change for a user with a thesis or a seat is refused with the reason (AD-A-016).
+  - [x] A Coordinator cannot deactivate their own account.
 - **Tests:** unit (Vitest with PGlite)
 
 ### P1-E03-T05 — Screens C2, C8 and C9
@@ -684,7 +684,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/app/coordinator/students/`, `templates/`, `users/`
 - **Depends on:** T02 to T04
 - **Done when:**
-  - [ ] Each action checks the session on the server and shows the refusal reason. The Final size label says "every seat, including the Panel Chair" (AD-B-017).
+  - [ ] Each action checks the session on the server and shows the refusal reason. The Final size label says "Panel Members besides the Panel Chair" (FR §3, AD-B-017).
 - **Tests:** typecheck, build
 
 ---

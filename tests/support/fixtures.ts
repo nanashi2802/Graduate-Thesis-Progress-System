@@ -1,4 +1,5 @@
 // Fake rows for schema and data-layer tests (AGENTS.md §11: fake data only).
+import { and, eq } from "drizzle-orm";
 import type { Db } from "@/server/data/db";
 import * as s from "@/server/data/schema";
 
@@ -20,23 +21,12 @@ export async function makeThesisChain(db: Db) {
   const coordinator = await makeUser(db, "coordinator");
   const student = await makeUser(db, "student");
   const adviser = await makeUser(db, "adviser");
-  const [template] = await db
-    .insert(s.milestoneTemplate)
-    .values({ code: "proposal", name: "Proposal Defense" })
-    .onConflictDoNothing()
-    .returning();
-  const tpl = template ?? (await db.select().from(s.milestoneTemplate))[0]!;
+  // The default templates come from migration 0003 (FR-TPL-02).
+  const [tpl] = await db.select().from(s.milestoneTemplate).where(eq(s.milestoneTemplate.code, "proposal"));
   const [version] = await db
-    .insert(s.templateVersion)
-    .values({
-      milestoneTemplateId: tpl.id,
-      versionNo: next(),
-      panelSizeMasters: 2,
-      panelSizeDoctoral: 3,
-      printedCopiesMasters: 3,
-      printedCopiesDoctoral: 4,
-    })
-    .returning();
+    .select()
+    .from(s.templateVersion)
+    .where(and(eq(s.templateVersion.milestoneTemplateId, tpl!.id), eq(s.templateVersion.versionNo, 1)));
   const [thesis] = await db
     .insert(s.thesisInstance)
     .values({
@@ -64,5 +54,5 @@ export async function makeThesisChain(db: Db) {
       uploadedByUserId: student.id,
     })
     .returning();
-  return { coordinator, student, adviser, template: tpl, version: version!, thesis: thesis!, milestone: milestone!, pr: pr!, commit: commit! };
+  return { coordinator, student, adviser, template: tpl!, version: version!, thesis: thesis!, milestone: milestone!, pr: pr!, commit: commit! };
 }

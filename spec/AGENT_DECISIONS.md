@@ -233,7 +233,7 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 ### AD-A-015 — Default templates ship as a migration, with values for the gaps
 - **Task:** P1-E03-T01
 - **Options:** a seed script the Coordinator runs; a data migration that every database gets
-- **Decision and reason:** A migration (`0003_default_templates.sql`). FR-TPL-02 says the system ships the templates, so each new database must have them. Sizes: Proposal and Pre-Final 2 (Master's) and 3 (Doctoral) Panel Members; Final 4 and 5, every seat including the Panel Chair (AD-B-017). Printed copies: 5 and 6 for all three, because the Unified Process gives the count only for Proposal (G16). Rubric A1 to B3 on Proposal and Final only. Pre-Final (TDW 10) has no scores.
+- **Decision and reason:** A migration (`0003_default_templates.sql`). FR-TPL-02 says the system ships the templates, so each new database must have them. Sizes: Proposal and Pre-Final 2 (Master's) and 3 (Doctoral) Panel Members; Final 3 and 4 Panel Members besides the Panel Chair (ERD, FR §3, AD-B-017 as corrected). `seatCount` adds the Panel Chair. Printed copies: 5 and 6 for all three, because the Unified Process gives the count only for Proposal (G16). Rubric A1 to B3 on Proposal and Final only. Pre-Final (TDW 10) has no scores.
 - **Risk:** medium. The Pre-Final and Final copy counts are a guess (G16). The Coordinator can change them in C8, which makes version 2.
 - **Undo:** revert the commits with AD-A-015, or save a new template version in C8.
 

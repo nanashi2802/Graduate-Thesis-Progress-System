@@ -101,3 +101,5 @@ export type MilestoneStatusValue = (typeof milestoneStatus.enumValues)[number];
 export type FormCode = (typeof formCode.enumValues)[number];
 export type DocumentState = (typeof documentState.enumValues)[number];
 export type MemberStatus = (typeof memberStatus.enumValues)[number];
+export type DegreeLevelValue = (typeof degreeLevel.enumValues)[number];
+export type Writing1CourseValue = (typeof writing1Course.enumValues)[number];
