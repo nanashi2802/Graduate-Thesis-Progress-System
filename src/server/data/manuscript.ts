@@ -15,6 +15,8 @@ import {
   committee,
   committeeMember,
   critiqueThread,
+  defenseAttempt,
+  gateAction,
   manuscriptCommit,
   milestoneInstance,
   submissionPr,
@@ -26,7 +28,7 @@ import {
 import { requireManuscriptRead, requireThesisRead } from "./scope";
 
 type Tx = DataContext["db"];
-type Context = "iteration" | "committee_review";
+type Context = "iteration" | "committee_review" | "defense_day";
 
 const MANUSCRIPT_KEY = /(^|\/)manuscript\/[^/]+\.pdf$/;
 
@@ -211,7 +213,40 @@ export async function commitReadLink(
 // ---- Threads ----
 
 // Which comment context is open for this actor now (Unified §2.12). Null means the actor cannot post.
-async function openContext(ctx: DataContext, m: typeof milestoneInstance.$inferSelect): Promise<Context | null> {
+// Context C, Defense Day (FR-REV-12, FR-REV-15, BR-20): a Final Panel member posts from the scheduled start of the Final
+// Defense until they approve Gate 2. Before the start the panel reads only. A reason string means the window is not open.
+async function defenseDayBlock(ctx: DataContext, m: typeof milestoneInstance.$inferSelect, now: Date): Promise<string | null> {
+  const { userId } = ctx.actor;
+  const [seat] = await ctx.db
+    .select({ id: committeeMember.id })
+    .from(committeeMember)
+    .innerJoin(committee, eq(committee.id, committeeMember.committeeId))
+    .where(
+      and(
+        eq(committee.thesisInstanceId, m.thesisInstanceId),
+        eq(committee.kind, "final_panel"),
+        eq(committeeMember.memberUserId, userId),
+        eq(committeeMember.status, "accepted"),
+      ),
+    );
+  if (!seat) return "Only the Final Panel posts Defense Day threads.";
+  const [attempt] = await ctx.db
+    .select({ start: defenseAttempt.scheduledStartAt })
+    .from(defenseAttempt)
+    .where(eq(defenseAttempt.milestoneInstanceId, m.id))
+    .orderBy(desc(defenseAttempt.attemptNo))
+    .limit(1);
+  const inWindowStatus = m.status === "DEFENSE_SCHEDULED" || m.status === "DEFENSE_HELD" || m.status === "CLOSED";
+  if (!attempt?.start || !inWindowStatus || now < attempt.start) return "The comment window opens at the scheduled start of the Final Defense.";
+  const [approved] = await ctx.db
+    .select({ id: gateAction.id })
+    .from(gateAction)
+    .where(and(eq(gateAction.milestoneInstanceId, m.id), eq(gateAction.gate, "gate_2"), eq(gateAction.actorUserId, userId)));
+  if (approved) return "You approved Gate 2. The comment window is closed for you.";
+  return null;
+}
+
+async function openContext(ctx: DataContext, m: typeof milestoneInstance.$inferSelect, now: Date = new Date()): Promise<Context | null> {
   const { role, userId } = ctx.actor;
   if (role === "adviser") {
     // A: before Gate 1a, and after a Return (status DRAFT).
@@ -219,7 +254,7 @@ async function openContext(ctx: DataContext, m: typeof milestoneInstance.$inferS
   }
   if (role === "panel_member") {
     // B: after the appointment, before Gate 1b. Milestones 1 and 2 only (FR-REV-04).
-    if (m.milestoneCode === "final") return null;
+    if (m.milestoneCode === "final") return (await defenseDayBlock(ctx, m, now)) === null ? "defense_day" : null;
     const gate1bOpen = m.milestoneCode === "pre_final" ? m.status === "ADVISER_ENDORSED" : m.status === "COMMITTEE_APPOINTED";
     if (!gate1bOpen) return null;
     const [seat] = await ctx.db
@@ -291,12 +326,18 @@ async function loadThread(ctx: DataContext, threadId: string) {
 }
 
 // A Panel Member sees context B and C threads only: they cannot comment in context A (Unified §2.12).
-const visibleTo = (role: DataContext["actor"]["role"], context: string) => role !== "panel_member" || context !== "iteration";
+// The Student sees Defense Day threads when the defense closes and the manuscript unlocks (BR-20, FR-REV-12).
+const visibleTo = (role: DataContext["actor"]["role"], context: string, status: MilestoneStatusValue) =>
+  role === "panel_member"
+    ? context !== "iteration"
+    : role === "student" && context === "defense_day"
+      ? status === "CLOSED" || status === "FINAL_APPROVED" || status === "CLEARED"
+      : true;
 
 // BR-05: the Student replies. A reviewer can reply too. The Coordinator only reads.
 export async function replyToThread(ctx: DataContext, threadId: string, body: string): Promise<void> {
-  const { thread } = await loadThread(ctx, threadId);
-  if (!visibleTo(ctx.actor.role, thread.context)) throw new AccessDeniedError("this thread is not visible to you");
+  const { thread, milestone } = await loadThread(ctx, threadId);
+  if (!visibleTo(ctx.actor.role, thread.context, milestone.status)) throw new AccessDeniedError("this thread is not visible to you");
   if (ctx.actor.role === "coordinator") throw new AccessDeniedError("the Coordinator does not reply to threads");
   const text = body.trim();
   if (!text) throw new InputProblem("Write the reply first.");
@@ -344,7 +385,7 @@ export async function listThreads(ctx: DataContext, milestoneId: string): Promis
       .from(critiqueThread)
       .where(inArray(critiqueThread.commitId, commits.map((c) => c.id)))
       .orderBy(desc(critiqueThread.createdAt))
-  ).filter((t) => visibleTo(ctx.actor.role, t.context));
+  ).filter((t) => visibleTo(ctx.actor.role, t.context, m.status));
   if (threads.length === 0) return [];
   const ids = threads.map((t) => t.id);
   const replies = await ctx.db.select().from(threadReply).where(inArray(threadReply.critiqueThreadId, ids)).orderBy(asc(threadReply.ordinal));
@@ -384,6 +425,7 @@ export async function threadPostBlock(ctx: DataContext, milestoneId: string): Pr
   const m = await loadMilestone(ctx, milestoneId);
   if (ctx.actor.role === "student") return "Only the Adviser and the Panel Members post threads. Reply to a thread below.";
   if (ctx.actor.role === "coordinator") return "The Coordinator reads threads and does not post them.";
+  if (ctx.actor.role === "panel_member" && m.milestoneCode === "final") return defenseDayBlock(ctx, m, new Date());
   return (await openContext(ctx, m)) ? null : "You cannot post a thread on this manuscript now.";
 }
 

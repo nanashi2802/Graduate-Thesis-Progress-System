@@ -32,6 +32,7 @@ import {
   minutes,
   printedCopyReceipt,
   rubricIndicator,
+  submissionPr,
   templateVersion,
 } from "./schema";
 import { requireThesisRead } from "./scope";
@@ -480,11 +481,14 @@ export async function defensePage(ctx: DataContext, attemptId: string, now: Date
     if (!d.ok) heldBlock = d.reason;
   }
   const sheets = await ctx.db.select().from(evaluationEntry).where(eq(evaluationEntry.defenseAttemptId, attempt.id));
+  const [pr] = await ctx.db.select({ id: submissionPr.id }).from(submissionPr).where(eq(submissionPr.milestoneInstanceId, mctx.milestone.id));
   // BR-11: a Student sees the verdict only when every expected sheet is verified, as in `listAttempts`.
   const hideVerdict = ctx.actor.role === "student" && !resultsVisible(expected, sheets);
   return {
     attempt: hideVerdict ? { ...attempt, verdict: null, verdictByUserId: null, verdictAt: null } : attempt,
     milestone: { id: mctx.milestone.id, code: mctx.code, status: mctx.milestone.status },
+    /** The Submission PR of the milestone, for the "Manuscript and comments" tab at the Final (FR-DEF-05). */
+    prId: pr?.id ?? null,
     form,
     rubric,
     isEvaluator,

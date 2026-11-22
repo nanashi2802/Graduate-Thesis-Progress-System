@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import {
   endorseCommit,
+  approveFinalAction,
   endorseGate1a,
   markReady,
   postThreadAction,
@@ -51,16 +52,16 @@ export function ReadyButton({ milestoneId, commitId, moveToReady, blockedReason 
   );
 }
 
-export function EndorseButton({ milestoneId, kind, blockedReason }: { milestoneId: string; kind: "gate1a" | "gate1b"; blockedReason?: string }) {
+export function EndorseButton({ milestoneId, kind, blockedReason }: { milestoneId: string; kind: "gate1a" | "gate1b" | "gate2"; blockedReason?: string }) {
   const { pending, run, line } = useRun();
   return (
     <div className="flex flex-col gap-1">
       <ActionButton
         type="button"
         blockedReason={blockedReason}
-        onClick={() => !pending && run(() => (kind === "gate1a" ? endorseGate1a(milestoneId) : endorseCommit(milestoneId)))}
+        onClick={() => !pending && run(() => (kind === "gate1a" ? endorseGate1a(milestoneId) : kind === "gate2" ? approveFinalAction(milestoneId) : endorseCommit(milestoneId)))}
       >
-        {pending ? "Saving…" : kind === "gate1a" ? "Endorse (Gate 1a)" : "Endorse this commit (Gate 1b)"}
+        {pending ? "Saving…" : kind === "gate1a" ? "Endorse (Gate 1a)" : kind === "gate2" ? "Approve the final manuscript (Gate 2)" : "Endorse this commit (Gate 1b)"}
       </ActionButton>
       {line}
     </div>

@@ -6,7 +6,7 @@ import { context, run, type Result } from "@/app/_lib/run";
 import { AccessDeniedError } from "@/server/data/access";
 import { InputProblem } from "@/server/data/coordinator";
 import { commitReadLink, confirmCommitUpload, markCommitReady, postThread, replyToThread, requestCommitUpload, resolveThread } from "@/server/data/manuscript";
-import { endorseGate1b, transitionMilestone } from "@/server/data/milestones";
+import { approveGate2, endorseGate1b, transitionMilestone } from "@/server/data/milestones";
 import { checkStoredFile, createReadLink, createUploadLink, type UploadLink } from "@/server/files/storage";
 
 const files = { createUploadLink, checkStoredFile, createReadLink };
@@ -49,6 +49,12 @@ export async function returnToStudent(milestoneId: string, reason: string): Prom
 export async function endorseCommit(milestoneId: string): Promise<Result> {
   return run(async (ctx) => {
     await endorseGate1b(ctx, milestoneId);
+  });
+}
+
+export async function approveFinalAction(milestoneId: string): Promise<Result> {
+  return run(async (ctx) => {
+    await approveGate2(ctx, milestoneId);
   });
 }
 

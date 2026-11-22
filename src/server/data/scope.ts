@@ -5,6 +5,7 @@ import { and, eq, exists, ne, or, sql, type SQL } from "drizzle-orm";
 import { memberAccess, type CommitteeBlockCode } from "@/server/domain/committee";
 import { alias } from "drizzle-orm/pg-core";
 import { AccessDeniedError, requireActive, type DataContext } from "./access";
+import { finalCopyRecorded } from "./clearance";
 import {
   committee,
   committeeMember,
@@ -76,12 +77,10 @@ export async function requireThesisRead(ctx: DataContext, thesisId: string): Pro
   return relation;
 }
 
-// INV-33: a Panel Member's access ends at the BR-21 event (default: the `final_copy`
-// clearance item). `clearance_item` comes with P3-E04. Until then no such event exists.
-// P3-E04 changes only this function (AD-A-013).
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- P3-E04 uses both arguments
-export async function manuscriptAccessEnded(_ctx: DataContext, _thesisId: string): Promise<boolean> {
-  return false;
+// INV-33: a Panel Member's access ends at the BR-21 event (default: the Coordinator verifies
+// the `final_copy` clearance item, AD-A-029).
+export async function manuscriptAccessEnded(ctx: DataContext, thesisId: string): Promise<boolean> {
+  return finalCopyRecorded(ctx.db, thesisId);
 }
 
 export type ManuscriptAccess =

@@ -14,7 +14,7 @@ import { AccessDeniedError, type DataContext } from "@/server/data/access";
 import { InputProblem } from "@/server/data/coordinator";
 import { getDb } from "@/server/data/db";
 import { threadPostBlock, workspaceFor } from "@/server/data/manuscript";
-import { checkTransition, gate1bBlock } from "@/server/data/milestones";
+import { checkTransition, gate1bBlock, gate2Block } from "@/server/data/milestones";
 import { listAttempts } from "@/server/data/defense";
 
 const MILESTONE_NAME = { proposal: "Proposal", pre_final: "Pre-Final", final: "Final" } as const;
@@ -68,6 +68,8 @@ export async function PrWorkspace({ prId, commit }: { prId: string; commit?: str
   }
   let gate1bReason: string | undefined;
   if ((role === "adviser" || role === "panel_member") && gate1bOpen) gate1bReason = (await gate1bBlock(ctx, milestone.id)) ?? undefined;
+  const gate2Open = milestone.milestoneCode === "final" && status === "CLOSED" && role === "panel_member";
+  const gate2Reason = gate2Open ? ((await gate2Block(ctx, milestone.id)) ?? undefined) : undefined;
   const postBlock = role === "adviser" || role === "panel_member" ? ((await threadPostBlock(ctx, milestone.id)) ?? undefined) : undefined;
   const canUpload = role === "student" && !locked && status !== "READY";
   // FR-REV-13: the revision items of the latest held attempt, at Proposal and Pre-Final.
@@ -102,6 +104,7 @@ export async function PrWorkspace({ prId, commit }: { prId: string; commit?: str
             <ReturnForm milestoneId={milestone.id} />
           </>
         ) : null}
+        {gate2Open ? <EndorseButton milestoneId={milestone.id} kind="gate2" blockedReason={gate2Reason} /> : null}
         {(role === "adviser" || role === "panel_member") && gate1bOpen ? <EndorseButton milestoneId={milestone.id} kind="gate1b" blockedReason={gate1bReason} /> : null}
       </div>
 

@@ -9,6 +9,7 @@ import type { DocumentState } from "@/server/domain/documents";
 import type { MilestoneCode, MilestoneFacts, Verdict } from "@/server/domain/milestone";
 import { pstDate } from "@/server/notify/time";
 import type { Db } from "./db";
+import { clearanceStatuses } from "./clearance";
 import { currentOutsideStatuses } from "./outside";
 import {
   committee,
@@ -243,7 +244,8 @@ export async function loadMilestoneFacts(db: Db, ctx: MilestoneContext, now: Dat
     certificationVerified: docState("CERTIFICATION") === "verified",
     gate2Complete,
     signedFinalManuscriptVerified: docState("SIGNED_FINAL_MANUSCRIPT") === "verified",
-    // P3-E04 adds `clearance_item`. Until then no milestone can be CLEARED.
-    clearanceItemsAllVerified: false,
+    // P3-E04: every clearance item is done (FR-CLR-04).
+    clearanceItemsAllVerified:
+      code === "final" && (await clearanceStatuses(db, milestone.id, gate2Complete)).every((r) => r.done),
   };
 }

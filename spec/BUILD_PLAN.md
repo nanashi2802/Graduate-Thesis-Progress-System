@@ -1067,6 +1067,44 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 | P3-E05 | Shared submission view and dossier export | FR-SUB-01 to 05, FR-DOC-10 |
 | P3-E06 | Milestone 3 end-to-end test | Exit test |
 
+### 5.1 P3-E02 Defense Day threads (Track A, `agent-a`)
+
+**Decisions:** AD-A-028.
+
+### P3-E02-T01 — Context C threads
+- **Goal:** A Final Panel member posts threads on the locked commit from the scheduled start until they approve Gate 2. Before the start the panel reads only. The Student sees the threads when the defense closes.
+- **Covers:** FR-REV-04, FR-REV-12, FR-REV-15, BR-20, BR-05
+- **Changes:** `src/server/data/manuscript.ts`, `tests/unit/data/defense-day.test.ts`
+- **Done when:**
+  - [x] A test shows the read-only window with its reason, the open window for the Panel Chair and a Panel Member, the refusal of other roles, the Student view after the close, and the window closing after Gate 2.
+- **Tests:** unit (Vitest with PGlite)
+
+### P3-E02-T02 — P4 tab "Manuscript and comments"
+- **Goal:** The Defense Day page of the Final links to the PR workspace (P2), where the threads are.
+- **Covers:** FR-DEF-05
+- **Changes:** `src/app/_components/defense-day.tsx`, `src/server/data/defense.ts` (`prId`)
+- **Done when:**
+  - [x] The tab shows at the Final only.
+- **Tests:** typecheck, build
+
+### 5.2 P3-E04 Clearance (Track A, `agent-a`)
+
+**Decisions:** AD-A-029.
+
+### P3-E04-T01 � Checklist, verify and close to CLEARED
+- **Goal:** The checklist shows seven items. The Coordinator verifies three. The close to CLEARED needs all seven.
+- **Covers:** FR-CLR-01, FR-CLR-03, FR-CLR-04, BR-02, BR-21, INV-33
+- **Changes:** `src/server/data/schema/clearance.ts`, `db/migrations/0007_*`, `0008_*`, `src/server/data/clearance.ts`, `milestone-facts.ts`, `scope.ts`, `tests/unit/data/clearance.test.ts`
+- **Done when:**
+  - [x] A test shows the derived items, the refusals, the final-copy check, append-only rows, the end of Panel access and the close.
+- **Tests:** unit (Vitest with PGlite)
+
+### P3-E04-T02 � Evidence upload and the S6 and C7 screens
+- **Goal:** The Student uploads evidence for each item (FR-CLR-02). S6 and C7 show the checklist.
+- **Covers:** FR-CLR-02, FR-CLR-04
+- **Done when:**
+  - [ ] Open. Needs a form code for evidence (AD-A-029).
+
 ---
 
 ## 6. Phase 4 — Enhancements (chosen by value)
