@@ -2,39 +2,14 @@
 // Server actions of the PR workspace (S2, A2, P2): commits, Ready, gates, threads (FR-REV-02 to 07, FR-WFL-03, FR-WFL-04, NFR-01).
 // Each action checks the session on the server. The data layer checks the role and the thesis again.
 // The browser sends the bytes to storage. The server never gets them (NFR-12).
-import { revalidatePath } from "next/cache";
-import { getSessionState } from "@/server/auth/session";
-import { AccessDeniedError, type DataContext } from "@/server/data/access";
+import { context, run, type Result } from "@/app/_lib/run";
+import { AccessDeniedError } from "@/server/data/access";
 import { InputProblem } from "@/server/data/coordinator";
-import { getDb } from "@/server/data/db";
 import { commitReadLink, confirmCommitUpload, markCommitReady, postThread, replyToThread, requestCommitUpload, resolveThread } from "@/server/data/manuscript";
 import { endorseGate1b, transitionMilestone } from "@/server/data/milestones";
 import { checkStoredFile, createReadLink, createUploadLink, type UploadLink } from "@/server/files/storage";
 
 const files = { createUploadLink, checkStoredFile, createReadLink };
-
-export type Result = { ok?: true; error?: string };
-
-async function context(): Promise<DataContext> {
-  const state = await getSessionState();
-  if (state.status !== "ok") throw new AccessDeniedError("sign in first");
-  return { db: getDb(), actor: state.actor };
-}
-
-// Runs one write. A known refusal becomes the text of the screen (BR-18).
-async function run<T extends object>(work: (ctx: DataContext) => Promise<T | void>): Promise<Result & Partial<T>> {
-  try {
-    const out = await work(await context());
-    revalidatePath("/", "layout");
-    return { ok: true, ...(out ?? {}) } as Result & Partial<T>;
-  } catch (e) {
-    const fail = (error: string) => ({ error }) as Result & Partial<T>;
-    if (e instanceof InputProblem) return fail(e.message);
-    if (e instanceof AccessDeniedError) return fail("You cannot do this action.");
-    console.error(e);
-    return fail("The system could not save the change. Try again.");
-  }
-}
 
 type Meta = { sha256: string; size: number; contentType: string };
 
