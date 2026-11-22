@@ -187,9 +187,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Risk:** low. When Phase 4 adds FR-NTF-10, the constants become the first template version.
 - **Undo:** Load the texts from the template table in `buildNotificationEmail`.
 
-### AD-B-015 — Reminder days that FR §3 leaves open (B1, B2, B6)
+### AD-B-015 — Reminder days that FR §3 leaves open (B2, B6)
 - **Task:** P2-E04-T01 (look-ahead)
-- **Options:** for B1, remind on the due date (FR §3 row "7 days before the defense") or 7 days before the due date (FR §4.10 "due in 7 days"); for B2 and B6, any days, because FR §3 gives none
-- **Decision and reason:** B1 fires 7 days before the printed-copies due date, as the B1 trigger text says. B2 fires 7 days before the target date and 1 day after it. B6 fires 90 and 30 days before the residency end date. Each rule fires on exact days, so one daily run sends each reminder once with no extra state. All days sit in `REMINDER_DAYS` in `src/server/notify/reminders.ts`.
-- **Risk:** medium. B1: if the Coordinator confirms the date less than 14 days before the defense, the B1 day is already past, and no B1 is sent. The A2 email still gives the date. B2 stays off until a target date exists (G24). B6 uses the unverified residency limit (R7).
+- **Options:** for B2 and B6, any days, because FR §3 gives none
+- **Decision and reason:** B2 fires 7 days before the target date and 1 day after it. B6 fires 90 and 30 days before the residency end date. Each rule fires on exact days, so one daily run sends each reminder once with no extra state. All days sit in `REMINDER_DAYS` in `src/server/notify/reminders.ts`. B1 is not open: FR §3 sets it to 7 days before the defense. The code follows FR §3, and the deadline in the email is the printed-copies due date. The B1 text is "Printed copies are due soon", so it stays true when the due days change.
+- **Correction (22 Nov 2026, after the agent-r review of #8):** the first version sent B1 7 days before the due date (14 days before the defense). That broke FR-NTF-06, and no B1 was sent when the date was confirmed less than 14 days ahead.
+- **Risk:** low. B2 stays off until a target date exists (G24). B6 uses the unverified residency limit (R7).
 - **Undo:** Change `REMINDER_DAYS`, or move the days into `template_version`.

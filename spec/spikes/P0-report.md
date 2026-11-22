@@ -12,7 +12,7 @@
 | :---- | :---- | :---- | :---- |
 | AS-11 | MB per page (manuscript and TDW forms). Is 50 MB a good file limit? | Fake scans: 0.13 MB per page (200 dpi gray) to 0.71 MB per page (phone photo). Fake manuscripts: 0.001 to 0.043 MB per page. The largest single file in the model is a 200-page signed copy as phone photos, about 142 MB. Every other file is 15 MB or less. So 50 MB is safe for all forms and manuscripts. It is too small only for a full signed copy made of phone photos. | **Open for the owner.** Real files are still needed (FR AS-11). |
 | AS-12 | TDW page counts and commits per milestone | Page counts from the form text: 1 to 3 pages for each form (13 forms). Commits per milestone: no data. The model uses 4, 5 and 8. | **Open for the owner.** The printed forms and real practice decide it. |
-| AS-13 | Does the file store work? Do downloads count against the 5 GB transfer limit? | The file store works for every rule that P0-E04 needs (§2). 100 MB of downloads did not add to the project transfer number (§3). | Store: **answered.** Transfer: **answered for the project number.** A separate Object Storage limit is open for the human (§3). |
+| AS-13 | Does the file store work? Do downloads count against the 5 GB transfer limit? | The file store works for every rule that P0-E04 needs (§2). 100 MB of downloads did not add to the project transfer number after one refresh (§3). | Store: **answered.** Transfer: **answered for the project number.** A separate Object Storage limit is open for the human (§3). |
 | R12 | The file store is a new service | No blocking issue. Four issues to note (§2.2). | **Answered** |
 | R13 | Downloads may count against the 5 GB transfer limit | Not against the project transfer number. The typical month is about 2.2 GB of downloads, under 5 GB in any case (§3). | **Answered**, with one check for the human |
 
@@ -50,7 +50,7 @@
 | 02:15 (downloads end, 02:15:13) | 556,083 | The project record shows `updated_at` 02:08:46 |
 | 02:19 | 556,083 | The project record refreshed at 02:18:31, after the downloads. No change. |
 
-**Answer:** The 100 MB of file downloads did **not** add to the project `data_transfer_bytes` field after the next refresh. That field counts Postgres compute transfer. So file downloads from Neon Object Storage do not use the Postgres 5 GB public transfer allowance, as far as the project API shows.
+**Answer:** The 100 MB of file downloads did **not** add to the project `data_transfer_bytes` field after one refresh, about 3 minutes after the downloads. Usage numbers can lag (§2.2 issue 4), so read the field again before Phase 1 sign-off. That field counts Postgres compute transfer. So file downloads from Neon Object Storage do not use the Postgres 5 GB public transfer allowance, as far as the project API shows.
 
 **Not answered:** The Neon project API shows no separate transfer number for Object Storage. The Neon plan can still limit or bill storage egress on its own, now or later (the product is new, §2.2 issue 1). The human must check the Usage page of the Neon console for an Object Storage transfer line. That page needs the owner's sign-in, so this spike cannot read it (AGENTS.md §13.5).
 

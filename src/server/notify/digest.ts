@@ -9,7 +9,10 @@ export type DigestCode = "B4" | "B7" | "C2" | "C3" | "C4" | "C5";
 export type DigestItem = {
   code: DigestCode;
   recipientUserId: string;
-  /** The commit the thread or comment belongs to (C2 to C5). */
+  /**
+   * The commit the thread or comment belongs to (C2 to C5). The data layer always gives it
+   * for C2 to C5. A null value groups under one key for each recipient. Null for B4 and B7.
+   */
   commitId: string | null;
   /** True for a Defense Day thread (context C, BR-20). */
   defenseDayThread: boolean;

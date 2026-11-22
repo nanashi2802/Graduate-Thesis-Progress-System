@@ -11,7 +11,7 @@ export type PstDate = string;
 export const REMINDER_DAYS = {
   /** A4: 3 days and 1 day before the defense (FR §3). */
   defense: [3, 1],
-  /** B1: 7 days before the printed-copies due date ("due in 7 days", FR §4.10). AD-B-015. */
+  /** B1: 7 days before the defense (FR §3 "Reminder days: printed copies"). The deadline is the due date. */
   printedCopies: [7],
   /** B2: 7 days before the target date, and 1 day after it passes. AD-B-015. */
   targetBefore: [7],
@@ -55,9 +55,8 @@ export function remindersDue(today: PstDate, f: ReminderFacts): DueReminder[] {
   if (f.defenseDate) {
     const d = daysUntil(today, f.defenseDate);
     if ((REMINDER_DAYS.defense as readonly number[]).includes(d)) out.push({ code: "A4", deadline: f.defenseDate });
-    const due = addDays(f.defenseDate, -f.printedCopiesDueDays);
-    if ((REMINDER_DAYS.printedCopies as readonly number[]).includes(daysUntil(today, due))) {
-      out.push({ code: "B1", deadline: due });
+    if ((REMINDER_DAYS.printedCopies as readonly number[]).includes(d)) {
+      out.push({ code: "B1", deadline: addDays(f.defenseDate, -f.printedCopiesDueDays) });
     }
   }
   if (f.targetDate) {

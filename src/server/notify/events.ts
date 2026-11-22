@@ -44,7 +44,7 @@ export const EVENTS: Record<EventCode, EventDef> = {
   A4: { code: "A4", event: "The defense is near", nextAction: "Prepare for the defense.", recipients: ["student", "adviser", "members"], delivery: "reminder" },
   A5: { code: "A5", event: "A substitute Panel Member is recorded", nextAction: "Open the defense page.", recipients: ["substitute", "student"], delivery: "immediate" },
   A6: { code: "A6", event: "Your defense results are available", nextAction: "Sign in to see the results.", recipients: ["student"], delivery: "immediate" },
-  B1: { code: "B1", event: "Printed copies are due in 7 days", nextAction: "Give the printed copies to the office.", recipients: ["student"], delivery: "reminder" },
+  B1: { code: "B1", event: "Printed copies are due soon", nextAction: "Give the printed copies to the office.", recipients: ["student"], delivery: "reminder" },
   B2: { code: "B2", event: "The milestone target date is near or over", nextAction: "Open the dashboard to see the next step.", recipients: ["student", "adviser"], delivery: "reminder" },
   B3: { code: "B3", event: "A document was returned", nextAction: "Read the reason and upload a corrected scan.", recipients: ["student"], delivery: "immediate" },
   B4: { code: "B4", event: "Revision items wait for acceptance", nextAction: "Open the revision items.", recipients: ["student", "members"], delivery: "digest" },

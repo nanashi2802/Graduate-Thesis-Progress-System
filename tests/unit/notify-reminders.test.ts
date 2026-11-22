@@ -25,14 +25,15 @@ describe("remindersDue (FR-NTF-06)", () => {
     expect(remindersDue("2027-01-20", defense)).toEqual([]);
   });
 
-  it("sends B1 7 days before the printed-copies due date (BR-09)", () => {
-    // Due date 2027-01-13 (7 days before the defense). Reminder on 2027-01-06.
-    expect(remindersDue("2027-01-06", defense)).toEqual([{ code: "B1", deadline: "2027-01-13" }]);
-    expect(remindersDue("2027-01-07", defense)).toEqual([]);
+  it("sends B1 7 days before the defense, with the due date as the deadline (FR §3, BR-09)", () => {
+    // Defense 2027-01-20. Reminder and due date both on 2027-01-13.
+    expect(remindersDue("2027-01-13", defense)).toEqual([{ code: "B1", deadline: "2027-01-13" }]);
+    expect(remindersDue("2027-01-12", defense)).toEqual([]);
+    expect(remindersDue("2027-01-14", defense)).toEqual([]);
   });
 
-  it("uses the template's printed-copies days", () => {
-    expect(remindersDue("2027-01-09", { ...defense, printedCopiesDueDays: 4 })).toEqual([
+  it("takes the deadline from the template's printed-copies days", () => {
+    expect(remindersDue("2027-01-13", { ...defense, printedCopiesDueDays: 4 })).toEqual([
       { code: "B1", deadline: "2027-01-16" },
     ]);
   });
