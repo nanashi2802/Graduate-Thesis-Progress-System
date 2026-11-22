@@ -352,6 +352,17 @@ describe("defensePage (A5, P4, BR-18)", () => {
     const stranger = await makeUser(db, "student");
     await expect(defensePage(as(stranger), w.attempt.id)).rejects.toBeInstanceOf(AccessDeniedError);
   });
+
+  it("hides the verdict from the Student until every sheet is verified (BR-11)", async () => {
+    const w = await scheduled();
+    await allSheets(w);
+    await recordVerdict(as(w.lead), w.milestone.id, "approved");
+    expect((await defensePage(as(w.lead), w.attempt.id)).attempt.verdict).toBe("approved");
+    expect((await defensePage(as(w.student), w.attempt.id)).attempt.verdict).toBeNull();
+    await markDefenseHeld(as(w.lead), w.milestone.id);
+    await verifyAll(w);
+    expect((await defensePage(as(w.student), w.attempt.id)).attempt.verdict).toBe("approved");
+  });
 });
 
 describe("a Disapproved attempt stays open for sheets and Minutes (FR-DEF-12, FR-WFL-09, BR-11)", () => {

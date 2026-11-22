@@ -478,8 +478,10 @@ export async function defensePage(ctx: DataContext, attemptId: string, now: Date
     if (!d.ok) heldBlock = d.reason;
   }
   const sheets = await ctx.db.select().from(evaluationEntry).where(eq(evaluationEntry.defenseAttemptId, attempt.id));
+  // BR-11: a Student sees the verdict only when every expected sheet is verified, as in `listAttempts`.
+  const hideVerdict = ctx.actor.role === "student" && !resultsVisible(expected, sheets);
   return {
-    attempt,
+    attempt: hideVerdict ? { ...attempt, verdict: null, verdictByUserId: null, verdictAt: null } : attempt,
     milestone: { id: mctx.milestone.id, code: mctx.code, status: mctx.milestone.status },
     form,
     rubric,

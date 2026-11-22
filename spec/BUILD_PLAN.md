@@ -730,6 +730,15 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [x] A Playwright setup project saves one session for each role, and a test opens each portal home and sees Access Denied on another portal. Without `DEV_SEED_PASSWORD` and `NEON_AUTH_BASE_URL` both skip, as `sign-in.spec.ts` does.
   - [ ] A local run passes. `agent-b` has no `DEV_SEED_PASSWORD` in `.env.local`, so the run is not verified yet. Run `pnpm db:seed-dev`, set the password, then `pnpm test:e2e`.
 
+### P1-E13-T03 — Milestone 1 flow test (Track A lead, AD-A-025)
+- **Goal:** One fake Student goes from account creation to CERTIFIED with every role.
+- **Covers:** the exit test of PRD §8, FR-ACC-04, FR-CMT-01 to 04, FR-REV-01 to 07, FR-WFL-03, FR-WFL-04, FR-SCH-01 to 06, FR-DEF-01 to 12, FR-WFL-06, FR-WFL-11, BR-07, BR-09, BR-11, BR-12
+- **Changes:** `tests/unit/flow/milestone1.test.ts`
+- **Done when:**
+  - [x] The flow runs on the real migrations through the data-layer functions of each screen. A wrong role, a locked manuscript, a date under 7 days, an incomplete checklist, unverified sheets and a missing Certification are each refused on the way.
+  - [ ] The same flow runs in a browser with `pnpm test:e2e` (blocked: needs a seeded sign-in, AD-A-025).
+- **Tests:** unit (Vitest with PGlite)
+
 ### 3.9 P1-E03 Accounts, users and templates (Track A, `agent-a`, done 22 Nov 2026)
 
 **Decisions in this epic:** AD-A-015 (default templates as a migration), AD-A-016 (role change and deactivation rules). FR-ACC-08 (setup and reset email) comes from Neon Auth (P0-E03).
