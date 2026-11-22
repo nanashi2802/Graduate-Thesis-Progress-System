@@ -251,3 +251,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** The second option. BR-03 makes roles exclusive, and INV-02 and INV-03 check the role only when the row is written. A role change after that would leave a Student row on an Adviser, for example. So the data layer refuses a role change when any row names the user. The Coordinator deactivates the account and makes a new one instead. A Coordinator cannot deactivate their own account, so at least one active Coordinator stays.
 - **Risk:** low. A typo in the role is fixed the same day, before any row names the user.
 - **Undo:** revert the commits with AD-A-016.
+
+### AD-B-018 — Appointment board: data functions first, paper links, and when "Appointed" is allowed
+- **Task:** P1-E05-T02
+- **Options:** for "Appointed": need the appointment form and each NDA linked, or need them verified; for the scope: build the C3 screen in the same task, or split it out
+- **Decision and reason:** `markAppointed` needs the seats to pass `checkAppointment`, the TDW 06 or TDW 11 record linked, and an NDA record linked for each active seat. It does not need them verified. FR-CMT-04 says "upload ... then mark the member Appointed", and verification is a separate Coordinator step (FR-DOC-04). Manuscript access still needs both records verified (`memberAccess`, BR-08), so no member reads early. Seats are proposed and appointed only while the milestone is `ADVISER_ENDORSED` (after Gate 1a, FR-CMT-01). The milestone status change to `COMMITTEE_APPOINTED` stays in the P1-E04 wiring (`agent-a`). A refused rule returns `{ ok: false, code, reason }` so the screen can show the reason (BR-18). A wrong actor throws `AccessDeniedError` (NFR-01). Workload is the count of seats that are not declined. Availability is the count of future `available` defense slots (FR-CMT-02). The C3 screen is a new task, P1-E05-T04, because the scan upload comes from P1-E07-T02.
+- **Risk:** low. If the owner wants verified paper before "Appointed", add two state checks in `markAppointed`.
+- **Undo:** revert the commits with AD-B-018.
