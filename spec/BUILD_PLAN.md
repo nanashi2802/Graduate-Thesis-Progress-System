@@ -866,6 +866,72 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [ ] Each action shows its refusal reason (BR-18).
 - **Tests:** typecheck, build
 
+### 3.13 P1-E09 Defense (Milestone 1, TDW 08) (Track A, `agent-a`, §8 Phase 1 step 7)
+
+**Decisions:** AD-A-021. All actions are in `src/server/data/defense.ts`. The pure sheet rules are agent-b's `src/server/domain/evaluation.ts` (AD-B-016). The same code serves Proposal (TDW 08), Pre-Final (TDW 10) and Final (TDW 13).
+
+### P1-E09-T01 — Propose and confirm the date
+- **Goal:** The Student proposes a date. The Coordinator confirms the start and the room after the checklist is complete, or Returns the request.
+- **Covers:** FR-DEF-01, FR-DEF-03, BR-09, INV-12, INV-13
+- **Done when:**
+  - [x] A date under 7 days after Gate 1b is refused and leaves no row. An incomplete checklist blocks the confirmation.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E09-T02 — Defense Day sheets and signed scans
+- **Goal:** Each evaluator saves their own sheet from the start until it is verified. The Coordinator uploads the signed scan and marks matched or mismatch.
+- **Covers:** FR-DEF-05, FR-DEF-06, FR-DEF-08, BR-10, BR-12, BR-15, INV-14, INV-25
+- **Done when:**
+  - [x] A sheet before the start, a sheet of another member and a score above its weight are refused. A matched sheet locks. A mismatch reopens it.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E09-T03 — Verdict, held, Minutes and close
+- **Goal:** The Lead Panel Member or the Panel Chair records the verdict and marks the defense held. The Coordinator issues the Minutes and closes the defense.
+- **Covers:** FR-DEF-07, FR-DEF-09, FR-DEF-10, FR-WFL-09, BR-17, INV-15, INV-16
+- **Done when:**
+  - [x] A close without verified sheets, Minutes or with a Mismatch document is refused. A close unlocks the manuscript. A Disapproved defense goes back to DRAFT.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E09-T04 — Results and attempt history
+- **Goal:** Every attempt keeps its date, room, sheets, verdict and Minutes. The Student sees results after every sheet is verified.
+- **Covers:** FR-DEF-11, FR-DEF-12, BR-11, BR-15
+- **Done when:**
+  - [x] The Student sees nothing before verification. No column or field holds a grade.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E09-T05 — Printed copies and screens (C5, C6, S5, A5, P4)
+- **Goal:** The Coordinator records the printed copies (FR-DEF-04, `printed_copy_receipt`), and the defense screens call T01 to T04.
+- **Depends on:** T01 to T04, P1-E14
+- **Done when:**
+  - [ ] The printed copies receipt and the match against the locked manuscript, with a late warning (BR-09).
+  - [ ] Each action shows its refusal reason (BR-18).
+- **Tests:** unit, typecheck, build
+
+### 3.14 P1-E10 Certification and data gathering (Track A, `agent-a`, §8 Phase 1 step 7)
+
+**Decisions:** AD-A-022. The status change reuses `transitionMilestone`. Revision items are P2-E03.
+
+### P1-E10-T01 — Certification
+- **Goal:** The Coordinator records CERTIFIED when every revision item is accepted and the Certification is verified with its linked commit.
+- **Covers:** FR-WFL-06, BR-02, INV-17, INV-34
+- **Changes:** `tests/unit/data/certification.test.ts` (the rule is in `milestone.ts`)
+- **Done when:**
+  - [x] A missing acceptance, a missing or unverified Certification and a wrong role are refused. The database refuses a Certification with no linked commit.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E10-T02 — Approve data gathering
+- **Goal:** The Adviser approves the start of data gathering after CERTIFIED.
+- **Covers:** FR-WFL-11
+- **Changes:** `src/server/data/certification.ts`, `tests/unit/data/certification.test.ts`
+- **Done when:**
+  - [x] Only the Adviser of the thesis approves, once, for the Proposal, after CERTIFIED.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E10-T03 — Screens (A1, C6)
+- **Depends on:** T01, T02, P1-E14
+- **Done when:**
+  - [ ] The A1 button shows its reason (BR-18). The C6 action calls `transitionMilestone`.
+- **Tests:** typecheck, build
+
 ## 4. Phase 2 — Milestone 2 and email
 
 **Goal:** One Student completes the Pre-Final Defense.

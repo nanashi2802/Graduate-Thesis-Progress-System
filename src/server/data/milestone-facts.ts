@@ -4,6 +4,7 @@ import "server-only";
 import { and, desc, eq, gt, inArray, isNotNull, max, ne } from "drizzle-orm";
 import { checklistComplete } from "@/server/domain/checklist";
 import { committeeKindFor, type DegreeLevel } from "@/server/domain/committee";
+import { expectedEvaluators, sheetsVerifiedAndMatched as sheetsVerifiedAndMatchedRule } from "@/server/domain/evaluation";
 import type { DocumentState } from "@/server/domain/documents";
 import type { MilestoneCode, MilestoneFacts, Verdict } from "@/server/domain/milestone";
 import { pstDate } from "@/server/notify/time";
@@ -14,6 +15,7 @@ import {
   committeeMember,
   critiqueThread,
   defenseAttempt,
+  defenseSubstitute,
   documentRecord,
   evaluationEntry,
   gateAction,
@@ -85,6 +87,21 @@ export async function lastReturnGateId(db: Db, milestoneId: string): Promise<num
     .from(gateAction)
     .where(and(eq(gateAction.milestoneInstanceId, milestoneId), eq(gateAction.result, "returned")));
   return row?.id ?? 0;
+}
+
+// The users who complete a sheet for one attempt (FR-DEF-06, FR-CMT-06).
+export async function expectedEvaluatorsFor(db: Db, ctx: MilestoneContext, attemptId: string): Promise<string[]> {
+  const subs = await db
+    .select({ absent: committeeMember.memberUserId, substitute: defenseSubstitute.substituteUserId })
+    .from(defenseSubstitute)
+    .innerJoin(committeeMember, eq(committeeMember.id, defenseSubstitute.absentMemberId))
+    .where(eq(defenseSubstitute.defenseAttemptId, attemptId));
+  return expectedEvaluators({
+    milestone: ctx.code,
+    adviserUserId: ctx.thesis.adviserUserId,
+    memberUserIds: ctx.memberIds,
+    substitutes: subs.map((x) => ({ absentUserId: x.absent, substituteUserId: x.substitute })),
+  });
 }
 
 const formKey = (code: string) => code.replace("_", " ");
@@ -168,9 +185,9 @@ export async function loadMilestoneFacts(db: Db, ctx: MilestoneContext, now: Dat
   if (latestAttempt) {
     const entries = await db.select().from(evaluationEntry).where(eq(evaluationEntry.defenseAttemptId, latestAttempt.id));
     // TDW 08 and TDW 10: the Adviser and each member. TDW 13: the Final Panel only (Unified §2.5).
-    const sheetCount = code === "final" ? ctx.memberIds.length : endorsers.length;
-    sheetsVerifiedAndMatched =
-      entries.length >= sheetCount && entries.length > 0 && entries.every((e) => e.verifiedAt && e.sheetMatch === "matched");
+    // A substitute takes the sheet of the absent member (FR-CMT-06, AD-A-021).
+    const expected = await expectedEvaluatorsFor(db, ctx, latestAttempt.id);
+    sheetsVerifiedAndMatched = sheetsVerifiedAndMatchedRule(expected, entries);
     const issued = await db
       .select({ id: minutes.id })
       .from(minutes)
