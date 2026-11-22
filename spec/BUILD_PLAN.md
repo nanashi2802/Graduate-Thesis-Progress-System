@@ -238,6 +238,35 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
   - [ ] A manual run of the cron route on production logs the run and sends the test email.
 - **Tests:** manual check (`vercel logs`)
 
+### 2.4 P0-E06 tasks (Track B, `agent-b`)
+
+### P0-E06-T01 — Fake TDW scans and MB per page
+- **Goal:** Make fake scans (PDF and image) of the 13 TDW form layouts and a fake 100-page manuscript, and measure MB per page.
+- **Covers:** AS-11, AS-12, NFR-10
+- **Reads:** `docs/reference/tdw-forms/text/`, `PRD.md` §11.4
+- **Changes:** `spec/spikes/fake_scans.py`, `spec/spikes/P0-scan-sizes.md`
+- **Depends on:** none
+- **Done when:**
+  - [x] `python spec/spikes/fake_scans.py` makes the files and prints the size tables.
+  - [x] `spec/spikes/P0-scan-sizes.md` holds the tables. No generated file is committed.
+- **Tests:** manual check (run the script)
+
+### P0-E06-T02 — Transfer-limit and file store test
+- **Goal:** Check whether downloads count against the Neon 5 GB transfer limit, and record file store issues.
+- **Covers:** AS-13, R12, R13, NFR-12, NFR-13
+- **Depends on:** P0-E04 merged into `dev`
+- **Done when:**
+  - [ ] A known number of MB is downloaded from `thesis-files` under the `agent-b/` prefix, and the Neon usage before and after is recorded.
+- **Tests:** manual check
+
+### P0-E06-T03 — Spike report
+- **Goal:** Write `spec/spikes/P0-report.md` with the answers to R12, R13, AS-11 to AS-13, and an updated capacity estimate (PRD §11.4).
+- **Covers:** AS-11, AS-12, AS-13, R12, R13
+- **Depends on:** T01, T02, P0-E05-T05
+- **Done when:**
+  - [ ] The report exists and each item has an answer or a stated open point for the human.
+- **Tests:** review by `agent-a` (§8 step 4)
+
 ## 3. Phase 1 — Foundation and Milestone 1
 
 **Goal:** One Student completes the Proposal Defense and reaches `CERTIFIED`.
