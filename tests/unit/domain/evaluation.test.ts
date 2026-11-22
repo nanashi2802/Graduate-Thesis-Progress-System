@@ -159,8 +159,9 @@ describe("close inputs (INV-16, BR-11)", () => {
     expect(sheetsVerifiedAndMatched(expected, [sheet("adv"), sheet("p1"), sheet("p2", { sheetMatch: "mismatch" })])).toBe(false);
     expect(sheetsVerifiedAndMatched(expected, [sheet("adv"), sheet("p1"), sheet("p2", { sheetMatch: "pending" })])).toBe(false);
   });
-  it("ignores a sheet from a user who is not expected", () => {
-    expect(sheetsVerifiedAndMatched(["adv"], [sheet("adv"), sheet("x", { verifiedAt: null })])).toBe(true);
+  it("also needs every other entry of the attempt verified and matched (ERD INV-16)", () => {
+    expect(sheetsVerifiedAndMatched(["adv"], [sheet("adv"), sheet("x", { verifiedAt: null })])).toBe(false);
+    expect(sheetsVerifiedAndMatched(["adv"], [sheet("adv"), sheet("x")])).toBe(true);
   });
   it("shows results to the Student only when every sheet is verified (BR-11)", () => {
     expect(resultsVisible(expected, [sheet("adv"), sheet("p1"), sheet("p2")])).toBe(true);
