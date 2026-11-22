@@ -910,7 +910,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Depends on:** T01 to T04, P1-E14
 - **Done when:**
   - [x] The printed copies receipt and the match against the locked manuscript, with a late warning (BR-09): `recordPrintedCopies`, `checkPrintedCopies`, `printedCopyStatus` in `defense.ts`.
-  - [ ] Each action shows its refusal reason (BR-18).
+  - [x] S5, A5 and P4 are built (`/student/defense/[defenseId]`, `/adviser/defense/[defenseId]`, `/panel/defense/[defenseId]`). C5 and C6 are built by agent-b. Each action shows its refusal reason (BR-18).
 - **Tests:** unit, typecheck, build
 
 ### 3.14 P1-E10 Certification and data gathering (Track A, `agent-a`, §8 Phase 1 step 7)

@@ -22,7 +22,7 @@ import { recordAudit } from "./audit";
 import { InputProblem, requireCoordinator } from "./coordinator";
 import type { FilePort } from "./documents";
 import { expectedEvaluatorsFor, loadMilestoneContext, type MilestoneContext } from "./milestone-facts";
-import { disapproveToDraft, transitionMilestone } from "./milestones";
+import { checkTransition, disapproveToDraft, transitionMilestone } from "./milestones";
 import {
   committeeMember,
   defenseAttempt,
@@ -418,6 +418,88 @@ export async function checkPrintedCopies(ctx: DataContext, attemptId: string, re
     await tx.update(printedCopyReceipt).set({ matchResult: result }).where(eq(printedCopyReceipt.id, found.id));
     await recordAudit({ db: tx, actor: ctx.actor }, { action: `printed.${result}`, targetTable: "defense_attempt", targetId: attemptId });
   });
+}
+
+// ---- The Defense Day page (A5, P4) ----
+
+async function isVerdictSeat(ctx: DataContext, mctx: MilestoneContext): Promise<boolean> {
+  const need = mctx.code === "final" ? "panel_chair" : "lead_panel_member";
+  if (ctx.actor.role !== "panel_member" || !mctx.committeeId) return false;
+  const [seat] = await ctx.db
+    .select({ designation: committeeMember.designation })
+    .from(committeeMember)
+    .where(and(eq(committeeMember.committeeId, mctx.committeeId), eq(committeeMember.memberUserId, ctx.actor.userId), eq(committeeMember.status, "accepted")));
+  return seat?.designation === need;
+}
+
+/**
+ * FR-DEF-05, FR-DEF-06, FR-DEF-07: what the Defense Day page of one attempt needs: the form, the rubric, the own sheet,
+ * and the reason each action is blocked (BR-18). It reads only. The page for the Adviser (A5) and the Panel Member (P4) are one.
+ */
+export async function defensePage(ctx: DataContext, attemptId: string, now: Date = new Date()) {
+  const { attempt, mctx } = await loadAttempt(ctx, attemptId);
+  const form = evaluationFormFor(mctx.code);
+  const expected = await expectedEvaluatorsFor(ctx.db, mctx, attempt.id);
+  const rubric = await ctx.db
+    .select({ id: rubricIndicator.id, code: rubricIndicator.code, label: rubricIndicator.label, weightPct: rubricIndicator.weightPct })
+    .from(rubricIndicator)
+    .where(eq(rubricIndicator.templateVersionId, mctx.milestone.templateVersionId))
+    .orderBy(asc(rubricIndicator.code));
+  const [entry] = await ctx.db
+    .select()
+    .from(evaluationEntry)
+    .where(and(eq(evaluationEntry.defenseAttemptId, attempt.id), eq(evaluationEntry.memberUserId, ctx.actor.userId)));
+  const scores = entry ? await ctx.db.select().from(evaluationScore).where(eq(evaluationScore.evaluationEntryId, entry.id)) : [];
+  const comments = entry ? await ctx.db.select().from(evaluationComment).where(eq(evaluationComment.evaluationEntryId, entry.id)) : [];
+  const isEvaluator = expected.includes(ctx.actor.userId);
+
+  let editBlock: string | null = null;
+  if (!isEvaluator) editBlock = "You do not complete a sheet for this defense.";
+  else if (!isOpen(attempt)) editBlock = "The defense is not open for sheets.";
+  else {
+    const d = checkSheetEdit({
+      actorUserId: ctx.actor.userId,
+      memberUserId: ctx.actor.userId,
+      expected,
+      scheduledStartAt: attempt.scheduledStartAt,
+      verifiedAt: entry?.verifiedAt ?? null,
+      now,
+    });
+    if (!d.ok) editBlock = d.reason;
+  }
+
+  const verdictSeat = await isVerdictSeat(ctx, mctx);
+  let verdictBlock: string | null = null;
+  if (mctx.milestone.status !== "DEFENSE_SCHEDULED") verdictBlock = "The verdict is for a scheduled defense.";
+  else if (!attempt.scheduledStartAt || pstDate(now) < pstDate(attempt.scheduledStartAt)) verdictBlock = "The verdict is for the defense date or later.";
+  let heldBlock: string | null = null;
+  if (verdictSeat) {
+    const d = await checkTransition(ctx, mctx.milestone.id, "DEFENSE_HELD");
+    if (!d.ok) heldBlock = d.reason;
+  }
+  const sheets = await ctx.db.select().from(evaluationEntry).where(eq(evaluationEntry.defenseAttemptId, attempt.id));
+  return {
+    attempt,
+    milestone: { id: mctx.milestone.id, code: mctx.code, status: mctx.milestone.status },
+    form,
+    rubric,
+    isEvaluator,
+    own: entry
+      ? {
+          entry,
+          scores: Object.fromEntries(scores.map((x) => [x.rubricIndicatorId, Number(x.score)])) as Record<string, number>,
+          comments: Object.fromEntries(comments.map((c) => [c.section, c.body])) as Record<string, string>,
+        }
+      : null,
+    editBlock,
+    verdictSeat,
+    verdictBlock,
+    heldBlock,
+    // BR-17: a warning only. Only the seat that records the verdict sees it.
+    warnings: verdictSeat ? actionTakenWarnings(attempt.verdict, sheets) : [],
+    sheetsSaved: sheets.length,
+    sheetsExpected: expected.length,
+  };
 }
 
 // ---- Read ----
