@@ -178,6 +178,24 @@ describe("endorseGate1b (FR-WFL-04, INV-21, BR-07)", () => {
     expect(pr!.lockedAt).not.toBeNull();
   });
 
+  it("starts a new Gate 1b round after a Coordinator Return at DATE_PROPOSED (BR-13, BR-07, AD-A-018)", async () => {
+    const t = await atGate1b();
+    for (const u of [t.adviser, t.lead, t.chair]) await endorseGate1b(as(u), t.milestone.id);
+    expect((await statusOf(t.milestone.id)).status).toBe("COMMITTEE_ENDORSED");
+    await setStatus(t.milestone.id, "DATE_PROPOSED");
+    await transitionMilestone(as(t.coordinator), t.milestone.id, "RETURNED", { reason: "Form is missing.", purpose: "compliance" });
+    // The manuscript is unlocked and the Ready mark is clear.
+    const [pr] = await db.select().from(s.submissionPr).where(eq(s.submissionPr.id, t.pr.id));
+    expect(pr!.lockedAt).toBeNull();
+    expect(pr!.readyCommitId).toBeNull();
+    // The Student marks Ready again, and the milestone comes back to the Gate 1b stage.
+    await setReady(t.pr.id, t.commit.id);
+    await setStatus(t.milestone.id, "COMMITTEE_APPOINTED");
+    for (const u of [t.adviser, t.lead]) await expect(endorseGate1b(as(u), t.milestone.id)).resolves.toEqual({ completed: false });
+    await expect(endorseGate1b(as(t.chair), t.milestone.id)).resolves.toEqual({ completed: true });
+    expect((await statusOf(t.milestone.id)).status).toBe("COMMITTEE_ENDORSED");
+  });
+
   it("refuses a second endorsement by the same person", async () => {
     const t = await atGate1b();
     await endorseGate1b(as(t.adviser), t.milestone.id);

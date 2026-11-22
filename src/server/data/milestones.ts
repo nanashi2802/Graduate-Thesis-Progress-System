@@ -2,7 +2,7 @@
 // The pure rules are in src/server/domain/milestone.ts and gates.ts. This file loads the facts,
 // asks the rules, writes the change and the audit row in one transaction. Server only.
 import "server-only";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, gt, inArray } from "drizzle-orm";
 import {
   checkGate1b,
   checkGate2,
@@ -20,7 +20,7 @@ import {
 import { AccessDeniedError, requireActive, type DataContext } from "./access";
 import { recordAudit } from "./audit";
 import { InputProblem } from "./coordinator";
-import { loadMilestoneContext, loadMilestoneFacts, type MilestoneContext } from "./milestone-facts";
+import { lastReturnGateId, loadMilestoneContext, loadMilestoneFacts, type MilestoneContext } from "./milestone-facts";
 import {
   committeeMember,
   critiqueThread,
@@ -191,6 +191,11 @@ export async function transitionMilestone(
         commitId: mctx.pr?.readyCommitId ?? null,
         reason,
       });
+      // BR-13: a Return starts a new round. The manuscript unlocks and the Ready mark clears, so the
+      // Student can upload and mark Ready again, and Gate 1b starts from zero (AD-A-018).
+      if (mctx.pr) {
+        await tx.update(submissionPr).set({ lockedAt: null, readyCommitId: null }).where(eq(submissionPr.id, mctx.pr.id));
+      }
       // INV-18: the status goes back to DRAFT at once. The reason stays for the Student.
       await applyStatus(tx, ctx, { ...mctx, milestone: { ...mctx.milestone, status: "RETURNED" } }, "DRAFT");
       await recordAudit(txCtx, {
@@ -250,6 +255,7 @@ export async function endorseGate1b(ctx: DataContext, milestoneId: string): Prom
 
   return ctx.db.transaction(async (tx) => {
     const txCtx = { db: tx, actor: ctx.actor };
+    const sinceReturn = await lastReturnGateId(tx, milestoneId);
     const own = await tx
       .select({ id: gateAction.id })
       .from(gateAction)
@@ -259,6 +265,7 @@ export async function endorseGate1b(ctx: DataContext, milestoneId: string): Prom
           eq(gateAction.gate, "gate_1b"),
           eq(gateAction.actorUserId, userId),
           eq(gateAction.commitId, commitId),
+          gt(gateAction.id, sinceReturn),
         ),
       );
     if (own.length > 0) throw new TransitionRefused("You already endorsed this commit.", "gate_done");

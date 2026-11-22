@@ -1,7 +1,7 @@
 // The facts that the milestone guards read (ERD §4.2, `MilestoneFacts` in src/server/domain/milestone.ts).
 // Call only after an access check. Server only.
 import "server-only";
-import { and, desc, eq, inArray, isNotNull, ne } from "drizzle-orm";
+import { and, desc, eq, gt, inArray, isNotNull, max, ne } from "drizzle-orm";
 import { checklistComplete } from "@/server/domain/checklist";
 import { committeeKindFor, type DegreeLevel } from "@/server/domain/committee";
 import type { DocumentState } from "@/server/domain/documents";
@@ -78,6 +78,15 @@ export async function loadMilestoneContext(db: Db, milestoneId: string): Promise
   };
 }
 
+// A Return starts a new round: Gate 1b rows before the last Return no longer count (AD-A-018).
+export async function lastReturnGateId(db: Db, milestoneId: string): Promise<number> {
+  const [row] = await db
+    .select({ id: max(gateAction.id) })
+    .from(gateAction)
+    .where(and(eq(gateAction.milestoneInstanceId, milestoneId), eq(gateAction.result, "returned")));
+  return row?.id ?? 0;
+}
+
 const formKey = (code: string) => code.replace("_", " ");
 
 export async function loadMilestoneFacts(db: Db, ctx: MilestoneContext, now: Date = new Date()): Promise<MilestoneFacts> {
@@ -106,7 +115,10 @@ export async function loadMilestoneFacts(db: Db, ctx: MilestoneContext, now: Dat
   const documents: Record<string, DocumentState | undefined> = {};
   for (const d of docs) documents[formKey(d.formCode)] = d.state as DocumentState;
 
-  // The appointment form and the NDA of each accepted seat (BR-08, FR-CMT-04).
+  // The appointment form and the NDA of each seat that is not declined: a proposed seat with no answer
+  // blocks the record (FR-CMT-04). Gate 1b counts accepted seats only (`memberIds`).
+  // The appointment form and the NDA of each seat that is not declined (BR-08, FR-CMT-04). A proposed seat
+  // with no answer blocks the record. Gate 1b counts accepted seats only (`memberIds`).
   let appointmentAndNdasRecorded = false;
   let ndas: DocumentState[] = [];
   if (ctx.committeeId) {
@@ -129,6 +141,7 @@ export async function loadMilestoneFacts(db: Db, ctx: MilestoneContext, now: Dat
   let gate1bComplete = false;
   let gate1bCompletedOn: string | null = null;
   if (pr?.readyCommitId && ctx.memberIds.length > 0) {
+    const sinceReturn = await lastReturnGateId(db, milestone.id);
     const rows = await db
       .select({ actor: gateAction.actorUserId, at: gateAction.createdAt })
       .from(gateAction)
@@ -138,6 +151,7 @@ export async function loadMilestoneFacts(db: Db, ctx: MilestoneContext, now: Dat
           eq(gateAction.gate, "gate_1b"),
           eq(gateAction.result, "endorsed"),
           eq(gateAction.commitId, pr.readyCommitId),
+          gt(gateAction.id, sinceReturn),
         ),
       );
     gate1bComplete = endorsers.every((id) => rows.some((r) => r.actor === id));
