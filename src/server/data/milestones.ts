@@ -95,7 +95,7 @@ async function acceptedPreFinalItems(db: Tx, thesisId: string, userId: string, r
       .select({ id: committeeMember.id })
       .from(committeeMember)
       .innerJoin(committee, eq(committee.id, committeeMember.committeeId))
-      .where(and(eq(committee.thesisInstanceId, thesisId), eq(committee.kind, "evaluation_committee"), eq(committeeMember.memberUserId, userId)));
+      .where(and(eq(committee.thesisInstanceId, thesisId), eq(committee.kind, "evaluation_committee"), eq(committeeMember.status, "accepted"), eq(committeeMember.memberUserId, userId)));
     if (seat.length === 0) return true;
   }
   const [pre] = await db

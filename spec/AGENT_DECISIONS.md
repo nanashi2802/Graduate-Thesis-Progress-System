@@ -10,7 +10,7 @@
 ### Phase 3 (Track A, 23 Nov 2026)
 - **Made:** AD-A-028 (Defense Day window), AD-A-029 and AD-A-030 (clearance), AD-A-031 (Gate 1b rule for a new Final Panel member). The Milestone 3 flow test runs from the open of Milestone 3 to CLEARED.
 - **Risky:** AD-A-029 (copyright must be REGISTERED before CLEARED, a Student with APPLIED copyright is blocked; confirm with the Coordinator).
-- **Human must check:** AD-A-031 skips INV-21 for a new Final Panel member. The browser runs of all three flow tests still wait for a seeded sign-in (AD-A-025).
+- **Human must check:** AD-A-031 skips INV-21 (FR-WFL-04, a Must) for a new Final Panel member; agent-r prefers that a new member marks the items accepted. The browser runs of all three flow tests still wait for a seeded sign-in (AD-A-025).
 
 ## Decisions
 
@@ -410,5 +410,19 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Task:** P3-E06 (found by the Milestone 3 flow test)
 - **Options:** keep INV-21 for every member; skip it for a Final Panel member who had no seat on the Evaluation Committee; let new members accept Pre-Final items.
 - **Decision and reason:** INV-21 asks each member to accept every Pre-Final revision item. Only the Evaluation Committee and the Adviser can accept them (`requireEndorser`). A new Final Panel member could never accept, so Gate 1b at the Final could never finish. `acceptedPreFinalItems` now returns true for a Panel Member with no Evaluation Committee seat. The Adviser and old members keep the rule.
-- **Risk:** low. A new member endorses without having read the Pre-Final items. The old members and the Adviser still accepted them.
+- **Risk:** medium. This skips FR-WFL-04 (a Must requirement) for a new member, who endorses without having read the Pre-Final items. The old members and the Adviser still accepted them.
 - **Undo:** revert the commits with AD-A-031.
+
+### AD-B-024 — P3-E01 needs a test only: the Final reuses the appointment and sheet code
+- **Task:** P3-E01-T01
+- **Options:** build new Final Panel and TDW 13 code; test that the existing code (AD-B-016, AD-B-017) already serves the Final
+- **Decision and reason:** The second. `expectedEvaluatorsFor` and `evaluationFormFor` already pick the Final Panel and TDW 13 from the milestone code. A test now proves it: the Adviser is refused, a score above the weight is refused, and the Coordinator verifies both sheets (FR-DEF-06, INV-25). TDW 12 is a generic scan item in the Final template.
+- **Risk:** low. No source code changed.
+- **Undo:** delete `tests/unit/data/defense-final.test.ts`.
+
+### AD-B-025 — Submission view opens at Gate 1b passed and links to the workspace for the manuscript
+- **Task:** P3-E05-T01, P3-E05-T02
+- **Options:** embed the PDF in the view with a signed link; show the locked commit number and link to the user's own workspace (FR-SUB-04)
+- **Decision and reason:** The second. The workspace already holds the viewer and the access checks (INV-24). The view is open when a `gate_1b` endorse exists and the status is past `COMMITTEE_APPOINTED`. A Return closes it again. The Coordinator has no PR route, so the view shows no link for that role. Panel Members need the verified form and NDA (BR-08).
+- **Risk:** low. Read only. No schema change.
+- **Undo:** delete `src/server/data/submission-view.ts`, `src/app/_components/submission-view.tsx` and the four `submission/[id]` routes.

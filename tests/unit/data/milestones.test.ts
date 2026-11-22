@@ -317,3 +317,51 @@ describe("approveGate2 (FR-WFL-07, BR-20, INV-22)", () => {
     await expect(approveGate2(as(t.student), t.milestone.id)).rejects.toBeInstanceOf(AccessDeniedError);
   });
 });
+
+describe("endorseGate1b at the Final: Pre-Final revisions (FR-WFL-04, INV-21, AD-A-031)", () => {
+  async function atFinalGate1b() {
+    const t = await setup();
+    const version = async (code: "pre_final" | "final") => {
+      const [tpl] = await db.select().from(s.milestoneTemplate).where(eq(s.milestoneTemplate.code, code));
+      return (await db.select().from(s.templateVersion).where(eq(s.templateVersion.milestoneTemplateId, tpl!.id)))[0]!;
+    };
+    const [pre] = await db
+      .insert(s.milestoneInstance)
+      .values({ thesisInstanceId: t.thesis.id, templateVersionId: (await version("pre_final")).id, milestoneCode: "pre_final", status: "CLOSED" })
+      .returning();
+    const [attempt] = await db.insert(s.defenseAttempt).values({ milestoneInstanceId: pre!.id, attemptNo: 1, status: "closed" }).returning();
+    await db.insert(s.revisionItem).values({ defenseAttemptId: attempt!.id, ordinal: 1, body: "Add a limitation section." });
+    const [fin] = await db
+      .insert(s.milestoneInstance)
+      .values({ thesisInstanceId: t.thesis.id, templateVersionId: (await version("final")).id, milestoneCode: "final", status: "COMMITTEE_APPOINTED" })
+      .returning();
+    const [pr] = await db.insert(s.submissionPr).values({ milestoneInstanceId: fin!.id }).returning();
+    const [commit] = await db
+      .insert(s.manuscriptCommit)
+      .values({ submissionPrId: pr!.id, ordinal: 1, fileKey: `test/manuscript/${crypto.randomUUID()}.pdf`, sha256: "0".repeat(64), sizeBytes: 1000, uploadedByUserId: t.student.id })
+      .returning();
+    await setReady(pr!.id, commit!.id);
+    const [panel] = await db.insert(s.committee).values({ thesisInstanceId: t.thesis.id, kind: "final_panel" }).returning();
+    const fresh = await makeUser(db, "panel_member");
+    const declined = await makeUser(db, "panel_member");
+    await db.insert(s.committeeMember).values([
+      { committeeId: panel!.id, memberUserId: t.lead.id, status: "accepted" },
+      { committeeId: panel!.id, memberUserId: fresh.id, status: "accepted" },
+      { committeeId: panel!.id, memberUserId: declined.id, status: "accepted" },
+      { committeeId: t.committee.id, memberUserId: declined.id, status: "declined" },
+    ]);
+    return { ...t, fin: fin!, fresh, declined };
+  }
+
+  it("refuses the Adviser and an Evaluation Committee member with an unaccepted item", async () => {
+    const t = await atFinalGate1b();
+    await expect(endorseGate1b(as(t.adviser), t.fin.id)).rejects.toMatchObject({ code: "revisions_not_accepted" });
+    await expect(endorseGate1b(as(t.lead), t.fin.id)).rejects.toMatchObject({ code: "revisions_not_accepted" });
+  });
+
+  it("lets a new Final Panel member and a member with a declined Evaluation Committee seat endorse", async () => {
+    const t = await atFinalGate1b();
+    await expect(endorseGate1b(as(t.fresh), t.fin.id)).resolves.toEqual({ completed: false });
+    await expect(endorseGate1b(as(t.declined), t.fin.id)).resolves.toEqual({ completed: false });
+  });
+});
