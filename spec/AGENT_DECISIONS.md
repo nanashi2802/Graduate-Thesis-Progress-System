@@ -407,3 +407,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** The second. `expectedEvaluatorsFor` and `evaluationFormFor` already pick the Final Panel and TDW 13 from the milestone code. A test now proves it: the Adviser is refused, a score above the weight is refused, and the Coordinator verifies both sheets (FR-DEF-06, INV-25). TDW 12 is a generic scan item in the Final template.
 - **Risk:** low. No source code changed.
 - **Undo:** delete `tests/unit/data/defense-final.test.ts`.
+
+### AD-B-025 — Submission view opens at Gate 1b passed and links to the workspace for the manuscript
+- **Task:** P3-E05-T01, P3-E05-T02
+- **Options:** embed the PDF in the view with a signed link; show the locked commit number and link to the user's own workspace (FR-SUB-04)
+- **Decision and reason:** The second. The workspace already holds the viewer and the access checks (INV-24). The view is open when a `gate_1b` endorse exists and the status is past `COMMITTEE_APPOINTED`. A Return closes it again. The Coordinator has no PR route, so the view shows no link for that role. Panel Members need the verified form and NDA (BR-08).
+- **Risk:** low. Read only. No schema change.
+- **Undo:** delete `src/server/data/submission-view.ts`, `src/app/_components/submission-view.tsx` and the four `submission/[id]` routes.

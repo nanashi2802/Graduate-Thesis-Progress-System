@@ -1102,6 +1102,31 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [x] The tab shows at the Final only.
 - **Tests:** typecheck, build
 
+### 5.3 P3-E05 Shared submission view and dossier (Track B, `agent-b`)
+
+**Decisions:** AD-B-025.
+
+### P3-E05-T01 - Submission view data
+- **Goal:** One read-only record of a milestone from Gate 1b: locked commit, gates, checklist, defense date, thread counts, Minutes after close.
+- **Covers:** FR-SUB-01 to FR-SUB-04, BR-08, NFR-01
+- **Changes:** `src/server/data/submission-view.ts`, `tests/unit/data/submission-view.test.ts`
+- **Done when:**
+  - [x] A test shows the closed view with its reason, the view for four roles, and the refusal of other users.
+- **Tests:** unit (Vitest with PGlite)
+
+### P3-E05-T02 - SV screen on four routes
+- **Goal:** `/student|adviser|panel|coordinator/submission/[id]` show one screen.
+- **Covers:** FR-SUB-05
+- **Done when:**
+  - [x] The four routes build and share one component.
+- **Tests:** typecheck, build
+
+### P3-E05-T03 - Dossier export (Coordinator)
+- **Goal:** The Coordinator exports a Student dossier with an index.
+- **Covers:** FR-DOC-10
+- **Done when:**
+  - [ ] Open.
+
 ### 5.2 P3-E04 Clearance (Track A, `agent-a`)
 
 **Decisions:** AD-A-029.
