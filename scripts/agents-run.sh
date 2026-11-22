@@ -10,6 +10,7 @@
 #   AGENT_INTERVAL        seconds between GitHub checks when there is no work (default 300)
 #   AGENT_TIMEOUT         longest time for one Claude run (default 90m)
 #   AGENT_LIMIT_WAIT      seconds to wait after a usage-limit error before the next try (default 1800)
+#   AGENT_MAX_TRIES       runs for one job on one commit before the runner skips it (default 3). A new commit resets it.
 #   AGENT_BUILDER_MODEL / AGENT_BUILDER_EFFORT   default sonnet / medium
 #   AGENT_REVIEW_MODEL  / AGENT_REVIEW_EFFORT    default sonnet / medium
 set -uo pipefail
@@ -20,13 +21,15 @@ BUILDERS="${AGENT_BUILDERS:-1}"
 INTERVAL="${AGENT_INTERVAL:-300}"
 TIMEOUT="${AGENT_TIMEOUT:-90m}"
 LIMIT_WAIT="${AGENT_LIMIT_WAIT:-1800}"
+MAX_TRIES="${AGENT_MAX_TRIES:-3}"
 BUILDER_MODEL="${AGENT_BUILDER_MODEL:-sonnet}"; BUILDER_EFFORT="${AGENT_BUILDER_EFFORT:-medium}"
 REVIEW_MODEL="${AGENT_REVIEW_MODEL:-sonnet}"; REVIEW_EFFORT="${AGENT_REVIEW_EFFORT:-medium}"
 
 logdir="$root/.claude/agent-runs"
 stopfile="$root/.claude/agents.stop"
 lock="$root/.claude/agent-runner.lock"
-mkdir -p "$logdir"
+triedir="$logdir/tries"
+mkdir -p "$logdir" "$triedir"
 
 log() { echo "$(date "+%F %T") $*" >>"$logdir/runner.log"; }
 
@@ -52,9 +55,18 @@ check_bucket() {
 # Wait, but stop early when the stop file appears.
 nap() { local end=$((SECONDS + $1)); while [ $SECONDS -lt $end ] && [ ! -f "$stopfile" ]; do sleep 10; done; }
 
-# Run one Claude session in an agent worktree. Return 0 on success, 2 on a usage limit.
+# Tries for one job key (agent, job, commit). A capped job stays skipped until its commit changes.
+tries() { cat "$triedir/$1" 2>/dev/null || echo 0; }
+
+# Run one Claude session in an agent worktree.
+# Return 0 after a run, 2 on a usage limit (not counted as a try), 3 when the job is capped (no run).
 run_claude() {
-  local name="$1" task="$2" model effort settings out rc result
+  local name="$1" task="$2" key="$3" model effort settings out rc result n
+  n="$(tries "$key")"
+  if [ "$n" -ge "$MAX_TRIES" ]; then
+    [ -f "$triedir/$key.logged" ] || { log "capped: $key after $n runs with no progress. Check it by hand."; touch "$triedir/$key.logged"; }
+    return 3
+  fi
   if [ "$name" = agent-r ]; then
     model="$REVIEW_MODEL"; effort="$REVIEW_EFFORT"; settings="$root/.claude/agent-review-session.json"
   else
@@ -68,6 +80,7 @@ run_claude() {
 This run: $task") >"$out" 2>&1
   rc=$?
   if grep -qiE "hit your .*limit|usage limit (was )?reached" "$out"; then log "usage limit: $name stopped (log $out)"; return 2; fi
+  echo $((n + 1)) >"$triedir/$key"
   result="$(grep -oE 'RESULT: [a-z-]+' "$out" | tail -1)"
   [ "$result" = "RESULT: phase-complete" ] && touch "$logdir/$name.done"
   [ $rc -eq 124 ] && result="timeout after $TIMEOUT"
@@ -75,18 +88,19 @@ This run: $task") >"$out" 2>&1
   return 0
 }
 
-# What a builder must do now: new, resume, fix, or empty (wait).
+# What a builder must do now, as "key|job" (job: new, resume or fix), or empty (wait).
 builder_job() {
   local b="$1" line n sha draft mergeable
   [ -f "$logdir/$b.done" ] && return
   line="$(gh pr list --base dev --state open --head "$b" --json number,headRefOid,isDraft,mergeable \
     --jq '.[0]|select(.)|"\(.number) \(.headRefOid) \(.isDraft) \(.mergeable)"')"
-  if [ -z "$line" ]; then echo "new: take the next task in your track"; return; fi
+  if [ -z "$line" ]; then echo "$b-new-$(git rev-parse -q --verify "origin/$b" | cut -c1-12)|new: take the next task in your track"; return; fi
   read -r n sha draft mergeable <<<"$line"
-  if [ "$draft" = true ]; then echo "resume: finish the task of draft pull request #$n"; return; fi
-  if [ "$mergeable" = CONFLICTING ]; then echo "fix: pull request #$n has a merge conflict with dev"; return; fi
-  if [ "$(review_state "$sha")" = failure ]; then echo "fix: pull request #$n has agent-review findings"; return; fi
-  if [ "$(check_bucket "$n" ci)" = fail ] || [ "$(check_bucket "$n" commit-policy)" = fail ]; then echo "fix: pull request #$n has a failed check"; return; fi
+  local k="${sha:0:12}"
+  if [ "$draft" = true ]; then echo "$b-resume-$k|resume: finish the task of draft pull request #$n"; return; fi
+  if [ "$mergeable" = CONFLICTING ]; then echo "$b-conflict-$k|fix: pull request #$n has a merge conflict with dev"; return; fi
+  if [ "$(review_state "$sha")" = failure ]; then echo "$b-findings-$k|fix: pull request #$n has agent-review findings"; return; fi
+  if [ "$(check_bucket "$n" ci)" = fail ] || [ "$(check_bucket "$n" commit-policy)" = fail ]; then echo "$b-check-$k|fix: pull request #$n has a failed check"; return; fi
 }
 
 rm -f "$stopfile"
@@ -111,8 +125,9 @@ while [ ! -f "$stopfile" ]; do
   while read -r n sha; do
     [ -n "${n:-}" ] || continue
     if [ -z "$(review_state "$sha")" ]; then
-      run_claude agent-r "review pull request #$n (head $sha)."; rc=$?
+      run_claude agent-r "review pull request #$n (head $sha)." "agent-r-review-${sha:0:12}"; rc=$?
       [ $rc -eq 2 ] && { nap "$LIMIT_WAIT"; continue 2; }
+      [ $rc -eq 3 ] && continue
       worked=1; break
     fi
   done <<<"$prs"
@@ -123,19 +138,23 @@ while [ ! -f "$stopfile" ]; do
     pids=()
     for b in agent-a agent-b; do
       job="$(builder_job "$b")"
-      [ -n "$job" ] && { run_claude "$b" "$job" & pids+=($!); }
+      [ -n "$job" ] && { run_claude "$b" "${job#*|}" "${job%%|*}" & pids+=($!); }
     done
     limit=0
-    for p in "${pids[@]}"; do wait "$p" || { [ $? -eq 2 ] && limit=1; }; done
+    for p in "${pids[@]}"; do
+      wait "$p"; rc=$?
+      [ $rc -eq 2 ] && limit=1
+      [ $rc -eq 0 ] && worked=1
+    done
     [ $limit -eq 1 ] && { nap "$LIMIT_WAIT"; continue; }
-    [ ${#pids[@]} -gt 0 ] && worked=1
   else
     order=(agent-a agent-b); [ $((turn % 2)) -eq 1 ] && order=(agent-b agent-a)
     for b in "${order[@]}"; do
       job="$(builder_job "$b")"
       if [ -n "$job" ]; then
-        run_claude "$b" "$job"; rc=$?
+        run_claude "$b" "${job#*|}" "${job%%|*}"; rc=$?
         [ $rc -eq 2 ] && { nap "$LIMIT_WAIT"; continue 2; }
+        [ $rc -eq 3 ] && continue
         worked=1; turn=$((turn + 1)); break
       fi
     done
