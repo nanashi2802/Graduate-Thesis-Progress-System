@@ -41,6 +41,12 @@ describe("nextAction", () => {
     expect(nextAction("proposal", "DEFENSE_SCHEDULED", { ...facts, defenseDate: "2026-12-15" }).text).toContain("2026-12-15");
   });
 
+  it("names the data gathering approval at CERTIFIED until the Adviser gives it (FR-WFL-11)", () => {
+    expect(nextAction("proposal", "CERTIFIED", facts)).toMatchObject({ actor: "adviser", action: null });
+    expect(nextAction("proposal", "CERTIFIED", facts).text).toContain("data gathering");
+    expect(nextAction("proposal", "CERTIFIED", { ...facts, dataGatheringApproved: true })).toMatchObject({ actor: "none" });
+  });
+
   it("shows the written reason after a Return (BR-13)", () => {
     const n = nextAction("proposal", "DRAFT", { ...facts, returnReason: "The method chapter is missing." });
     expect(n.text).toContain("The method chapter is missing.");
