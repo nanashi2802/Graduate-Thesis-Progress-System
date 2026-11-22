@@ -10,6 +10,7 @@ import { uploadProblem, type UploadRequest } from "@/server/files/rules";
 import type { UploadLink } from "@/server/files/storage";
 import { AccessDeniedError, requireActive, type DataContext } from "./access";
 import { recordAudit } from "./audit";
+import { emitSafely } from "./recipients";
 import {
   committee,
   committeeMember,
@@ -23,6 +24,7 @@ import {
   type UserRole,
 } from "./schema";
 import { readableTheses, requireThesisRead } from "./scope";
+import { appLink } from "@/server/notify/link";
 
 /** The two storage calls this module needs. The app passes `src/server/files/storage.ts`; tests pass a fake. */
 export type FilePort = {
@@ -287,7 +289,7 @@ export async function reviewDocument(
   if ((input.to === "returned" || input.to === "mismatch") && !reason) return refuse("reason_required");
   const d = decideDocumentChange(doc.state, input.to, "coordinator", reason);
   if (!d.ok) return refuse(d.code, d.reason);
-  return ctx.db.transaction(async (tx) => {
+  const result = await ctx.db.transaction(async (tx) => {
     await step(tx, ctx, doc.id, doc.state, input.to, reason);
     await tx.update(documentRecord).set({ state: input.to }).where(eq(documentRecord.id, doc.id));
     await recordAudit({ db: tx, actor: ctx.actor }, {
@@ -296,8 +298,14 @@ export async function reviewDocument(
       targetId: doc.id,
       detail: { formCode: doc.formCode, from: doc.state },
     });
-    return { ok: true, value: null };
+    return { ok: true, value: null } as const;
   });
+  // B3 (FR-NTF-01): the Student learns of a Return. It runs after the commit and never throws (INV-30).
+  if (input.to === "returned") {
+    const m = await loadMilestone(ctx, doc.milestoneInstanceId);
+    await emitSafely(ctx, "B3", { thesisId: m.thesisInstanceId, milestone: m.milestoneCode }, { link: appLink("/student/documents"), targetTable: "document_record", targetId: doc.id });
+  }
+  return result;
 }
 
 /** FR-DOC-11: the state history and the file versions of one document. No file keys leave the server. */

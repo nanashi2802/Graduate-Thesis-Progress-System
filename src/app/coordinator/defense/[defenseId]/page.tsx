@@ -7,6 +7,7 @@ import { FlagBanner } from "@/components/banners";
 import { EmptyState } from "@/components/empty-state";
 import { InputProblem } from "@/server/data/coordinator";
 import { defenseDetail } from "@/server/data/defense-view";
+import { RevisionItemsForm } from "@/app/_components/revision-panel";
 import { sessionContext } from "../../_lib/action";
 import { PageHeader, Section, td, th } from "../../_lib/page-header";
 import { CertifyForm, CloseForm, MinutesForm, SheetScanUploader, VerifySheetForm } from "./defense-forms";
@@ -97,6 +98,12 @@ export default async function Page({ params }: PageProps<"/coordinator/defense/[
           <MinutesForm attemptId={d.attemptId} blockedReason={d.minutesBlockedReason} />
         )}
       </Section>
+
+      {d.verdict === "approved_with_revisions" ? (
+        <Section title="Revision items">
+          <RevisionItemsForm attemptId={d.attemptId} />
+        </Section>
+      ) : null}
 
       <Section title="Close the stage">
         <p className="max-w-[72ch] text-sm text-muted-foreground">

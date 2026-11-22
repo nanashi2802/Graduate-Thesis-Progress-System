@@ -6,6 +6,7 @@ import { DocumentStamp, documentStateView } from "@/components/status";
 import { deliverables, documentHistory } from "@/server/data/documents";
 import { listStudents } from "@/server/data/students";
 import { decideDocumentChange, type DocumentState } from "@/server/domain/documents";
+import { OutsideSetters } from "@/app/_components/outside-setters";
 import { sessionContext } from "../_lib/action";
 import { PageHeader, Section, td, th } from "../_lib/page-header";
 import { ReviewForm, type ReviewBlocks } from "./review-form";
@@ -68,6 +69,7 @@ export default async function Page({ searchParams }: PageProps<"/coordinator/doc
               const rows = (await deliverables(ctx, m.id)).flatMap((d) => d.records.map((r) => ({ d, r })));
               return (
                 <Section key={m.id} title={`${MILESTONE_LABEL[m.code] ?? m.code} Defense`}>
+                  <OutsideSetters ctx={ctx} milestoneId={m.id} />
                   {rows.length === 0 ? (
                     <EmptyState title="No scan is uploaded yet." detail="Records appear here after an upload." />
                   ) : (
