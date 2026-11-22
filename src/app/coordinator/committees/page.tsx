@@ -10,7 +10,7 @@ import { committeeKindFor } from "@/server/domain/committee";
 import type { MilestoneCode } from "@/server/domain/milestone";
 import { sessionContext } from "../_lib/action";
 import { PageHeader, Section, td, th } from "../_lib/page-header";
-import { AppointButton, LinkForm, ProposeSeatForm, SeatAnswerButtons } from "./committee-forms";
+import { AdvanceButton, AppointButton, LinkForm, ProposeSeatForm, SeatAnswerButtons } from "./committee-forms";
 
 const KIND_LABEL = { evaluation_committee: "Evaluation Committee", final_panel: "Final Panel" } as const;
 const MILESTONE_LABEL: Record<string, string> = { proposal: "Proposal", pre_final: "Pre-Final", final: "Final" };
@@ -167,6 +167,7 @@ async function Board({ student, board, ctx }: { student: StudentRow; board: Appo
                     )}
                   </div>
                   <AppointButton committeeId={c.id} blockedReason={c.appointBlockedReason} />
+                  {c.appointed && !c.milestoneAdvanced ? <AdvanceButton committeeId={c.id} blockedReason={c.advanceBlockedReason} /> : null}
                 </div>
               )}
               <div className="flex flex-col gap-3">

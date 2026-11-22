@@ -511,7 +511,8 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Depends on:** T02, P1-E07-T02 (scan upload)
 - **Done when:**
   - [x] Each disabled action shows its reason (BR-18). The reason of "Mark Appointed" comes from the same check as the action.
-  - [ ] An end-to-end step proposes two seats, records the answers and marks the committee Appointed. It waits for the Playwright setup (P1-E13).
+  - [x] After "Mark Appointed", the milestone moves to COMMITTEE_APPOINTED through `advanceMilestone` (AD-B-021). A refusal shows its reason and keeps the appointment.
+  - [ ] An end-to-end step proposes two seats, records the answers and marks the committee Appointed. It waits for a local run of the Playwright setup (P1-E13).
 
 ### 3.4 P1-E07 Documents and compliance (Track B, `agent-b`)
 
