@@ -43,6 +43,13 @@
       "when": 1795316516667,
       "tag": "0005_outside_status_rules",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795340745853,
+      "tag": "0006_default_signed_items",
+      "breakpoints": true
     }
   ]
 }

@@ -51,8 +51,11 @@ describe("default templates (FR-TPL-02, AD-A-015)", () => {
     const byCode = Object.fromEntries(list.map((t) => [t.code, t]));
     expect(list.map((t) => t.code)).toEqual(["proposal", "pre_final", "final"]);
     expect(byCode.proposal!.items.map((i) => i.formCode).sort()).toEqual(
-      ["OR", "TDW_03", "TDW_05", "TDW_06", "TDW_07", "TDW_08"].sort(),
+      ["CERTIFICATION", "OR", "TDW_03", "TDW_05", "TDW_06", "TDW_07", "TDW_08"].sort(),
     );
+    // AD-A-023: the signed-paper items come with migration 0006 (INV-34).
+    expect(byCode.final!.items.map((i) => i.formCode)).toContain("SIGNED_FINAL_MANUSCRIPT");
+    expect(byCode.pre_final!.items.map((i) => i.formCode)).not.toContain("CERTIFICATION");
     expect(byCode.final!.version).toMatchObject({ panelSizeMasters: 3, panelSizeDoctoral: 4 });
     expect(byCode.pre_final!.rubric).toHaveLength(0);
     for (const code of ["proposal", "final"]) {
