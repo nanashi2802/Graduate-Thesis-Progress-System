@@ -1,7 +1,7 @@
 # BUILD PLAN — PUP CpE Thesis Progress Monitoring System
 
 **Compliance standard:** Simplified Technical English (ASD-STE100) at about 80%
-**Version:** 1.0 draft · 22 Nov 2026
+**Version:** 1.0 draft · 22 Nov 2026 · Change log: 22 Nov 2026, added §2.1 Phase 0 progress. 22 Nov 2026, owner approved fixes to P0-E02 to P0-E06 (D-23 sign-in, write-once and CORS checks, `sin1` region, Vercel env, cron timing, scan sizes), the Phase 0 dependencies, the §1 hook gate and the §7 `src/app/` layout.
 **Derived from:** `PRD.md` §8 (release phases, approved as D-22), `ERD.md`, `DFD.md`, `SITEMAP.md`, `USERFLOW.md`, Functional Requirements v1.1
 **Rule for this file:** This plan orders the work. It adds no requirement. The FR, BR, NFR and INV IDs it cites are the scope. If this plan and a spec file disagree, the spec file wins. Correct this plan.
 
@@ -63,7 +63,7 @@ This plan is a skeleton. It has three levels. Expand one level at a time, only f
 | Before | Needs | Owner |
 | :---- | :---- | :---- |
 | P0 | Release phases approved | **Done** (D-22) |
-| P0 | Enforcement files exist (`AGENTS.md` §3) | **Done.** The human turns on the hook once: `git config core.hooksPath .githooks`. The human makes the CI check required on `main`. |
+| P0 | Enforcement files exist (`AGENTS.md` §3) | **Files done.** Still open: the human turns on the hook once (`git config core.hooksPath .githooks`). It was not on at 22 Nov 2026. The human makes the CI check required on `main`. |
 | P1 | `ERD.md` v1.1 approved | Owner |
 | P1 | BR-21 and INV-33 default accepted (access ends at the final copy) | Owner |
 | P1 | `DESIGN.md` D-01 (PUP Gold) and D-02 (font and neutrals) decided | Owner |
@@ -82,13 +82,35 @@ This plan is a skeleton. It has three levels. Expand one level at a time, only f
 | Epic | Name | Covers | Done when |
 | :---- | :---- | :---- | :---- |
 | P0-E01 | Scaffold and tooling | PRD §11.2 | A Next.js 16 app with TypeScript strict, Tailwind, shadcn/ui, Vitest and Playwright runs locally. `AGENTS.md` §12 lists the real commands. `.env.example` exists. CI runs lint, type check and tests. |
-| P0-E02 | Database and data-layer choice | NFR-01, PRD §11.5 rule 4 | `[CONFIRM]` The human picks the query and migration tool (none is chosen in the PRD). One table migrates on Neon. One server-only data-layer function reads it with an access check and a test. |
-| P0-E03 | Sign-in | FR-ACC-01, FR-ACC-02 | A fake user signs in with Neon Auth (email and password). A route for one role shows Access Denied to another role. |
-| P0-E04 | Files: signed upload, hash check, PDF view | NFR-02, NFR-10, NFR-12, DFD T1 to T5 | The browser hashes a fake 100-page PDF, uploads it with a signed write-once link, and the server checks the hash. The viewer loads pages by range requests. The server never receives the bytes. A 4.5 MB+ file works. |
-| P0-E05 | Deploy, daily job and email | FR-NTF-02, FR-NTF-06, NFR-11, DFD T6 | The app deploys to Vercel Hobby. The daily cron runs at 00:00 UTC and logs. One Resend email sends with a link only. |
-| P0-E06 | Measure and report | AS-11, AS-12, AS-13, R12, R13 | A spike report in `spec/spikes/P0-report.md` gives: MB per page from sample files, TDW form sizes and page counts (from `docs/reference/tdw-forms/`), whether downloads count against the transfer limit, file store issues, and an updated capacity estimate (PRD §11.4). |
+| P0-E02 | Database and data-layer choice | NFR-01, PRD §11.5 rule 4 | `[CONFIRM]` The human picks the query and migration tool before E02 starts (none is chosen in the PRD). The agent gives a short comparison first. One table migrates on Neon. One server-only data-layer function reads it with an access check and a test. |
+| P0-E03 | Sign-in | FR-ACC-01, FR-ACC-02, FR-ACC-04, FR-ACC-05, BR-03, D-23 | A fake user signs in with Neon Auth by email and password. The server makes a fake user while open sign-up is off (Coordinator path). A Google user with no account made by the Coordinator cannot sign in and gets no account. A route for one role shows Access Denied to another role. |
+| P0-E04 | Files: signed upload, hash check, PDF view | NFR-02, NFR-10, NFR-12, INV-09, BR-19, DFD T1 to T5 | The browser hashes a fake 100-page PDF, uploads it with a signed write-once link, and the server checks the hash. A second upload to the same key fails (test `If-None-Match` or an equal guard on Neon storage). CORS on `thesis-files` allows only the app origins. The viewer loads pages by range requests. The server never receives the bytes. A 4.5 MB+ file works. |
+| P0-E05 | Deploy, daily job and email | FR-NTF-02, FR-NTF-06, NFR-11, DFD T6 | The Vercel project exists and links to the repository. Functions run in region `sin1` (`vercel.json`), near the Neon database. Vercel has every name in `.env.example`, with new production secrets. The app deploys to Vercel Hobby. The daily cron runs between 00:00 and 00:59 UTC (Hobby timing) and logs. One Resend email sends with a link only. |
+| P0-E06 | Measure and report | AS-11, AS-12, AS-13, R12, R13 | A spike report in `spec/spikes/P0-report.md` gives: MB per page from sample files, sizes and page counts of fake scans (PDF and image) of the TDW forms (layouts from `docs/reference/tdw-forms/`; the blank `.doc` files are not the measure), whether downloads count against the transfer limit, file store issues, and an updated capacity estimate (PRD §11.4). |
 
-Dependencies: E01 → E02, E03 → E04 → E06. E05 can run after E01.
+Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
+
+### 2.1 Phase 0 progress (updated 22 Nov 2026)
+
+`[x]` = done and checked. `[~]` = started. `[ ]` = not started. An epic is done only when all its "Done when" items are done.
+
+**Service setup (before P0-E01)**
+- [x] Neon org `ThesIsko` and project `ThesIsko` exist, in `aws-ap-southeast-1`, Postgres 17, Free plan.
+- [x] Neon Auth is on for branch `main`. Email and password are on. Open sign-up is off (FR-ACC-04, FR-ACC-05).
+- [x] Google sign-in is on with the shared Neon key for development (D-23).
+- [x] Neon Object Storage has one private bucket, `thesis-files`. It holds all files, sorted by key prefix (NFR-12).
+- [x] Resend account and API key exist. It sends from `onboarding@resend.dev` only.
+- [x] The human signed in to the Vercel CLI. No Vercel project exists yet.
+- [x] `.env.example` exists. `.env.local` is filled and ignored by git (AGENTS.md §11).
+- [ ] The human turns on the commit hook: `git config core.hooksPath .githooks` (§1 gate). It is not on in this clone.
+
+**Epics**
+- [~] P0-E01 Scaffold and tooling. Done: `.env.example`. Not done: app, Tailwind, shadcn/ui, Vitest, Playwright, CI jobs, `AGENTS.md` §12 commands.
+- [~] P0-E02 Database and data layer. Done: the Neon database exists. Not done: the `[CONFIRM]` tool choice, one migration, one data-layer read with a test.
+- [~] P0-E03 Sign-in. Done: Neon Auth is set up. Not done: a fake user signs in, the Access Denied route.
+- [~] P0-E04 Files. Done: the bucket exists. Not done: signed upload, hash check, range-request viewer.
+- [~] P0-E05 Deploy, daily job and email. Done: the Resend key, the Vercel sign-in. Not done: Vercel project, deploy, cron, test email.
+- [ ] P0-E06 Measure and report.
 
 ---
 
@@ -164,12 +186,12 @@ The human picks from this list. Each item already has an FR.
 
 ## 7. Proposed repository layout `[CONFIRM]`
 
-P0-E01 confirms this layout and records it in `AGENTS.md` §12.
+P0-E01 confirms this layout and records it in `AGENTS.md` §12. All code is in `src/`. Next.js reads routes from `src/app/`.
 
 | Path | Holds |
 | :---- | :---- |
-| `app/(auth)/login` | Sign-in route |
-| `app/student/`, `app/adviser/`, `app/panel/`, `app/coordinator/` | The 29 role routes (`SITEMAP.md` §3) |
+| `src/app/(auth)/login` | Sign-in route |
+| `src/app/student/`, `src/app/adviser/`, `src/app/panel/`, `src/app/coordinator/` | The 29 role routes (`SITEMAP.md` §3) |
 | `src/server/data/` | The one server-side data layer. Every read and write goes here (NFR-01). |
 | `src/server/domain/` | State machines and invariant checks (`ERD.md` §6, §7), with no framework code |
 | `src/server/files/` | Signed links and hash checks (P11.0) |

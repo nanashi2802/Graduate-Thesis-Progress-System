@@ -236,7 +236,7 @@ Baselines are not known yet. The owner sets the targets (open item).
 | Hosting | Vercel Hobby (for now) | Non-commercial personal use only |
 | Framework | Next.js 16 (App Router), React 19, TypeScript (strict), Node.js 20.9 or newer | Free |
 | Database | Neon Postgres | 1 GB per project. 100 CU-hours per month. |
-| Authentication | Neon Auth (managed Better Auth), email and password | Up to 60,000 monthly users |
+| Authentication | Neon Auth (managed Better Auth), email and password, and Google (D-23) | Up to 60,000 monthly users |
 | File storage | Neon Object Storage (S3-style, Singapore region) with signed links | 5 GB per project |
 | Email | Resend Free + React Email | 3,000 per month, 100 per day |
 | Scheduled jobs | Vercel Cron | One run per day |
@@ -327,6 +327,7 @@ The free tier gives pilot scale: a few cohorts, not the whole program.
 | D-20 | File limit 50 MB. | Proposed |
 | D-21 | RETURNED goes back to DRAFT. The Student sees the written reason. | Owner, 22 Nov 2026 (FR-WFL-02) |
 | D-22 | Release phases 0 to 4 in Section 8 are approved. Work starts with Phase 0. | Owner, 22 Nov 2026. Build plan: `spec/BUILD_PLAN.md` |
+| D-23 | Sign-in also accepts Google, in addition to email and password. Only accounts that the Coordinator made can sign in. Google sign-in never makes an account (FR-ACC-04, FR-ACC-05, BR-03). | Owner, 22 Nov 2026. Changes FR-ACC-01. `[CONFIRM]` FR-ACC-01 new wording in Functional Requirements v1.2. P0-E03 tests the account block. The shared Neon Google key is for development only. The pilot needs an own Google OAuth client. |
 
 ## 14. Open items
 
