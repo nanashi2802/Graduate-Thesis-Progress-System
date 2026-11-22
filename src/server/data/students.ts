@@ -139,6 +139,8 @@ export async function listStudents(ctx: DataContext): Promise<StudentRow[]> {
     .orderBy(asc(milestoneInstance.openedAt));
   return rows.map((r) => ({
     ...r,
-    milestones: milestones.filter((m) => m.thesisId === r.thesisId).map(({ thesisId: _t, ...m }) => m),
+    milestones: milestones
+      .filter((m) => m.thesisId === r.thesisId)
+      .map((m) => ({ id: m.id, code: m.code, status: m.status, targetDate: m.targetDate })),
   }));
 }

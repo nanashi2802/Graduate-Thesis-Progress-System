@@ -639,7 +639,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Tests:** unit (Vitest with PGlite)
 
 
-### 3.8 P1-E03 Accounts, users and templates (Track A, `agent-a`)
+### 3.8 P1-E03 Accounts, users and templates (Track A, `agent-a`, done 22 Nov 2026)
 
 **Decisions in this epic:** AD-A-015 (default templates as a migration), AD-A-016 (role change and deactivation rules). FR-ACC-08 (setup and reset email) comes from Neon Auth (P0-E03).
 
@@ -684,7 +684,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/app/coordinator/students/`, `templates/`, `users/`
 - **Depends on:** T02 to T04
 - **Done when:**
-  - [ ] Each action checks the session on the server and shows the refusal reason. The Final size label says "Panel Members besides the Panel Chair" (FR §3, AD-B-017).
+  - [x] Each action checks the session on the server and shows the refusal reason. The Final size label says "Panel Members besides the Panel Chair" (FR §3, AD-B-017).
 - **Tests:** typecheck, build
 
 ---
