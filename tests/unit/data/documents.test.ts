@@ -8,6 +8,7 @@ import {
   confirmScanUpload,
   deliverables,
   documentHistory,
+  readableMilestones,
   requestScanUpload,
   reviewDocument,
   type FilePort,
@@ -60,6 +61,13 @@ async function uploadAs(ctx: ReturnType<typeof student>, requiredItemId: string,
 }
 
 describe("deliverables (FR-DOC-01)", () => {
+  it("gives each user only the milestones of their own theses (ERD §8)", async () => {
+    expect((await readableMilestones(student())).map((m) => m.id)).toEqual([seed.milestone.id]);
+    expect((await readableMilestones(coord())).length).toBeGreaterThan(0);
+    // A Panel Member with no seat reads nothing.
+    expect(await readableMilestones({ db, actor: actorOf(seed.panel[0]!) })).toEqual([]);
+  });
+
   it("lists the template items with the signers and a state for each", async () => {
     const list = await deliverables(student(), seed.milestone.id);
     expect(list.length).toBeGreaterThan(0);
