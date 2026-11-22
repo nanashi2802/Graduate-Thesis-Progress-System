@@ -10,6 +10,8 @@
 4. Run `scripts/agents-start.sh`. It starts the three agents as background sessions in `auto` permission mode.
 5. To release to `main` later: turn off the `lock-main` ruleset in GitHub, merge `dev` into `main` with a pull request, and turn the ruleset on again.
 
+**Pipeline test (22 Nov 2026):** one pull request went from `agent-a` through `ci`, `commit-policy` and `agent-review` into `dev`.
+
 ## 2. While they run (human, optional)
 
 | To do this | Run |
