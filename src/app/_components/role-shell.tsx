@@ -17,6 +17,7 @@ const NAV: Record<UserRole, { label: string; items: { href: string; label: strin
       { href: "/student/dashboard", label: "Dashboard" },
       { href: "/student/documents", label: "Documents" },
       { href: "/student/schedule", label: "Schedule" },
+      { href: "/student/clearance", label: "Clearance" },
     ],
   },
   adviser: {
@@ -42,6 +43,7 @@ const NAV: Record<UserRole, { label: string; items: { href: string; label: strin
       { href: "/coordinator/committees", label: "Committees" },
       { href: "/coordinator/documents", label: "Documents" },
       { href: "/coordinator/schedule", label: "Schedule" },
+      { href: "/coordinator/clearance", label: "Clearance" },
       { href: "/coordinator/templates", label: "Templates" },
       { href: "/coordinator/users", label: "Users" },
     ],
