@@ -63,9 +63,14 @@ export function committeeKindFor(milestone: MilestoneCode): CommitteeKind | null
   return null;
 }
 
+/**
+ * Seats on the committee. FR §3 counts the Panel Members at Proposal (2 / 3) and the
+ * Panel Members besides the Chair at Final (3 / 4), so the Final Panel has one more seat
+ * for the Panel Chair (FR-CMT-01, AD-B-017).
+ */
 export function seatCount(sizes: PanelSizes, level: DegreeLevel, milestone: MilestoneCode): number | null {
   if (milestone === "pre_final") return null;
-  return sizes[level][milestone];
+  return milestone === "final" ? sizes[level].final + 1 : sizes[level].proposal;
 }
 
 /** The seats that count: a declined seat is kept as history but needs a new row (ERD §7.2). */

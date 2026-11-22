@@ -216,9 +216,25 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Risk:** low. `agent-a` can wire it in P1-E09 or keep its own rules. The verdict and the close stay in `milestone.ts`.
 - **Undo:** revert the commits with AD-B-016.
 
-### AD-B-017 — Final Panel size counts every seat, and seed defaults
-- **Task:** P1-E13-T01 (look-ahead)
-- **Options:** the Final template `panel_size_*` counts the Panel Members besides the Chair (3 / 4, as the FR §3 row reads); or it counts every seat, the Chair included (4 / 5)
-- **Decision and reason:** Every seat (4 / 5). `seatCount` in `committee.ts` compares the active seats with the size, and the Chair is a seat. FR §3 gives 4 / 5 sheets at Final with the Adviser excluded, so the seats and the sheet count match only with 4 / 5. The Proposal size stays 2 / 3 Panel Members (the Adviser is never a seat). Printed copies are 5 / 6 for each milestone, because FR §3 gives only the Proposal count (`[CONFIRM]` Pre-Final and Final).
-- **Risk:** low. It is seed and template data. The Coordinator sets the real values in C8 (FR-TPL-01). P1-E03 (`agent-a`) must explain the Final size on the C8 screen as "seats, Panel Chair included".
-- **Undo:** change `TEMPLATES` in `tests/support/seed-m1.ts`, or subtract 1 in `seatCount` for the Final Panel.
+<<<<<<< HEAD
+### AD-B-017 — The Final Panel has one seat more than its size: the Panel Chair
+- **Task:** P1-E13-T01 (look-ahead). It changes `seatCount` in `src/server/domain/committee.ts` (P1-E05-T01).
+- **Options:** store 4 / 5 in the Final template and relabel the C8 field; or keep the FR §3 and ERD value (3 / 4, "besides the Chair") and add the Chair seat in `seatCount`
+- **Decision and reason:** Keep the spec value. FR §3 defines the Final size as the Panel Members besides the Chair (3 / 4), and the ERD `template_version` gives the same values. FR-CMT-01 needs a Panel Chair seat. So `seatCount` returns the size + 1 at Final. Then the seats match the FR §3 Final sheet count (4 / 5). The Proposal size (2 / 3) already counts every seat. The seed uses 3 / 4. Printed copies are 5 / 6 for each milestone, because FR §3 gives only the Proposal count (`[CONFIRM]` Pre-Final and Final).
+- **Correction (22 Nov 2026, after the agent-r review of #12):** the first version stored 4 / 5 and asked for a new C8 label. That changed the meaning of an FR §3 parameter. A Coordinator who entered 3 would get `wrong_size` on every valid Final Panel.
+- **Risk:** low. The default templates (P1-E03, migration 0003) must store 3 / 4 for Final.
+- **Undo:** revert the commits with AD-B-017.
+### AD-A-013 — Row access: who counts as a Panel Member of a thesis, and when access ends
+- **Task:** P1-E02-T01, T02
+- **Options:** any `committee_member` row gives thesis read (ERD §8 literal); only seats that are not `declined`, plus substitutes. For INV-33: wait for `clearance_item` (P3-E04); use one function that answers "not ended" until P3-E04 adds the table.
+- **Decision and reason:** A `declined` seat gives no access. A declined member never joins the committee (FR-CMT-03), so no reason exists to show them the thesis. Manuscript read uses agent-b's `memberAccess` (P1-E05-T01) with facts from the database: appointment form `verified`, the member's NDA `verified`. `manuscriptAccessEnded` returns false until P3-E04 adds `clearance_item`. P3-E04 must change only this one function.
+- **Risk:** medium. Until P3-E04, a Panel Member keeps manuscript read after the `final_copy` record. No `final_copy` record can exist before P3-E04, so the gap is not reachable in the app.
+- **Undo:** revert the commits with AD-A-013.
+
+### AD-A-014 — The audit insert keeps no long text
+- **Task:** P1-E02-T03
+- **Options:** free JSON in `audit_record.detail`; a flat object of short values only
+- **Decision and reason:** A flat object. Each value is a string of 200 characters or fewer, a number, a boolean or null. NFR-03 needs who, what and when, not content. The limit stops a caller from copying manuscript text or comments into the audit table, which is never deleted (BR-19). `recordAudit` takes the transaction of the write, so the audit row and the change commit together.
+- **Risk:** low. A later event that needs more detail can point to its own row by `target_id`.
+- **Undo:** revert the commits with AD-A-014.
+>>>>>>> origin/dev

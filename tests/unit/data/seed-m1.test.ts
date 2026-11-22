@@ -3,9 +3,9 @@ import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Db } from "@/server/data/db";
 import * as s from "@/server/data/schema";
-import { checkAppointment, type PanelSizes } from "@/server/domain/committee";
+import { checkAppointment, seatCount, type PanelSizes } from "@/server/domain/committee";
 import { checkRubricWeights, expectedEvaluators } from "@/server/domain/evaluation";
-import { seedMilestone1 } from "../../support/seed-m1";
+import { seedMilestone1, seedTemplates } from "../../support/seed-m1";
 import { makeTestDb } from "../../support/test-db";
 
 let db: Db;
@@ -57,11 +57,13 @@ describe("Milestone 1 seed (P1-E13-T01)", () => {
         substitutes: [],
       }).length;
     // FR §3: Proposal and Pre-Final 3 / 4 sheets (Adviser included), Final 4 / 5 (Adviser excluded).
-    expect(sheets("proposal", sizes.masters.proposal)).toBe(3);
-    expect(sheets("proposal", sizes.doctoral.proposal)).toBe(4);
-    expect(sheets("pre_final", sizes.masters.proposal)).toBe(3);
-    expect(sheets("final", sizes.masters.final)).toBe(4);
-    expect(sheets("final", sizes.doctoral.final)).toBe(5);
+    const seats = (level: "masters" | "doctoral", m: "proposal" | "final") => seatCount(sizes, level, m)!;
+    expect(sizes.masters.final).toBe(3); // FR §3: besides the Panel Chair
+    expect(sheets("proposal", seats("masters", "proposal"))).toBe(3);
+    expect(sheets("proposal", seats("doctoral", "proposal"))).toBe(4);
+    expect(sheets("pre_final", seats("masters", "proposal"))).toBe(3);
+    expect(sheets("final", seats("masters", "final"))).toBe(4);
+    expect(sheets("final", seats("doctoral", "final"))).toBe(5);
   });
 
   it("has enough Panel Members for a valid Evaluation Committee", () => {
@@ -82,6 +84,12 @@ describe("Milestone 1 seed (P1-E13-T01)", () => {
       ],
     });
     expect(decision).toEqual({ ok: true });
+  });
+
+  it("reuses existing templates and writes no second template row", async () => {
+    const again = await seedTemplates(db, seed.coordinator.id);
+    expect(again.proposal.id).toBe(seed.versions.proposal.id);
+    expect(await db.select().from(s.milestoneTemplate)).toHaveLength(3);
   });
 
   it("lists the FR-DOC-08 forms as items needed for the date confirmation", async () => {

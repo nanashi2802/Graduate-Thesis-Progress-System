@@ -3,6 +3,7 @@
 // It writes the start state of USERFLOW §5: the three milestone templates with the
 // FR §3 defaults, one user for each role, a Master's thesis and its Proposal milestone
 // in DRAFT. The test itself makes the committee, the commits and the documents.
+import { desc, eq } from "drizzle-orm";
 import type { Db } from "@/server/data/db";
 import * as s from "@/server/data/schema";
 
@@ -30,10 +31,9 @@ const item = (formCode: FormCode, label: string, uploaderRole: Role, needed = tr
 });
 
 /**
- * One version of each template. Panel sizes count every seat (AD-B-017): Proposal
- * 2 / 3 Panel Members (FR §3, Adviser not counted). Final 4 / 5 seats, the Panel Chair
- * plus 3 / 4, so the seats match the Final sheet count. Pre-Final has no appointment
- * and keeps the Proposal size. Printed copies 5 / 6 for each milestone ([CONFIRM] FR §3
+ * One version of each template, with the FR §3 and ERD values: Proposal 2 / 3 Panel
+ * Members (Adviser not counted), Final 3 / 4 besides the Panel Chair (`seatCount` adds
+ * the Chair, AD-B-017). Pre-Final has no appointment and keeps the Proposal size. Printed copies 5 / 6 for each milestone ([CONFIRM] FR §3
  * gives only the Proposal count).
  */
 export const TEMPLATES: Record<
@@ -65,7 +65,7 @@ export const TEMPLATES: Record<
   },
   final: {
     name: "Final Defense",
-    panel: [4, 5],
+    panel: [3, 4],
     rubric: true,
     items: [
       item("TDW_03", "TDW 03", "adviser"),
@@ -80,16 +80,33 @@ export const TEMPLATES: Record<
 
 const MILESTONES: MilestoneCode[] = ["proposal", "pre_final", "final"];
 
-/** Writes version 1 of each template, with its required items and rubric. */
+/**
+ * Gives the newest version of each template. P1-E03 ships the default templates in a
+ * migration, so the seed reuses them when they exist. Otherwise it writes version 1 with
+ * its required items and rubric. It never writes a second `milestone_template` row.
+ */
 export async function seedTemplates(db: Db, createdByUserId: string) {
   const versions = {} as Record<MilestoneCode, typeof s.templateVersion.$inferSelect>;
   for (const code of MILESTONES) {
     const t = TEMPLATES[code];
-    const [tpl] = await db.insert(s.milestoneTemplate).values({ code, name: t.name }).returning();
+    const [existing] = await db.select().from(s.milestoneTemplate).where(eq(s.milestoneTemplate.code, code));
+    if (existing) {
+      const [latest] = await db
+        .select()
+        .from(s.templateVersion)
+        .where(eq(s.templateVersion.milestoneTemplateId, existing.id))
+        .orderBy(desc(s.templateVersion.versionNo))
+        .limit(1);
+      if (latest) {
+        versions[code] = latest;
+        continue;
+      }
+    }
+    const tpl = existing ?? (await db.insert(s.milestoneTemplate).values({ code, name: t.name }).returning())[0]!;
     const [version] = await db
       .insert(s.templateVersion)
       .values({
-        milestoneTemplateId: tpl!.id,
+        milestoneTemplateId: tpl.id,
         versionNo: 1,
         panelSizeMasters: t.panel[0],
         panelSizeDoctoral: t.panel[1],

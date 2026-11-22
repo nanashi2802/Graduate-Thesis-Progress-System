@@ -50,6 +50,7 @@ export const thesisInstance = app.table("thesis_instance", {
     .references(() => appUser.id),
   createdAt: createdAt(),
 });
+export type ThesisInstance = typeof thesisInstance.$inferSelect;
 
 export const milestoneTemplate = app.table("milestone_template", {
   id: id(),

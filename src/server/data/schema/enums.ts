@@ -98,3 +98,6 @@ export const eventCode = app.enum("event_code", [
 export type UserRole = (typeof userRole.enumValues)[number];
 export type MilestoneCodeValue = (typeof milestoneCode.enumValues)[number];
 export type MilestoneStatusValue = (typeof milestoneStatus.enumValues)[number];
+export type FormCode = (typeof formCode.enumValues)[number];
+export type DocumentState = (typeof documentState.enumValues)[number];
+export type MemberStatus = (typeof memberStatus.enumValues)[number];

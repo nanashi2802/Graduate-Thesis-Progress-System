@@ -29,9 +29,14 @@ describe("committee kind and size (FR-CMT-01)", () => {
     expect(committeeKindFor("final")).toBe("final_panel");
   });
 
+  it("adds the Panel Chair seat to the Final size, which counts the members besides the Chair (FR §3)", () => {
+    expect(seatCount(SIZES, "masters", "final")).toBe(4);
+    expect(seatCount(SIZES, "doctoral", "proposal")).toBe(3);
+  });
+
   it("reads the size for the degree level from the template", () => {
     expect(seatCount(SIZES, "masters", "proposal")).toBe(2);
-    expect(seatCount(SIZES, "doctoral", "final")).toBe(4);
+    expect(seatCount(SIZES, "doctoral", "final")).toBe(5);
     expect(seatCount(SIZES, "doctoral", "pre_final")).toBeNull();
   });
 });
@@ -119,9 +124,14 @@ describe("checkAppointment (FR-CMT-01, FR-CMT-04)", () => {
     expect(checkAppointment({ ...base, ...patch })).toMatchObject({ ok: false, code });
   });
 
-  it("needs four seats for a doctoral Final Panel", () => {
-    const seats = [seat("p1", "lead_panel_member"), seat("p2", "panel_chair"), seat("p3"), seat("p4")];
-    expect(checkAppointment({ ...base, level: "doctoral", milestone: "final", seats })).toEqual({ ok: true });
+  it("needs five seats for a doctoral Final Panel (the Panel Chair plus 4)", () => {
+    const four = [seat("p1", "lead_panel_member"), seat("p2", "panel_chair"), seat("p3"), seat("p4")];
+    expect(checkAppointment({ ...base, level: "doctoral", milestone: "final", seats: four })).toMatchObject({
+      ok: false,
+      code: "wrong_size",
+    });
+    const five = [...four, seat("p5")];
+    expect(checkAppointment({ ...base, level: "doctoral", milestone: "final", seats: five })).toEqual({ ok: true });
   });
 });
 
