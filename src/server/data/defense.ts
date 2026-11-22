@@ -58,6 +58,9 @@ async function latestAttempt(db: Tx, milestoneId: string): Promise<Attempt | und
   return a;
 }
 
+// An attempt takes sheets and Minutes from the schedule until the Coordinator closes it.
+const isOpen = (a: Attempt) => a.status === "scheduled" || a.status === "held";
+
 async function loadAttempt(ctx: DataContext, attemptId: string) {
   requireActive(ctx.actor);
   const [a] = await ctx.db.select().from(defenseAttempt).where(eq(defenseAttempt.id, attemptId));
@@ -147,8 +150,9 @@ export async function saveSheet(
 ): Promise<{ entryId: string; total: number | null }> {
   const { attempt, mctx } = await loadAttempt(ctx, attemptId);
   const expected = await expectedEvaluatorsFor(ctx.db, mctx, attempt.id);
-  const status = mctx.milestone.status;
-  if (status !== "DEFENSE_SCHEDULED" && status !== "DEFENSE_HELD") throw new InputProblem("The defense is not open for sheets.");
+  // The attempt status decides, not the milestone status: a Disapproved defense goes back to DRAFT at once, and its
+  // missing sheets and Minutes still follow (FR-DEF-12, FR-WFL-09, BR-11).
+  if (!isOpen(attempt)) throw new InputProblem("The defense is not open for sheets.");
   const [existing] = await ctx.db
     .select()
     .from(evaluationEntry)
@@ -199,6 +203,19 @@ export async function saveSheet(
   });
 }
 
+// A sheet the Coordinator can still work on: not verified, and its attempt is open.
+async function openEntry(ctx: DataContext, entryId: string) {
+  const [row] = await ctx.db
+    .select({ e: evaluationEntry, a: defenseAttempt })
+    .from(evaluationEntry)
+    .innerJoin(defenseAttempt, eq(defenseAttempt.id, evaluationEntry.defenseAttemptId))
+    .where(eq(evaluationEntry.id, entryId));
+  if (!row) throw new InputProblem("This sheet does not exist.");
+  if (row.e.verifiedAt) throw new InputProblem("This sheet is verified. It cannot change.");
+  if (!isOpen(row.a)) throw new InputProblem("The defense of this sheet is closed.");
+  return row.e;
+}
+
 /** FR-DEF-08: the Coordinator gets an upload link for the signed sheet scan of one entry. */
 export async function requestSheetUpload(
   ctx: DataContext,
@@ -210,9 +227,7 @@ export async function requestSheetUpload(
   const req = { kind: "scan", ...input } as const;
   const problem = uploadProblem(req);
   if (problem) throw new InputProblem(problem);
-  const [e] = await ctx.db.select().from(evaluationEntry).where(eq(evaluationEntry.id, entryId));
-  if (!e) throw new InputProblem("This sheet does not exist.");
-  if (e.verifiedAt) throw new InputProblem("This sheet is verified. It cannot change.");
+  const e = await openEntry(ctx, entryId);
   return { link: await files.createUploadLink(req) };
 }
 
@@ -226,9 +241,7 @@ export async function confirmSheetUpload(
   const problem = uploadProblem({ kind: "scan", sha256: input.sha256, size: input.size, contentType: input.contentType });
   if (problem) throw new InputProblem(problem);
   if (!SCAN_KEY.test(input.key)) throw new InputProblem("This file key is not valid.");
-  const [e] = await ctx.db.select().from(evaluationEntry).where(eq(evaluationEntry.id, entryId));
-  if (!e) throw new InputProblem("This sheet does not exist.");
-  if (e.verifiedAt) throw new InputProblem("This sheet is verified. It cannot change.");
+  await openEntry(ctx, entryId);
   const [used] = await ctx.db.select({ id: evaluationEntry.id }).from(evaluationEntry).where(eq(evaluationEntry.sheetFileKey, input.key));
   if (used) throw new InputProblem("This file key is already used.");
   if (!(await files.checkStoredFile(input.key, input.sha256, input.size))) throw new InputProblem("The stored file does not match its hash. Upload it again.");
@@ -244,9 +257,7 @@ export async function confirmSheetUpload(
  */
 export async function verifySheet(ctx: DataContext, entryId: string, result: "matched" | "mismatch", now: Date = new Date()): Promise<void> {
   requireCoordinator(ctx, "verifies a sheet");
-  const [e] = await ctx.db.select().from(evaluationEntry).where(eq(evaluationEntry.id, entryId));
-  if (!e) throw new InputProblem("This sheet does not exist.");
-  if (e.verifiedAt) throw new InputProblem("This sheet is verified already.");
+  const e = await openEntry(ctx, entryId);
   if (!e.sheetFileKey) throw new InputProblem("Upload the signed scan first.");
   if (result === "matched" && !e.actionTaken) throw new InputProblem("The sheet has no Action Taken.");
   await ctx.db.transaction(async (tx) => {
@@ -275,7 +286,8 @@ async function requireVerdictSeat(ctx: DataContext, mctx: MilestoneContext): Pro
 
 /**
  * FR-DEF-07, INV-15, BR-17: the collective verdict, on or after the defense date. The result lists each
- * member whose Action Taken differs. A warning never blocks.
+ * member whose Action Taken differs. A warning never blocks. The Lead Panel Member or the Panel Chair can
+ * record the verdict again until the defense is held. Each change has an audit row.
  */
 export async function recordVerdict(
   ctx: DataContext,
@@ -321,21 +333,22 @@ export async function markDefenseHeld(ctx: DataContext, milestoneId: string): Pr
   });
 }
 
-/** FR-DEF-09: the Coordinator issues the Minutes after the defense is held. A second issue is refused (BR-19). */
-export async function issueMinutes(ctx: DataContext, milestoneId: string, body: string, now: Date = new Date()): Promise<void> {
+/**
+ * FR-DEF-09: the Coordinator issues the Minutes of one attempt after the defense is held. The attempt can
+ * belong to a Disapproved defense that is back in DRAFT (FR-DEF-12). A second issue is refused (BR-19).
+ */
+export async function issueMinutes(ctx: DataContext, attemptId: string, body: string, now: Date = new Date()): Promise<void> {
   requireCoordinator(ctx, "issues the Minutes");
-  const mctx = await loadMilestone(ctx, milestoneId);
+  const { attempt } = await loadAttempt(ctx, attemptId);
   const text = body.trim();
   if (!text) throw new InputProblem("Write the Minutes first.");
-  if (mctx.milestone.status !== "DEFENSE_HELD") throw new InputProblem("The Minutes follow a held defense.");
-  const a = await latestAttempt(ctx.db, milestoneId);
-  if (!a) throw new InputProblem("The defense has no attempt.");
+  if (attempt.status !== "held") throw new InputProblem("The Minutes follow a held defense.");
   await ctx.db.transaction(async (tx) => {
-    const [found] = await tx.select().from(minutes).where(eq(minutes.defenseAttemptId, a.id));
+    const [found] = await tx.select().from(minutes).where(eq(minutes.defenseAttemptId, attempt.id));
     if (found?.issuedAt) throw new InputProblem("The Minutes are issued already.");
     if (found) await tx.update(minutes).set({ body: text, issuedAt: now, issuedByUserId: ctx.actor.userId }).where(eq(minutes.id, found.id));
-    else await tx.insert(minutes).values({ defenseAttemptId: a.id, body: text, issuedAt: now, issuedByUserId: ctx.actor.userId });
-    await recordAudit({ db: tx, actor: ctx.actor }, { action: "minutes.issue", targetTable: "defense_attempt", targetId: a.id });
+    else await tx.insert(minutes).values({ defenseAttemptId: attempt.id, body: text, issuedAt: now, issuedByUserId: ctx.actor.userId });
+    await recordAudit({ db: tx, actor: ctx.actor }, { action: "minutes.issue", targetTable: "defense_attempt", targetId: attempt.id });
   });
 }
 

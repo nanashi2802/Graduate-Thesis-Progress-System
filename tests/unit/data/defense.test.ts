@@ -210,7 +210,7 @@ describe("sheets (FR-DEF-05, FR-DEF-06, INV-14, BR-10, BR-15)", () => {
     await confirmSheetUpload(as(w.coordinator), entryId, { ...up, key: `agent-a/test/scan/${crypto.randomUUID()}.pdf` }, files);
     await verifySheet(as(w.coordinator), entryId, "matched");
     await expect(saveSheet(as(w.lead), w.attempt.id, await sheet(w), new Date())).rejects.toThrow(/read only/);
-    await expect(verifySheet(as(w.coordinator), entryId, "matched")).rejects.toThrow(/already/);
+    await expect(verifySheet(as(w.coordinator), entryId, "matched")).rejects.toThrow(/verified/);
   });
 });
 
@@ -245,10 +245,10 @@ describe("verdict, held, Minutes and close (FR-DEF-07 to 10, INV-15, INV-16)", (
     await expect(closeDefense(as(w.coordinator), w.milestone.id)).rejects.toMatchObject({ code: "sheet_not_verified" });
     await verifyAll(w);
     await expect(closeDefense(as(w.coordinator), w.milestone.id)).rejects.toMatchObject({ code: "minutes_missing" });
-    await expect(issueMinutes(as(w.lead), w.milestone.id, "Minutes")).rejects.toBeInstanceOf(AccessDeniedError);
-    await expect(issueMinutes(as(w.coordinator), w.milestone.id, "  ")).rejects.toThrow(/first/);
-    await issueMinutes(as(w.coordinator), w.milestone.id, " The panel approved. ");
-    await expect(issueMinutes(as(w.coordinator), w.milestone.id, "Again")).rejects.toThrow(/already/);
+    await expect(issueMinutes(as(w.lead), w.attempt.id, "Minutes")).rejects.toBeInstanceOf(AccessDeniedError);
+    await expect(issueMinutes(as(w.coordinator), w.attempt.id, "  ")).rejects.toThrow(/first/);
+    await issueMinutes(as(w.coordinator), w.attempt.id, " The panel approved. ");
+    await expect(issueMinutes(as(w.coordinator), w.attempt.id, "Again")).rejects.toThrow(/already/);
     await expect(closeDefense(as(w.student), w.milestone.id)).rejects.toBeInstanceOf(AccessDeniedError);
     await closeDefense(as(w.coordinator), w.milestone.id);
     expect((await statusOf(w.milestone.id)).status).toBe("CLOSED");
@@ -265,7 +265,7 @@ describe("verdict, held, Minutes and close (FR-DEF-07 to 10, INV-15, INV-16)", (
     await recordVerdict(as(w.lead), w.milestone.id, "approved");
     await markDefenseHeld(as(w.lead), w.milestone.id);
     await verifyAll(w);
-    await issueMinutes(as(w.coordinator), w.milestone.id, "Minutes");
+    await issueMinutes(as(w.coordinator), w.attempt.id, "Minutes");
     await db.update(s.documentRecord).set({ state: "mismatch" }).where(eq(s.documentRecord.formCode, "TDW_07"));
     await expect(closeDefense(as(w.coordinator), w.milestone.id)).rejects.toMatchObject({ code: "document_mismatch" });
   });
@@ -301,13 +301,52 @@ describe("verdict, held, Minutes and close (FR-DEF-07 to 10, INV-15, INV-16)", (
   });
 });
 
+describe("a Disapproved attempt stays open for sheets and Minutes (FR-DEF-12, FR-WFL-09, BR-11)", () => {
+  it("takes a late sheet, the scans and the Minutes after the milestone is back in DRAFT", async () => {
+    const w = await scheduled();
+    // The Panel Chair has not saved a sheet when the verdict comes.
+    for (const u of [w.adviser, w.lead]) await saveSheet(as(u), w.attempt.id, await sheet(w, "disapproved"), new Date());
+    await recordVerdict(as(w.lead), w.milestone.id, "disapproved");
+    await markDefenseHeld(as(w.lead), w.milestone.id);
+    expect((await statusOf(w.milestone.id)).status).toBe("DRAFT");
+    // Hidden from the Student while a sheet is missing.
+    expect((await listAttempts(as(w.student), w.milestone.id))[0]!.resultsVisible).toBe(false);
+    await saveSheet(as(w.chair), w.attempt.id, await sheet(w, "disapproved"), new Date());
+    await verifyAll(w);
+    await issueMinutes(as(w.coordinator), w.attempt.id, "The panel did not approve.");
+    const view = (await listAttempts(as(w.student), w.milestone.id))[0]!;
+    expect(view).toMatchObject({ resultsVisible: true });
+    expect(view.attempt.verdict).toBe("disapproved");
+    expect(view.entries).toHaveLength(3);
+    expect(view.minutes?.body).toBe("The panel did not approve.");
+  });
+
+  it("refuses sheets, scans and Minutes for an attempt that is not open", async () => {
+    const w = await scheduled();
+    // Still scheduled: no Minutes yet.
+    await expect(issueMinutes(as(w.coordinator), w.attempt.id, "Too early")).rejects.toThrow(/held defense/);
+    await allSheets(w);
+    await recordVerdict(as(w.lead), w.milestone.id, "approved");
+    await markDefenseHeld(as(w.lead), w.milestone.id);
+    await verifyAll(w);
+    await issueMinutes(as(w.coordinator), w.attempt.id, "Minutes");
+    await closeDefense(as(w.coordinator), w.milestone.id);
+    await expect(saveSheet(as(w.lead), w.attempt.id, await sheet(w), new Date())).rejects.toThrow(/not open/);
+    const [e] = await db.select().from(s.evaluationEntry).where(eq(s.evaluationEntry.defenseAttemptId, w.attempt.id));
+    await expect(
+      requestSheetUpload(as(w.coordinator), e!.id, { sha256: "b".repeat(64), size: 10, contentType: "application/pdf" }, files),
+    ).rejects.toThrow(/verified/);
+    await expect(issueMinutes(as(w.coordinator), w.attempt.id, "Again")).rejects.toThrow(/held defense/);
+  });
+});
+
 describe("listAttempts (FR-DEF-11, FR-DEF-12, BR-11, BR-15)", () => {
   it("shows the Student the results only after every sheet is verified, and no grade equivalent", async () => {
     const w = await scheduled();
     await allSheets(w);
     await recordVerdict(as(w.lead), w.milestone.id, "approved_with_revisions");
     await markDefenseHeld(as(w.lead), w.milestone.id);
-    await issueMinutes(as(w.coordinator), w.milestone.id, "Minutes text");
+    await issueMinutes(as(w.coordinator), w.attempt.id, "Minutes text");
 
     const before = (await listAttempts(as(w.student), w.milestone.id))[0]!;
     expect(before).toMatchObject({ resultsVisible: false, entries: [], minutes: null });

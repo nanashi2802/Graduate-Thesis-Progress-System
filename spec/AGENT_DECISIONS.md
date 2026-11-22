@@ -312,6 +312,7 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
   - The expected sheets use `expectedEvaluators` of agent-b (AD-B-016): the Adviser except at the Final, each accepted member, a substitute in place of the absent member. `milestone-facts.ts` reads it, so INV-16 and the sheet form agree.
   - A mismatch of a signed sheet keeps the sheet open (BR-12): the member corrects it, the Coordinator uploads a new scan. A matched sheet locks (INV-14).
   - A Disapproved verdict: `markDefenseHeld` moves to DEFENSE_HELD, then the system step to DRAFT with a `returned` gate row `stage_close`, the manuscript unlocked, the Ready mark cleared and the reason "Disapproved at the defense." (FR-WFL-09, like AD-A-018).
+  - Sheets, scans and Minutes follow the status of the attempt (`scheduled` or `held`), not the milestone status. A Disapproved defense is back in DRAFT at once, and its late sheets and Minutes still come (correction after the agent-r review of #22). `issueMinutes` takes the attempt id.
   - Minutes are issued once (BR-19). The Student sees verdict, sheets and Minutes only when every expected sheet is verified (BR-11).
 - **Risk:** medium. The nested transaction needs a check on the Neon pool in the end-to-end test (P1-E13). Printed copies (FR-DEF-04, `printed_copy_receipt`) are not in this task. The P1-E07 documents or a later task own them.
 - **Undo:** revert the commits with AD-A-021.
