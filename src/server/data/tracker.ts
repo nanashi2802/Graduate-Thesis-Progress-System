@@ -9,6 +9,7 @@ import type { DocumentState } from "@/server/domain/documents";
 import { nextAction, type NextAction } from "@/server/domain/next-action";
 import { pstDate } from "@/server/notify/time";
 import { requireActive, AccessDeniedError, type DataContext } from "./access";
+import { printedCopyStatus } from "./defense";
 import { loadMilestoneContext, loadMilestoneFacts } from "./milestone-facts";
 import { currentOutsideStatuses, type OutsideStatuses } from "./outside";
 import { requireThesisRead } from "./scope";
@@ -21,9 +22,6 @@ import {
   milestoneInstance,
   thesisInstance,
 } from "./schema";
-
-/** Printed copies are due this many days before the defense (BR-09). */
-export const PRINTED_COPIES_DAYS_BEFORE = 7;
 
 export type StudentTracker = {
   identity: {
@@ -118,7 +116,8 @@ export async function studentTracker(ctx: DataContext, now: Date = new Date()): 
     .orderBy(desc(defenseAttempt.attemptNo))
     .limit(1);
   const defenseDate = scheduled?.scheduledStartAt ? pstDate(scheduled.scheduledStartAt) : null;
-  const printedCopiesDue = defenseDate ? addDays(defenseDate, -PRINTED_COPIES_DAYS_BEFORE) : null;
+  // The due date follows the template value (BR-09, FR-DEF-04), the same as the Coordinator screen.
+  const printedCopiesDue = scheduled ? (await printedCopyStatus(ctx, scheduled.id, now)).dueDate : null;
 
   return {
     identity: {

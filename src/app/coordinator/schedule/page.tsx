@@ -1,6 +1,7 @@
 // `/coordinator/schedule` (C5): date confirmation and printed copies (FR-DEF-03, FR-DEF-04, BR-09, BR-17, BR-18).
 // The checklist of FR-DOC-08 must be complete before the date is confirmed (INV-13). A late receipt is a warning only.
 import { FlagBanner } from "@/components/banners";
+import Link from "next/link";
 import { EmptyState } from "@/components/empty-state";
 import { listAttempts, printedCopyStatus } from "@/server/data/defense";
 import { checkTransition } from "@/server/data/milestones";
@@ -87,6 +88,12 @@ async function Scheduled({ entry, ctx }: { entry: Entry; ctx: Ctx }) {
       <h3 className="text-base font-semibold">{heading(entry)}</h3>
       <p className="text-sm text-muted-foreground">
         {attempt.scheduledStartAt ? new Intl.DateTimeFormat("en-PH", PST).format(attempt.scheduledStartAt) : "No start time"} · {attempt.roomOrLink ?? "No room"}
+      </p>
+      <p className="text-sm">
+        <Link className="font-medium text-primary underline-offset-4 hover:underline" href={`/coordinator/defense/${attempt.id}`}>
+          Open the defense page<span className="sr-only"> of {entry.student.studentName}</span>
+        </Link>
+        <span className="text-muted-foreground"> for the sheets, the Minutes and the close.</span>
       </p>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">

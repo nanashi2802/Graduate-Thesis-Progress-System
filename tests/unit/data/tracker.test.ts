@@ -58,6 +58,14 @@ describe("studentTracker", () => {
     expect(t.next.text).toContain("2026-12-15");
   });
 
+  it("takes the printed copies due days from the template version (BR-09)", async () => {
+    await db.update(s.templateVersion).set({ printedCopiesDueDays: 10 }).where(eq(s.templateVersion.id, seed.versions.proposal.id));
+    await db.update(s.milestoneInstance).set({ status: "DEFENSE_SCHEDULED" }).where(eq(s.milestoneInstance.id, seed.milestone.id));
+    await db.insert(s.defenseAttempt).values({ milestoneInstanceId: seed.milestone.id, attemptNo: 1, status: "scheduled", scheduledStartAt: new Date("2026-12-15T01:00:00Z"), roomOrLink: "Room 301" });
+    const t = (await studentTracker(asStudent()))!;
+    expect(t.defense!.printedCopiesDue).toBe("2026-12-05");
+  });
+
   it("shows the written reason of a Return as the next action (BR-13)", async () => {
     await db.update(s.milestoneInstance).set({ returnReason: "The method chapter is missing." }).where(eq(s.milestoneInstance.id, seed.milestone.id));
     const t = (await studentTracker(asStudent()))!;
