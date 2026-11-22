@@ -106,7 +106,7 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 
 **Epics**
 - [x] P0-E01 Scaffold and tooling. Done: `.env.example`, the Next.js 16 app, Tailwind v4, shadcn/ui, Vitest, Playwright, the CI workflow, `AGENTS.md` §12 commands. The first CI run happens at the first push. Tasks: §2.2.
-- [~] P0-E02 Database and data layer. Done: the Neon database exists. Not done: the `[CONFIRM]` tool choice, one migration, one data-layer read with a test.
+- [x] P0-E02 Database and data layer. Done: Drizzle ORM and drizzle-kit (AD-A-001), migration `0000_app_user` on Neon, `getUser` with an access check and PGlite tests (AD-A-002). Tasks: §2.3.
 - [~] P0-E03 Sign-in. Done: Neon Auth is set up. Not done: a fake user signs in, the Access Denied route.
 - [~] P0-E04 Files. Done: the bucket exists. Not done: signed upload, hash check, range-request viewer.
 - [~] P0-E05 Deploy, daily job and email. Done: the Resend key, the Vercel sign-in. Not done: Vercel project, deploy, cron, test email.
@@ -180,7 +180,7 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
   - [x] §2.1 shows P0-E01 as done.
 - **Tests:** manual check
 
-### 2.3 P0-E02 tasks (agent-a, autonomous build mode)
+### 2.3 P0-E02 tasks (agent-a, done 22 Nov 2026)
 
 **Decisions in this epic:** AD-A-001 (Drizzle ORM and drizzle-kit), AD-A-002 (PGlite for data-layer tests), AD-A-003 (Neon branch). See `spec/AGENT_DECISIONS.md`.
 
@@ -191,8 +191,8 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 - **Changes:** `package.json`, `pnpm-lock.yaml`, `drizzle.config.ts`, `spec/AGENT_DECISIONS.md`
 - **Depends on:** P0-E01
 - **Done when:**
-  - [ ] AD-A-001 and AD-A-002 are in the decision log.
-  - [ ] `pnpm db:generate` writes SQL into `db/migrations/`.
+  - [x] AD-A-001 and AD-A-002 are in the decision log.
+  - [x] `pnpm db:generate` writes SQL into `db/migrations/`.
 - **Tests:** command
 
 ### P0-E02-T02 — First table and migration
@@ -202,8 +202,8 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 - **Changes:** `src/server/data/schema.ts`, `db/migrations/`
 - **Depends on:** P0-E02-T01
 - **Done when:**
-  - [ ] `pnpm db:migrate` applies the migration on the Neon branch (AD-A-003).
-  - [ ] A unit test applies the same migration files to PGlite.
+  - [x] `pnpm db:migrate` applies the migration on the Neon branch (AD-A-003).
+  - [x] A unit test applies the same migration files to PGlite.
 - **Tests:** unit (Vitest), command
 
 ### P0-E02-T03 — Server-only data layer with an access check
@@ -213,9 +213,9 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 - **Changes:** `src/server/data/` (client, access check, `users.ts`), `tests/unit/data/`
 - **Depends on:** P0-E02-T02
 - **Done when:**
-  - [ ] A Coordinator reads any user. A user reads their own row. Any other read throws `AccessDeniedError`.
-  - [ ] An inactive actor gets `AccessDeniedError` (FR-ACC-06).
-  - [ ] A client import of `src/server/data/` fails the build (`server-only`).
+  - [x] A Coordinator reads any user. A user reads their own row. Any other read throws `AccessDeniedError`.
+  - [x] An inactive actor gets `AccessDeniedError` (FR-ACC-06).
+  - [x] Each query module in `src/server/data/` imports `server-only`, so a client import fails the build. A unit test checks it.
 - **Tests:** unit (Vitest with PGlite)
 
 ---
@@ -299,13 +299,13 @@ All code is in `src/`. Next.js reads routes from `src/app/`. P0-E01 made and con
 | `src/app/` | Root layout and home page | **Made** |
 | `src/app/(auth)/login` | Sign-in route | `[CONFIRM]` P0-E03 |
 | `src/app/student/`, `src/app/adviser/`, `src/app/panel/`, `src/app/coordinator/` | The 29 role routes (`SITEMAP.md` §3) | `[CONFIRM]` Phase 1 |
-| `src/server/data/` | The one server-side data layer. Every read and write goes here (NFR-01). | `[CONFIRM]` P0-E02 |
+| `src/server/data/` | The one server-side data layer. Every read and write goes here (NFR-01). | **Made** (P0-E02) |
 | `src/server/domain/` | State machines and invariant checks (`ERD.md` §6, §7), with no framework code | `[CONFIRM]` P1-E04 |
 | `src/server/files/` | Signed links and hash checks (P11.0) | `[CONFIRM]` P0-E04 |
 | `src/server/notify/` | Events, emails and the daily job (P9.0) | `[CONFIRM]` P0-E05 |
 | `src/components/` | Shared UI from `DESIGN.md` | **Made** (`ui/` holds shadcn/ui parts) |
 | `src/lib/` | Small shared helpers, for example `cn()` | **Made** |
-| `db/migrations/` | Migrations from `ERD.md` | `[CONFIRM]` P0-E02 |
+| `db/migrations/` | Migrations from `ERD.md` (drizzle-kit SQL files) | **Made** (P0-E02) |
 | `tests/unit/`, `tests/e2e/` | Vitest and Playwright tests | **Made** |
 
 ---
