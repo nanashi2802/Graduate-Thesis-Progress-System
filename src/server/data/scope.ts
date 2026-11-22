@@ -1,11 +1,11 @@
 // Row access for each role (NFR-01, FR-ACC-03, ERD §8) and manuscript access for
 // Panel Members (INV-24, INV-33, BR-08, AD-A-013). Server only.
-import { finalCopyRecorded } from "./clearance";
 import "server-only";
 import { and, eq, exists, ne, or, sql, type SQL } from "drizzle-orm";
 import { memberAccess, type CommitteeBlockCode } from "@/server/domain/committee";
 import { alias } from "drizzle-orm/pg-core";
 import { AccessDeniedError, requireActive, type DataContext } from "./access";
+import { finalCopyRecorded } from "./clearance";
 import {
   committee,
   committeeMember,
