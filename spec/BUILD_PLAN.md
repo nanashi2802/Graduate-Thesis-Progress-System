@@ -581,8 +581,12 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 ### P1-E11-T03 — Queues for the Adviser, Panel Member and Coordinator (A1, P1, C1)
 - **Goal:** Data functions return the action queue and the roster (A1), the assignments (P1), and the KPI strip, grouped queue and Student table (C1). Each count opens its queue.
 - **Covers:** FR-TRK-02 to FR-TRK-04, NFR-01, BR-17
+- **Changes:** `src/server/data/overview.ts` (C1, done), `tests/unit/data/overview.test.ts`. The Adviser (A1) and Panel Member (P1) queues come next in `src/server/data/queues.ts`.
 - **Depends on:** T01, P1-E09, P1-E10
-- **Done when:** `[ ]` A test shows each queue for its role, and that a role never reads another role's queue.
+- **Done when:**
+  - [x] C1: a test shows the KPI strip, the grouped queue and the Student table. Each KPI count equals its queue. The pacing flag is information only. Any other role is refused.
+  - [ ] A1: the action queue (Gate 1a, 1b, data gathering, TDW 03, consultation requests) and the advisee roster, with a test.
+  - [ ] P1: the assignment list with designation, access status, action required and defense schedule, with a test.
 
 ### P1-E11-T04 — Dashboard screens S1, A1, P1, C1
 - **Goal:** Each role lands on its dashboard with the next action (NFR-04). Each disabled action shows its reason.
