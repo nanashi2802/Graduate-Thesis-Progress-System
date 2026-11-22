@@ -1011,7 +1011,9 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Goal:** The Pre-Final endorsement form (TDW 09) and the comments-only sheet (TDW 10) work through the data layer and the P4 screen.
 - **Covers:** FR-DEF-02, FR-DEF-05, FR-DOC-08
 - **Depends on:** T01, P1-E09
-- **Done when:** `[ ]` An end-to-end step at Pre-Final encodes a TDW 10 sheet, and the Coordinator verifies it.
+- **Done when:**
+  - [x] A Pre-Final test encodes TDW 10 sheets (Adviser and member, comments only), and the Coordinator verifies them (`tests/unit/data/defense-prefinal.test.ts`). The TDW 09 scan already runs through the generic document flow and the FR-DOC-08 checklist.
+  - [ ] The Playwright step waits for P2-E05.
 
 ### 4.3 P2-E01 and P2-E03 (Track A, `agent-a`)
 
