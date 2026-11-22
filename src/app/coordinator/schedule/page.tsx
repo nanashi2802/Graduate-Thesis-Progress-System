@@ -23,7 +23,8 @@ export default async function Page() {
   const students = await listStudents(ctx);
   const entries = students.flatMap((student) => student.milestones.map((milestone) => ({ student, milestone })));
   const requests = entries.filter((e) => e.milestone.status === "DATE_PROPOSED");
-  const scheduled = entries.filter((e) => e.milestone.status === "DEFENSE_SCHEDULED");
+  // A held defense stays here until the stage closes: the Coordinator still checks printed copies and works on C6.
+  const scheduled = entries.filter((e) => e.milestone.status === "DEFENSE_SCHEDULED" || e.milestone.status === "DEFENSE_HELD");
 
   return (
     <main className="mx-auto flex max-w-[1200px] flex-col gap-12 px-4 py-8 sm:px-8">
