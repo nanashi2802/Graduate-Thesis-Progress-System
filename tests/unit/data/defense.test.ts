@@ -8,6 +8,7 @@ import {
   closeDefense,
   confirmDefenseDate,
   confirmSheetUpload,
+  defensePage,
   issueMinutes,
   listAttempts,
   markDefenseHeld,
@@ -326,6 +327,30 @@ describe("printed copies (FR-DEF-04, BR-09, BR-17)", () => {
     await expect(printedCopyStatus(as(w.adviser), w.attempt.id)).resolves.toBeDefined();
     const stranger = await makeUser(db, "student");
     await expect(printedCopyStatus(as(stranger), w.attempt.id)).rejects.toBeInstanceOf(AccessDeniedError);
+  });
+});
+
+describe("defensePage (A5, P4, BR-18)", () => {
+  it("gives the form, the rubric, the own sheet and the reason each action is blocked", async () => {
+    const w = await scheduled();
+    const early = await defensePage(as(w.lead), w.attempt.id, daysAgo(11));
+    expect(early).toMatchObject({ form: "TDW_08", isEvaluator: true, verdictSeat: true, sheetsExpected: 3, sheetsSaved: 0 });
+    expect(early.rubric).toHaveLength(7);
+    expect(early.editBlock).toMatch(/opens at the scheduled start/);
+    expect(early.verdictBlock).toMatch(/defense date or later/);
+    const now = await defensePage(as(w.lead), w.attempt.id);
+    expect(now.editBlock).toBeNull();
+    expect(now.verdictBlock).toBeNull();
+    expect(now.heldBlock).toMatch(/verdict/i);
+    await saveSheet(as(w.lead), w.attempt.id, await sheet(w), new Date());
+    const saved = await defensePage(as(w.lead), w.attempt.id);
+    expect(saved.own?.scores[saved.rubric[0]!.id]).toBe(saved.rubric[0]!.weightPct);
+    expect(saved.own?.comments.general_observations).toBe("Good work.");
+    // The Panel Chair seat is not the verdict seat at the Proposal. The Student and the Coordinator complete no sheet.
+    expect((await defensePage(as(w.chair), w.attempt.id)).verdictSeat).toBe(false);
+    expect((await defensePage(as(w.student), w.attempt.id)).editBlock).toMatch(/do not complete/);
+    const stranger = await makeUser(db, "student");
+    await expect(defensePage(as(stranger), w.attempt.id)).rejects.toBeInstanceOf(AccessDeniedError);
   });
 });
 
