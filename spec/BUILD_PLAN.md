@@ -358,6 +358,60 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [x] With no blocker, the Docket says "Nothing blocks this step."
   - [x] A flag banner never disables the action under it (BR-17).
 
+### 3.3 P1-E05 Committee appointment (Track B, `agent-b`)
+
+**Decisions:** AD-B-011. T01 is pure code and needs nothing. T02 and T03 wait for P1-E02 (data layer and row access).
+
+### P1-E05-T01 — Committee rules (pure)
+- **Goal:** Check a proposed seat, a seat status change, the appointment and the member's manuscript access.
+- **Covers:** FR-CMT-01, FR-CMT-03 to FR-CMT-06, BR-03, BR-08, BR-21, INV-03, INV-24, INV-33
+- **Changes:** `src/server/domain/committee.ts`, `tests/unit/domain/committee.test.ts`
+- **Done when:**
+  - [x] The size comes from the template for each degree level. Milestone 2 has no appointment.
+  - [x] One Lead Panel Member and one Panel Chair. The Adviser never sits. A declined seat needs a new row.
+  - [x] Access needs the verified form and the member's verified NDA, and ends at the BR-21 event. A substitute needs its own NDA.
+- **Tests:** unit (Vitest)
+
+### P1-E05-T02 — Appointment board data and actions (C3)
+- **Goal:** The Coordinator proposes seats, records answers, uploads TDW 06 or TDW 11 and the NDAs, and marks the committee Appointed.
+- **Covers:** FR-CMT-01 to FR-CMT-04, NFR-01
+- **Depends on:** T01, P1-E02, P0-E04
+- **Done when:** `[ ]` Each write goes through the data layer access check and calls the T01 check first. `[ ]` The board shows workload and availability (FR-CMT-02).
+
+### P1-E05-T03 — Member access and substitute (P1, C3)
+- **Goal:** Open the manuscript to a member when `memberAccess` passes, notify the member, and record a substitute.
+- **Covers:** FR-CMT-05, FR-CMT-06, BR-08, INV-24
+- **Depends on:** T02, P1-E06
+- **Done when:** `[ ]` A data layer test shows no signed read link without access.
+
+### 3.4 P1-E07 Documents and compliance (Track B, `agent-b`)
+
+**Decisions:** AD-B-012. T01 is pure code. T02 and later wait for P1-E02 and P0-E04.
+
+### P1-E07-T01 — Document lifecycle (pure)
+- **Goal:** One function decides each `document_record.state` change of ERD §7.2, with its actor.
+- **Covers:** FR-DOC-02, FR-DOC-03, FR-DOC-06, FR-DOC-07, BR-12, BR-13, BR-19
+- **Changes:** `src/server/domain/documents.ts`, `tests/unit/domain/documents.test.ts`
+- **Done when:**
+  - [x] Each allowed change has a test, and every other pair is refused.
+  - [x] A Return needs a reason. A locked scan changes only through a Return or a Mismatch.
+  - [x] A Mismatch blocks the stage close only (BR-12).
+- **Tests:** unit (Vitest)
+
+### P1-E07-T02 — Deliverables, scan upload and Coordinator review (S3, C4)
+- **Goal:** The Student sees the deliverables and uploads scans. The Coordinator marks received, verifies, returns or marks a mismatch.
+- **Covers:** FR-DOC-01, FR-DOC-03, FR-DOC-06, FR-DOC-07, FR-DOC-11, NFR-01
+- **Depends on:** T01, P1-E02, P0-E04
+- **Done when:** `[ ]` Each change calls `decideDocumentChange` and writes one history row.
+
+### P1-E07-T03 — Compliance checklist (FR-DOC-08)
+- **Goal:** Compute the date-confirmation checklist for each milestone, for the `defenseChecklistComplete` fact (INV-13).
+- **Covers:** FR-DOC-08, INV-13
+- **Changes:** `src/server/domain/checklist.ts`, `tests/unit/domain/checklist.test.ts`. **Decision:** AD-B-013.
+- **Depends on:** T01
+- **Done when:**
+  - [x] A test covers the list of each milestone.
+
 ---
 
 ## 4. Phase 2 — Milestone 2 and email
