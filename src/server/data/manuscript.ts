@@ -375,3 +375,12 @@ export async function threadPostBlock(ctx: DataContext, milestoneId: string): Pr
   if (ctx.actor.role === "coordinator") return "The Coordinator reads threads and does not post them.";
   return (await openContext(ctx, m)) ? null : "You cannot post a thread on this manuscript now.";
 }
+
+// Everything the PR workspace screen shows: the milestone, the commits, the Ready mark, the lock and the threads.
+export async function workspaceFor(ctx: DataContext, prId: string) {
+  const { milestoneId } = await milestoneOfPr(ctx, prId);
+  const milestone = await loadMilestone(ctx, milestoneId);
+  const view = await submissionFor(ctx, milestoneId);
+  const threads = await listThreads(ctx, milestoneId);
+  return { milestone, ...view, threads };
+}
