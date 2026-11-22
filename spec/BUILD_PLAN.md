@@ -474,7 +474,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [x] With no blocker, the Docket says "Nothing blocks this step."
   - [x] A flag banner never disables the action under it (BR-17).
 
-### 3.3 P1-E01 Schema from the ERD (Track A, `agent-a`)
+### 3.3 P1-E01 Schema from the ERD (Track A, `agent-a`, done 22 Nov 2026)
 
 **Decisions in this epic:** AD-A-011 (start Phase 1 before the §1 gates), AD-A-012 (Phase 1 table set, triggers in a custom migration).
 **Scope:** every ERD §4.1 table that Phase 1 uses. Later tables come with their epics: `outside_status_event` (P2-E01), `email_template`, `email_log`, `notification_preference` (P2-E04), `clearance_item` (P3-E04), `saved_filter` (Phase 4).
@@ -486,7 +486,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/data/schema/`, `db/migrations/`
 - **Depends on:** P0-E02
 - **Done when:**
-  - [ ] Tests prove INV-02 (wrong role refused), INV-04 (second thesis refused), INV-18 (RETURNED with no reason refused) and INV-26 (template version cannot change).
+  - [x] Tests prove INV-02 (wrong role refused), INV-04 (second thesis refused), INV-18 (RETURNED with no reason refused) and INV-26 (template version cannot change).
 - **Tests:** unit (Vitest with PGlite)
 
 ### P1-E01-T02 — Manuscript, commits and threads
@@ -495,7 +495,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/data/schema/manuscript.ts`, `db/migrations/`
 - **Depends on:** T01
 - **Done when:**
-  - [ ] Tests prove INV-05 (no commit while locked), INV-09 (key reuse refused), INV-10 (bad hash refused), INV-11 (over 50 MB refused) and INV-31 (one target).
+  - [x] Tests prove INV-05 (no commit while locked), INV-09 (key reuse refused), INV-10 (bad hash refused), INV-11 (over 50 MB refused) and INV-31 (one target).
 - **Tests:** unit (Vitest with PGlite)
 
 ### P1-E01-T03 — Schedule and committees
@@ -504,7 +504,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/data/schema/schedule.ts`, `committee.ts`, `db/migrations/`
 - **Depends on:** T01
 - **Done when:**
-  - [ ] Tests prove INV-03 (a seat for a non-Panel Member is refused).
+  - [x] Tests prove INV-03 (a seat for a non-Panel Member is refused).
 - **Tests:** unit (Vitest with PGlite)
 
 ### P1-E01-T04 — Documents and defense
@@ -513,7 +513,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/data/schema/documents.ts`, `defense.ts`, `db/migrations/`
 - **Depends on:** T02
 - **Done when:**
-  - [ ] Tests prove INV-34 (linked commit needed, same milestone, at most one of each), the document file checks, and the reason rule on `document_event`.
+  - [x] Tests prove INV-34 (linked commit needed, same milestone, at most one of each), the document file checks, and the reason rule on `document_event`.
 - **Tests:** unit (Vitest with PGlite)
 
 ### P1-E01-T05 — Gate actions, audit records and notifications
@@ -522,8 +522,8 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/data/schema/logs.ts`, `db/migrations/`
 - **Depends on:** T04
 - **Done when:**
-  - [ ] Tests prove INV-08 on every append-only table and INV-19 (Return with no reason refused).
-  - [ ] `pnpm db:migrate` applies all Phase 1 migrations on Neon.
+  - [x] Tests prove INV-08 on every append-only table and INV-19 (Return with no reason refused).
+  - [x] `pnpm db:migrate` applies all Phase 1 migrations on Neon.
 - **Tests:** unit (Vitest with PGlite), command
 
 ---

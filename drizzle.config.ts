@@ -9,7 +9,7 @@ try {
 
 export default defineConfig({
   dialect: "postgresql",
-  schema: "./src/server/data/schema.ts",
+  schema: "./src/server/data/schema/index.ts",
   out: "./db/migrations",
   schemaFilter: ["app"],
   dbCredentials: { url: process.env.DATABASE_URL_UNPOOLED ?? "" },
