@@ -106,9 +106,9 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 
 **Epics**
 - [x] P0-E01 Scaffold and tooling. Done: `.env.example`, the Next.js 16 app, Tailwind v4, shadcn/ui, Vitest, Playwright, the CI workflow, `AGENTS.md` §12 commands. The first CI run happens at the first push. Tasks: §2.2.
-- [~] P0-E02 Database and data layer. Done: the Neon database exists. Not done: the `[CONFIRM]` tool choice, one migration, one data-layer read with a test.
-- [~] P0-E03 Sign-in. Done: Neon Auth is set up. Not done: a fake user signs in, the Access Denied route.
-- [~] P0-E04 Files. Done: the bucket exists. Not done: signed upload, hash check, range-request viewer.
+- [x] P0-E02 Database and data layer. Done: Drizzle ORM and drizzle-kit (AD-A-001), migration `0000_app_user` on Neon, `getUser` with an access check and PGlite tests (AD-A-002). Tasks: §2.5.
+- [x] P0-E03 Sign-in. Done: email and password sign-in, the Coordinator path, the account block for sign-ins with no account, Access Denied on each portal. Open: a manual check with a real Google user. Tasks: §2.6.
+- [x] P0-E04 Files. Done: signed write-once upload, hash check, CORS rule, range-request viewer, 4.5 MB+ file. Tasks: §2.7.
 - [~] P0-E05 Deploy, daily job and email. Done: the Resend key, the Vercel sign-in. Not done: Vercel project, deploy, cron, test email.
 - [ ] P0-E06 Measure and report.
 
@@ -179,6 +179,122 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
   - [x] Every command in `AGENTS.md` §12 runs.
   - [x] §2.1 shows P0-E01 as done.
 - **Tests:** manual check
+
+### 2.5 P0-E02 tasks (agent-a, done 22 Nov 2026)
+
+**Decisions in this epic:** AD-A-001 (Drizzle ORM and drizzle-kit), AD-A-002 (PGlite for data-layer tests), AD-A-003 (Neon branch). See `spec/AGENT_DECISIONS.md`.
+
+### P0-E02-T01 — Query and migration tool
+- **Goal:** Pick and install the query and migration tool. Log the choice.
+- **Covers:** NFR-01, PRD §11.3 rule 4
+- **Reads:** PRD §11.2, §11.3, `ERD.md` §1
+- **Changes:** `package.json`, `pnpm-lock.yaml`, `drizzle.config.ts`, `spec/AGENT_DECISIONS.md`
+- **Depends on:** P0-E01
+- **Done when:**
+  - [x] AD-A-001 and AD-A-002 are in the decision log.
+  - [x] `pnpm db:generate` writes SQL into `db/migrations/`.
+- **Tests:** command
+
+### P0-E02-T02 — First table and migration
+- **Goal:** The `app` schema, the `user_role` enum and the `app_user` table migrate on Neon.
+- **Covers:** BR-03, `ERD.md` §1, §2, §4.1 (`app_user`)
+- **Reads:** `ERD.md` §1, §2, §4.1
+- **Changes:** `src/server/data/schema.ts`, `db/migrations/`
+- **Depends on:** P0-E02-T01
+- **Done when:**
+  - [x] `pnpm db:migrate` applies the migration on the Neon branch (AD-A-003).
+  - [x] A unit test applies the same migration files to PGlite.
+- **Tests:** unit (Vitest), command
+
+### P0-E02-T03 — Server-only data layer with an access check
+- **Goal:** One server-only function reads `app_user` after an access check.
+- **Covers:** NFR-01, FR-ACC-03, `ERD.md` §8
+- **Reads:** `ERD.md` §8, `DFD.md` TB1, TB2
+- **Changes:** `src/server/data/` (client, access check, `users.ts`), `tests/unit/data/`
+- **Depends on:** P0-E02-T02
+- **Done when:**
+  - [x] A Coordinator reads any user. A user reads their own row. Any other read throws `AccessDeniedError`.
+  - [x] An inactive actor gets `AccessDeniedError` (FR-ACC-06).
+  - [x] Each query module in `src/server/data/` imports `server-only`, so a client import fails the build. A unit test checks it.
+- **Tests:** unit (Vitest with PGlite)
+
+### 2.6 P0-E03 tasks (agent-a, done 22 Nov 2026)
+
+**Decisions in this epic:** AD-A-004 (`@neon/auth`), AD-A-005 (the app account is the `app_user` row), AD-A-006 (Coordinator path and the bootstrap Coordinator).
+
+### P0-E03-T01 — Neon Auth server and API route
+- **Goal:** The app talks to Neon Auth through one server instance and the `/api/auth` route.
+- **Covers:** FR-ACC-01, D-23
+- **Reads:** PRD §11.2, D-23
+- **Changes:** `package.json`, `src/server/auth/neon-auth.ts`, `src/app/api/auth/[...path]/route.ts`
+- **Depends on:** P0-E02
+- **Done when:**
+  - [x] `pnpm build` passes with no Neon Auth variables (CI).
+- **Tests:** command
+
+### P0-E03-T02 — Account resolution and the Coordinator path
+- **Goal:** A Neon Auth user maps to one `app_user` row. Only the Coordinator makes accounts.
+- **Covers:** FR-ACC-04, FR-ACC-05, FR-ACC-06, BR-03, D-23, NFR-01
+- **Reads:** `ERD.md` §4.1, §8
+- **Changes:** `src/server/data/actors.ts`, `src/server/data/accounts.ts`, `src/server/auth/admin.ts`, `scripts/seed-dev.mjs`
+- **Depends on:** T01
+- **Done when:**
+  - [x] A Neon Auth user with no `app_user` row gets no actor, and no row is made (unit test).
+  - [x] The first sign-in links the row by email. A linked row never moves to another Neon Auth user (unit test).
+  - [x] Only an active Coordinator can call `createAccount` (unit test).
+  - [x] `pnpm db:seed-dev` makes fake users through `admin/create-user` while open sign-up is off.
+- **Tests:** unit (Vitest with PGlite), command
+
+### P0-E03-T03 — `/login`, portal gates and Access Denied
+- **Goal:** Users sign in by email and password or Google. Each portal is open to its role only.
+- **Covers:** FR-ACC-01, FR-ACC-02, BR-18, D-23
+- **Reads:** `SITEMAP.md` §3, rule 1
+- **Changes:** `src/app/(auth)/login/`, `src/app/auth/after-sign-in/`, `src/app/_components/`, `src/app/<portal>/layout.tsx`, `src/app/<portal>/dashboard/page.tsx`, `src/server/auth/session.ts`, `tests/e2e/sign-in.spec.ts`, `playwright.config.ts`
+- **Depends on:** T02
+- **Done when:**
+  - [x] A fake Student signs in and reaches `/student/dashboard` (end-to-end, local).
+  - [x] The Student sees Access Denied, with the reason, on `/coordinator/dashboard` (end-to-end, local).
+  - [x] A Neon Auth user with no account is signed out at once and sees the reason (end-to-end, local).
+  - [ ] A real Google user with no account is blocked. Manual check by the human: the test needs a real Google sign-in.
+- **Tests:** unit, end-to-end (Playwright, local only: CI has no Neon secrets)
+
+### 2.7 P0-E04 tasks (agent-a, done 22 Nov 2026)
+
+**Decisions in this epic:** AD-A-007 (AWS S3 SDK), AD-A-008 (CORS rule and key prefix), AD-A-009 (spike screen and PDF viewer).
+**Storage facts found (for P0-E06):** Neon Object Storage honors `If-None-Match: *` on PUT (HTTP 412 on a second write), `x-amz-checksum-sha256` (HTTP 400 `BadDigest` on other bytes), signed `content-length` and `content-type` (HTTP 403 on another size or type), range GET (HTTP 206), and returns the stored SHA-256 on HEAD with checksum mode.
+
+### P0-E04-T01 — Signed write-once upload and hash check
+- **Goal:** The server issues an upload link signed with the hash, size, type and `If-None-Match: *`, and checks the stored hash after upload.
+- **Covers:** NFR-02, NFR-10, NFR-12, INV-09, BR-19, DFD T1 to T4
+- **Reads:** `DFD.md` §4 (T1 to T5), PRD §11.3, FR NFR-10
+- **Changes:** `package.json`, `src/server/files/rules.ts`, `src/server/files/storage.ts`, `tests/unit/files-rules.test.ts`
+- **Depends on:** P0-E03
+- **Done when:**
+  - [x] Unit tests cover the type, size and hash rules (NFR-10, NFR-02) and the write-once key (INV-09).
+  - [x] A second PUT to the same key fails with HTTP 412 on Neon storage.
+  - [x] Other bytes fail with `BadDigest`. A PUT with no `If-None-Match` fails the signature.
+- **Tests:** unit, end-to-end (local)
+
+### P0-E04-T02 — CORS rule on `thesis-files`
+- **Goal:** Only the app origins can use the bucket from a browser.
+- **Covers:** NFR-12, DFD T2, T5
+- **Changes:** `scripts/set-storage-cors.mjs`
+- **Depends on:** the Vercel domain from agent-b (AD-B-001)
+- **Done when:**
+  - [x] `pnpm storage:cors` sets GET, HEAD and PUT for localhost, the production origin and the preview pattern. DELETE is not allowed.
+  - [x] A preflight from another origin gets HTTP 403.
+- **Tests:** manual check (`curl` preflight)
+
+### P0-E04-T03 — Browser hash, direct upload and range viewer
+- **Goal:** The browser hashes a fake 100-page PDF, uploads it straight to storage and views it by page ranges.
+- **Covers:** NFR-02, NFR-12, PRD §11.3 rules 1 to 3, DFD T1 to T5
+- **Changes:** `src/app/coordinator/spike-files/`, `tests/support/fake-pdf.ts`, `tests/e2e/files.spec.ts`
+- **Depends on:** T01, T02
+- **Done when:**
+  - [x] A 5.3 MB, 100-page fake PDF uploads and passes the hash check (end-to-end, local).
+  - [x] No request to the app carries a body of 64 KB or more (the server never receives the bytes).
+  - [x] The viewer shows page 1 of 100 with range requests.
+- **Tests:** end-to-end (Playwright, local only)
 
 ---
 
@@ -412,15 +528,15 @@ All code is in `src/`. Next.js reads routes from `src/app/`. P0-E01 made and con
 | Path | Holds | Status |
 | :---- | :---- | :---- |
 | `src/app/` | Root layout and home page | **Made** |
-| `src/app/(auth)/login` | Sign-in route | `[CONFIRM]` P0-E03 |
-| `src/app/student/`, `src/app/adviser/`, `src/app/panel/`, `src/app/coordinator/` | The 29 role routes (`SITEMAP.md` §3) | `[CONFIRM]` Phase 1 |
-| `src/server/data/` | The one server-side data layer. Every read and write goes here (NFR-01). | `[CONFIRM]` P0-E02 |
+| `src/app/(auth)/login` | Sign-in route | **Made** (P0-E03) |
+| `src/app/student/`, `src/app/adviser/`, `src/app/panel/`, `src/app/coordinator/` | The 29 role routes (`SITEMAP.md` §3). Each portal `layout.tsx` checks the role. | **Made** (P0-E03, dashboard stubs only) |
+| `src/server/data/` | The one server-side data layer. Every read and write goes here (NFR-01). | **Made** (P0-E02) |
 | `src/server/domain/` | State machines and invariant checks (`ERD.md` §6, §7), with no framework code | `[CONFIRM]` P1-E04 |
-| `src/server/files/` | Signed links and hash checks (P11.0) | `[CONFIRM]` P0-E04 |
+| `src/server/files/` | Signed links and hash checks (P11.0) | **Made** (P0-E04) |
 | `src/server/notify/` | Events, emails and the daily job (P9.0) | `[CONFIRM]` P0-E05 |
 | `src/components/` | Shared UI from `DESIGN.md` | **Made** (`ui/` holds shadcn/ui parts) |
 | `src/lib/` | Small shared helpers, for example `cn()` | **Made** |
-| `db/migrations/` | Migrations from `ERD.md` | `[CONFIRM]` P0-E02 |
+| `db/migrations/` | Migrations from `ERD.md` (drizzle-kit SQL files) | **Made** (P0-E02) |
 | `tests/unit/`, `tests/e2e/` | Vitest and Playwright tests | **Made** |
 
 ---

@@ -152,7 +152,8 @@ Do not build: e-signature, subject grading, outside-office workflows (ethics, IP
 
 ## 12. Setup and commands
 
-Still to add: data model (from the ERD), naming rules.
+Still to add: naming rules.
+**Data layer:** the schema is `src/server/data/schema.ts` (from `spec/ERD.md`). Each data function takes a `DataContext` (`db`, `actor`) and checks access first. Tests use PGlite with the real migrations (`tests/support/test-db.ts`).
 **Tools:** Node.js 22 or newer. pnpm (version in `package.json` `packageManager`). Use pnpm only. Do not use npm or yarn.
 
 | Task | Command |
@@ -166,6 +167,8 @@ Still to add: data model (from the ERD), naming rules.
 | Unit tests (Vitest, `tests/unit/`) | `pnpm test` |
 | End-to-end tests (Playwright, `tests/e2e/`, builds the app first) | `pnpm test:e2e` |
 | Production build | `pnpm build` |
+| Make a migration from `src/server/data/schema.ts` | `pnpm db:generate --name <name>` |
+| Apply migrations to the Neon branch in `.env.local` | `pnpm db:migrate` |
 | Check commits against the policy | `scripts/check-commit-policy.sh --range origin/main..HEAD` |
 
 CI (`.github/workflows/ci.yml`) runs lint, type check, unit tests, the build and the end-to-end tests.
