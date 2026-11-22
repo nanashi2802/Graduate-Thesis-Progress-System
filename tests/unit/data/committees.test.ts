@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import { AccessDeniedError, type Actor } from "@/server/data/access";
 import {
+  advanceMilestone,
   appointmentBoard,
   linkAppointmentForm,
   linkNda,
@@ -171,6 +172,49 @@ describe("paper and markAppointed (FR-CMT-04)", () => {
     const extra = await propose(seed.panel[2]!.id);
     if (!extra.ok) throw new Error("setup");
     expect(await markAppointed(ctx(), { committeeId })).toMatchObject({ ok: false, code: "wrong_size" });
+  });
+});
+
+describe("advanceMilestone (FR-CMT-04, BR-08, AD-B-021)", () => {
+  async function appointedWithPaper() {
+    const { lead, chair, committeeId } = await fullCommittee();
+    const form = await doc("TDW_06");
+    const n1 = await doc("TDW_05", lead.memberUserId);
+    const n2 = await doc("TDW_05", chair.memberUserId);
+    await linkAppointmentForm(ctx(), { committeeId, documentId: form.id });
+    await linkNda(ctx(), { seatId: lead.id, documentId: n1.id });
+    await linkNda(ctx(), { seatId: chair.id, documentId: n2.id });
+    expect(await markAppointed(ctx(), { committeeId })).toEqual({ ok: true, value: null });
+    return { committeeId, paper: [form.id, n1.id, n2.id] };
+  }
+
+  it("keeps the appointment but refuses the move until the paper is verified, with a reason (BR-18)", async () => {
+    const { committeeId } = await appointedWithPaper();
+    const res = await advanceMilestone(ctx(), { committeeId });
+    expect(res.ok).toBe(false);
+    const board = (await appointmentBoard(ctx(), seed.thesis.id)).committees[0]!;
+    expect(board.appointed).toBe(true);
+    expect(board.milestoneAdvanced).toBe(false);
+    expect(board.advanceBlockedReason).toBe(res.ok ? null : res.reason);
+    const [m] = await db.select().from(s.milestoneInstance);
+    expect(m!.status).toBe("ADVISER_ENDORSED");
+  });
+
+  it("moves the milestone to COMMITTEE_APPOINTED after the paper is verified", async () => {
+    const { committeeId, paper } = await appointedWithPaper();
+    for (const id of paper) await db.update(s.documentRecord).set({ state: "verified" }).where(eq(s.documentRecord.id, id));
+    const board = (await appointmentBoard(ctx(), seed.thesis.id)).committees[0]!;
+    expect(board.advanceBlockedReason).toBeNull();
+    expect(await advanceMilestone(ctx(), { committeeId })).toEqual({ ok: true, value: null });
+    const [m] = await db.select().from(s.milestoneInstance);
+    expect(m!.status).toBe("COMMITTEE_APPOINTED");
+    expect((await appointmentBoard(ctx(), seed.thesis.id)).committees[0]!.milestoneAdvanced).toBe(true);
+  });
+
+  it("refuses before the committee is Appointed, and for a non-Coordinator (NFR-01)", async () => {
+    const { committeeId } = await fullCommittee();
+    expect(await advanceMilestone(ctx(), { committeeId })).toMatchObject({ ok: false, reason: "Mark the committee Appointed first." });
+    await expect(advanceMilestone({ db, actor: actorOf(seed.adviser) }, { committeeId })).rejects.toThrow(AccessDeniedError);
   });
 });
 

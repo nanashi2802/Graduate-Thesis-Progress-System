@@ -16,6 +16,7 @@ import {
 import type { Designation, MilestoneCode } from "@/server/domain/milestone";
 import { AccessDeniedError, requireActive, type DataContext } from "./access";
 import { recordAudit } from "./audit";
+import { checkTransition, transitionMilestone, TransitionRefused } from "./milestones";
 import {
   appUser,
   committee,
@@ -275,6 +276,25 @@ export async function markAppointed(ctx: DataContext, input: { committeeId: stri
   });
 }
 
+/**
+ * Move the milestone to COMMITTEE_APPOINTED (FR-CMT-04, AD-B-021). It runs after the appointment commits,
+ * as a second call (`agent-a`: the guard reads `committee.appointedAt` and the verified forms). The
+ * appointment stays if the move is refused. The Coordinator verifies the paper first (BR-08).
+ */
+export async function advanceMilestone(ctx: DataContext, input: { committeeId: string }): Promise<BoardResult<null>> {
+  requireCoordinator(ctx);
+  const loaded = await loadCommittee(ctx, input.committeeId);
+  if (!loaded) return refuse("not_found");
+  if (!loaded.committee.appointedAt) return refuse("not_allowed", "Mark the committee Appointed first.");
+  try {
+    await transitionMilestone(ctx, loaded.milestone.milestoneId, "COMMITTEE_APPOINTED");
+  } catch (e) {
+    if (e instanceof TransitionRefused) return refuse("not_allowed", e.message);
+    throw e;
+  }
+  return { ok: true, value: null };
+}
+
 export type BoardSeat = {
   id: string;
   memberUserId: string;
@@ -294,6 +314,10 @@ export type AppointmentBoard = {
     appointed: boolean;
     /** Why "Mark Appointed" is blocked now (BR-18). Null when it is open. */
     appointBlockedReason: string | null;
+    /** The milestone is already at COMMITTEE_APPOINTED or later. */
+    milestoneAdvanced: boolean;
+    /** Why the milestone cannot move to COMMITTEE_APPOINTED now (BR-18). Null when it can. */
+    advanceBlockedReason: string | null;
     seats: BoardSeat[];
   }[];
   /** Every active Panel Member, with workload and availability (FR-CMT-02). The Adviser pool is separate (SITEMAP C3). */
@@ -334,11 +358,20 @@ export async function appointmentBoard(ctx: DataContext, thesisId: string): Prom
   const loadBy = new Map(load.map((r) => [r.userId, Number(r.n)]));
   const freeBy = new Map(free.map((r) => [r.userId, Number(r.n)]));
 
-  const blockedBy = new Map<string, { milestoneId: string; reason: string | null }>();
+  const blockedBy = new Map<string, { milestoneId: string; reason: string | null; advanced: boolean; advanceReason: string | null }>();
   for (const c of committees) {
     const loaded = await loadCommittee(ctx, c.id);
     const problem = loaded ? await appointmentProblem(ctx, loaded) : null;
-    blockedBy.set(c.id, { milestoneId: loaded?.milestone.milestoneId ?? "", reason: problem?.reason ?? null });
+    const advanced = !!loaded && loaded.milestone.status !== "ADVISER_ENDORSED" && loaded.milestone.status !== "DRAFT" && loaded.milestone.status !== "READY";
+    let advanceReason: string | null = null;
+    if (loaded && !advanced) {
+      if (!c.appointedAt) advanceReason = "Mark the committee Appointed first.";
+      else {
+        const d = await checkTransition(ctx, loaded.milestone.milestoneId, "COMMITTEE_APPOINTED");
+        if (!d.ok) advanceReason = d.reason;
+      }
+    }
+    blockedBy.set(c.id, { milestoneId: loaded?.milestone.milestoneId ?? "", reason: problem?.reason ?? null, advanced, advanceReason });
   }
 
   return {
@@ -349,6 +382,8 @@ export async function appointmentBoard(ctx: DataContext, thesisId: string): Prom
       appointmentFormLinked: c.appointmentDocumentId !== null,
       appointed: c.appointedAt !== null,
       appointBlockedReason: blockedBy.get(c.id)!.reason,
+      milestoneAdvanced: blockedBy.get(c.id)!.advanced,
+      advanceBlockedReason: blockedBy.get(c.id)!.advanceReason,
       seats: seats
         .filter((r) => r.seat.committeeId === c.id)
         .map(({ seat, fullName }) => ({

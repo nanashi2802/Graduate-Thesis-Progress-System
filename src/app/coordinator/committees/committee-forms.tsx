@@ -3,7 +3,7 @@
 import { useActionState, type ReactNode } from "react";
 import { ActionButton } from "@/components/action-button";
 import { ActionForm, Field, fieldClass, type FormState } from "../_lib/form-parts";
-import { linkAppointmentAction, linkNdaAction, markAppointedAction, proposeSeatAction, seatAnswerAction } from "./actions";
+import { advanceMilestoneAction, linkAppointmentAction, linkNdaAction, markAppointedAction, proposeSeatAction, seatAnswerAction } from "./actions";
 
 type Option = { id: string; label: string };
 
@@ -131,6 +131,20 @@ export function AppointButton({ committeeId, blockedReason, children }: { commit
       <input type="hidden" name="committeeId" value={committeeId} />
       <ActionButton type="submit" blockedReason={blockedReason ?? undefined}>
         {children ?? "Mark Appointed"}
+      </ActionButton>
+      <Message state={state} />
+    </form>
+  );
+}
+
+/** The second step after "Mark Appointed": move the milestone once the paper is verified (BR-08, AD-B-021). */
+export function AdvanceButton({ committeeId, blockedReason }: { committeeId: string; blockedReason: string | null }) {
+  const [state, run] = useActionState(advanceMilestoneAction, {});
+  return (
+    <form action={run} className="flex flex-col gap-2">
+      <input type="hidden" name="committeeId" value={committeeId} />
+      <ActionButton type="submit" variant="outline" blockedReason={blockedReason ?? undefined}>
+        Move the milestone to Committee appointed
       </ActionButton>
       <Message state={state} />
     </form>
