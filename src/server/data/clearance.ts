@@ -1,14 +1,14 @@
 // The clearance checklist of Milestone 3 (FR-CLR-01 to 04, BR-21, INV-33, AD-A-029). Server only.
 // IPMO, RPO, copyright and Gate 2 come from their own records. The Coordinator verifies the other three.
 import "server-only";
-import { and, eq } from "drizzle-orm";
-import type { ClearanceKind } from "./schema";
+import { and, eq, notInArray } from "drizzle-orm";
+import type { ClearanceKind, FormCode } from "./schema";
 import { requireActive, type DataContext } from "./access";
 import { recordAudit } from "./audit";
 import { InputProblem, requireCoordinator } from "./coordinator";
 import type { Db } from "./db";
 import { currentOutsideStatuses } from "./outside";
-import { clearanceItem, milestoneInstance } from "./schema";
+import { clearanceItem, documentRecord, milestoneInstance } from "./schema";
 import { requireThesisRead } from "./scope";
 
 export type ClearanceRow = {
@@ -31,6 +31,12 @@ const LABELS: Record<ClearanceKind, string> = {
 };
 export const CLEARANCE_KINDS = Object.keys(LABELS) as ClearanceKind[];
 export const COORDINATOR_KINDS = ["final_copy", "conference_cert", "journal_pub"] as const satisfies readonly ClearanceKind[];
+
+const EVIDENCE_FORM: Record<(typeof COORDINATOR_KINDS)[number], FormCode> = {
+  final_copy: "FINAL_COPY",
+  conference_cert: "CONFERENCE_CERT",
+  journal_pub: "JOURNAL_PUB",
+};
 
 // Call only after an access check.
 export async function clearanceStatuses(db: Db, milestoneId: string, gate2Complete: boolean): Promise<ClearanceRow[]> {
@@ -93,10 +99,22 @@ export async function verifyClearanceItem(
   if (input.kind === "final_copy" && input.matchesApproved !== true) {
     throw new InputProblem("Check the final copy against the approved manuscript first (FR-CLR-03).");
   }
+  // FR-CLR-02: the Student uploads the evidence first. The row links to that scan.
+  const [evidence] = await ctx.db
+    .select({ id: documentRecord.id })
+    .from(documentRecord)
+    .where(
+      and(
+        eq(documentRecord.milestoneInstanceId, m.id),
+        eq(documentRecord.formCode, EVIDENCE_FORM[input.kind]),
+        notInArray(documentRecord.state, ["not_started", "prepared"]),
+      ),
+    );
+  if (!evidence) throw new InputProblem("The Student has not uploaded the evidence for this item yet (FR-CLR-02).");
   await ctx.db.transaction(async (tx) => {
     const done = await tx
       .insert(clearanceItem)
-      .values({ milestoneInstanceId: m.id, kind: input.kind, verifiedByUserId: ctx.actor.userId })
+      .values({ milestoneInstanceId: m.id, kind: input.kind, evidenceDocumentId: evidence.id, verifiedByUserId: ctx.actor.userId })
       .onConflictDoNothing()
       .returning({ id: clearanceItem.id });
     if (done.length === 0) throw new InputProblem("This item is already verified.");
