@@ -823,12 +823,12 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [x] Posting follows AD-A-019. A Panel Member needs the verified forms. A stranger has no access.
 - **Tests:** unit (Vitest with PGlite)
 
-### P1-E06-T03 — Screens S2, A2 and P2
+### P1-E06-T03 — Screens S2, A2 and P2 (AD-A-024)
 - **Goal:** The split screen with the PDF viewer and the thread panel, for the Student, the Adviser and the Panel Member.
 - **Covers:** FR-REV-03, BR-18
 - **Depends on:** T01, T02, P0-E04 (signed links), the shared UI parts (P1-E14)
 - **Done when:**
-  - [ ] Each action calls the T01 and T02 functions through a server action and shows the refusal reason.
+  - [x] Each action calls the T01 and T02 functions through a server action and shows the refusal reason.
 - **Tests:** typecheck, build
 
 ### 3.12 P1-E08 Consultations and availability (Track A, `agent-a`, §8 Phase 1 step 6)
