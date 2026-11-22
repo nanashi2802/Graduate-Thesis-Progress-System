@@ -1,5 +1,6 @@
 // The Defense Day page for the Adviser (A5) and the Panel Member (P4): the own evaluation sheet, the verdict and the
 // held step (FR-DEF-05 to FR-DEF-07, BR-10, BR-17, BR-18, INV-14, INV-15). The sheet opens at the scheduled start.
+import Link from "next/link";
 import { ActionForm, areaClass, Field, inputClass } from "@/app/_components/action-form";
 import { ScoreSheet } from "@/app/_components/score-sheet";
 import { pst } from "@/app/_lib/format";
@@ -54,6 +55,17 @@ export async function DefenseDay({ attemptId }: { attemptId: string }) {
         </p>
         <p className="text-sm text-muted-foreground">{FORM_NAME[form]}. Encode your own sheet and sign the paper. You can edit until the Coordinator verifies it.</p>
       </header>
+
+      {milestone.code === "final" && page.prId ? (
+        <nav aria-label="Defense Day tabs" className="flex gap-4 border-b border-border pb-2 text-sm">
+          <span aria-current="page" className="font-semibold">
+            My evaluation
+          </span>
+          <Link href={`/panel/pr/${page.prId}`} className="text-primary underline-offset-4 hover:underline">
+            Manuscript and comments
+          </Link>
+        </nav>
+      ) : null}
 
       <section aria-labelledby="sheet" className="flex flex-col gap-3">
         <h2 id="sheet" className="text-lg font-semibold">
