@@ -228,6 +228,36 @@ export async function transitionMilestone(
   return to === "RETURNED" ? "DRAFT" : to;
 }
 
+// FR-WFL-09: a Disapproved verdict sends the milestone from DEFENSE_HELD back to DRAFT. The system makes the
+// step, in the transaction of the action that held the defense. Like a Return, it unlocks the manuscript,
+// clears the Ready mark and starts a new Gate 1b round (AD-A-018, AD-A-021). The reason stays for the Student.
+export async function disapproveToDraft(ctx: DataContext, milestoneId: string): Promise<void> {
+  const mctx = await loadAllowed(ctx, milestoneId);
+  const facts = await loadMilestoneFacts(ctx.db, mctx);
+  const decision = decideTransition(mctx.code, mctx.milestone.status, "DRAFT", { kind: "system" }, facts);
+  if (!decision.ok) throw new TransitionRefused(decision.reason, decision.code);
+  const reason = "Disapproved at the defense.";
+  await ctx.db.transaction(async (tx) => {
+    await applyStatus(tx, ctx, mctx, "DRAFT", { returnReason: reason });
+    await tx.insert(gateAction).values({
+      milestoneInstanceId: milestoneId,
+      gate: "stage_close",
+      result: "returned",
+      actorUserId: ctx.actor.userId,
+      actorRole: ctx.actor.role,
+      commitId: mctx.pr?.readyCommitId ?? null,
+      reason,
+    });
+    if (mctx.pr) await tx.update(submissionPr).set({ lockedAt: null, readyCommitId: null }).where(eq(submissionPr.id, mctx.pr.id));
+    await recordAudit({ db: tx, actor: ctx.actor }, {
+      action: "milestone.status",
+      targetTable: "milestone_instance",
+      targetId: milestoneId,
+      detail: { from: "DEFENSE_HELD", to: "DRAFT" },
+    });
+  });
+}
+
 const GATE_1B_FROM: MilestoneStatus[] = ["COMMITTEE_APPOINTED", "ADVISER_ENDORSED"];
 
 // Gate 1b: the Adviser or one accepted Panel Member endorses the Ready commit (FR-WFL-04, INV-21).

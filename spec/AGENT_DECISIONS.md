@@ -301,3 +301,17 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** The second option. `spec/BUILD_PLAN.md` §3.6 puts `email_log` and `notification_preference` in P2-E04, and migrations belong to `agent-a`. `notifyEvent` writes the `notification` rows first (INV-30), then sends each immediate email through an `EmailPort` parameter, as AD-B-019 does for files. It catches each failure and returns `sent`, `failed` or `skipped` for each recipient. P2-E04 writes one `email_log` row from each result. The turned-off set is a parameter until the preference table exists. Reminders and digests get no email here (FR-NTF-04, FR-NTF-06). The caller turns the recipient tokens of the catalog into user IDs, because that needs the thesis context of each event.
 - **Risk:** low. Until P2-E04, a failed email leaves no log row. The result tells the caller, and the notification row stays.
 - **Undo:** revert the commits with AD-B-020.
+
+### AD-A-021 — Defense: one open attempt, nested transactions, substitutes, and the Disapproved step
+- **Task:** P1-E09-T01 to T04
+- **Options:** a new `defense_attempt` row for each proposal; reuse the open `proposed` attempt after a Return. Force the proposed date into the common free time (FR-SCH-08); show the free time only. The status change as a separate call after the attempt write; the attempt write and the status change in one transaction
+- **Decision and reason:**
+  - One open attempt: a Return leaves the attempt `proposed`, and the next proposal changes its date. A new attempt starts only after a held defense (Disapproved, FR-DEF-12).
+  - The date is checked against Gate 1b (INV-12) and not against the common free time. Availability slots can be sparse, and the Coordinator confirms the date anyway (FR-DEF-03).
+  - Each action writes the attempt row and calls `transitionMilestone` inside one transaction. A refusal rolls the attempt write back. This uses a nested transaction (a savepoint). It works on PGlite (tests). The Neon WebSocket pool also supports savepoints.
+  - The expected sheets use `expectedEvaluators` of agent-b (AD-B-016): the Adviser except at the Final, each accepted member, a substitute in place of the absent member. `milestone-facts.ts` reads it, so INV-16 and the sheet form agree.
+  - A mismatch of a signed sheet keeps the sheet open (BR-12): the member corrects it, the Coordinator uploads a new scan. A matched sheet locks (INV-14).
+  - A Disapproved verdict: `markDefenseHeld` moves to DEFENSE_HELD, then the system step to DRAFT with a `returned` gate row `stage_close`, the manuscript unlocked, the Ready mark cleared and the reason "Disapproved at the defense." (FR-WFL-09, like AD-A-018).
+  - Minutes are issued once (BR-19). The Student sees verdict, sheets and Minutes only when every expected sheet is verified (BR-11).
+- **Risk:** medium. The nested transaction needs a check on the Neon pool in the end-to-end test (P1-E13). Printed copies (FR-DEF-04, `printed_copy_receipt`) are not in this task. The P1-E07 documents or a later task own them.
+- **Undo:** revert the commits with AD-A-021.
