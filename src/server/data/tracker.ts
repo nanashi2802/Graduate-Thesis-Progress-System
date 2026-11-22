@@ -116,6 +116,7 @@ export async function studentTracker(ctx: DataContext, now: Date = new Date()): 
       returnReason: current.returnReason,
       minNoticeDays: facts.minNoticeDays,
       defenseDate,
+      dataGatheringApproved: current.dataGatheringApprovedAt !== null,
     }),
     checklist,
     outside,

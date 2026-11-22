@@ -15,7 +15,11 @@ export type NextAction = {
   action: string | null;
 };
 
-export type NextActionFacts = Pick<MilestoneFacts, "returnReason" | "minNoticeDays"> & { defenseDate: PstDate | null };
+export type NextActionFacts = Pick<MilestoneFacts, "returnReason" | "minNoticeDays"> & {
+  defenseDate: PstDate | null;
+  /** The Adviser approved data gathering after the Certification (FR-WFL-11). */
+  dataGatheringApproved?: boolean;
+};
 
 const wait = (actor: NextActor, text: string): NextAction => ({ actor, text, action: null });
 const act = (text: string, action: string): NextAction => ({ actor: "student", text, action });
@@ -53,7 +57,9 @@ export function nextAction(m: MilestoneCode, status: MilestoneStatus, f: NextAct
       if (m === "final") return act("Upload the signed final manuscript.", "Open documents");
       return act("Finish the revision items for your Panel Members to accept.", "Open the manuscript");
     case "CERTIFIED":
-      return wait("none", "Your Proposal is certified. The next milestone is open.");
+      return f.dataGatheringApproved
+        ? wait("none", "Your Proposal is certified. Data gathering is approved.")
+        : wait("adviser", "Your Proposal is certified. Your Adviser approves the start of data gathering.");
     case "FINAL_APPROVED":
       return act("Finish your clearance items.", "Open clearance");
     case "CLEARED":
