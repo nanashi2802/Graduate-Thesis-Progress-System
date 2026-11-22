@@ -22,7 +22,7 @@ import { recordAudit } from "./audit";
 import { InputProblem, requireCoordinator } from "./coordinator";
 import type { FilePort } from "./documents";
 import { expectedEvaluatorsFor, loadMilestoneContext, type MilestoneContext } from "./milestone-facts";
-import { checkTransition, disapproveToDraft, transitionMilestone } from "./milestones";
+import { checkTransition, disapproveToDraft, openMilestone, transitionMilestone } from "./milestones";
 import {
   committeeMember,
   defenseAttempt,
@@ -357,12 +357,14 @@ export async function issueMinutes(ctx: DataContext, attemptId: string, body: st
 /** FR-DEF-10, INV-16: the Coordinator closes the defense. The rule table checks the sheets, the Minutes and the documents. */
 export async function closeDefense(ctx: DataContext, milestoneId: string, now: Date = new Date()): Promise<void> {
   requireCoordinator(ctx, "closes a defense");
-  await loadMilestone(ctx, milestoneId);
+  const mctx = await loadMilestone(ctx, milestoneId);
   await ctx.db.transaction(async (tx) => {
     const a = await latestAttempt(tx, milestoneId);
     if (!a) throw new InputProblem("The defense has no attempt.");
     await transitionMilestone({ db: tx, actor: ctx.actor }, milestoneId, "CLOSED");
     await tx.update(defenseAttempt).set({ status: "closed", closedAt: now }).where(eq(defenseAttempt.id, a.id));
+    // FR-WFL-01: Milestone 3 opens when Milestone 2 is CLOSED.
+    if (mctx.code === "pre_final") await openMilestone({ db: tx, actor: ctx.actor }, mctx.thesis.id, "final");
   });
 }
 

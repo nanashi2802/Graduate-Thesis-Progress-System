@@ -35,6 +35,7 @@ import {
   type GateResultValue,
 } from "./schema";
 import { requireThesisRead } from "./scope";
+import { latestVersionId } from "./templates";
 
 // A refused change. The screen shows `message` as it is (BR-18).
 export class TransitionRefused extends InputProblem {
@@ -256,6 +257,21 @@ export async function disapproveToDraft(ctx: DataContext, milestoneId: string): 
       detail: { from: "DEFENSE_HELD", to: "DRAFT" },
     });
   });
+}
+
+// FR-WFL-01: Milestone 2 opens when Milestone 1 is CERTIFIED and the Adviser approved data gathering. Milestone 3 opens
+// when Milestone 2 is CLOSED. The new milestone uses the newest template version (FR-TPL-04). It is DRAFT. Safe to repeat.
+export async function openMilestone(ctx: DataContext, thesisId: string, code: "pre_final" | "final"): Promise<void> {
+  requireActive(ctx.actor);
+  const versionId = await latestVersionId(ctx.db, code);
+  const made = await ctx.db
+    .insert(milestoneInstance)
+    .values({ thesisInstanceId: thesisId, templateVersionId: versionId, milestoneCode: code })
+    .onConflictDoNothing()
+    .returning({ id: milestoneInstance.id });
+  if (made.length > 0) {
+    await recordAudit(ctx, { action: "milestone.open", targetTable: "milestone_instance", targetId: made[0]!.id, detail: { code } });
+  }
 }
 
 const GATE_1B_FROM: MilestoneStatus[] = ["COMMITTEE_APPOINTED", "ADVISER_ENDORSED"];

@@ -1043,6 +1043,15 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [ ] `agent-b` mounts `RevisionItemsForm` on C6.
 - **Tests:** typecheck, build
 
+### P2-E05-T01 — Milestone 2 flow test (Track A lead, AD-A-027)
+- **Goal:** The Student of the Milestone 1 flow goes through the Pre-Final Defense with every role, and the close opens Milestone 3.
+- **Covers:** the exit test of Phase 2, FR-WFL-01, FR-WFL-03, FR-CMT-01, FR-DEF-02, FR-DEF-05, FR-DOC-08, FR-REV-13, INV-20
+- **Changes:** `tests/unit/flow/milestone2.test.ts`, `tests/support/flow.ts` (the Milestone 1 flow, shared), `src/server/data/milestones.ts` (`openMilestone`)
+- **Done when:**
+  - [x] The flow runs on the real migrations. Gate 1a waits for IPMO PASSED. No new appointment. A score on TDW 10 is refused. The close opens Milestone 3. Revision items are answered and accepted after the close.
+  - [ ] The same flow runs in a browser (blocked, AD-A-025).
+- **Tests:** unit (Vitest with PGlite)
+
 ---
 
 ## 5. Phase 3 — Milestone 3 and clearance
