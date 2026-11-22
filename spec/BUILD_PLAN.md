@@ -372,7 +372,7 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 - **Covers:** AS-13, R12, R13, NFR-12, NFR-13
 - **Depends on:** P0-E04 merged into `dev`
 - **Done when:**
-  - [ ] A known number of MB is downloaded from `thesis-files` under the `agent-b/` prefix, and the Neon usage before and after is recorded.
+  - [x] A known number of MB is downloaded from `thesis-files` under the `agent-b/` prefix, and the Neon usage before and after is recorded. (100 MB on 22 Nov 2026, `spec/spikes/transfer_test.mjs`, results in `spec/spikes/P0-report.md` §3)
 - **Tests:** manual check
 
 ### P0-E06-T03 — Spike report
@@ -380,7 +380,7 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 - **Covers:** AS-11, AS-12, AS-13, R12, R13
 - **Depends on:** T01, T02, P0-E05-T05
 - **Done when:**
-  - [ ] The report exists and each item has an answer or a stated open point for the human.
+  - [x] The report exists and each item has an answer or a stated open point for the human.
 - **Tests:** review by `agent-a` (§8 step 4)
 
 ## 3. Phase 1 — Foundation and Milestone 1
@@ -528,7 +528,33 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Done when:**
   - [x] A test covers the list of each milestone.
 
-### 3.5 P1-E01 Schema from the ERD (Track A, `agent-a`, done 22 Nov 2026)
+### 3.5 P1-E12 Audit records and in-app notifications (Track B, `agent-b`)
+
+**Decisions:** AD-B-014. The audit insert itself is in P1-E02 (`agent-a`). T01 is pure code. T02 and T03 wait for P1-E02.
+
+### P1-E12-T01 — Event catalog and email rules (pure)
+- **Goal:** One catalog gives the fixed text, the recipients and the delivery of each of the 24 events, and the preference rule.
+- **Covers:** FR-NTF-01 to FR-NTF-05, INV-29, BR-15
+- **Changes:** `src/server/notify/events.ts`, `tests/unit/notify-events.test.ts`
+- **Done when:**
+  - [x] The 24 events of FR §4.10 exist, with reminders and digests marked.
+  - [x] Only A4, B1, B2, B4, B6, B7 and C2 to C5 can be turned off (INV-29).
+  - [x] No text holds a verdict, score or link (FR-NTF-03).
+- **Tests:** unit (Vitest)
+
+### P1-E12-T02 — Notification rows and the notification center (NC)
+- **Goal:** Each event writes one `notification` row for each recipient, then tries the email and logs it (INV-30, FR-NTF-07). The user sees read and unread states.
+- **Covers:** FR-NTF-01, FR-NTF-07, NFR-05, INV-30
+- **Depends on:** T01, P1-E02
+- **Done when:** `[ ]` A failed email leaves the `notification` row and an `email_log` row with the failure.
+
+### P1-E12-T03 — Audit records for each event (FR-RPT-01)
+- **Goal:** Each event in FR-RPT-01 writes one `audit_record` through the P1-E02 insert.
+- **Covers:** FR-RPT-01, NFR-03, INV-08
+- **Depends on:** P1-E02
+- **Done when:** `[ ]` A test for each event kind shows its audit record with actor, role, time and target.
+
+### 3.6 P1-E01 Schema from the ERD (Track A, `agent-a`, done 22 Nov 2026)
 
 **Decisions in this epic:** AD-A-011 (start Phase 1 before the §1 gates), AD-A-012 (Phase 1 table set, triggers in a custom migration).
 **Scope:** every ERD §4.1 table that Phase 1 uses. Later tables come with their epics: `outside_status_event` (P2-E01), `email_template`, `email_log`, `notification_preference` (P2-E04), `clearance_item` (P3-E04), `saved_filter` (Phase 4).
@@ -593,6 +619,25 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 | P2-E03 | Revision items (Proposal and Pre-Final) | FR-REV-13, INV-21 |
 | P2-E04 | Event emails, digests and preferences | FR-NTF-02 to 09, NFR-05, INV-28 to INV-30 |
 | P2-E05 | Milestone 2 end-to-end test | Exit test |
+
+### 4.1 P2-E04 look-ahead (Track B, `agent-b`)
+
+### P2-E04-T01 — Reminder rules (pure)
+- **Goal:** Give the reminders due today for one thesis, from its dates (A4, B1, B2, B6).
+- **Covers:** FR-NTF-06, FR §3 reminder parameters, BR-09, NFR-11. **Decision:** AD-B-015.
+- **Changes:** `src/server/notify/reminders.ts`, `tests/unit/notify-reminders.test.ts`
+- **Done when:**
+  - [x] Each rule has a test on its day and on the days next to it.
+  - [x] B2 stays off with no target date (G24).
+- **Tests:** unit (Vitest)
+
+### P2-E04-T02 — Digest grouping (pure)
+- **Goal:** Group C2 to C5 into one email for each recipient and commit, and B4 and B7 into one daily email. Hold the Student's Defense Day thread emails until the defense closes.
+- **Covers:** FR-NTF-04, INV-23, BR-20
+- **Changes:** `src/server/notify/digest.ts`, `tests/unit/notify-digest.test.ts`
+- **Done when:**
+  - [x] Tests cover both group kinds and the held Defense Day items.
+- **Tests:** unit (Vitest)
 
 ---
 
