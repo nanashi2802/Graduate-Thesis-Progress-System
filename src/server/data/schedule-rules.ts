@@ -1,4 +1,5 @@
 // Pure rules for slots (FR-SCH-01, FR-SCH-07, FR-SCH-08, AD-A-020). No database, no framework.
+import "server-only";
 export type Interval = { start: Date; end: Date };
 
 export type SlotInput = {
