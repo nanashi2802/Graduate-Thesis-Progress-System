@@ -685,7 +685,10 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Goal:** The end-to-end test signs in as each seeded role with a saved session.
 - **Covers:** FR-ACC-01, FR-ACC-02, P1-E13 exit test
 - **Depends on:** T01, P1-E03
-- **Done when:** `[ ]` A Playwright setup project saves one session for each role, and a test opens each portal home.
+- **Changes:** `playwright.config.ts` (projects `setup`, `chromium`, `portals`), `tests/e2e/auth.setup.ts`, `tests/e2e/roles.ts`, `tests/e2e/portals.spec.ts`, `.gitignore` (`tests/e2e/.auth/`)
+- **Done when:**
+  - [x] A Playwright setup project saves one session for each role, and a test opens each portal home and sees Access Denied on another portal. Without `DEV_SEED_PASSWORD` and `NEON_AUTH_BASE_URL` both skip, as `sign-in.spec.ts` does.
+  - [ ] A local run passes. `agent-b` has no `DEV_SEED_PASSWORD` in `.env.local`, so the run is not verified yet. Run `pnpm db:seed-dev`, set the password, then `pnpm test:e2e`.
 
 ### 3.9 P1-E03 Accounts, users and templates (Track A, `agent-a`, done 22 Nov 2026)
 

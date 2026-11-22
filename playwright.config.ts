@@ -16,7 +16,12 @@ export default defineConfig({
     baseURL: `http://localhost:${PORT}`,
     trace: "on-first-retry",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    // The setup project saves one session for each role (P1-E13-T02).
+    { name: "setup", testMatch: /auth\.setup\.ts/ },
+    { name: "chromium", testIgnore: [/auth\.setup\.ts/, /portals\.spec\.ts/], use: { ...devices["Desktop Chrome"] } },
+    { name: "portals", testMatch: /portals\.spec\.ts/, dependencies: ["setup"], use: { ...devices["Desktop Chrome"] } },
+  ],
   webServer: {
     command: "pnpm build && pnpm start",
     url: `http://localhost:${PORT}`,
