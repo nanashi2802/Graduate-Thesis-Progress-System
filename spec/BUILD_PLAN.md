@@ -1117,6 +1117,15 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [x] S6 shows the seven items. C7 verifies the three Coordinator items and closes to CLEARED. A blocked action shows its reason (BR-18).
 - **Tests:** typecheck, lint, unit (the data rules have tests from T01 and T02)
 
+### P3-E06-T01 - Milestone 3 flow test (Track A lead, AD-A-031)
+- **Goal:** The Student of the Milestone 2 flow goes through the Final Defense and clearance with every role, to CLEARED.
+- **Covers:** the exit test of Phase 3, FR-CMT-01, FR-DEF-05, FR-DEF-06, FR-REV-12, FR-WFL-07, FR-CLR-01 to 04, BR-20, BR-21, INV-21, INV-22, INV-34
+- **Changes:** `tests/unit/flow/milestone3.test.ts`, `tests/support/flow.ts` (`runMilestone2`, shared), `src/server/data/milestones.ts` (`acceptedPreFinalItems`)
+- **Done when:**
+  - [x] The flow runs on the real migrations: Final Panel, TDW 11 and 12, Defense Day thread, TDW 13 sheets, Gate 2, signed final manuscript, clearance evidence, CLEARED. A wrong role, a missing item and an open thread are each refused on the way.
+  - [ ] The same flow runs in a browser (blocked, AD-A-025).
+- **Tests:** unit (Vitest with PGlite)
+
 ---
 
 ## 6. Phase 4 — Enhancements (chosen by value)
