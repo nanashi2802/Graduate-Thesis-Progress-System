@@ -4,6 +4,7 @@ import Link from "next/link";
 import { AccessDenied } from "@/app/_components/access-denied";
 import { CommitUploader } from "@/app/_components/commit-uploader";
 import { PdfPane } from "@/app/_components/pdf-pane";
+import { RevisionPanel } from "@/app/_components/revision-panel";
 import { EndorseButton, NewThreadForm, ReadyButton, ReplyForm, ResolveButton, ReturnForm } from "@/app/_components/workspace-controls";
 import { EmptyState } from "@/components/empty-state";
 import { LockedBanner } from "@/components/banners";
@@ -14,6 +15,7 @@ import { InputProblem } from "@/server/data/coordinator";
 import { getDb } from "@/server/data/db";
 import { threadPostBlock, workspaceFor } from "@/server/data/manuscript";
 import { checkTransition, gate1bBlock } from "@/server/data/milestones";
+import { listAttempts } from "@/server/data/defense";
 
 const MILESTONE_NAME = { proposal: "Proposal", pre_final: "Pre-Final", final: "Final" } as const;
 const CONTEXT_LABEL = { iteration: "Adviser review", committee_review: "Committee review", defense_day: "Defense Day" } as const;
@@ -68,6 +70,9 @@ export async function PrWorkspace({ prId, commit }: { prId: string; commit?: str
   if ((role === "adviser" || role === "panel_member") && gate1bOpen) gate1bReason = (await gate1bBlock(ctx, milestone.id)) ?? undefined;
   const postBlock = role === "adviser" || role === "panel_member" ? ((await threadPostBlock(ctx, milestone.id)) ?? undefined) : undefined;
   const canUpload = role === "student" && !locked && status !== "READY";
+  // FR-REV-13: the revision items of the latest held attempt, at Proposal and Pre-Final.
+  const attempts = milestone.milestoneCode === "final" ? [] : await listAttempts(ctx, milestone.id);
+  const itemsAttempt = [...attempts].reverse().find((a) => a.attempt.status === "held" || a.attempt.status === "closed");
   const openOwn = threads.filter((t) => t.thread.state === "OPEN").map((t) => ({ id: t.thread.id, label: `v${t.commitOrdinal}: ${t.thread.body.slice(0, 80)}` }));
 
   return (
@@ -168,6 +173,7 @@ export async function PrWorkspace({ prId, commit }: { prId: string; commit?: str
           )}
         </section>
       </div>
+      {itemsAttempt ? <RevisionPanel ctx={ctx} attemptId={itemsAttempt.attempt.id} commits={commits.map((c) => ({ id: c.id, ordinal: c.ordinal }))} /> : null}
     </main>
   );
 }
