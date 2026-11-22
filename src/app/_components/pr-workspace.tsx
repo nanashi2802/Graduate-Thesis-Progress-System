@@ -18,6 +18,8 @@ import { checkTransition, gate1bBlock } from "@/server/data/milestones";
 const MILESTONE_NAME = { proposal: "Proposal", pre_final: "Pre-Final", final: "Final" } as const;
 const CONTEXT_LABEL = { iteration: "Adviser review", committee_review: "Committee review", defense_day: "Defense Day" } as const;
 
+const ROLE_LABEL = { student: "Student", adviser: "Adviser", panel_member: "Panel Member", coordinator: "Coordinator" } as const;
+
 const when = (d: Date) => d.toLocaleString("en-PH", { timeZone: "Asia/Manila", dateStyle: "medium", timeStyle: "short" });
 
 export async function PrWorkspace({ prId, commit }: { prId: string; commit?: string }) {
@@ -30,7 +32,17 @@ export async function PrWorkspace({ prId, commit }: { prId: string; commit?: str
   try {
     ws = await workspaceFor(ctx, prId);
   } catch (e) {
-    if (e instanceof AccessDeniedError) return <AccessDenied reason="You cannot open this manuscript. Panel Members need the verified appointment form and their own verified NDA." />;
+    if (e instanceof AccessDeniedError) {
+      return (
+        <AccessDenied
+          reason={
+            role === "panel_member"
+              ? "You cannot open this manuscript. Panel Members need the verified appointment form and their own verified NDA."
+              : "You cannot open this manuscript. It belongs to another thesis."
+          }
+        />
+      );
+    }
     if (e instanceof InputProblem) return <main className="mx-auto max-w-[960px] px-4 py-8"><EmptyState title="This manuscript was not found." detail="Go back to your dashboard and open it from there." /></main>;
     throw e;
   }
@@ -142,6 +154,7 @@ export async function PrWorkspace({ prId, commit }: { prId: string; commit?: str
                     <ul className="flex flex-col gap-1 border-l border-border pl-3">
                       {replies.map((r) => (
                         <li key={r.id} className="text-sm whitespace-pre-wrap">
+                          <span className="font-medium">{ROLE_LABEL[r.authorRole]}: </span>
                           {r.body}
                         </li>
                       ))}

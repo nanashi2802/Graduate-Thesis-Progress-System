@@ -11,6 +11,7 @@ import { recordAudit } from "./audit";
 import { InputProblem } from "./coordinator";
 import type { FilePort } from "./documents";
 import {
+  appUser,
   committee,
   committeeMember,
   critiqueThread,
@@ -20,6 +21,7 @@ import {
   threadAddressTag,
   threadReply,
   type MilestoneStatusValue,
+  type UserRole,
 } from "./schema";
 import { requireManuscriptRead, requireThesisRead } from "./scope";
 
@@ -322,7 +324,8 @@ export type ThreadView = {
   commitOrdinal: number;
   /** BR-06, FR-REV-05: an open thread on a commit that is not the newest. */
   outdated: boolean;
-  replies: (typeof threadReply.$inferSelect)[];
+  /** Each reply carries the role of its author, so the screen can name who replied. */
+  replies: ((typeof threadReply.$inferSelect) & { authorRole: UserRole })[];
   /** FR-REV-08: the commits that say they address this thread. */
   addressedByOrdinals: number[];
 };
@@ -345,12 +348,20 @@ export async function listThreads(ctx: DataContext, milestoneId: string): Promis
   if (threads.length === 0) return [];
   const ids = threads.map((t) => t.id);
   const replies = await ctx.db.select().from(threadReply).where(inArray(threadReply.critiqueThreadId, ids)).orderBy(asc(threadReply.ordinal));
+  const authors = new Map<string, UserRole>();
+  if (replies.length > 0) {
+    const users = await ctx.db
+      .select({ id: appUser.id, role: appUser.role })
+      .from(appUser)
+      .where(inArray(appUser.id, [...new Set(replies.map((r) => r.authorUserId))]));
+    for (const u of users) authors.set(u.id, u.role);
+  }
   const tags = await ctx.db.select().from(threadAddressTag).where(inArray(threadAddressTag.critiqueThreadId, ids));
   return threads.map((t) => ({
     thread: t,
     commitOrdinal: ordinalOf.get(t.commitId)!,
     outdated: t.state === "OPEN" && ordinalOf.get(t.commitId)! < newest,
-    replies: replies.filter((r) => r.critiqueThreadId === t.id),
+    replies: replies.filter((r) => r.critiqueThreadId === t.id).map((r) => ({ ...r, authorRole: authors.get(r.authorUserId)! })),
     addressedByOrdinals: tags.filter((g) => g.critiqueThreadId === t.id).map((g) => ordinalOf.get(g.commitId)!).sort((a, b) => a - b),
   }));
 }
