@@ -22,6 +22,7 @@ import { recordAudit } from "./audit";
 import { InputProblem } from "./coordinator";
 import { lastReturnGateId, loadMilestoneContext, loadMilestoneFacts, type MilestoneContext } from "./milestone-facts";
 import {
+  committee,
   committeeMember,
   critiqueThread,
   defenseAttempt,
@@ -87,7 +88,16 @@ async function ownOpenThreads(db: Tx, prId: string | undefined, userId: string):
 }
 
 // INV-21: in Milestone 3 the member accepted every Pre-Final revision item.
-async function acceptedPreFinalItems(db: Tx, thesisId: string, userId: string): Promise<boolean> {
+// A Final Panel member with no seat on the Evaluation Committee could not accept them, so the rule skips that member (AD-A-031).
+async function acceptedPreFinalItems(db: Tx, thesisId: string, userId: string, role: string): Promise<boolean> {
+  if (role === "panel_member") {
+    const seat = await db
+      .select({ id: committeeMember.id })
+      .from(committeeMember)
+      .innerJoin(committee, eq(committee.id, committeeMember.committeeId))
+      .where(and(eq(committee.thesisInstanceId, thesisId), eq(committee.kind, "evaluation_committee"), eq(committeeMember.status, "accepted"), eq(committeeMember.memberUserId, userId)));
+    if (seat.length === 0) return true;
+  }
   const [pre] = await db
     .select({ id: milestoneInstance.id })
     .from(milestoneInstance)
@@ -292,7 +302,7 @@ async function gate1bChecks(ctx: DataContext, mctx: MilestoneContext): Promise<{
   const gate = checkGate1b({
     milestone: mctx.code,
     ownOpenThreads: await ownOpenThreads(ctx.db, mctx.pr?.id, userId),
-    preFinalRevisionsAccepted: mctx.code === "final" ? await acceptedPreFinalItems(ctx.db, mctx.thesis.id, userId) : true,
+    preFinalRevisionsAccepted: mctx.code === "final" ? await acceptedPreFinalItems(ctx.db, mctx.thesis.id, userId, ctx.actor.role) : true,
   });
   if (!gate.ok) throw new TransitionRefused(gate.reason, gate.code);
   return { commitId, from };

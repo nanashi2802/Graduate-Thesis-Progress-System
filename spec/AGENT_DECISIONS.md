@@ -7,6 +7,11 @@
 
 (`agent-a` adds one summary at the end of each phase, newest first: the decisions made, the risky ones, and what the human must check.)
 
+### Phase 3 (Track A, 23 Nov 2026)
+- **Made:** AD-A-028 (Defense Day window), AD-A-029 and AD-A-030 (clearance), AD-A-031 (Gate 1b rule for a new Final Panel member). The Milestone 3 flow test runs from the open of Milestone 3 to CLEARED.
+- **Risky:** AD-A-029 (copyright must be REGISTERED before CLEARED, a Student with APPLIED copyright is blocked; confirm with the Coordinator).
+- **Human must check:** AD-A-031 skips INV-21 (FR-WFL-04, a Must) for a new Final Panel member; agent-r prefers that a new member marks the items accepted. The browser runs of all three flow tests still wait for a seeded sign-in (AD-A-025).
+
 ## Decisions
 
 Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `AD-B-nnn` for `agent-b`.
@@ -400,6 +405,13 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** AD-A-029 said a new form code was needed. The enum already has the three codes. Migration 0009 adds the three items to version 1 of the Final template. The Student uploads on the existing S3 screen. `verifyClearanceItem` now refuses until the Student has uploaded the scan, and links it in `evidence_document_id` (FR-CLR-02). The S6 and C7 clearance screens stay open as P3-E04-T03.
 - **Risk:** low. A Final template version other than 1 needs the three items added by the Coordinator in template editing. The Coordinator can no longer verify an item without a scan.
 - **Undo:** revert the commits with AD-A-030. Migration 0009 only inserts rows.
+
+### AD-A-031 — Gate 1b at the Final skips the Pre-Final revision rule for a new Final Panel member
+- **Task:** P3-E06 (found by the Milestone 3 flow test)
+- **Options:** keep INV-21 for every member; skip it for a Final Panel member who had no seat on the Evaluation Committee; let new members accept Pre-Final items.
+- **Decision and reason:** INV-21 asks each member to accept every Pre-Final revision item. Only the Evaluation Committee and the Adviser can accept them (`requireEndorser`). A new Final Panel member could never accept, so Gate 1b at the Final could never finish. `acceptedPreFinalItems` now returns true for a Panel Member with no Evaluation Committee seat. The Adviser and old members keep the rule.
+- **Risk:** medium. This skips FR-WFL-04 (a Must requirement) for a new member, who endorses without having read the Pre-Final items. The old members and the Adviser still accepted them.
+- **Undo:** revert the commits with AD-A-031.
 
 ### AD-B-024 — P3-E01 needs a test only: the Final reuses the appointment and sheet code
 - **Task:** P3-E01-T01
