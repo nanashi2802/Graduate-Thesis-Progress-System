@@ -622,6 +622,15 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [x] A user lists, counts and marks read only their own rows.
   - [ ] The failure is an `email_log` row. It waits for the `email_log` table in P2-E04.
 
+### P1-E12-T04 — App shell and notification center panel
+- **Goal:** Each portal has the app shell (navigation, top bar, user menu) and the notification center with read and unread states.
+- **Covers:** FR-NTF-01, NFR-04, NFR-01, BR-18. **Decision:** AD-B-023.
+- **Changes:** `src/components/app-shell.tsx`, `nav-links.tsx`, `notification-panel.tsx`, `src/app/_components/role-shell.tsx`, `src/app/_lib/notification-actions.ts`, the four portal layouts, `tests/unit/components/notification-panel.test.ts`
+- **Depends on:** P1-E12-T02
+- **Done when:**
+  - [x] Each portal shows the shell. The sidebar lists the routes that exist and marks the active one. The panel shows the unread count, the 10 newest rows, Mark read and Mark all read, and times in PST.
+  - [ ] Wiring: each event calls `notifyEvent` after it commits, from the checked data function. It waits for the recipient resolver and for the event list that `agent-a` agrees.
+
 ### P1-E12-T03 — Audit records for each event (FR-RPT-01)
 - **Goal:** Each event in FR-RPT-01 writes one `audit_record` through the P1-E02 insert.
 - **Covers:** FR-RPT-01, NFR-03, INV-08
