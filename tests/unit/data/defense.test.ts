@@ -25,6 +25,7 @@ import type { FilePort } from "@/server/data/documents";
 import { transitionMilestone } from "@/server/data/milestones";
 import { setOutsideStatus } from "@/server/data/outside";
 import * as s from "@/server/data/schema";
+import { pstDate } from "@/server/notify/time";
 import { makeThesisChain, makeUser } from "../../support/fixtures";
 import { makeTestDb } from "../../support/test-db";
 
@@ -44,7 +45,8 @@ const actorOf = (u: { id: string; role: s.UserRole }): Actor => ({ userId: u.id,
 const as = (u: { id: string; role: s.UserRole }): DataContext => ({ db, actor: actorOf(u) });
 const DAY = 86_400_000;
 const daysAgo = (n: number) => new Date(Date.now() - n * DAY);
-const isoDay = (n: number) => daysAgo(n).toISOString().slice(0, 10);
+// The app counts days in Philippine Standard Time (AGENTS.md §10), so the test must too. A UTC date is one day behind from 00:00 to 08:00 PHT.
+const isoDay = (n: number) => pstDate(daysAgo(n));
 // 02:00 UTC is 10:00 in Philippine Standard Time on the same date.
 const startOf = (iso: string) => new Date(`${iso}T02:00:00Z`);
 const PROPOSED = isoDay(10);

@@ -11,6 +11,9 @@ import * as s from "@/server/data/schema";
 import { makeThesisChain, makeUser } from "../../support/fixtures";
 import { makeTestDb } from "../../support/test-db";
 
+// A valid id that no row has. Changing a real id can give back the same id.
+const MISSING_ID = "00000000-0000-4000-8000-000000000000";
+
 let db: Db;
 let close: () => Promise<void>;
 beforeAll(async () => {
@@ -54,7 +57,7 @@ describe("Clearance checklist (FR-CLR-01 to 04)", () => {
   it("refuses a Panel Member without access and a milestone that is not Milestone 3", async () => {
     const w = await world();
     await expect(readClearance(as(await makeUser(db, "panel_member")), w.m3.id, true)).rejects.toBeInstanceOf(AccessDeniedError);
-    await expect(readClearance(as(w.student), w.m3.id.replace(/./, "0"), true)).rejects.toThrow();
+    await expect(readClearance(as(w.student), MISSING_ID, true)).rejects.toThrow();
     await expect(readClearance(as(w.student), w.milestone.id, true)).rejects.toThrow(/Milestone 3/);
   });
 
