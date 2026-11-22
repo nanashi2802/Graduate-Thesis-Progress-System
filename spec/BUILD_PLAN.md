@@ -1013,6 +1013,36 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Depends on:** T01, P1-E09
 - **Done when:** `[ ]` An end-to-end step at Pre-Final encodes a TDW 10 sheet, and the Coordinator verifies it.
 
+### 4.3 P2-E01 and P2-E03 (Track A, `agent-a`)
+
+**Decisions:** AD-A-017 (outside status table, done in P1-E04), AD-A-026 (revision items).
+
+### P2-E01-T01 — Outside status setters
+- **Goal:** The Coordinator sets Ethics, IPMO, RPO and Copyright. Every other role sees them read-only. In Milestone 2 Gate 1a waits for IPMO PASSED.
+- **Covers:** FR-WFL-03, FR-WFL-10, BR-14, INV-27
+- **Changes:** `src/server/data/outside.ts` (done), `src/app/_components/outside-setters.tsx`, `src/app/_lib/outside-actions.ts`
+- **Done when:**
+  - [x] The data layer and its tests are done (P1-E04, `tests/unit/data/milestones.test.ts`).
+  - [x] A component shows the chips and, for the Coordinator, a selector for each kind.
+  - [ ] `agent-b` mounts `OutsideSetters` on C4 (`/coordinator/documents`) and C7.
+- **Tests:** unit, typecheck, build
+
+### P2-E03-T01 — Revision items data
+- **Goal:** The Coordinator enters the items of the Minutes. The Student links each to a commit. The Adviser and each accepted Panel Member accept each item.
+- **Covers:** FR-REV-13, INV-21, BR-05, BR-11
+- **Changes:** `src/server/data/revisions.ts`, `tests/unit/data/revisions.test.ts`
+- **Done when:**
+  - [x] A test shows the entry rules, the link rule, the acceptance by each member, the guard of CERTIFIED and the Student view after verification.
+- **Tests:** unit (Vitest with PGlite)
+
+### P2-E03-T02 — Revision items on the screens
+- **Goal:** The PR workspace lists the items with Link commit and Accept. The Coordinator has an entry form.
+- **Changes:** `src/app/_components/revision-panel.tsx`, `src/app/_lib/revision-actions.ts`, `src/app/_components/pr-workspace.tsx`
+- **Done when:**
+  - [x] S2, A2 and P2 show the items of the latest held attempt (Proposal and Pre-Final).
+  - [ ] `agent-b` mounts `RevisionItemsForm` on C6.
+- **Tests:** typecheck, build
+
 ---
 
 ## 5. Phase 3 — Milestone 3 and clearance
