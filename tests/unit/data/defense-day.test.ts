@@ -3,6 +3,8 @@ import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { AccessDeniedError, type Actor, type DataContext } from "@/server/data/access";
 import type { Db } from "@/server/data/db";
+import { approveGate2, gate2Block, transitionMilestone } from "@/server/data/milestones";
+import { setOutsideStatus } from "@/server/data/outside";
 import { listThreads, postThread, replyToThread, resolveThread, threadPostBlock } from "@/server/data/manuscript";
 import * as s from "@/server/data/schema";
 import { makeThesisChain, makeUser, SHA } from "../../support/fixtures";
@@ -103,5 +105,42 @@ describe("Defense Day threads (FR-REV-12, FR-REV-15, BR-20)", () => {
     await db.insert(s.gateAction).values({ milestoneInstanceId: w.m3.id, gate: "gate_2", result: "approved", actorUserId: w.member.id, actorRole: "panel_member" });
     expect(await threadPostBlock(as(w.member), w.m3.id)).toMatch(/approved Gate 2/);
     expect(await threadPostBlock(as(w.chair), w.m3.id)).toBeNull();
+  });
+});
+
+describe("Gate 2 and FINAL_APPROVED (FR-WFL-07, BR-20, INV-22, INV-34)", () => {
+  it("needs IPMO PASSED, RPO DONE and no open thread of the member, and names the approved commit", async () => {
+    const w = await finalWorld(-1);
+    await setStatus(w.m3.id, "CLOSED");
+    expect(await gate2Block(as(w.member), w.m3.id)).toMatch(/clearance item is incomplete/);
+    await expect(approveGate2(as(w.member), w.m3.id)).rejects.toMatchObject({ code: "clearance_incomplete" });
+    for (const [kind, value] of [["ipmo", "PASSED"], ["rpo", "DONE"]] as const) await setOutsideStatus(as(w.coordinator), w.m3.id, kind, value);
+    const { threadId } = await postThread(as(w.member), { commitId: w.commit.id, body: "One more point." });
+    expect(await gate2Block(as(w.member), w.m3.id)).toMatch(/open threads/);
+    await resolveThread(as(w.member), threadId);
+    expect(await gate2Block(as(w.member), w.m3.id)).toBeNull();
+    expect(await gate2Block(as(w.student), w.m3.id)).toMatch(/Final Panel/);
+    await approveGate2(as(w.member), w.m3.id);
+    expect(await gate2Block(as(w.member), w.m3.id)).toMatch(/already approved/);
+    await expect(approveGate2(as(w.member), w.m3.id)).rejects.toMatchObject({ code: "gate_done" });
+    const [row] = await db.select().from(s.gateAction).where(eq(s.gateAction.milestoneInstanceId, w.m3.id));
+    expect(row).toMatchObject({ result: "approved", actorUserId: w.member.id, commitId: w.commit.id });
+  });
+
+  it("lets the Coordinator record FINAL_APPROVED only after every member approved and the signed manuscript is verified", async () => {
+    const w = await finalWorld(-1);
+    await setStatus(w.m3.id, "CLOSED");
+    for (const [kind, value] of [["ipmo", "PASSED"], ["rpo", "DONE"]] as const) await setOutsideStatus(as(w.coordinator), w.m3.id, kind, value);
+    await expect(transitionMilestone(as(w.coordinator), w.m3.id, "FINAL_APPROVED")).rejects.toMatchObject({ code: "gate_2_incomplete" });
+    await approveGate2(as(w.member), w.m3.id);
+    await expect(transitionMilestone(as(w.coordinator), w.m3.id, "FINAL_APPROVED")).rejects.toMatchObject({ code: "gate_2_incomplete" });
+    await approveGate2(as(w.chair), w.m3.id);
+    await expect(transitionMilestone(as(w.coordinator), w.m3.id, "FINAL_APPROVED")).rejects.toMatchObject({ code: "signed_final_missing" });
+    const [item] = await db.select().from(s.templateRequiredItem).where(eq(s.templateRequiredItem.formCode, "SIGNED_FINAL_MANUSCRIPT"));
+    await db.insert(s.documentRecord).values({ milestoneInstanceId: w.m3.id, templateRequiredItemId: item!.id, formCode: "SIGNED_FINAL_MANUSCRIPT", linkedCommitId: w.commit.id, state: "verified" });
+    await expect(transitionMilestone(as(w.adviser), w.m3.id, "FINAL_APPROVED")).rejects.toMatchObject({ code: "wrong_actor" });
+    await transitionMilestone(as(w.coordinator), w.m3.id, "FINAL_APPROVED");
+    const [m] = await db.select().from(s.milestoneInstance).where(eq(s.milestoneInstance.id, w.m3.id));
+    expect(m!.status).toBe("FINAL_APPROVED");
   });
 });
