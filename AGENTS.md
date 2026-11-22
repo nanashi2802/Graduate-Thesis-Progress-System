@@ -180,7 +180,7 @@ CI (`.github/workflows/ci.yml`) runs lint, type check, unit tests, the build and
 
 **When it is on:** a run that `scripts/agents-run.sh` starts, with a prompt from `docs/agents/`. Every other session uses the normal rules.
 **Goal:** two builder agents and one reviewer agent build `spec/BUILD_PLAN.md` from P0-E02 to the end of Phase 3 with no input from the human. The human reviews the decision log and `dev` later.
-**Runner:** `scripts/agents.sh start` starts `scripts/agents-run.sh`. The runner is a shell loop. It checks GitHub with `gh`, which costs no usage. It starts a Claude run (`claude -p`) only when there is work. Each run does one unit of work in a fresh context, then ends. The runner merges green pull requests itself. Default: one builder at a time, Sonnet at medium effort for all roles. The settings are at the top of `scripts/agents-run.sh`.
+**Runner:** `scripts/agents.sh start` starts `scripts/agents-run.sh`. The runner is a shell loop. It checks GitHub with `gh`, which costs no usage. It starts a Claude run (`claude -p`) only when there is work. Each run does one unit of work in a fresh context, then ends. The runner merges green pull requests itself. Default: one builder at a time. Builders use Sonnet at medium effort. The reviewer uses Opus at high effort. The settings are at the top of `scripts/agents-run.sh`.
 
 ### 13.1 Agents and branches
 

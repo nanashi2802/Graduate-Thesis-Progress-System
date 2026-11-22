@@ -5,5 +5,6 @@ scripts/agents-run.sh started this run. It gives you one unit of work (the line 
 - "resume": finish the task of your draft pull request, then mark it ready.
 - "fix": fix the findings, the failed check or the merge conflict, then push.
 End when the pull request is ready, or when the task is blocked (§13.5). Do not wait for a review, a check, a merge or agent-a. Do not schedule a wakeup. Do not start a second task.
+Write the smallest correct change: use the ponytail skill (full). AGENTS.md wins over the skill: never drop an access check, a test the rules require, an audit insert or a BR-18 reason to make code shorter.
 The human will not answer. Do not ask the human. Where the normal rules say ask, decide and log the decision (§13.3).
 End your last message with exactly one of these lines: "RESULT: ready", "RESULT: blocked" or "RESULT: phase-complete" (only when Track B has no task left before the end of Phase 3).

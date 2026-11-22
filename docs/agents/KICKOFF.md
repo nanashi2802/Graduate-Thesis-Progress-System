@@ -27,7 +27,7 @@ Each Claude run does one unit of work in a fresh context, then ends. When there 
 | Read the output of one run | `.claude/agent-runs/<time>-<agent>.log` |
 | See what each builder works on | `gh pr list --base dev` |
 | Run both tracks at once (uses more of the limit) | `AGENT_BUILDERS=2 scripts/agents.sh start` |
-| Change a model or effort | `AGENT_BUILDER_MODEL`, `AGENT_BUILDER_EFFORT`, `AGENT_REVIEW_MODEL`, `AGENT_REVIEW_EFFORT` (defaults: `sonnet`, `medium`) |
+| Change a model or effort | `AGENT_BUILDER_MODEL`, `AGENT_BUILDER_EFFORT`, `AGENT_REVIEW_MODEL`, `AGENT_REVIEW_EFFORT` (defaults: builders `sonnet`, `medium`. Reviewer `opus`, `high`) |
 
 **Usage limit:** when a run hits the limit, the runner waits 30 minutes and tries again. It needs no restart after the reset.
 **Retry cap:** one job on one commit gets at most 3 runs (`AGENT_MAX_TRIES`). Then the runner skips it and writes "capped" in `runner.log`. Fix it by hand. A new commit resets the count.
