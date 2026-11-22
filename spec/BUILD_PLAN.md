@@ -638,6 +638,55 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [x] Tests show the row has the actor and role, long text is refused (AD-A-014), and a failed write leaves no audit row.
 - **Tests:** unit (Vitest with PGlite)
 
+
+### 3.8 P1-E03 Accounts, users and templates (Track A, `agent-a`)
+
+**Decisions in this epic:** AD-A-015 (default templates as a migration), AD-A-016 (role change and deactivation rules). FR-ACC-08 (setup and reset email) comes from Neon Auth (P0-E03).
+
+### P1-E03-T01 — Default templates
+- **Goal:** Every database has the three default templates, version 1, with their forms and the rubric.
+- **Covers:** FR-TPL-02, FR-TPL-03
+- **Changes:** `db/migrations/0003_default_templates.sql`, `tests/unit/data/templates.test.ts`
+- **Done when:**
+  - [ ] A test shows three templates, their required items, and rubric weights that total 100% on Proposal and Final.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E03-T02 — Template versions and target dates (C8 data)
+- **Goal:** A template change makes a new version and an audit record. Running milestones keep their version. The Coordinator sets a milestone target date.
+- **Covers:** FR-TPL-01, FR-TPL-03, FR-TPL-04, FR-TPL-05, INV-26, NFR-01, NFR-03
+- **Changes:** `src/server/data/templates.ts`, `tests/unit/data/templates.test.ts`
+- **Done when:**
+  - [ ] A rubric that does not total 100% is refused (FR-TPL-03).
+  - [ ] A new milestone uses the latest version. An old milestone keeps its version (FR-TPL-04).
+  - [ ] Only the Coordinator writes. Each write has an audit record.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E03-T03 — Student account with thesis and Milestone 1 (C2 data)
+- **Goal:** One action makes the Student account, the Thesis Instance and Milestone 1 on the latest Proposal template.
+- **Covers:** FR-ACC-04, FR-ACC-07, BR-03, INV-02, INV-04, NFR-03
+- **Changes:** `src/server/data/students.ts`, `tests/unit/data/students.test.ts`
+- **Done when:**
+  - [ ] A test shows the three rows and the audit record. A non-Adviser as Adviser is refused with a reason. A failed write leaves no rows.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E03-T04 — Users: edit, role and deactivate (C9 data)
+- **Goal:** The Coordinator edits a user, changes a role only when no row names the user, and deactivates or reactivates an account.
+- **Covers:** FR-ACC-05, FR-ACC-06, BR-03, NFR-03
+- **Changes:** `src/server/data/users.ts`, `tests/unit/data/users.test.ts`
+- **Done when:**
+  - [ ] A role change for a user with a thesis or a seat is refused with the reason (AD-A-016).
+  - [ ] A Coordinator cannot deactivate their own account.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E03-T05 — Screens C2, C8 and C9
+- **Goal:** `/coordinator/students`, `/coordinator/templates` and `/coordinator/users` call the T02 to T04 functions through server actions.
+- **Covers:** FR-ACC-04, FR-ACC-05, FR-TPL-01, FR-TPL-05, BR-18, NFR-01
+- **Changes:** `src/app/coordinator/students/`, `templates/`, `users/`
+- **Depends on:** T02 to T04
+- **Done when:**
+  - [ ] Each action checks the session on the server and shows the refusal reason. The Final size label says "every seat, including the Panel Chair" (AD-B-017).
+- **Tests:** typecheck, build
+
 ---
 
 ## 4. Phase 2 — Milestone 2 and email
