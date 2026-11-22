@@ -215,3 +215,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** One module now. The three forms share INV-14, INV-16, BR-11 and FR-DEF-07. Only the score part differs (TDW 10 has comment boxes only). `src/server/domain/` belongs to `agent-b`, and P1-E09 is the next user of the rules. The expected sheets come from the appointed members, plus the Adviser at Proposal and Pre-Final (FR-DEF-06). A substitute takes the absent member's sheet (FR-CMT-06). So the count follows FR §3 when the committee has its template size. Scores are from 0 to the line weight (ERD `evaluation_score.score`). The total is the plain sum, with no grade equivalent (BR-15).
 - **Risk:** low. `agent-a` can wire it in P1-E09 or keep its own rules. The verdict and the close stay in `milestone.ts`.
 - **Undo:** revert the commits with AD-B-016.
+
+### AD-B-017 — Final Panel size counts every seat, and seed defaults
+- **Task:** P1-E13-T01 (look-ahead)
+- **Options:** the Final template `panel_size_*` counts the Panel Members besides the Chair (3 / 4, as the FR §3 row reads); or it counts every seat, the Chair included (4 / 5)
+- **Decision and reason:** Every seat (4 / 5). `seatCount` in `committee.ts` compares the active seats with the size, and the Chair is a seat. FR §3 gives 4 / 5 sheets at Final with the Adviser excluded, so the seats and the sheet count match only with 4 / 5. The Proposal size stays 2 / 3 Panel Members (the Adviser is never a seat). Printed copies are 5 / 6 for each milestone, because FR §3 gives only the Proposal count (`[CONFIRM]` Pre-Final and Final).
+- **Risk:** low. It is seed and template data. The Coordinator sets the real values in C8 (FR-TPL-01). P1-E03 (`agent-a`) must explain the Final size on the C8 screen as "seats, Panel Chair included".
+- **Undo:** change `TEMPLATES` in `tests/support/seed-m1.ts`, or subtract 1 in `seatCount` for the Final Panel.

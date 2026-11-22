@@ -606,6 +606,26 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [x] `pnpm db:migrate` applies all Phase 1 migrations on Neon.
 - **Tests:** unit (Vitest with PGlite), command
 
+### 3.7 P1-E13 seed part (Track B, `agent-b`, §8 Phase 1 step 6)
+
+**Decisions:** AD-B-017. `agent-a` leads P1-E13. Track B makes the fake seed data and the Playwright setup.
+
+### P1-E13-T01 — Fake seed for the Milestone 1 test
+- **Goal:** One function writes the start state of the Milestone 1 test: the three templates with the FR §3 defaults, one user for each role and a Proposal milestone in DRAFT.
+- **Covers:** FR-TPL-01, FR-TPL-03, FR §3 parameters, INV-25, AGENTS.md §11
+- **Changes:** `tests/support/seed-m1.ts`, `tests/unit/data/seed-m1.test.ts`
+- **Depends on:** P1-E01
+- **Done when:**
+  - [x] The seed loads on the real migrations (PGlite). Every address ends in `@example.test`.
+  - [x] The rubrics total 100 (INV-25). The panel sizes give the FR §3 sheet counts.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E13-T02 — Playwright sign-in for each role
+- **Goal:** The end-to-end test signs in as each seeded role with a saved session.
+- **Covers:** FR-ACC-01, FR-ACC-02, P1-E13 exit test
+- **Depends on:** T01, P1-E03
+- **Done when:** `[ ]` A Playwright setup project saves one session for each role, and a test opens each portal home.
+
 ---
 
 ## 4. Phase 2 — Milestone 2 and email
