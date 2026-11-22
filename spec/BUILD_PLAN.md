@@ -1099,11 +1099,19 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [x] A test shows the derived items, the refusals, the final-copy check, append-only rows, the end of Panel access and the close.
 - **Tests:** unit (Vitest with PGlite)
 
-### P3-E04-T02 � Evidence upload and the S6 and C7 screens
-- **Goal:** The Student uploads evidence for each item (FR-CLR-02). S6 and C7 show the checklist.
-- **Covers:** FR-CLR-02, FR-CLR-04
+### P3-E04-T02 - Evidence upload (data)
+- **Goal:** The Student uploads evidence for each item (FR-CLR-02) with the existing scan upload. The Coordinator verifies only after the upload.
+- **Covers:** FR-CLR-02, AD-A-030
+- **Changes:** `db/migrations/0009_*`, `src/server/data/clearance.ts`, `tests/unit/data/clearance.test.ts`
 - **Done when:**
-  - [ ] Open. Needs a form code for evidence (AD-A-029).
+  - [x] A test shows the refusal without evidence and the link to the scan.
+- **Tests:** unit (Vitest with PGlite)
+
+### P3-E04-T03 - S6 and C7 clearance screens
+- **Goal:** S6 and C7 show the checklist. C7 lets the Coordinator verify.
+- **Covers:** FR-CLR-01, FR-CLR-04
+- **Done when:**
+  - [ ] Open.
 
 ---
 
