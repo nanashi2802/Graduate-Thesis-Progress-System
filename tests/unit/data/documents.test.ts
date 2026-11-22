@@ -220,6 +220,16 @@ describe("Coordinator review (FR-DOC-06, FR-DOC-07, BR-12, BR-13)", () => {
     expect(await reviewDocument(coord(), { documentId: id, to: "mismatch", reason: "Page 3 differs" })).toMatchObject({ ok: true });
   });
 
+  it("tells the Student about a Return with an in-app notice, and only about a Return (B3)", async () => {
+    const id = await uploadAs(student(), await itemId("TDW_07"));
+    await reviewDocument(coord(), { documentId: id, to: "mismatch", reason: "Page 3 differs" });
+    expect(await db.select().from(s.notification)).toHaveLength(0);
+    await uploadAs(student(), await itemId("TDW_07"));
+    await reviewDocument(coord(), { documentId: id, to: "returned", reason: "Missing signature" });
+    const rows = await db.select().from(s.notification);
+    expect(rows).toEqual([expect.objectContaining({ recipientUserId: seed.student.id, eventCode: "B3", targetTable: "document_record", targetId: id })]);
+  });
+
   it("lets the uploader replace a returned scan, and a mismatch file locks again", async () => {
     const item = await itemId("TDW_07");
     const id = await uploadAs(student(), item);
