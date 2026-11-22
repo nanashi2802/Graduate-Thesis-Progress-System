@@ -4,7 +4,7 @@
 // `document_event` history row for each step and one audit record, in one transaction.
 // The browser sends the bytes straight to storage (NFR-12). The server never gets them.
 import "server-only";
-import { and, asc, eq, inArray, isNull, max, ne } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull, max, ne } from "drizzle-orm";
 import { canUploadScan, decideDocumentChange, type DocumentActor, type DocumentState } from "@/server/domain/documents";
 import { uploadProblem, type UploadRequest } from "@/server/files/rules";
 import type { UploadLink } from "@/server/files/storage";
@@ -16,7 +16,9 @@ import {
   documentEvent,
   documentFile,
   documentRecord,
+  manuscriptCommit,
   milestoneInstance,
+  submissionPr,
   templateRequiredItem,
   type UserRole,
 } from "./schema";
@@ -38,7 +40,8 @@ export type DocBlockCode =
   | "bad_key"
   | "hash_mismatch"
   | "subject_required"
-  | "subject_not_seat";
+  | "subject_not_seat"
+  | "no_commit";
 
 export type DocResult<T> = { ok: true; value: T } | { ok: false; code: DocBlockCode; reason: string };
 
@@ -53,9 +56,13 @@ const MESSAGES: Record<DocBlockCode, string> = {
   hash_mismatch: "The stored file does not match the hash from your browser. No record is made.",
   subject_required: "Choose the member for this NDA.",
   subject_not_seat: "This person has no seat on the committee of this thesis.",
+  no_commit: "Upload a manuscript commit first. This form is signed for one commit.",
 };
 
 const refuse = <T>(code: DocBlockCode, reason?: string): DocResult<T> => ({ ok: false, code, reason: reason ?? MESSAGES[code] });
+
+// The forms that INV-34 ties to one manuscript commit.
+const SIGNED_FORMS: readonly string[] = ["CERTIFICATION", "SIGNED_FINAL_MANUSCRIPT"];
 
 // A scan key from `newFileKey(prefix, "scan", ...)`.
 const SCAN_KEY = /(^|\/)scan\/[^/]+\.(pdf|jpg|png)$/;
@@ -156,6 +163,19 @@ export async function requestScanUpload(
   if (problem) return refuse("bad_file", problem);
 
   const subject = item.formCode === "TDW_05" ? input.subjectUserId : null;
+  // INV-34: the certification and the signed final manuscript are signed for one commit. Link the newest one.
+  let linkedCommitId: string | null = null;
+  if (SIGNED_FORMS.includes(item.formCode)) {
+    const [newest] = await ctx.db
+      .select({ id: manuscriptCommit.id })
+      .from(manuscriptCommit)
+      .innerJoin(submissionPr, eq(submissionPr.id, manuscriptCommit.submissionPrId))
+      .where(eq(submissionPr.milestoneInstanceId, m.id))
+      .orderBy(desc(manuscriptCommit.ordinal))
+      .limit(1);
+    if (!newest) return refuse("no_commit");
+    linkedCommitId = newest.id;
+  }
   if (subject) {
     // An NDA belongs to a Panel Member with a seat that is not declined (FR-CMT-03).
     const [seat] = await ctx.db
@@ -180,7 +200,7 @@ export async function requestScanUpload(
     // FR-DOC-04: the app sets Prepared. The prefilled PDF comes with the form pack (FR-DOC-05, Phase 4).
     const [doc] = await tx
       .insert(documentRecord)
-      .values({ milestoneInstanceId: m.id, templateRequiredItemId: item.id, formCode: item.formCode, subjectUserId: subject, state: "prepared" })
+      .values({ milestoneInstanceId: m.id, templateRequiredItemId: item.id, formCode: item.formCode, subjectUserId: subject, linkedCommitId, state: "prepared" })
       .returning();
     await step(tx, ctx, doc!.id, "not_started", "prepared", null);
     await recordAudit({ db: tx, actor: ctx.actor }, {
