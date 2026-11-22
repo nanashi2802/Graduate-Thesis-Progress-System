@@ -606,6 +606,38 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [x] `pnpm db:migrate` applies all Phase 1 migrations on Neon.
 - **Tests:** unit (Vitest with PGlite), command
 
+
+### 3.7 P1-E02 Data layer, row access and audit insert (Track A, `agent-a`, done 22 Nov 2026)
+
+**Decisions in this epic:** AD-A-013 (Panel Member scope, INV-33 hook), AD-A-014 (audit detail limit).
+
+### P1-E02-T01 — Thesis scope for each role
+- **Goal:** One function tells how the actor relates to a thesis. One SQL filter limits a thesis list to the rows the actor can read.
+- **Covers:** NFR-01, FR-ACC-03, BR-04, ERD §8
+- **Changes:** `src/server/data/scope.ts`, `tests/unit/data/scope.test.ts`
+- **Done when:**
+  - [x] Tests show each role reads only its own theses, the Coordinator reads all, and a deactivated account reads none.
+  - [x] A declined seat gives no access (AD-A-013).
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E02-T02 — Manuscript access for Panel Members
+- **Goal:** One check runs before every manuscript read or signed read link.
+- **Covers:** INV-24, INV-33, BR-08, BR-21
+- **Changes:** `src/server/data/scope.ts`, `tests/unit/data/scope.test.ts`
+- **Depends on:** T01, P1-E05-T01 (`memberAccess`)
+- **Done when:**
+  - [x] Tests prove INV-24: no read without the verified appointment form and the member's verified NDA. A substitute needs its own NDA.
+  - [x] `manuscriptAccessEnded` is the one INV-33 hook (AD-A-013).
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E02-T03 — Audit insert
+- **Goal:** Each write records who, what and when in `audit_record`, in the same transaction.
+- **Covers:** NFR-03, INV-08, BR-19
+- **Changes:** `src/server/data/audit.ts`, `tests/unit/data/audit.test.ts`
+- **Done when:**
+  - [x] Tests show the row has the actor and role, long text is refused (AD-A-014), and a failed write leaves no audit row.
+- **Tests:** unit (Vitest with PGlite)
+
 ---
 
 ## 4. Phase 2 — Milestone 2 and email
