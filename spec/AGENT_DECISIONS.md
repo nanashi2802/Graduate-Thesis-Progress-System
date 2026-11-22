@@ -293,3 +293,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** One row for each week (up to 16 slots in one publish), with `recurrence_rule` = `weekly:N` as a label. A row per slot keeps booking and INV-28 simple: each slot has its own status. A slot lasts 8 hours at most, starts in the future, and cannot overlap another slot of the same owner. The log entry goes to the newest milestone of the thesis when the Adviser drafts it, because `consultation_log_entry` needs a milestone and the Adviser has no milestone picker (ERD §4.1). The TDW 03 scan upload stays in P1-E07 (`documents.ts`). A Panel Member does not read the consultation log.
 - **Risk:** low. A consultation held between two milestones lands on the newer one, which is the milestone the Student works on.
 - **Undo:** revert the commits with AD-A-020.
+
+### AD-B-020 — Notification rows now, the `email_log` row with P2-E04
+- **Task:** P1-E12-T02
+- **Options:** ask `agent-a` for the `email_log` and `notification_preference` tables now; write the notification rows and report each email result now, and write `email_log` when P2-E04 adds the table
+- **Decision and reason:** The second option. `spec/BUILD_PLAN.md` §3.6 puts `email_log` and `notification_preference` in P2-E04, and migrations belong to `agent-a`. `notifyEvent` writes the `notification` rows first (INV-30), then sends each immediate email through an `EmailPort` parameter, as AD-B-019 does for files. It catches each failure and returns `sent`, `failed` or `skipped` for each recipient. P2-E04 writes one `email_log` row from each result. The turned-off set is a parameter until the preference table exists. Reminders and digests get no email here (FR-NTF-04, FR-NTF-06). The caller turns the recipient tokens of the catalog into user IDs, because that needs the thesis context of each event.
+- **Risk:** low. Until P2-E04, a failed email leaves no log row. The result tells the caller, and the notification row stays.
+- **Undo:** revert the commits with AD-B-020.

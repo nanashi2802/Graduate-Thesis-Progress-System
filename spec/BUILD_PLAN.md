@@ -565,8 +565,12 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 ### P1-E12-T02 — Notification rows and the notification center (NC)
 - **Goal:** Each event writes one `notification` row for each recipient, then tries the email and logs it (INV-30, FR-NTF-07). The user sees read and unread states.
 - **Covers:** FR-NTF-01, FR-NTF-07, NFR-05, INV-30
+- **Changes:** `src/server/data/notifications.ts`, `tests/unit/data/notifications.test.ts`. **Decision:** AD-B-020.
 - **Depends on:** T01, P1-E02
-- **Done when:** `[ ]` A failed email leaves the `notification` row and an `email_log` row with the failure.
+- **Done when:**
+  - [x] A failed email leaves the `notification` row and reports the failure (INV-30).
+  - [x] A user lists, counts and marks read only their own rows.
+  - [ ] The failure is an `email_log` row. It waits for the `email_log` table in P2-E04.
 
 ### P1-E12-T03 — Audit records for each event (FR-RPT-01)
 - **Goal:** Each event in FR-RPT-01 writes one `audit_record` through the P1-E02 insert.
