@@ -179,3 +179,18 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** The second option. FR-DOC-08 says "TDW 07 scan" and "OR verified", so it treats the scan and the OR differently. The appointment form and the NDAs must be verified because BR-08 opens the manuscript only after they are recorded. A scan in `mismatch` still counts, because BR-12 says a mismatch never stops a defense. TDW 03 counts once locked.
 - **Risk:** medium. The owner may want TDW 03 or the defense-form scan verified before the date is confirmed. Then the date waits for the Coordinator's paper check.
 - **Undo:** Change `submitted(...)` to `verified(...)` for that item in `src/server/domain/checklist.ts`.
+
+### AD-B-014 — Event texts live in code until FR-NTF-10
+- **Task:** P1-E12-T01
+- **Options:** store the email texts in the ERD template table (`event_code`, `version_no`) now; keep fixed texts in `src/server/notify/events.ts` now
+- **Decision and reason:** Fixed texts in code. FR-NTF-10 (edit and version the wording) is priority C and sits in Phase 4 (`spec/BUILD_PLAN.md` §6). FR-NTF-02 needs fixed templates with no free text, and constants meet it. A test checks that no text holds a verdict, score or link word (FR-NTF-03, BR-15).
+- **Risk:** low. When Phase 4 adds FR-NTF-10, the constants become the first template version.
+- **Undo:** Load the texts from the template table in `buildNotificationEmail`.
+
+### AD-B-015 — Reminder days that FR §3 leaves open (B2, B6)
+- **Task:** P2-E04-T01 (look-ahead)
+- **Options:** for B2 and B6, any days, because FR §3 gives none
+- **Decision and reason:** B2 fires 7 days before the target date and 1 day after it. B6 fires 90 and 30 days before the residency end date. Each rule fires on exact days, so one daily run sends each reminder once with no extra state. All days sit in `REMINDER_DAYS` in `src/server/notify/reminders.ts`. B1 is not open: FR §3 sets it to 7 days before the defense. The code follows FR §3, and the deadline in the email is the printed-copies due date. The B1 text is "Printed copies are due soon", so it stays true when the due days change.
+- **Correction (22 Nov 2026, after the agent-r review of #8):** the first version sent B1 7 days before the due date (14 days before the defense). That broke FR-NTF-06, and no B1 was sent when the date was confirmed less than 14 days ahead.
+- **Risk:** low. B2 stays off until a target date exists (G24). B6 uses the unverified residency limit (R7).
+- **Undo:** Change `REMINDER_DAYS`, or move the days into `template_version`.
