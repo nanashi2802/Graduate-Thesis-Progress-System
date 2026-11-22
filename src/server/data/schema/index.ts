@@ -10,3 +10,4 @@ export * from "./documents";
 export * from "./defense";
 export * from "./logs";
 export * from "./outside";
+export * from "./clearance";
