@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { AccessDeniedError, type Actor } from "@/server/data/access";
 import type { Db } from "@/server/data/db";
 import * as s from "@/server/data/schema";
-import { studentTracker } from "@/server/data/tracker";
+import { readinessChecklist, studentTracker } from "@/server/data/tracker";
 import { seedMilestone1 } from "../../support/seed-m1";
 import { makeTestDb } from "../../support/test-db";
 
@@ -73,5 +73,14 @@ describe("studentTracker", () => {
       .values({ email: "other@example.test", fullName: "Other Student", role: "student", authUserId: "other-auth" })
       .returning();
     expect(await studentTracker({ db, actor: actorOf(other!) })).toBeNull();
+  });
+});
+
+describe("readinessChecklist (C5 names the missing items, BR-18)", () => {
+  it("gives the Coordinator and the thesis Student the list, and refuses a Panel Member with no seat (NFR-01)", async () => {
+    const forCoordinator = await readinessChecklist({ db, actor: actorOf(seed.coordinator) }, seed.milestone.id);
+    expect(forCoordinator.length).toBeGreaterThan(0);
+    expect(await readinessChecklist(asStudent(), seed.milestone.id)).toEqual(forCoordinator);
+    await expect(readinessChecklist({ db, actor: actorOf(seed.panel[0]!) }, seed.milestone.id)).rejects.toBeInstanceOf(AccessDeniedError);
   });
 });
