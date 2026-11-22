@@ -180,6 +180,44 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
   - [x] §2.1 shows P0-E01 as done.
 - **Tests:** manual check
 
+### 2.3 P0-E02 tasks (agent-a, autonomous build mode)
+
+**Decisions in this epic:** AD-A-001 (Drizzle ORM and drizzle-kit), AD-A-002 (PGlite for data-layer tests), AD-A-003 (Neon branch). See `spec/AGENT_DECISIONS.md`.
+
+### P0-E02-T01 — Query and migration tool
+- **Goal:** Pick and install the query and migration tool. Log the choice.
+- **Covers:** NFR-01, PRD §11.3 rule 4
+- **Reads:** PRD §11.2, §11.3, `ERD.md` §1
+- **Changes:** `package.json`, `pnpm-lock.yaml`, `drizzle.config.ts`, `spec/AGENT_DECISIONS.md`
+- **Depends on:** P0-E01
+- **Done when:**
+  - [ ] AD-A-001 and AD-A-002 are in the decision log.
+  - [ ] `pnpm db:generate` writes SQL into `db/migrations/`.
+- **Tests:** command
+
+### P0-E02-T02 — First table and migration
+- **Goal:** The `app` schema, the `user_role` enum and the `app_user` table migrate on Neon.
+- **Covers:** BR-03, `ERD.md` §1, §2, §4.1 (`app_user`)
+- **Reads:** `ERD.md` §1, §2, §4.1
+- **Changes:** `src/server/data/schema.ts`, `db/migrations/`
+- **Depends on:** P0-E02-T01
+- **Done when:**
+  - [ ] `pnpm db:migrate` applies the migration on the Neon branch (AD-A-003).
+  - [ ] A unit test applies the same migration files to PGlite.
+- **Tests:** unit (Vitest), command
+
+### P0-E02-T03 — Server-only data layer with an access check
+- **Goal:** One server-only function reads `app_user` after an access check.
+- **Covers:** NFR-01, FR-ACC-03, `ERD.md` §8
+- **Reads:** `ERD.md` §8, `DFD.md` TB1, TB2
+- **Changes:** `src/server/data/` (client, access check, `users.ts`), `tests/unit/data/`
+- **Depends on:** P0-E02-T02
+- **Done when:**
+  - [ ] A Coordinator reads any user. A user reads their own row. Any other read throws `AccessDeniedError`.
+  - [ ] An inactive actor gets `AccessDeniedError` (FR-ACC-06).
+  - [ ] A client import of `src/server/data/` fails the build (`server-only`).
+- **Tests:** unit (Vitest with PGlite)
+
 ---
 
 ## 3. Phase 1 — Foundation and Milestone 1
