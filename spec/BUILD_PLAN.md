@@ -1026,7 +1026,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Done when:**
   - [x] The data layer and its tests are done (P1-E04, `tests/unit/data/milestones.test.ts`).
   - [x] A component shows the chips and, for the Coordinator, a selector for each kind.
-  - [ ] `agent-b` mounts `OutsideSetters` on C4 (`/coordinator/documents`) and C7.
+  - [~] `agent-b` mounted `OutsideSetters` on C4 (`/coordinator/documents`). C7 waits for P3-E04-T02 (`agent-a`).
 - **Tests:** unit, typecheck, build
 
 ### P2-E03-T01 — Revision items data
@@ -1042,7 +1042,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/app/_components/revision-panel.tsx`, `src/app/_lib/revision-actions.ts`, `src/app/_components/pr-workspace.tsx`
 - **Done when:**
   - [x] S2, A2 and P2 show the items of the latest held attempt (Proposal and Pre-Final).
-  - [ ] `agent-b` mounts `RevisionItemsForm` on C6.
+  - [x] `agent-b` mounted `RevisionItemsForm` on C6.
 - **Tests:** typecheck, build
 
 ### P2-E05-T01 — Milestone 2 flow test (Track A lead, AD-A-027)
@@ -1068,6 +1068,19 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 | P3-E04 | Clearance checklist and close | FR-CLR-01 to 04, BR-21 |
 | P3-E05 | Shared submission view and dossier export | FR-SUB-01 to 05, FR-DOC-10 |
 | P3-E06 | Milestone 3 end-to-end test | Exit test |
+
+### 5.0 P3-E01 Final Panel and TDW 13 (Track B, `agent-b`)
+
+**Decisions:** AD-B-024. The Final Panel appointment (TDW 11) runs through the P1-E05 code with `kind = final_panel` (AD-B-017). TDW 12 runs through the generic document flow (`checklist.ts`).
+
+### P3-E01-T01 � TDW 13 sheets at the Final
+- **Goal:** The Final Panel (Panel Chair and Panel Members) completes scored TDW 13 sheets. The Adviser has none. The Coordinator verifies them.
+- **Covers:** FR-DEF-05, FR-DEF-06, INV-14, INV-25, BR-15
+- **Changes:** `tests/unit/data/defense-final.test.ts`
+- **Depends on:** P2-E02-T01, P1-E09
+- **Done when:**
+  - [x] A test refuses the Adviser and a score above the weight, saves two scored sheets and verifies them.
+- **Tests:** unit (Vitest with PGlite)
 
 ### 5.1 P3-E02 Defense Day threads (Track A, `agent-a`)
 
