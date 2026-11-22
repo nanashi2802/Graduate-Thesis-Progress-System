@@ -524,11 +524,15 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [x] A Mismatch blocks the stage close only (BR-12).
 - **Tests:** unit (Vitest)
 
-### P1-E07-T02 — Deliverables, scan upload and Coordinator review (S3, C4)
-- **Goal:** The Student sees the deliverables and uploads scans. The Coordinator marks received, verifies, returns or marks a mismatch.
-- **Covers:** FR-DOC-01, FR-DOC-03, FR-DOC-06, FR-DOC-07, FR-DOC-11, NFR-01
+### P1-E07-T02 — Deliverables, scan upload and Coordinator review (data)
+- **Goal:** The data layer lists the deliverables, takes a scan upload and records the Coordinator's review steps.
+- **Covers:** FR-DOC-01, FR-DOC-03, FR-DOC-06, FR-DOC-07, FR-DOC-11, BR-12, BR-13, BR-19, NFR-01, NFR-02, NFR-03. **Decision:** AD-B-019.
+- **Changes:** `src/server/data/documents.ts`, `tests/unit/data/documents.test.ts`
 - **Depends on:** T01, P1-E02, P0-E04
-- **Done when:** `[ ]` Each change calls `decideDocumentChange` and writes one history row.
+- **Done when:**
+  - [x] Each change calls `decideDocumentChange` and writes one history row for each step, plus an audit record.
+  - [x] No file row without a matching stored hash (NFR-02). A locked scan changes only through a Return or a Mismatch (BR-19).
+- **Tests:** unit (Vitest with PGlite, fake file store)
 
 ### P1-E07-T03 — Compliance checklist (FR-DOC-08)
 - **Goal:** Compute the date-confirmation checklist for each milestone, for the `defenseChecklistComplete` fact (INV-13).
@@ -537,6 +541,12 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Depends on:** T01
 - **Done when:**
   - [x] A test covers the list of each milestone.
+
+### P1-E07-T04 — S3 deliverables and C4 document review screens
+- **Goal:** The Student uploads scans on S3. The Coordinator reviews them on C4. Each disabled action shows its reason.
+- **Covers:** FR-DOC-01, FR-DOC-03, FR-DOC-06, FR-DOC-07, FR-DOC-11, BR-18
+- **Depends on:** T02
+- **Done when:** `[ ]` An end-to-end step uploads a TDW 07 scan, and the Coordinator verifies it.
 
 ### 3.5 P1-E12 Audit records and in-app notifications (Track B, `agent-b`)
 
