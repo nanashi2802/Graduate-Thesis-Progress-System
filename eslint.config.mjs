@@ -16,6 +16,8 @@ const eslintConfig = defineConfig([
     "coverage/**",
     "playwright-report/**",
     "test-results/**",
+    // Agent worktrees (AGENTS.md §13). Each one is a full checkout with its own build output.
+    ".claude/**",
   ]),
 ]);
 

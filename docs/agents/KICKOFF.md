@@ -30,6 +30,7 @@ Each Claude run does one unit of work in a fresh context, then ends. When there 
 | Change a model or effort | `AGENT_BUILDER_MODEL`, `AGENT_BUILDER_EFFORT`, `AGENT_REVIEW_MODEL`, `AGENT_REVIEW_EFFORT` (defaults: `sonnet`, `medium`) |
 
 **Usage limit:** when a run hits the limit, the runner waits 30 minutes and tries again. It needs no restart after the reset.
+**Retry cap:** one job on one commit gets at most 3 runs (`AGENT_MAX_TRIES`). Then the runner skips it and writes "capped" in `runner.log`. Fix it by hand. A new commit resets the count.
 **Phase end:** a builder with no task left before the end of Phase 3 reports `RESULT: phase-complete`. The runner stops when both tracks report it.
 
 ## Release to `main`
