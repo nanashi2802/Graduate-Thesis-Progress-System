@@ -91,10 +91,10 @@ This run: $task") >"$out" 2>&1
 # What a builder must do now, as "key|job" (job: new, resume or fix), or empty (wait).
 builder_job() {
   local b="$1" line n sha draft mergeable
-  [ -f "$logdir/$b.done" ] && return
   line="$(gh pr list --base dev --state open --head "$b" --json number,headRefOid,isDraft,mergeable \
     --jq '.[0]|select(.)|"\(.number) \(.headRefOid) \(.isDraft) \(.mergeable)"')"
-  if [ -z "$line" ]; then echo "$b-new-$(git rev-parse -q --verify "origin/$b" | cut -c1-12)|new: take the next task in your track"; return; fi
+  # phase-complete stops new tasks only. Resume and fix runs still go (§13.5).
+  if [ -z "$line" ]; then [ -f "$logdir/$b.done" ] && return; echo "$b-new-$(git rev-parse -q --verify "origin/$b" | cut -c1-12)|new: take the next task in your track"; return; fi
   read -r n sha draft mergeable <<<"$line"
   local k="${sha:0:12}"
   if [ "$draft" = true ]; then echo "$b-resume-$k|resume: finish the task of draft pull request #$n"; return; fi
@@ -107,8 +107,11 @@ rm -f "$stopfile"
 log "runner started (pid $$, builders $BUILDERS)"
 turn=0
 while [ ! -f "$stopfile" ]; do
-  if [ -f "$logdir/agent-a.done" ] && [ -f "$logdir/agent-b.done" ]; then log "both tracks report phase-complete (§13.5)"; break; fi
   git fetch -q origin
+  # Stop only when both tracks are done and no builder pull request is still open (§13.5).
+  if [ -f "$logdir/agent-a.done" ] && [ -f "$logdir/agent-b.done" ] && [ -z "$(gh pr list --base dev --state open --json headRefName --jq '.[]|select(.headRefName=="agent-a" or .headRefName=="agent-b")|.headRefName')" ]; then
+    log "both tracks report phase-complete (§13.5)"; break
+  fi
   worked=0
   prs="$(gh pr list --base dev --state open --json number,headRefOid,isDraft --jq '.[]|select(.isDraft|not)|"\(.number) \(.headRefOid)"')"
 
