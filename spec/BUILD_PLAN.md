@@ -2,7 +2,7 @@
 
 **Compliance standard:** Simplified Technical English (ASD-STE100) at about 80%
 **Version:** 1.0 draft · 22 Nov 2026 · Change log: 22 Nov 2026, added §2.1 Phase 0 progress. 22 Nov 2026, owner approved fixes to P0-E02 to P0-E06 (D-23 sign-in, write-once and CORS checks, `sin1` region, Vercel env, cron timing, scan sizes), the Phase 0 dependencies, the §1 hook gate and the §7 `src/app/` layout. 22 Nov 2026, expanded P0-E01 into tasks (§2.2) and marked it done. pnpm chosen by the owner. §7 confirms the folders that P0-E01 made. 22 Nov 2026, the owner added §8 (two-agent tracks, `AGENTS.md` §13) and accepted two changes: the audit insert moves from P1-E12 to P1-E02, and the pure state machines of P1-E04 start early in Track B. The commit hook is on.
-**Gap closure (23 Nov 2026, owner):** both tracks reported phase-complete with P2-E04 not built. The owner added P2-E04-T03 to T10, P3-E07 and the §8 gap closure track. A track is done only after P3-E07-T03 passes.
+**Gap closure (23 Nov 2026, owner):** both tracks reported phase-complete with P2-E04 not built. The owner added P2-E04-T03 to T10, P3-E07 and the §8 gap closure track. Later the owner added P3-E07-T04 to T08 from issues #53 to #58 (sign-in and security), first in each track. Issue #57 is an owner pilot gate in §1. A track is done only after P3-E07-T03 passes.
 **Derived from:** `PRD.md` §8 (release phases, approved as D-22), `ERD.md`, `DFD.md`, `SITEMAP.md`, `USERFLOW.md`, Functional Requirements v1.1
 **Rule for this file:** This plan orders the work. It adds no requirement. The FR, BR, NFR and INV IDs it cites are the scope. If this plan and a spec file disagree, the spec file wins. Correct this plan.
 
@@ -73,6 +73,7 @@ This plan is a skeleton. It has three levels. Expand one level at a time, only f
 | P2 | Official form layouts in hand for the form pack (AS-08) | Owner |
 | Pilot | Success targets (PRD §9, Q3). Retention period (Q8). | Owner, PUP Data Protection Officer |
 | Pilot | A sender domain is verified in Resend. Without it, Resend sends only to the owner's address (FR-NTF-08). | Owner |
+| Pilot | Neon Auth console checked (issue #57): open sign-up off, change email off, Google the only provider, trusted origins only the app domains and `http://localhost:3000`. About 20 wrong-password sign-ins show whether a login rate limit starts and whether it blocks other accounts too. | Owner |
 | Pilot | Production checklist: Vercel production env vars and `CRON_SECRET`, Google OAuth for the production domain, a Neon branch for the pilot with no demo data, `pnpm db:migrate` on it, and the first real Coordinator made in the Neon console (AD-A-006). | Owner |
 
 ---
@@ -1166,7 +1167,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 | P3-E04 | Clearance checklist and close | FR-CLR-01 to 04, BR-21 |
 | P3-E05 | Shared submission view and dossier export | FR-SUB-01 to 05, FR-DOC-10 |
 | P3-E06 | Milestone 3 end-to-end test | Exit test |
-| P3-E07 | Close-out: home route, browser runs, FR coverage check | FR-ACC-02, exit check |
+| P3-E07 | Close-out: home route, browser runs, FR coverage check, sign-in and security fixes (issues #53 to #58) | FR-ACC-01, FR-ACC-02, FR-ACC-05, NFR-01, INV-24, exit check |
 
 ### 5.0 P3-E01 Final Panel and TDW 13 (Track B, `agent-b`)
 
@@ -1285,6 +1286,63 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [ ] The blocked browser boxes in P1-E11-T04, P1-E13-T02, P2-E02-T02, P2-E05-T01 and P3-E06-T01 are checked or have a new reason.
 - **Tests:** end-to-end (Playwright)
 
+### P3-E07-T04 — Finish the Google sign-in (Track A, `agent-a`, issue #53, P0)
+- **Goal:** A Google sign-in lands on the user's portal, not back on `/login`.
+- **Covers:** FR-ACC-01, D-23
+- **Reads:** issue #53, `node_modules/@neon/auth/dist/server.js` (`exchangeOAuthToken`), `src/app/auth/after-sign-in/`
+- **Changes:** `src/proxy.ts` (new)
+- **Depends on:** none
+- **Approach:** Neon Auth returns to `/auth/after-sign-in?neon_auth_session_verifier=…`. Only its middleware exchanges the verifier for the session cookie. Add `src/proxy.ts` that runs `getAuth().middleware({ loginUrl: "/login" })` with the matcher `/auth/after-sign-in` only. Portal pages keep their own checks (RoleGate, NFR-01).
+- **Done when:**
+  - [ ] A unit test calls the proxy matcher config and proves it covers `/auth/after-sign-in` only.
+  - [ ] The pull request text has a manual test step for the owner: a Coordinator-made Student signs in with Google and lands on `/student/dashboard`. A Google account with no app account lands on `/login?error=no_account` (D-23).
+  - [ ] The pull request text says `Fixes #53`.
+- **Tests:** unit (Vitest), manual check by the owner (no e2e covers OAuth)
+
+### P3-E07-T05 — Link by email only when the email is verified (Track A, `agent-a`, issue #54)
+- **Goal:** `resolveActor()` links an `app_user` row with no `auth_user_id` only to a Neon Auth user whose email is verified.
+- **Covers:** FR-ACC-01, FR-ACC-05, NFR-01, D-23, AD-A-005
+- **Changes:** `src/server/data/actors.ts`, `src/server/auth/session.ts` (pass `emailVerified`), `tests/unit/data/actors.test.ts`
+- **Depends on:** none
+- **Done when:**
+  - [ ] Test first: an unverified identity does not link to an unlinked row. A verified identity (Google) still links.
+  - [ ] The pull request text says `Fixes #54`.
+- **Tests:** unit (Vitest with PGlite)
+
+### P3-E07-T06 — Delete the P0-E04 file spike (Track A, `agent-a`, issue #55)
+- **Goal:** Remove `src/app/coordinator/spike-files/`. Its action signs a read link for any key the browser sends (breaks INV-24).
+- **Covers:** INV-24, NFR-01, NFR-12, AD-A-009
+- **Changes:** delete `src/app/coordinator/spike-files/`, and any link or test that names the route
+- **Depends on:** none
+- **Done when:**
+  - [ ] `/coordinator/spike-files` returns 404. No file names the route.
+  - [ ] The e2e file test uses the real commit upload, not the spike.
+  - [ ] The pull request text says `Fixes #55`.
+- **Tests:** lint, typecheck, unit, end-to-end (Playwright)
+
+### P3-E07-T07 — Security headers (Track B, `agent-b`, issue #56)
+- **Goal:** Every route sends `Content-Security-Policy: frame-ancestors 'none'`, `X-Content-Type-Options: nosniff` and `Referrer-Policy: strict-origin-when-cross-origin`.
+- **Covers:** NFR-01
+- **Changes:** `next.config.ts` (`headers()`)
+- **Depends on:** none
+- **Done when:**
+  - [ ] `curl -I` on `/login` shows the three headers.
+  - [ ] The PDF viewer and the file upload still work. No full Content Security Policy now: add it only if the app ever shows HTML that users write.
+  - [ ] The pull request text says `Fixes #56`.
+- **Tests:** a unit test of the `headers()` result, end-to-end (Playwright)
+
+### P3-E07-T08 — No data calls after the role check refuses (Track A, `agent-a`, issue #58)
+- **Goal:** A refused user sees Access Denied, and the page makes no data call, so the server log has no `AccessDeniedError` stack traces.
+- **Covers:** FR-ACC-02, NFR-01, BR-18
+- **Reads:** issue #58, `src/app/_components/role-gate.tsx`, `src/server/auth/session.ts`
+- **Changes:** one shared fix (a role helper the pages call first, or one shared catch). For a page that `agent-b` owns, add a "Request for agent-b" to the pull request (§13.1).
+- **Depends on:** none
+- **Done when:**
+  - [ ] Opening another role's portal, and opening a portal signed out, shows Access Denied with its reason and logs no `AccessDeniedError`.
+  - [ ] The data layer still refuses on its own (NFR-01). No access check is removed.
+  - [ ] The pull request text says `Fixes #58`.
+- **Tests:** end-to-end (Playwright portals spec), server log check
+
 ### P3-E07-T03 — FR coverage check (Track A, `agent-a`, last task)
 - **Goal:** Prove that no Must or Should FR of Phases 0 to 3 is unplanned before a track reports `phase-complete`.
 - **Covers:** the exit check of Phase 3, `AGENTS.md` §13.5
@@ -1376,11 +1434,13 @@ Each agent does its track from top to bottom. "Waits for" names work from the ot
 
 | Step | Track A | Track B |
 | :---- | :---- | :---- |
-| 1 | P2-E04-T03 email tables | P2-E04-T05 residency |
-| 2 | P2-E04-T07 emit events (Track A files) | P2-E04-T04 email log. Waits for: A step 1. |
-| 3 | P2-E04-T09 account setup and reset email | P2-E04-T06 daily job |
-| 4 | P3-E07-T02 browser runs | P2-E04-T08 emit events (Track B files), then P2-E04-T10 preferences. T10 waits for: A step 1. |
-| 5 | P3-E07-T03 FR coverage check (last). Waits for: every step above. | P3-E07-T01 home route |
+| 1 | P3-E07-T04 Google sign-in (P0), then P3-E07-T06 delete the file spike | P3-E07-T07 security headers |
+| 2 | P2-E04-T03 email tables, then P3-E07-T05 verified-email linking | P2-E04-T05 residency |
+| 3 | P2-E04-T07 emit events (Track A files) | P2-E04-T04 email log. Waits for: A step 2 (T03). |
+| 4 | P2-E04-T09 account setup and reset email | P2-E04-T06 daily job |
+| 5 | P3-E07-T08 no data calls after a refused role | P2-E04-T08 emit events (Track B files), then P2-E04-T10 preferences. T10 waits for: A step 2 (T03). |
+| 6 | P3-E07-T02 browser runs | P3-E07-T01 home route |
+| 7 | P3-E07-T03 FR coverage check (last). Waits for: every step above. | Review A's pull requests |
 
 A track reports `phase-complete` only when its gap closure steps are done or blocked, and P3-E07-T03 has passed.
 
