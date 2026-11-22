@@ -11,7 +11,15 @@
       "Bash(gh repo edit *)",
       "Bash(git commit --amend *)",
       "Bash(git rebase *)",
-      "Bash(git tag *)"
+      "Bash(git tag *)",
+      "Bash(* --no-verify*)",
+      "Bash(git push *--force*)",
+      "Bash(git push -f*)",
+      "Bash(git push * -f *)",
+      "Bash(git config *)",
+      "Bash(gh auth token*)",
+      "Bash(git branch -D *)",
+      "Bash(git push * --delete *)"
     ]
   },
   "crossSessionInbound": "accept"
