@@ -45,6 +45,12 @@ async function itemId(formCode: s.FormCode) {
   return rows.find((r) => r.formCode === formCode)!.id;
 }
 
+async function seatPanelMember(userId: string, status: s.MemberStatus = "proposed") {
+  const [c] = await db.insert(s.committee).values({ thesisInstanceId: seed.thesis.id, kind: "evaluation_committee" }).onConflictDoNothing().returning();
+  const committeeId = c?.id ?? (await db.select().from(s.committee).where(eq(s.committee.thesisInstanceId, seed.thesis.id)))[0]!.id;
+  await db.insert(s.committeeMember).values({ committeeId, memberUserId: userId, status });
+}
+
 async function uploadAs(ctx: ReturnType<typeof student>, requiredItemId: string, subjectUserId: string | null = null) {
   const req = await requestScanUpload(ctx, { milestoneId: seed.milestone.id, requiredItemId, subjectUserId, ...upload }, files);
   if (!req.ok) throw new Error(req.reason);
@@ -113,7 +119,23 @@ describe("scan upload (FR-DOC-03, BR-19, NFR-02)", () => {
       await requestScanUpload(asAdviser, { milestoneId: seed.milestone.id, requiredItemId: await itemId("TDW_07"), subjectUserId: null, ...upload }, files),
     ).toMatchObject({ ok: false, code: "wrong_actor" });
     await uploadAs(asAdviser, await itemId("TDW_03"));
+    await seatPanelMember(seed.panel[0]!.id);
     await uploadAs(coord(), await itemId("TDW_05"), seed.panel[0]!.id);
+  });
+
+  it("refuses a TDW 05 for a person with no seat, or a declined seat (FR-CMT-03)", async () => {
+    const req = async (subjectUserId: string) =>
+      requestScanUpload(coord(), { milestoneId: seed.milestone.id, requiredItemId: await itemId("TDW_05"), subjectUserId, ...upload }, files);
+    expect(await req(seed.panel[0]!.id)).toMatchObject({ ok: false, code: "subject_not_seat" });
+    await seatPanelMember(seed.panel[0]!.id, "declined");
+    expect(await req(seed.panel[0]!.id)).toMatchObject({ ok: false, code: "subject_not_seat" });
+  });
+
+  it("writes an audit record for the Prepared step (NFR-03)", async () => {
+    await requestScanUpload(student(), { milestoneId: seed.milestone.id, requiredItemId: await itemId("TDW_07"), subjectUserId: null, ...upload }, files);
+    const rows = await db.select().from(s.auditRecord).where(eq(s.auditRecord.action, "document.prepared"));
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ actorUserId: seed.student.id, targetTable: "document_record" });
   });
 
   it("refuses a bad file before it signs a link (NFR-10)", async () => {

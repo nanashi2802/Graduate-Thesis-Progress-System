@@ -4,13 +4,22 @@
 // `document_event` history row for each step and one audit record, in one transaction.
 // The browser sends the bytes straight to storage (NFR-12). The server never gets them.
 import "server-only";
-import { and, asc, eq, isNull, max } from "drizzle-orm";
+import { and, asc, eq, isNull, max, ne } from "drizzle-orm";
 import { canUploadScan, decideDocumentChange, type DocumentActor, type DocumentState } from "@/server/domain/documents";
 import { uploadProblem, type UploadRequest } from "@/server/files/rules";
 import type { UploadLink } from "@/server/files/storage";
 import { AccessDeniedError, requireActive, type DataContext } from "./access";
 import { recordAudit } from "./audit";
-import { documentEvent, documentFile, documentRecord, milestoneInstance, templateRequiredItem, type UserRole } from "./schema";
+import {
+  committee,
+  committeeMember,
+  documentEvent,
+  documentFile,
+  documentRecord,
+  milestoneInstance,
+  templateRequiredItem,
+  type UserRole,
+} from "./schema";
 import { requireThesisRead } from "./scope";
 
 /** The two storage calls this module needs. The app passes `src/server/files/storage.ts`; tests pass a fake. */
@@ -28,7 +37,8 @@ export type DocBlockCode =
   | "bad_file"
   | "bad_key"
   | "hash_mismatch"
-  | "subject_required";
+  | "subject_required"
+  | "subject_not_seat";
 
 export type DocResult<T> = { ok: true; value: T } | { ok: false; code: DocBlockCode; reason: string };
 
@@ -42,6 +52,7 @@ const MESSAGES: Record<DocBlockCode, string> = {
   bad_key: "The upload is not valid. Start the upload again.",
   hash_mismatch: "The stored file does not match the hash from your browser. No record is made.",
   subject_required: "Choose the member for this NDA.",
+  subject_not_seat: "This person has no seat on the committee of this thesis.",
 };
 
 const refuse = <T>(code: DocBlockCode, reason?: string): DocResult<T> => ({ ok: false, code, reason: reason ?? MESSAGES[code] });
@@ -133,6 +144,15 @@ export async function requestScanUpload(
   if (problem) return refuse("bad_file", problem);
 
   const subject = item.formCode === "TDW_05" ? input.subjectUserId : null;
+  if (subject) {
+    // An NDA belongs to a Panel Member with a seat that is not declined (FR-CMT-03).
+    const [seat] = await ctx.db
+      .select({ id: committeeMember.id })
+      .from(committeeMember)
+      .innerJoin(committee, eq(committee.id, committeeMember.committeeId))
+      .where(and(eq(committee.thesisInstanceId, m.thesisInstanceId), eq(committeeMember.memberUserId, subject), ne(committeeMember.status, "declined")));
+    if (!seat) return refuse("subject_not_seat");
+  }
   const record = await ctx.db.transaction(async (tx) => {
     const [found] = await tx
       .select()
@@ -151,6 +171,12 @@ export async function requestScanUpload(
       .values({ milestoneInstanceId: m.id, templateRequiredItemId: item.id, formCode: item.formCode, subjectUserId: subject, state: "prepared" })
       .returning();
     await step(tx, ctx, doc!.id, "not_started", "prepared", null);
+    await recordAudit({ db: tx, actor: ctx.actor }, {
+      action: "document.prepared",
+      targetTable: "document_record",
+      targetId: doc!.id,
+      detail: { formCode: item.formCode },
+    });
     return doc!;
   });
   if (!canUploadScan(record.state)) return refuse("locked");
