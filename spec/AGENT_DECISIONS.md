@@ -47,3 +47,24 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** The optional variable `NOTIFY_TEST_TO` in `.env.example`. It adds no new route to secure. It proves the cron and the email in one run. The email holds the event, the next action, the deadline and a link only (FR-NTF-02, `AGENTS.md` §10). Remove the variable in Vercel after the spike.
 - **Risk:** low. In Vercel, `NOTIFY_TEST_TO` is `delivered@resend.dev`, the Resend test address. It proves the send and puts no personal address in Vercel. With `onboarding@resend.dev`, Resend sends only to that address or to the account owner.
 - **Undo:** Remove the variable, and remove the test branch in `src/server/notify/daily.ts`.
+
+### AD-B-005 — Start the P1-E04 domain part before the Phase 1 gates
+- **Task:** P1-E04-T01, P1-E04-T02
+- **Options:** wait for the Phase 1 gates (`BUILD_PLAN.md` §1: ERD v1.1 approved, spike report accepted); write the pure code now as look-ahead work
+- **Decision and reason:** Write it now. §8 says Track B starts Phase 1 with this part, and the code has no database, no route and no dependency. It follows ERD v1.1 §7.1 as written. If the human changes the ERD, only `src/server/domain/` and its tests change.
+- **Risk:** low. The code is pure and nothing calls it yet.
+- **Undo:** Revert the commits with this ID. Delete `src/server/domain/`.
+
+### AD-B-006 — Return purpose for the Coordinator (BR-13)
+- **Task:** P1-E04-T02
+- **Options:** trust the Coordinator with no check; ask the Coordinator to pick a purpose (`compliance`, `eligibility`) when they Return
+- **Decision and reason:** `checkReturn` takes a `purpose`. A Coordinator Return must be `compliance` or `eligibility` (BR-13, INV-19). The Adviser and Panel Members can Return for content. ERD v1.1 has no column for the purpose. `agent-a` decides whether `gate_action` stores it (P1-E04 wiring). Until then the purpose is a UI choice only.
+- **Risk:** medium. The purpose is not stored, so an audit cannot show it. The human must check whether BR-13 needs it on the record.
+- **Undo:** Remove the `purpose` check in `src/server/domain/gates.ts`.
+
+### AD-B-007 — `DEFENSE_HELD` needs the verdict
+- **Task:** P1-E04-T01
+- **Options:** set `DEFENSE_HELD` at the start time and the verdict later; set `DEFENSE_HELD` when the Lead Panel Member or Panel Chair records the verdict
+- **Decision and reason:** The verdict. ERD §7.1 gives the actor as the Lead Panel Member or Panel Chair with guard INV-15, which is the verdict rule. So the verdict and the status change happen together. A Disapproved verdict then moves the milestone back to `DRAFT` (system step, FR-WFL-09), and `CLOSED` refuses a Disapproved attempt.
+- **Risk:** low. It matches ERD §7.1 and §7.2 (`defense_attempt` stays `held` when Disapproved).
+- **Undo:** Change the `DEFENSE_SCHEDULED` to `DEFENSE_HELD` guard in `src/server/domain/milestone.ts`.

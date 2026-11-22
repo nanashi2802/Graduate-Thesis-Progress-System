@@ -290,6 +290,31 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 
 Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09 → E10 → E11, E12 → E13.
 
+### 3.1 P1-E04 domain part (Track B, `agent-b`, look-ahead)
+
+**Decisions:** AD-B-005 to AD-B-007. The wiring to the data layer and the gate screens stays with `agent-a` (§8 Phase 1 step 4).
+
+### P1-E04-T01 — Milestone state machine (pure)
+- **Goal:** One function decides each status change of ERD §7.1, with the actor and the guard, and gives a reason for each refusal.
+- **Covers:** FR-WFL-02, FR-WFL-08, FR-WFL-09, FR-WFL-13, BR-02, BR-13, BR-18, INV-12, INV-13, INV-15 to INV-18
+- **Reads:** `ERD.md` §7.1, Operational Flow v3.1 §4.7
+- **Changes:** `src/server/domain/milestone.ts`, `tests/unit/domain/milestone.test.ts`
+- **Depends on:** none (pure code)
+- **Done when:**
+  - [x] Each of the 16 rows of ERD §7.1 has a test for its actor and its guard.
+  - [x] INV-17: only the Coordinator sets `CLOSED`, `CERTIFIED`, `FINAL_APPROVED` and `CLEARED`.
+  - [x] Each refusal has a code and a message.
+- **Tests:** unit (Vitest)
+
+### P1-E04-T02 — Gate checks for one actor (pure)
+- **Goal:** Check one actor's Gate 1a, Gate 1b, Gate 2 or Return before the data layer writes the `gate_action` row.
+- **Covers:** FR-WFL-03 to FR-WFL-05, FR-WFL-07, BR-13, BR-20, INV-19 to INV-22
+- **Changes:** `src/server/domain/gates.ts`, `tests/unit/domain/gates.test.ts`
+- **Depends on:** T01
+- **Done when:**
+  - [x] Tests cover open threads, IPMO in Milestone 2, Pre-Final revision items in Milestone 3, IPMO and RPO at Gate 2, and the Return reason and purpose.
+- **Tests:** unit (Vitest)
+
 ---
 
 ## 4. Phase 2 — Milestone 2 and email
