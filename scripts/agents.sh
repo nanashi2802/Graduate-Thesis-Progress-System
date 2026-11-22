@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Make the agent worktrees (agent-a, agent-b and the reviewer agent-r) for autonomous build mode (AGENTS.md §13).
-# Run from the main checkout, once, after `dev` exists on origin. Safe to run again.
+# Usage: scripts/agents.sh [start]. Run from the main checkout. Safe to run again.
+# Without "start" it only makes the worktrees. With "start" it also starts the three agents.
 set -euo pipefail
 root="$(git rev-parse --show-toplevel)"
 cd "$root"
@@ -31,6 +32,10 @@ rdir=".claude/worktrees/agent-r"
 (cd "$rdir" && pnpm install --frozen-lockfile)
 echo "Ready: $rdir (detached, reviewer)"
 
-echo
-echo "Start the agents (see docs/agents/KICKOFF.md):"
-echo "  scripts/agents-start.sh"
+[ "${1:-}" = start ] || { echo "Worktrees ready. Start with: scripts/agents.sh start"; exit 0; }
+for name in agent-r agent-a agent-b; do
+  settings="$root/.claude/agent-session.json"
+  [ "$name" = agent-r ] && settings="$root/.claude/agent-review-session.json"
+  (cd "$root/.claude/worktrees/$name" && claude --bg --name "$name" --settings "$settings" "$(cat "$root/docs/agents/$name.md")")
+done
+echo "Started. Watch with: claude agents"

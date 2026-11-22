@@ -1,60 +1,23 @@
 # Agent kickoff (autonomous build mode)
 
-**Rules:** `AGENTS.md` §13. **Work order:** `spec/BUILD_PLAN.md` §8. **Decision log:** `spec/AGENT_DECISIONS.md`.
+**Rules:** `AGENTS.md` §13. **Work order:** `spec/BUILD_PLAN.md` §8. **Decision log:** `spec/AGENT_DECISIONS.md`. **Prompts:** `docs/agents/agent-a.md`, `agent-b.md`, `agent-r.md`.
 
-## 1. Before the first start (human, once)
+## Start
 
-1. Done 22 Nov 2026: `dev` exists and is the default branch. The GitHub rulesets lock `main` and guard `dev` (`AGENTS.md` §3).
-2. Run `scripts/agents-setup.sh`. It makes the worktrees `agent-a`, `agent-b` and `agent-r` in `.claude/worktrees/`, pushes the two builder branches, copies `.env.local` and installs dependencies. Safe to run again.
-3. Keep the computer on and plugged in. Set Windows sleep to "never" while they run. A shutdown or restart stops the agents.
-4. Run `scripts/agents-start.sh`. It starts the three agents as background sessions in `auto` permission mode.
-5. To release to `main` later: turn off the `lock-main` ruleset in GitHub, merge `dev` into `main` with a pull request, and turn the ruleset on again.
+1. Keep the computer on and plugged in. A shutdown or restart stops the agents.
+2. From the main checkout, run `scripts/agents.sh start`. It makes the worktrees if they are missing, then starts the three agents in bypass permission mode. The first start asks you once to accept the bypass notice.
 
-**Pipeline test (22 Nov 2026):** one pull request went from `agent-a` through `ci`, `commit-policy` and `agent-review` into `dev`.
-
-## 2. While they run (human, optional)
+## While they run
 
 | To do this | Run |
 | :---- | :---- |
-| See both agents | `claude agents` |
-| Read an agent's recent output | `claude logs agent-a` |
-| Talk to an agent | `claude attach agent-a` (detach with `/exit`; detach does not stop it) |
+| See the agents | `claude agents` |
+| See what each builder works on | `gh pr list --base dev` (each task has a draft pull request) |
+| Read an agent's output | `claude logs agent-a` |
+| Talk to an agent | `claude attach agent-a` (`/exit` detaches and does not stop it) |
 | Stop an agent | `claude stop agent-a` |
-| Restart after a reboot | `claude respawn` (a shutdown or restart stops background sessions) |
-| See the decisions | `spec/AGENT_DECISIONS.md` on `dev` |
+| Restart after a reboot | `claude respawn` |
 
-An agent that shows "Needs input" hit a permission prompt or paused after many `auto` mode blocks. Attach and answer it.
+## Release to `main`
 
-## 3. Prompts
-
-<!-- prompt:agent-r -->
-You are agent-r, the reviewer, in autonomous build mode. Your worktree is this folder. It is a detached checkout. You never commit or push.
-Read AGENTS.md in full first, and follow §13 exactly, mainly §13.7. Then read spec/BUILD_PLAN.md §0.2 and §8, and spec/AGENT_DECISIONS.md.
-Review each pull request into dev as §13.7 says, and set the agent-review status. Be strict on blocking findings. Keep notes short.
-The human will not answer. Do not ask the human.
-Start now: run gh pr list --base dev --state open and review any ready pull request. Then end your turn. A "review #<n>" message from agent-a or agent-b wakes you.
-Stop when agent-a tells you that P3-E06 is merged.
-<!-- end -->
-
-
-The start script sends the text between the markers. Edit the text, not the markers.
-
-<!-- prompt:agent-a -->
-You are agent-a, the integrator, in autonomous build mode. Your worktree is this folder and your branch is agent-a.
-Read AGENTS.md in full first, and follow §13 exactly. Then read spec/BUILD_PLAN.md §0 and §8, and spec/AGENT_DECISIONS.md.
-Do Track A in spec/BUILD_PLAN.md §8, task by task, with the task loop in AGENTS.md §13.2. Merge pull requests into dev as §13.2 step 8 says.
-The human will not answer. Do not ask the human. Where the normal rules say ask, decide and log the decision (§13.3).
-Talk to agent-b with SendMessage. Start now: send agent-b a short message with your first task, then begin it.
-When you must wait for agent-b, do look-ahead work (§8). If there is none, end your turn; agent-b's message wakes you.
-Stop only as §13.5 says.
-<!-- end -->
-
-<!-- prompt:agent-b -->
-You are agent-b in autonomous build mode. Your worktree is this folder and your branch is agent-b.
-Read AGENTS.md in full first, and follow §13 exactly. Then read spec/BUILD_PLAN.md §0 and §8, and spec/AGENT_DECISIONS.md.
-Do Track B in spec/BUILD_PLAN.md §8, task by task, with the task loop in AGENTS.md §13.2. agent-a merges your pull requests into dev. Do not merge them yourself.
-The human will not answer. Do not ask the human. Where the normal rules say ask, decide and log the decision (§13.3).
-Talk to agent-a with SendMessage. Start now: send agent-a a short message with your first task, then begin it. Your first job in P0-E05 is the Vercel project, because agent-a needs its domain for CORS.
-When you must wait for agent-a, do look-ahead work (§8). If there is none, end your turn; agent-a's message wakes you.
-Stop only as §13.5 says.
-<!-- end -->
+Turn off the `lock-main` ruleset in GitHub. Merge `dev` into `main` with a pull request. Turn the ruleset on again.
