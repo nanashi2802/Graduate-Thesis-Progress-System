@@ -11,5 +11,8 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["tests/unit/**/*.test.ts"],
+    // Each worker runs its own PGlite database (~0.4–1.2 GB). Cap the workers so
+    // up to 3 parallel agent runs fit in RAM.
+    maxWorkers: 4,
   },
 });
