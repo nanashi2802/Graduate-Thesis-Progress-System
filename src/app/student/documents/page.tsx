@@ -6,8 +6,15 @@ import { DocumentStamp } from "@/components/status";
 import { getSessionState } from "@/server/auth/session";
 import { getDb } from "@/server/data/db";
 import { deliverables, readableMilestones } from "@/server/data/documents";
-import { canUploadScan } from "@/server/domain/documents";
+import { canUploadScan, type DocumentState } from "@/server/domain/documents";
 import { ScanUploader } from "./scan-uploader";
+
+// Why a locked scan takes no new file. The text follows the state (BR-18, BR-19).
+function lockedReason(state: DocumentState | undefined): string {
+  if (state === "verified") return "Verified against the paper. No action is needed.";
+  if (state === "physical_received") return "The Coordinator has the paper. No action is needed.";
+  return "The scan is locked. A new file needs a Return or a Mismatch first.";
+}
 
 const SIGNERS = (s: string | null) => (s ? `Signed by ${s}.` : "");
 
@@ -44,7 +51,7 @@ export default async function Page() {
                 {mine && open ? (
                   <ScanUploader milestoneId={milestone.id} requiredItemId={item.requiredItemId} label={item.label} />
                 ) : (
-                  <ActionButton type="button" variant="outline" size="sm" blockedReason={mine ? "The scan is locked. A new file needs a Return or a Mismatch first." : `The ${item.uploaderRole === "adviser" ? "Adviser" : "Coordinator"} uploads this form.`}>
+                  <ActionButton type="button" variant="outline" size="sm" blockedReason={mine ? lockedReason(record?.state) : `The ${item.uploaderRole === "adviser" ? "Adviser" : "Coordinator"} uploads this form.`}>
                     Upload {item.label}
                   </ActionButton>
                 )}
