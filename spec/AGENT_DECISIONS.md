@@ -352,6 +352,13 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Risk:** low. The data layer checks every action again (NFR-01).
 - **Undo:** revert the commits with AD-A-024.
 
+### AD-B-023 — The app shell wraps each portal, and the notification center is a panel with no route
+- **Task:** P1-E12-T04 (new)
+- **Options:** build the shell and the notification center now; wait for a shell task. For the center: a route page `/notifications`, or a panel in the top bar.
+- **Decision and reason:** Build the shell now. No role page had navigation, so a user could not reach C3 to C5, S3 or A3 from the dashboard. The four portal layouts (`src/app/{student,adviser,panel,coordinator}/layout.tsx`, made in P0-E03) now wrap `RoleGate` around `RoleShell`. The shell follows DESIGN.md §5.1: a maroon rule, a 56 px top bar, a 240 px sidebar, and a menu in the top bar below 1024 px. The sidebar lists only the routes that exist. Routes with an id in the path open from the dashboards. UTP §3.7 says the notification center is a panel with no route, and SITEMAP counts 30 routes. So it is a `details` panel in the top bar. It needs no script and shows the 10 newest rows, with Mark read and Mark all read.
+- **Risk:** low. The layouts belong to nobody in the §13.1 table, and `agent-a` made them. I told `agent-a`. A later route needs one line in `role-shell.tsx`.
+- **Undo:** revert the commits with AD-B-023.
+
 ### AD-A-025 — The Milestone 1 exit test runs on the data layer. The browser run is blocked
 - **Task:** P1-E13-T03
 - **Options:** only a Playwright run through the screens; a Vitest flow through the real data layer on PGlite now, and the browser run when a seeded sign-in exists

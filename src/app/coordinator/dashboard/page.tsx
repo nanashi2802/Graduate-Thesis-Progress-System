@@ -10,8 +10,8 @@ import { coordinatorOverview, QUEUE_LABEL, type QueueItem, type QueueKind } from
 import type { MilestoneCode } from "@/server/domain/milestone";
 import { sessionContext } from "../_lib/action";
 
-// Where each queue item opens (SITEMAP C3 to C7). C7 (clearance) is not built yet.
-function hrefOf(q: QueueItem): string {
+// Where each queue item opens (SITEMAP C3 to C6). C7 (clearance) is not built yet: those items show a reason, not a link (BR-18).
+function hrefOf(q: QueueItem): string | null {
   switch (q.kind) {
     case "appoint_committee":
       return `/coordinator/committees?thesis=${q.thesisId}`;
@@ -24,7 +24,7 @@ function hrefOf(q: QueueItem): string {
       return q.attemptId ? `/coordinator/defense/${q.attemptId}` : "/coordinator/schedule";
     case "final_approval":
     case "clearance":
-      return "/coordinator/clearance";
+      return null;
   }
 }
 
@@ -86,9 +86,13 @@ export default async function Page() {
                         <td className={td}>{MILESTONE_LABEL[q.milestone]}</td>
                         <td className={td}>{waiting(q.daysWaiting)}</td>
                         <td className={td}>
-                          <Link className={linkClass} href={hrefOf(q)}>
-                            Open<span className="sr-only"> {QUEUE_LABEL[q.kind]} for {q.studentName}</span>
-                          </Link>
+                          {hrefOf(q) ? (
+                            <Link className={linkClass} href={hrefOf(q)!}>
+                              Open<span className="sr-only"> {QUEUE_LABEL[q.kind]} for {q.studentName}</span>
+                            </Link>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">The clearance screen is not open yet.</span>
+                          )}
                         </td>
                       </tr>
                     ))}
