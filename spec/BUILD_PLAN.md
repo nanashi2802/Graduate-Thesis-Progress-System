@@ -315,6 +315,49 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [x] Tests cover open threads, IPMO in Milestone 2, Pre-Final revision items in Milestone 3, IPMO and RPO at Gate 2, and the Return reason and purpose.
 - **Tests:** unit (Vitest)
 
+### 3.2 P1-E14 Shared UI parts (Track B, `agent-b`, §8 Phase 1 step 2)
+
+**Decisions:** AD-B-008 to AD-B-010. **Main spec:** `DESIGN.md` §3, §4, §6, §7, §11. Screens import these parts. They hold no data access.
+
+### P1-E14-T01 — Design tokens and fonts
+- **Goal:** The app uses the `DESIGN.md` §11 colors, radii, status tones and the three fonts.
+- **Covers:** NFR-04, NFR-06, `DESIGN.md` §3, §4, §11
+- **Changes:** `src/app/globals.css`, `src/app/layout.tsx` (nobody owns them)
+- **Done when:**
+  - [x] The `@theme` ramps, the shadcn tokens of §11.2 and the tone tokens of §11.3 exist.
+  - [x] `next/font/google` loads Source Serif 4, IBM Plex Sans and IBM Plex Mono.
+
+### P1-E14-T02 — Status pill, document stamp and outside chip
+- **Goal:** One map gives the label and tone for each status, and three shapes show them (`DESIGN.md` §3.4, §7.1).
+- **Covers:** BR-17, `DESIGN.md` P8, WCAG 1.4.1 (icon and label on each tone)
+- **Changes:** `src/components/status/`, `tests/unit/components/status.test.ts`
+- **Done when:**
+  - [x] Each `MilestoneStatus` has a label and a tone. `COMMITTEE_APPOINTED` shows "Panel appointed" in the Final milestone.
+  - [x] Each pill has an icon and a text label.
+
+### P1-E14-T03 — Action button with a reason (BR-18)
+- **Goal:** A blocked action stays in the tab order and shows its reason under it (`DESIGN.md` §7.3, §7.4).
+- **Covers:** BR-18, BR-19 (no solid red button), NFR-04
+- **Changes:** `src/components/ui/button.tsx`, `src/components/action-button.tsx`, `tests/unit/components/action-button.test.ts`
+- **Done when:**
+  - [x] A blocked action has `aria-disabled="true"`, not `disabled`, and `aria-describedby` points to the reason.
+  - [x] A blocked action with an empty reason is a type error and a runtime error.
+
+### P1-E14-T04 — Milestone stepper
+- **Goal:** Four nodes (Proposal, Pre-Final, Final, Clearance) show completed, active and locked (`DESIGN.md` §7.2).
+- **Covers:** FR-TRK-01, `DESIGN.md` P9 (check, no star)
+- **Changes:** `src/components/milestone-stepper.tsx`, `tests/unit/components/stepper.test.ts`
+- **Done when:**
+  - [x] The active node has `aria-current="step"`. Each node has a text state for screen readers.
+
+### P1-E14-T05 — Docket, flag banner, locked banner and empty state
+- **Goal:** The record screen parts of `DESIGN.md` §5.2, §7.5, §7.6 and §7.11.
+- **Covers:** BR-07, BR-17, BR-18, `DESIGN.md` P1
+- **Changes:** `src/components/docket.tsx`, `src/components/banners.tsx`, `src/components/empty-state.tsx`, `tests/unit/components/docket.test.ts`
+- **Done when:**
+  - [x] With no blocker, the Docket says "Nothing blocks this step."
+  - [x] A flag banner never disables the action under it (BR-17).
+
 ---
 
 ## 4. Phase 2 — Milestone 2 and email
