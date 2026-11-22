@@ -737,6 +737,99 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 
 ---
 
+### 3.10 P1-E04 Wiring of the state machine to the data layer (Track A, `agent-a`, §8 Phase 1 step 4)
+
+**Decisions:** AD-A-017 (outside status table now), AD-A-018 (gate rows and the Return rule). The pure rules are in 3.1. Gate screens come after P1-E06 to P1-E09 give the facts their data.
+
+### P1-E04-T03 — Milestone facts and outside statuses
+- **Goal:** One read builds the `MilestoneFacts` of a milestone. The Coordinator records the outside statuses.
+- **Covers:** FR-WFL-10, BR-14, INV-08, INV-27, NFR-01, NFR-03
+- **Changes:** `src/server/data/milestone-facts.ts`, `src/server/data/outside.ts`, `src/server/data/schema/outside.ts`, `db/migrations/0004_outside_status.sql`, `db/migrations/0005_outside_status_rules.sql`
+- **Done when:**
+  - [x] Only the Coordinator writes an outside status. The database also refuses a wrong value and a non-Coordinator. The latest event wins.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E04-T04 — Status changes
+- **Goal:** `transitionMilestone` runs one row of ERD §7.1 with the actor, the guard, the gate row, the audit row and the lock rules.
+- **Covers:** FR-WFL-02, FR-WFL-03, FR-WFL-08, FR-WFL-09, FR-WFL-13, BR-02, BR-07, BR-13, BR-18, INV-17 to INV-20
+- **Changes:** `src/server/data/milestones.ts`, `tests/unit/data/milestones.test.ts`
+- **Done when:**
+  - [x] A wrong role, a blocked guard and a user with no access are refused with a reason. `checkTransition` gives the reason with no write.
+  - [x] A Return keeps its reason and goes to DRAFT (INV-18, INV-19).
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E04-T05 — Gate 1b and Gate 2
+- **Goal:** Each endorsement is one `gate_action` row. The last Gate 1b endorsement moves the milestone and locks the manuscript. Gate 2 records one approval for each member.
+- **Covers:** FR-WFL-04, FR-WFL-07, BR-07, BR-20, INV-21, INV-22
+- **Changes:** `src/server/data/milestones.ts`, `tests/unit/data/milestones.test.ts`
+- **Done when:**
+  - [x] A member with an open thread, a second endorsement and a user with no seat are refused.
+  - [ ] Gate 2 and the close to CLEARED run end-to-end (P3-E03, P3-E04 give the data).
+- **Tests:** unit (Vitest with PGlite)
+
+### 3.11 P1-E06 Manuscript workspace and threads (Track A, `agent-a`, §8 Phase 1 step 5)
+
+**Decisions:** AD-A-019 (comment contexts A and B). Context C and the Defense Day threads are P3-E02. Document comments (FR-REV-11) and the review queue (FR-REV-09) wait for the screens (the data part is in T04).
+
+### P1-E06-T01 — Commits and the Ready mark
+- **Goal:** The Student uploads a commit straight to storage, the server checks the hash, and a new commit clears the Ready mark.
+- **Covers:** FR-REV-01, FR-REV-02, FR-REV-07, FR-REV-08, BR-07, INV-05, INV-06, INV-09, INV-10, INV-11, NFR-02
+- **Changes:** `src/server/data/manuscript.ts`, `tests/unit/data/manuscript.test.ts`
+- **Done when:**
+  - [x] A locked manuscript, a hash mismatch, a bad file and a repeated key are refused. Only the Student of the thesis uploads.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E06-T02 — Threads and replies
+- **Goal:** The Adviser and the Panel Members post threads, the Student replies, only the author resolves, and an older commit shows an Outdated badge.
+- **Covers:** FR-REV-04, FR-REV-05, FR-REV-06, BR-05, BR-06, INV-07, INV-24, NFR-01
+- **Changes:** `src/server/data/manuscript.ts`, `tests/unit/data/manuscript.test.ts`
+- **Done when:**
+  - [x] Posting follows AD-A-019. A Panel Member needs the verified forms. A stranger has no access.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E06-T03 — Screens S2, A2 and P2
+- **Goal:** The split screen with the PDF viewer and the thread panel, for the Student, the Adviser and the Panel Member.
+- **Covers:** FR-REV-03, BR-18
+- **Depends on:** T01, T02, P0-E04 (signed links), the shared UI parts (P1-E14)
+- **Done when:**
+  - [ ] Each action calls the T01 and T02 functions through a server action and shows the refusal reason.
+- **Tests:** typecheck, build
+
+### 3.12 P1-E08 Consultations and availability (Track A, `agent-a`, §8 Phase 1 step 6)
+
+**Decisions:** AD-A-020 (weekly copies, the link rule, the log milestone). Pure rules are in `src/server/data/schedule-rules.ts`. The TDW 03 signed scan is a document of P1-E07.
+
+### P1-E08-T01 — Slots and the common free time
+- **Goal:** The Adviser publishes consultation slots. The Adviser and Panel Members publish defense slots. The system finds the periods in which every required member is free.
+- **Covers:** FR-SCH-01, FR-SCH-07, FR-SCH-08, NFR-01
+- **Changes:** `src/server/data/schedule-rules.ts`, `src/server/data/consultations.ts`, `tests/unit/data/consultations.test.ts`
+- **Done when:**
+  - [x] An Online slot needs a link. A slot in the past, an overlap and a role that may not publish are refused.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E08-T02 — Booking and the meeting link
+- **Goal:** The Student requests an open slot of their Adviser with an agenda and linked threads. The Adviser confirms or declines. The link goes only to the owner and the booked Student.
+- **Covers:** FR-SCH-02, FR-SCH-03, FR-SCH-04, INV-28
+- **Changes:** `src/server/data/consultations.ts`, `tests/unit/data/consultations.test.ts`
+- **Done when:**
+  - [x] Two Students cannot take one slot. A link shows only after a confirm.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E08-T03 — Consultation log
+- **Goal:** The Adviser drafts a log entry for a held consultation, the Student adds the topic, the Adviser confirms. The log shows as the TDW 03 view.
+- **Covers:** FR-SCH-05, FR-SCH-06, BR-16
+- **Changes:** `src/server/data/consultations.ts`, `tests/unit/data/consultations.test.ts`
+- **Done when:**
+  - [x] No minimum count. A confirmed entry does not change. A Panel Member does not read the log.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E08-T04 — Screens S4, A3 and A4
+- **Goal:** The booking, log and slot screens call the T01 to T03 functions.
+- **Depends on:** T01 to T03, P1-E14
+- **Done when:**
+  - [ ] Each action shows its refusal reason (BR-18).
+- **Tests:** typecheck, build
+
 ## 4. Phase 2 — Milestone 2 and email
 
 **Goal:** One Student completes the Pre-Final Defense.

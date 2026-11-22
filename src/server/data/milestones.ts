@@ -1,0 +1,330 @@
+// Milestone status changes and gate actions (ERD §7.1, FR-WFL-02 to 09, BR-02, BR-13, BR-07, INV-12 to INV-22).
+// The pure rules are in src/server/domain/milestone.ts and gates.ts. This file loads the facts,
+// asks the rules, writes the change and the audit row in one transaction. Server only.
+import "server-only";
+import { and, eq, gt, inArray } from "drizzle-orm";
+import {
+  checkGate1b,
+  checkGate2,
+  checkReturn,
+  type GateBlockCode,
+  type ReturnPurpose,
+} from "@/server/domain/gates";
+import {
+  decideTransition,
+  type BlockCode,
+  type Decision,
+  type MilestoneStatus,
+  type TransitionActor,
+} from "@/server/domain/milestone";
+import { AccessDeniedError, requireActive, type DataContext } from "./access";
+import { recordAudit } from "./audit";
+import { InputProblem } from "./coordinator";
+import { lastReturnGateId, loadMilestoneContext, loadMilestoneFacts, type MilestoneContext } from "./milestone-facts";
+import {
+  committeeMember,
+  critiqueThread,
+  defenseAttempt,
+  gateAction,
+  manuscriptCommit,
+  milestoneInstance,
+  revisionAcceptance,
+  revisionItem,
+  submissionPr,
+  type GateKindValue,
+  type GateResultValue,
+} from "./schema";
+import { requireThesisRead } from "./scope";
+
+// A refused change. The screen shows `message` as it is (BR-18).
+export class TransitionRefused extends InputProblem {
+  constructor(
+    reason: string,
+    readonly code: BlockCode | GateBlockCode | "gate_done" | "wrong_status",
+  ) {
+    super(reason);
+    this.name = "TransitionRefused";
+  }
+}
+
+type Tx = DataContext["db"];
+
+async function loadAllowed(ctx: DataContext, milestoneId: string): Promise<MilestoneContext> {
+  requireActive(ctx.actor);
+  const mctx = await loadMilestoneContext(ctx.db, milestoneId);
+  if (!mctx) throw new InputProblem("This milestone does not exist.");
+  await requireThesisRead(ctx, mctx.thesis.id);
+  return mctx;
+}
+
+// The role of the actor in the rule table. A Panel Member needs an accepted seat (BR-08).
+async function transitionActor(ctx: DataContext, mctx: MilestoneContext): Promise<TransitionActor> {
+  const { role, userId } = ctx.actor;
+  if (role !== "panel_member") return { kind: role };
+  if (!mctx.memberIds.includes(userId) || !mctx.committeeId) {
+    // A substitute can read the thesis but holds no seat on this committee (FR-DEF-12).
+    return { kind: "panel_member", designation: "none" };
+  }
+  const [seat] = await ctx.db
+    .select({ designation: committeeMember.designation })
+    .from(committeeMember)
+    .where(and(eq(committeeMember.committeeId, mctx.committeeId), eq(committeeMember.memberUserId, userId)));
+  return { kind: "panel_member", designation: seat?.designation ?? "none" };
+}
+
+// Threads that this user opened on the commits of the PR and has not resolved (INV-20 to INV-22).
+async function ownOpenThreads(db: Tx, prId: string | undefined, userId: string): Promise<number> {
+  if (!prId) return 0;
+  const rows = await db
+    .select({ id: critiqueThread.id })
+    .from(critiqueThread)
+    .innerJoin(manuscriptCommit, eq(manuscriptCommit.id, critiqueThread.commitId))
+    .where(
+      and(eq(manuscriptCommit.submissionPrId, prId), eq(critiqueThread.authorUserId, userId), eq(critiqueThread.state, "OPEN")),
+    );
+  return rows.length;
+}
+
+// INV-21: in Milestone 3 the member accepted every Pre-Final revision item.
+async function acceptedPreFinalItems(db: Tx, thesisId: string, userId: string): Promise<boolean> {
+  const [pre] = await db
+    .select({ id: milestoneInstance.id })
+    .from(milestoneInstance)
+    .where(and(eq(milestoneInstance.thesisInstanceId, thesisId), eq(milestoneInstance.milestoneCode, "pre_final")));
+  if (!pre) return true;
+  const attempts = await db.select({ id: defenseAttempt.id }).from(defenseAttempt).where(eq(defenseAttempt.milestoneInstanceId, pre.id));
+  if (attempts.length === 0) return true;
+  const items = await db
+    .select({ id: revisionItem.id })
+    .from(revisionItem)
+    .where(inArray(revisionItem.defenseAttemptId, attempts.map((a) => a.id)));
+  if (items.length === 0) return true;
+  const accepted = await db
+    .select({ itemId: revisionAcceptance.revisionItemId })
+    .from(revisionAcceptance)
+    .where(and(inArray(revisionAcceptance.revisionItemId, items.map((i) => i.id)), eq(revisionAcceptance.memberUserId, userId)));
+  return items.every((i) => accepted.some((a) => a.itemId === i.id));
+}
+
+// Read only. The screen uses it to show a disabled action with its reason (BR-18).
+export async function checkTransition(
+  ctx: DataContext,
+  milestoneId: string,
+  to: MilestoneStatus,
+  input: { reason?: string | null } = {},
+): Promise<Decision> {
+  const mctx = await loadAllowed(ctx, milestoneId);
+  const actor = await transitionActor(ctx, mctx);
+  const facts = await loadMilestoneFacts(ctx.db, mctx);
+  facts.returnReason = input.reason ?? null;
+  return decideTransition(mctx.code, mctx.milestone.status, to, actor, facts);
+}
+
+// Which gate row a status change leaves (ERD §7.1: "each change writes one gate_action or audit_record").
+const GATE_FOR: Partial<Record<MilestoneStatus, { gate: GateKindValue; result: GateResultValue }>> = {
+  ADVISER_ENDORSED: { gate: "gate_1a", result: "endorsed" },
+  DEFENSE_SCHEDULED: { gate: "date_confirmation", result: "recorded" },
+  CLOSED: { gate: "stage_close", result: "recorded" },
+  CERTIFIED: { gate: "certification", result: "recorded" },
+  FINAL_APPROVED: { gate: "stage_close", result: "recorded" },
+  CLEARED: { gate: "clearance_close", result: "recorded" },
+};
+
+async function applyStatus(
+  tx: Tx,
+  ctx: DataContext,
+  mctx: MilestoneContext,
+  to: MilestoneStatus,
+  extra: { returnReason?: string | null } = {},
+): Promise<void> {
+  const from = mctx.milestone.status;
+  // The status guard stops two requests from both moving the same milestone.
+  const changed = await tx
+    .update(milestoneInstance)
+    .set({ status: to, ...(extra.returnReason !== undefined ? { returnReason: extra.returnReason } : {}) })
+    .where(and(eq(milestoneInstance.id, mctx.milestone.id), eq(milestoneInstance.status, from)))
+    .returning({ id: milestoneInstance.id });
+  if (changed.length === 0) throw new TransitionRefused("The milestone changed. Reload the page.", "wrong_status");
+  // BR-07: the manuscript locks at Gate 1b and unlocks when the defense closes.
+  if (mctx.pr && to === "COMMITTEE_ENDORSED") {
+    await tx.update(submissionPr).set({ lockedAt: new Date() }).where(eq(submissionPr.id, mctx.pr.id));
+  }
+  if (mctx.pr && to === "CLOSED") {
+    await tx.update(submissionPr).set({ lockedAt: null }).where(eq(submissionPr.id, mctx.pr.id));
+  }
+}
+
+// One status change by one actor (a gate with one actor, a Return, or a Coordinator step).
+// Gate 1b has many actors: use `endorseGate1b`.
+export async function transitionMilestone(
+  ctx: DataContext,
+  milestoneId: string,
+  to: MilestoneStatus,
+  input: { reason?: string | null; purpose?: ReturnPurpose | null } = {},
+): Promise<MilestoneStatus> {
+  const mctx = await loadAllowed(ctx, milestoneId);
+  if (to === "COMMITTEE_ENDORSED") throw new TransitionRefused("Endorse the commit at Gate 1b.", "not_allowed");
+  const actor = await transitionActor(ctx, mctx);
+  const facts = await loadMilestoneFacts(ctx.db, mctx);
+  const from = mctx.milestone.status;
+  const reason = input.reason?.trim() || null;
+  facts.returnReason = reason;
+
+  if (to === "RETURNED") {
+    // INV-19, BR-13: a reason, and a Coordinator Return only for compliance or eligibility.
+    const gate = checkReturn({ role: ctx.actor.role, reason, purpose: input.purpose ?? null });
+    if (!gate.ok) throw new TransitionRefused(gate.reason, gate.code);
+  }
+  const decision = decideTransition(mctx.code, from, to, actor, facts);
+  if (!decision.ok) throw new TransitionRefused(decision.reason, decision.code);
+
+  await ctx.db.transaction(async (tx) => {
+    const txCtx = { db: tx, actor: ctx.actor };
+    if (to === "RETURNED") {
+      await applyStatus(tx, ctx, mctx, "RETURNED", { returnReason: reason });
+      await tx.insert(gateAction).values({
+        milestoneInstanceId: milestoneId,
+        gate: from === "READY" ? "gate_1a" : "date_confirmation",
+        result: "returned",
+        actorUserId: ctx.actor.userId,
+        actorRole: ctx.actor.role,
+        commitId: mctx.pr?.readyCommitId ?? null,
+        reason,
+      });
+      // BR-13: a Return starts a new round. The manuscript unlocks and the Ready mark clears, so the
+      // Student can upload and mark Ready again, and Gate 1b starts from zero (AD-A-018).
+      if (mctx.pr) {
+        await tx.update(submissionPr).set({ lockedAt: null, readyCommitId: null }).where(eq(submissionPr.id, mctx.pr.id));
+      }
+      // INV-18: the status goes back to DRAFT at once. The reason stays for the Student.
+      await applyStatus(tx, ctx, { ...mctx, milestone: { ...mctx.milestone, status: "RETURNED" } }, "DRAFT");
+      await recordAudit(txCtx, {
+        action: "milestone.return",
+        targetTable: "milestone_instance",
+        targetId: milestoneId,
+        detail: { from, purpose: input.purpose ?? null },
+      });
+      return;
+    }
+    await applyStatus(tx, ctx, mctx, to);
+    const gate = GATE_FOR[to];
+    if (gate) {
+      await tx.insert(gateAction).values({
+        milestoneInstanceId: milestoneId,
+        gate: gate.gate,
+        result: gate.result,
+        actorUserId: ctx.actor.userId,
+        actorRole: ctx.actor.role,
+        commitId: gate.gate === "gate_1a" ? (mctx.pr?.readyCommitId ?? null) : null,
+      });
+    }
+    await recordAudit(txCtx, {
+      action: "milestone.status",
+      targetTable: "milestone_instance",
+      targetId: milestoneId,
+      detail: { from, to },
+    });
+  });
+  return to === "RETURNED" ? "DRAFT" : to;
+}
+
+const GATE_1B_FROM: MilestoneStatus[] = ["COMMITTEE_APPOINTED", "ADVISER_ENDORSED"];
+
+// Gate 1b: the Adviser or one accepted Panel Member endorses the Ready commit (FR-WFL-04, INV-21).
+// The last endorsement moves the milestone to COMMITTEE_ENDORSED and locks the manuscript (BR-07).
+export async function endorseGate1b(ctx: DataContext, milestoneId: string): Promise<{ completed: boolean }> {
+  const mctx = await loadAllowed(ctx, milestoneId);
+  const { role, userId } = ctx.actor;
+  const isMember = role === "panel_member" && mctx.memberIds.includes(userId);
+  if (role !== "adviser" && !isMember) throw new AccessDeniedError("only the Adviser or an accepted Panel Member endorses");
+  const from = mctx.milestone.status;
+  // Milestone 2 has no new appointment: its Gate 1b starts from ADVISER_ENDORSED (ERD §7.1).
+  const expected: MilestoneStatus = mctx.code === "pre_final" ? "ADVISER_ENDORSED" : "COMMITTEE_APPOINTED";
+  if (from !== expected || !GATE_1B_FROM.includes(from)) {
+    throw new TransitionRefused("Gate 1b is not open for this milestone.", "wrong_status");
+  }
+  const commitId = mctx.pr?.readyCommitId;
+  if (!commitId) throw new TransitionRefused("Upload a commit first.", "no_ready_commit");
+
+  const gate = checkGate1b({
+    milestone: mctx.code,
+    ownOpenThreads: await ownOpenThreads(ctx.db, mctx.pr?.id, userId),
+    preFinalRevisionsAccepted: mctx.code === "final" ? await acceptedPreFinalItems(ctx.db, mctx.thesis.id, userId) : true,
+  });
+  if (!gate.ok) throw new TransitionRefused(gate.reason, gate.code);
+
+  return ctx.db.transaction(async (tx) => {
+    const txCtx = { db: tx, actor: ctx.actor };
+    const sinceReturn = await lastReturnGateId(tx, milestoneId);
+    const own = await tx
+      .select({ id: gateAction.id })
+      .from(gateAction)
+      .where(
+        and(
+          eq(gateAction.milestoneInstanceId, milestoneId),
+          eq(gateAction.gate, "gate_1b"),
+          eq(gateAction.actorUserId, userId),
+          eq(gateAction.commitId, commitId),
+          gt(gateAction.id, sinceReturn),
+        ),
+      );
+    if (own.length > 0) throw new TransitionRefused("You already endorsed this commit.", "gate_done");
+    await tx.insert(gateAction).values({
+      milestoneInstanceId: milestoneId,
+      gate: "gate_1b",
+      result: "endorsed",
+      actorUserId: userId,
+      actorRole: role,
+      commitId,
+    });
+    await recordAudit(txCtx, { action: "gate_1b.endorse", targetTable: "milestone_instance", targetId: milestoneId });
+    const facts = await loadMilestoneFacts(tx, mctx);
+    if (!facts.gate1bComplete) return { completed: false };
+    const actor = await transitionActor(txCtx, mctx);
+    const decision = decideTransition(mctx.code, from, "COMMITTEE_ENDORSED", actor, facts);
+    if (!decision.ok) throw new TransitionRefused(decision.reason, decision.code);
+    await applyStatus(tx, ctx, mctx, "COMMITTEE_ENDORSED");
+    await recordAudit(txCtx, {
+      action: "milestone.status",
+      targetTable: "milestone_instance",
+      targetId: milestoneId,
+      detail: { from, to: "COMMITTEE_ENDORSED" },
+    });
+    return { completed: true };
+  });
+}
+
+// Gate 2: one Final Panel member marks the final manuscript approved (FR-WFL-07, BR-20, INV-22).
+// The Coordinator then moves the milestone to FINAL_APPROVED with `transitionMilestone`.
+export async function approveGate2(ctx: DataContext, milestoneId: string): Promise<void> {
+  const mctx = await loadAllowed(ctx, milestoneId);
+  const { role, userId } = ctx.actor;
+  if (role !== "panel_member" || !mctx.memberIds.includes(userId)) {
+    throw new AccessDeniedError("only a Final Panel member approves at Gate 2");
+  }
+  if (mctx.code !== "final" || mctx.milestone.status !== "CLOSED") {
+    throw new TransitionRefused("Gate 2 opens after the Final defense closes.", "wrong_status");
+  }
+  const facts = await loadMilestoneFacts(ctx.db, mctx);
+  const gate = checkGate2({
+    ownOpenThreads: await ownOpenThreads(ctx.db, mctx.pr?.id, userId),
+    ipmo: facts.ipmo,
+    rpo: facts.rpo,
+  });
+  if (!gate.ok) throw new TransitionRefused(gate.reason, gate.code);
+  await ctx.db.transaction(async (tx) => {
+    const own = await tx
+      .select({ id: gateAction.id })
+      .from(gateAction)
+      .where(and(eq(gateAction.milestoneInstanceId, milestoneId), eq(gateAction.gate, "gate_2"), eq(gateAction.actorUserId, userId)));
+    if (own.length > 0) throw new TransitionRefused("You already approved the final manuscript.", "gate_done");
+    await tx.insert(gateAction).values({
+      milestoneInstanceId: milestoneId,
+      gate: "gate_2",
+      result: "approved",
+      actorUserId: userId,
+      actorRole: role,
+    });
+    await recordAudit({ db: tx, actor: ctx.actor }, { action: "gate_2.approve", targetTable: "milestone_instance", targetId: milestoneId });
+  });
+}

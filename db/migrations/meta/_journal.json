@@ -29,6 +29,20 @@
       "when": 1795315521176,
       "tag": "0003_default_templates",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795316514947,
+      "tag": "0004_outside_status",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795316516667,
+      "tag": "0005_outside_status_rules",
+      "breakpoints": true
     }
   ]
 }

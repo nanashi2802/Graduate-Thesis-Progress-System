@@ -100,6 +100,26 @@ export type MilestoneCodeValue = (typeof milestoneCode.enumValues)[number];
 export type MilestoneStatusValue = (typeof milestoneStatus.enumValues)[number];
 export type FormCode = (typeof formCode.enumValues)[number];
 export type DocumentState = (typeof documentState.enumValues)[number];
+export type GateKindValue = (typeof gateKind.enumValues)[number];
+export type GateResultValue = (typeof gateResult.enumValues)[number];
 export type MemberStatus = (typeof memberStatus.enumValues)[number];
 export type DegreeLevelValue = (typeof degreeLevel.enumValues)[number];
 export type Writing1CourseValue = (typeof writing1Course.enumValues)[number];
+// Outside statuses (ERD §2, BR-14). One enum holds the values of every kind. INV-27 checks the pair.
+export const outsideKind = app.enum("outside_kind", ["ethics", "ipmo", "rpo", "copyright"]);
+export const outsideValue = app.enum("outside_value", [
+  "NOT_SUBMITTED",
+  "UNDER_REVIEW",
+  "CHANGES_REQUIRED",
+  "APPROVED",
+  "UNDER_CHECK",
+  "FAILED",
+  "PASSED",
+  "UNDER_EDITING",
+  "DONE",
+  "NOT_APPLIED",
+  "APPLIED",
+  "REGISTERED",
+]);
+export type OutsideKind = (typeof outsideKind.enumValues)[number];
+export type OutsideValue = (typeof outsideValue.enumValues)[number];
