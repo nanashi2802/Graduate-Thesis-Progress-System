@@ -1,17 +1,11 @@
 #!/usr/bin/env bash
-# Local push check (AGENTS.md §3, §13.6).
-# Rejects a push to main or master, a push that adds a .env file other than .env.example,
+# Local push check (AGENTS.md §3, §11). GitHub ruleset lock-main blocks pushes to main.
+# Rejects a push that adds a .env file other than .env.example,
 # and a push whose added lines look like a secret (key prefixes, database URLs with a password, private keys).
 # The human can skip it with --no-verify. Agents must not.
 zero=0000000000000000000000000000000000000000
 status=0
 while read -r local_ref local_sha remote_ref remote_sha; do
-  case "$remote_ref" in
-    refs/heads/main|refs/heads/master)
-      echo "pre-push: push to ${remote_ref#refs/heads/} is human-only (AGENTS.md §13.6)." >&2
-      status=1
-      continue ;;
-  esac
   [ "$local_sha" = "$zero" ] && continue   # branch delete: nothing to scan
   if [ "$remote_sha" = "$zero" ]; then
     range="$local_sha --not --remotes"
