@@ -182,6 +182,62 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 
 ---
 
+### 2.3 P0-E05 tasks (Track B, `agent-b`)
+
+**Decisions in this epic:** `spec/AGENT_DECISIONS.md` AD-B-001 to AD-B-004.
+
+### P0-E05-T01 — Vercel project and Git link
+- **Goal:** Make the Vercel project, link it to the repository, and send `agent-a` the domain for CORS.
+- **Covers:** DFD T6, NFR-12 (CORS origins for P0-E04)
+- **Reads:** `PRD.md` §11.2, `AGENTS.md` §13.8
+- **Changes:** Vercel project settings only
+- **Depends on:** P0-E01
+- **Done when:**
+  - [ ] `vercel project ls` shows the project. Its Git repository is this repository. The production branch is `main`.
+  - [ ] `agent-a` has the production origin and the preview origin pattern.
+- **Tests:** manual check (`vercel project inspect`)
+
+### P0-E05-T02 — `vercel.json`: region and cron
+- **Goal:** Run functions in `sin1` and schedule the daily job in the Hobby window.
+- **Covers:** FR-NTF-06, NFR-11
+- **Changes:** `vercel.json`
+- **Depends on:** T01
+- **Done when:**
+  - [ ] `vercel.json` sets `regions: ["sin1"]` and one cron at `0 0 * * *` (00:00 to 00:59 UTC on Hobby).
+- **Tests:** unit test reads `vercel.json`
+
+### P0-E05-T03 — Daily job route
+- **Goal:** A cron route that accepts only the Vercel cron secret and logs one line with the PST date.
+- **Covers:** FR-NTF-06, NFR-11, DFD T6
+- **Changes:** `src/app/api/cron/daily/route.ts`, `src/server/notify/`
+- **Depends on:** T02
+- **Done when:**
+  - [ ] A request without `Authorization: Bearer <CRON_SECRET>` gets 401.
+  - [ ] A good request gets 200 and logs the run with the PST date.
+- **Tests:** unit (Vitest)
+
+### P0-E05-T04 — Resend email with a link only
+- **Goal:** Send one test email through the Resend API. It holds the event, the next action, the deadline and a link only.
+- **Covers:** FR-NTF-02, `AGENTS.md` §10 (email content)
+- **Changes:** `src/server/notify/`
+- **Depends on:** T03
+- **Done when:**
+  - [ ] A unit test checks the email body: event, next action, deadline, link, and nothing else.
+  - [ ] The daily job sends one test email when `NOTIFY_TEST_TO` is set.
+- **Tests:** unit (Vitest), manual check of one real send
+
+### P0-E05-T05 — Environment and production deploy
+- **Goal:** Put every name in `.env.example` into Vercel with new production secrets, and deploy `dev` to production.
+- **Covers:** NFR-11, `AGENTS.md` §11, §13.8
+- **Changes:** Vercel environment variables
+- **Depends on:** T04 merged into `dev`
+- **Done when:**
+  - [ ] `vercel env ls` shows every name in `.env.example` for Production and Preview.
+  - [ ] `CRON_SECRET` and `NEON_AUTH_COOKIE_SECRET` in production are new values, not the local ones.
+  - [ ] `vercel deploy --prod` from a clean checkout of `dev` succeeds, and the home page loads.
+  - [ ] A manual run of the cron route on production logs the run and sends the test email.
+- **Tests:** manual check (`vercel logs`)
+
 ## 3. Phase 1 — Foundation and Milestone 1
 
 **Goal:** One Student completes the Proposal Defense and reaches `CERTIFIED`.
