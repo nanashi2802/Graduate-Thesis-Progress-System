@@ -785,6 +785,41 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [ ] Each action calls the T01 and T02 functions through a server action and shows the refusal reason.
 - **Tests:** typecheck, build
 
+### 3.12 P1-E08 Consultations and availability (Track A, `agent-a`, §8 Phase 1 step 6)
+
+**Decisions:** AD-A-020 (weekly copies, the link rule, the log milestone). Pure rules are in `src/server/data/schedule-rules.ts`. The TDW 03 signed scan is a document of P1-E07.
+
+### P1-E08-T01 — Slots and the common free time
+- **Goal:** The Adviser publishes consultation slots. The Adviser and Panel Members publish defense slots. The system finds the periods in which every required member is free.
+- **Covers:** FR-SCH-01, FR-SCH-07, FR-SCH-08, NFR-01
+- **Changes:** `src/server/data/schedule-rules.ts`, `src/server/data/consultations.ts`, `tests/unit/data/consultations.test.ts`
+- **Done when:**
+  - [x] An Online slot needs a link. A slot in the past, an overlap and a role that may not publish are refused.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E08-T02 — Booking and the meeting link
+- **Goal:** The Student requests an open slot of their Adviser with an agenda and linked threads. The Adviser confirms or declines. The link goes only to the owner and the booked Student.
+- **Covers:** FR-SCH-02, FR-SCH-03, FR-SCH-04, INV-28
+- **Changes:** `src/server/data/consultations.ts`, `tests/unit/data/consultations.test.ts`
+- **Done when:**
+  - [x] Two Students cannot take one slot. A link shows only after a confirm.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E08-T03 — Consultation log
+- **Goal:** The Adviser drafts a log entry for a held consultation, the Student adds the topic, the Adviser confirms. The log shows as the TDW 03 view.
+- **Covers:** FR-SCH-05, FR-SCH-06, BR-16
+- **Changes:** `src/server/data/consultations.ts`, `tests/unit/data/consultations.test.ts`
+- **Done when:**
+  - [x] No minimum count. A confirmed entry does not change. A Panel Member does not read the log.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E08-T04 — Screens S4, A3 and A4
+- **Goal:** The booking, log and slot screens call the T01 to T03 functions.
+- **Depends on:** T01 to T03, P1-E14
+- **Done when:**
+  - [ ] Each action shows its refusal reason (BR-18).
+- **Tests:** typecheck, build
+
 ## 4. Phase 2 — Milestone 2 and email
 
 **Goal:** One Student completes the Pre-Final Defense.

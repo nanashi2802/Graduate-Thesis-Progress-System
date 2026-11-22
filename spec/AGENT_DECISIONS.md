@@ -286,3 +286,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** Follow §2.12. Context A: only the Adviser, while the status is DRAFT or READY (before Gate 1a, and after a Return). Context B: only an accepted Panel Member of the Evaluation Committee, in Milestones 1 and 2, from the appointment until Gate 1b (`COMMITTEE_APPOINTED` in M1, `ADVISER_ENDORSED` in M2). A Panel Member does not see context A threads. The Student and the Adviser reply, and so do reviewers. The Coordinator only reads. Context C (Defense Day) comes with P3-E02. A Student upload in READY is refused, so the Adviser reads a fixed commit. A new commit clears the Ready mark (INV-06), which also closes the stale mark risk of AD-A-018 for new uploads.
 - **Risk:** low. A Panel Member with no verified appointment form or NDA cannot read or post (INV-24, BR-08).
 - **Undo:** revert the commits with AD-A-019.
+
+### AD-A-020 — Slots: weekly copies, a link rule, and the log belongs to the newest milestone
+- **Task:** P1-E08-T01 to T03
+- **Options:** store one slot with a recurrence rule and expand it on read; write one row for each week. One log entry for each milestone chosen by the Student; the newest milestone of the thesis
+- **Decision and reason:** One row for each week (up to 16 slots in one publish), with `recurrence_rule` = `weekly:N` as a label. A row per slot keeps booking and INV-28 simple: each slot has its own status. A slot lasts 8 hours at most, starts in the future, and cannot overlap another slot of the same owner. The log entry goes to the newest milestone of the thesis when the Adviser drafts it, because `consultation_log_entry` needs a milestone and the Adviser has no milestone picker (ERD §4.1). The TDW 03 scan upload stays in P1-E07 (`documents.ts`). A Panel Member does not read the consultation log.
+- **Risk:** low. A consultation held between two milestones lands on the newer one, which is the milestone the Student works on.
+- **Undo:** revert the commits with AD-A-020.
