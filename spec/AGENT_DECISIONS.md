@@ -258,3 +258,17 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** `markAppointed` needs the seats to pass `checkAppointment`, the TDW 06 or TDW 11 record linked, and an NDA record linked for each active seat. It does not need them verified. FR-CMT-04 says "upload ... then mark the member Appointed", and verification is a separate Coordinator step (FR-DOC-04). Manuscript access still needs both records verified (`memberAccess`, BR-08), so no member reads early. Seats are proposed and appointed only while the milestone is `ADVISER_ENDORSED` (after Gate 1a, FR-CMT-01). The milestone status change to `COMMITTEE_APPOINTED` stays in the P1-E04 wiring (`agent-a`). A refused rule returns `{ ok: false, code, reason }` so the screen can show the reason (BR-18). A wrong actor throws `AccessDeniedError` (NFR-01). Workload is the count of seats that are not declined. Availability is the count of future `available` defense slots (FR-CMT-02). The C3 screen is a new task, P1-E05-T04, because the scan upload comes from P1-E07-T02.
 - **Risk:** low. If the owner wants verified paper before "Appointed", add two state checks in `markAppointed`.
 - **Undo:** revert the commits with AD-B-018.
+
+### AD-A-017 — The outside status table comes with P1-E04, not P2-E01
+- **Task:** P1-E04-T03 (the milestone facts need `ipmo`, `rpo` and `ethics`). Plan §3.10 owns the work.
+- **Options:** facts read fixed "not submitted" values until P2-E01; the table and its write function now, the Coordinator screen in P2-E01
+- **Decision and reason:** Table `outside_status_event` (ERD §4.1) and `setOutsideStatus` now (migrations 0004, 0005). INV-20 and INV-22 read IPMO and RPO, and the TDW 08 checklist reads the ethics status. A fixed value would make those guards untestable. The screen, the notices and the Milestone 2 gate flow stay in P2-E01.
+- **Risk:** low. INV-27 is a database check and a trigger (role) plus a data-layer check. The table is append-only (INV-08).
+- **Undo:** revert the commits with AD-A-017 (the migrations too, before any database has them).
+
+### AD-A-018 — Gate rows and the Return rule in `transitionMilestone`
+- **Task:** P1-E04-T04, T05
+- **Options:** one `gate_action` row for every status change; a gate row only where ERD §7.1 names a gate, an audit row for the rest
+- **Decision and reason:** Every change writes an audit row (NFR-03). A `gate_action` row is added for Gate 1a, the date confirmation, the stage close, the certification, the Final approval and the clearance close. A Return writes a `returned` gate row with the reason, then moves the milestone to DRAFT in the same transaction (INV-18). The ready commit of the PR stays. The Student marks Ready again when a new commit exists. Gate 1b and Gate 2 have one row for each person, so they have their own functions and the status moves when the last person endorses.
+- **Risk:** medium. After a Coordinator Return at DATE_PROPOSED the old ready commit still counts as Ready (ERD §7.1 gives no rule). P1-E06 should clear it when the Student uploads a new commit.
+- **Undo:** revert the commits with AD-A-018.

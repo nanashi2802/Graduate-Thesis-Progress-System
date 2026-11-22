@@ -717,6 +717,36 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 
 ---
 
+### 3.10 P1-E04 Wiring of the state machine to the data layer (Track A, `agent-a`, §8 Phase 1 step 4)
+
+**Decisions:** AD-A-017 (outside status table now), AD-A-018 (gate rows and the Return rule). The pure rules are in 3.1. Gate screens come after P1-E06 to P1-E09 give the facts their data.
+
+### P1-E04-T03 — Milestone facts and outside statuses
+- **Goal:** One read builds the `MilestoneFacts` of a milestone. The Coordinator records the outside statuses.
+- **Covers:** FR-WFL-10, BR-14, INV-08, INV-27, NFR-01, NFR-03
+- **Changes:** `src/server/data/milestone-facts.ts`, `src/server/data/outside.ts`, `src/server/data/schema/outside.ts`, `db/migrations/0004_outside_status.sql`, `db/migrations/0005_outside_status_rules.sql`
+- **Done when:**
+  - [x] Only the Coordinator writes an outside status. The database also refuses a wrong value and a non-Coordinator. The latest event wins.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E04-T04 — Status changes
+- **Goal:** `transitionMilestone` runs one row of ERD §7.1 with the actor, the guard, the gate row, the audit row and the lock rules.
+- **Covers:** FR-WFL-02, FR-WFL-03, FR-WFL-08, FR-WFL-09, FR-WFL-13, BR-02, BR-07, BR-13, BR-18, INV-17 to INV-20
+- **Changes:** `src/server/data/milestones.ts`, `tests/unit/data/milestones.test.ts`
+- **Done when:**
+  - [x] A wrong role, a blocked guard and a user with no access are refused with a reason. `checkTransition` gives the reason with no write.
+  - [x] A Return keeps its reason and goes to DRAFT (INV-18, INV-19).
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E04-T05 — Gate 1b and Gate 2
+- **Goal:** Each endorsement is one `gate_action` row. The last Gate 1b endorsement moves the milestone and locks the manuscript. Gate 2 records one approval for each member.
+- **Covers:** FR-WFL-04, FR-WFL-07, BR-07, BR-20, INV-21, INV-22
+- **Changes:** `src/server/data/milestones.ts`, `tests/unit/data/milestones.test.ts`
+- **Done when:**
+  - [x] A member with an open thread, a second endorsement and a user with no seat are refused.
+  - [ ] Gate 2 and the close to CLEARED run end-to-end (P3-E03, P3-E04 give the data).
+- **Tests:** unit (Vitest with PGlite)
+
 ## 4. Phase 2 — Milestone 2 and email
 
 **Goal:** One Student completes the Pre-Final Defense.

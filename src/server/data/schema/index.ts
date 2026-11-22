@@ -9,3 +9,4 @@ export * from "./committee";
 export * from "./documents";
 export * from "./defense";
 export * from "./logs";
+export * from "./outside";
