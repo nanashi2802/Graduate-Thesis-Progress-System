@@ -1,7 +1,7 @@
 "use server";
 // C3 actions (FR-CMT-01 to FR-CMT-04). The data layer checks the role and the rules again (NFR-01).
 import { revalidatePath } from "next/cache";
-import { linkAppointmentForm, linkNda, markAppointed, proposeSeat, recordSeatAnswer, type BoardResult } from "@/server/data/committees";
+import { advanceMilestone, linkAppointmentForm, linkNda, markAppointed, proposeSeat, recordSeatAnswer, type BoardResult } from "@/server/data/committees";
 import { InputProblem } from "@/server/data/coordinator";
 import type { DataContext } from "@/server/data/access";
 import type { Designation, MilestoneCode } from "@/server/domain/milestone";
@@ -45,5 +45,22 @@ export async function linkNdaAction(_prev: FormState, form: FormData): Promise<F
 }
 
 export async function markAppointedAction(_prev: FormState, form: FormData): Promise<FormState> {
-  return run((ctx) => markAppointed(ctx, { committeeId: text(form, "committeeId") }), "The committee is appointed.");
+  const committeeId = text(form, "committeeId");
+  const result = await run((ctx) => markAppointed(ctx, { committeeId }), "The committee is appointed.");
+  if (!result.ok) return result;
+  // Second call, after the appointment commits (AD-B-021). A refusal keeps the appointment.
+  const next = await runAction(async (ctx) => {
+    const res = await advanceMilestone(ctx, { committeeId });
+    if (!res.ok) throw new InputProblem(res.reason);
+    return "The committee is appointed. The milestone moved to Committee appointed.";
+  });
+  if (next.ok) {
+    revalidatePath("/coordinator/committees");
+    return next;
+  }
+  return { ok: `The committee is appointed. The milestone has not moved yet: ${next.error}` };
+}
+
+export async function advanceMilestoneAction(_prev: FormState, form: FormData): Promise<FormState> {
+  return run((ctx) => advanceMilestone(ctx, { committeeId: text(form, "committeeId") }), "The milestone moved to Committee appointed.");
 }

@@ -60,6 +60,49 @@ async function uploadAs(ctx: ReturnType<typeof student>, requiredItemId: string,
   return req.value.documentId;
 }
 
+describe("a form signed for one commit (INV-34)", () => {
+  async function addCommits(n: number) {
+    const [pr] = await db.insert(s.submissionPr).values({ milestoneInstanceId: seed.milestone.id }).onConflictDoNothing().returning();
+    const prId = pr?.id ?? (await db.select().from(s.submissionPr))[0]!.id;
+    const ids: string[] = [];
+    for (let i = 1; i <= n; i++) {
+      const [c] = await db
+        .insert(s.manuscriptCommit)
+        .values({ submissionPrId: prId, ordinal: i, fileKey: `agent-b/test/manuscript/${i}.pdf`, sha256: SHA, sizeBytes: 1024, uploadedByUserId: seed.student.id })
+        .returning();
+      ids.push(c!.id);
+    }
+    return ids;
+  }
+  // The default templates (migration 0003) hold no Certification item. A Coordinator adds it on the template screen.
+  async function certificationItemId() {
+    const [row] = await db
+      .insert(s.templateRequiredItem)
+      .values({ templateVersionId: seed.versions.proposal.id, formCode: "CERTIFICATION", label: "Certification", uploaderRole: "student" })
+      .returning();
+    return row!.id;
+  }
+  const request = async (requiredItemId: string) =>
+    requestScanUpload(student(), { milestoneId: seed.milestone.id, requiredItemId, subjectUserId: null, ...upload }, files);
+
+  it("refuses the certification scan while no commit exists", async () => {
+    expect(await request(await certificationItemId())).toMatchObject({ ok: false, code: "no_commit" });
+    expect(await db.select().from(s.documentRecord)).toHaveLength(0);
+  });
+
+  it("links the record to the newest commit, and keeps one record for the milestone", async () => {
+    const ids = await addCommits(2);
+    const item = await certificationItemId();
+    const first = await request(item);
+    expect(first.ok).toBe(true);
+    const [rec] = await db.select().from(s.documentRecord);
+    expect(rec!.linkedCommitId).toBe(ids[1]);
+    const again = await request(item);
+    expect(again.ok && first.ok && again.value.documentId === first.value.documentId).toBe(true);
+    expect(await db.select().from(s.documentRecord)).toHaveLength(1);
+  });
+});
+
 describe("deliverables (FR-DOC-01)", () => {
   it("gives each user only the milestones of their own theses (ERD §8)", async () => {
     expect((await readableMilestones(student())).map((m) => m.id)).toEqual([seed.milestone.id]);
