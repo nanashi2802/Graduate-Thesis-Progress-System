@@ -489,16 +489,26 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Tests:** unit (Vitest)
 
 ### P1-E05-T02 — Appointment board data and actions (C3)
-- **Goal:** The Coordinator proposes seats, records answers, uploads TDW 06 or TDW 11 and the NDAs, and marks the committee Appointed.
-- **Covers:** FR-CMT-01 to FR-CMT-04, NFR-01
-- **Depends on:** T01, P1-E02, P0-E04
-- **Done when:** `[ ]` Each write goes through the data layer access check and calls the T01 check first. `[ ]` The board shows workload and availability (FR-CMT-02).
+- **Goal:** The Coordinator proposes seats, records answers, links TDW 06 or TDW 11 and the NDAs, and marks the committee Appointed.
+- **Covers:** FR-CMT-01 to FR-CMT-04, NFR-01, NFR-03. **Decision:** AD-B-018.
+- **Changes:** `src/server/data/committees.ts`, `tests/unit/data/committees.test.ts`
+- **Depends on:** T01, P1-E02
+- **Done when:**
+  - [x] Each write checks the Coordinator role, then the T01 rule, and writes an audit record in the same transaction.
+  - [x] The board data gives workload and availability for each Panel Member (FR-CMT-02).
+- **Tests:** unit (Vitest with PGlite)
 
 ### P1-E05-T03 — Member access and substitute (P1, C3)
 - **Goal:** Open the manuscript to a member when `memberAccess` passes, notify the member, and record a substitute.
 - **Covers:** FR-CMT-05, FR-CMT-06, BR-08, INV-24
 - **Depends on:** T02, P1-E06
 - **Done when:** `[ ]` A data layer test shows no signed read link without access.
+
+### P1-E05-T04 — C3 appointment board screen
+- **Goal:** `/coordinator/committees` shows the board and calls the T02 actions. Each disabled action shows its reason.
+- **Covers:** FR-CMT-01 to FR-CMT-04, BR-18
+- **Depends on:** T02, P1-E07-T02 (scan upload)
+- **Done when:** `[ ]` An end-to-end step proposes two seats, records the answers and marks the committee Appointed.
 
 ### 3.4 P1-E07 Documents and compliance (Track B, `agent-b`)
 
