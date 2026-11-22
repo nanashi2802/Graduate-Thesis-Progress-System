@@ -227,7 +227,7 @@ export async function requestSheetUpload(
   const req = { kind: "scan", ...input } as const;
   const problem = uploadProblem(req);
   if (problem) throw new InputProblem(problem);
-  const e = await openEntry(ctx, entryId);
+  await openEntry(ctx, entryId);
   return { link: await files.createUploadLink(req) };
 }
 
