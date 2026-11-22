@@ -232,8 +232,8 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 - **Changes:** Vercel environment variables
 - **Depends on:** T04 merged into `dev`
 - **Done when:**
-  - [ ] `vercel env ls` shows every name in `.env.example` for Production and Preview.
-  - [ ] `CRON_SECRET` and `NEON_AUTH_COOKIE_SECRET` in production are new values, not the local ones.
+  - [x] `vercel env ls` shows every name in `.env.example` for Production and Preview.
+  - [x] `CRON_SECRET` and `NEON_AUTH_COOKIE_SECRET` in production are new values, not the local ones.
   - [ ] `vercel deploy --prod` from a clean checkout of `dev` succeeds, and the home page loads.
   - [ ] A manual run of the cron route on production logs the run and sends the test email.
 - **Tests:** manual check (`vercel logs`)

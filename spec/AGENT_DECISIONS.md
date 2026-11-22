@@ -45,5 +45,5 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Task:** P0-E05-T04
 - **Options:** a separate test route; an optional variable that makes the daily job send one email
 - **Decision and reason:** The optional variable `NOTIFY_TEST_TO` in `.env.example`. It adds no new route to secure. It proves the cron and the email in one run. The email holds the event, the next action, the deadline and a link only (FR-NTF-02, `AGENTS.md` §10). Remove the variable in Vercel after the spike.
-- **Risk:** low. With `onboarding@resend.dev`, Resend sends only to the account owner.
+- **Risk:** low. In Vercel, `NOTIFY_TEST_TO` is `delivered@resend.dev`, the Resend test address. It proves the send and puts no personal address in Vercel. With `onboarding@resend.dev`, Resend sends only to that address or to the account owner.
 - **Undo:** Remove the variable, and remove the test branch in `src/server/notify/daily.ts`.
