@@ -238,6 +238,20 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Risk:** low. A later event that needs more detail can point to its own row by `target_id`.
 - **Undo:** revert the commits with AD-A-014.
 
+### AD-A-015 — Default templates ship as a migration, with values for the gaps
+- **Task:** P1-E03-T01
+- **Options:** a seed script the Coordinator runs; a data migration that every database gets
+- **Decision and reason:** A migration (`0003_default_templates.sql`). FR-TPL-02 says the system ships the templates, so each new database must have them. Sizes: Proposal and Pre-Final 2 (Master's) and 3 (Doctoral) Panel Members; Final 3 and 4 Panel Members besides the Panel Chair (ERD, FR §3, AD-B-017 as corrected). `seatCount` adds the Panel Chair. Printed copies: 5 and 6 for all three, because the Unified Process gives the count only for Proposal (G16). Rubric A1 to B3 on Proposal and Final only. Pre-Final (TDW 10) has no scores.
+- **Risk:** medium. The Pre-Final and Final copy counts are a guess (G16). The Coordinator can change them in C8, which makes version 2.
+- **Undo:** revert the commits with AD-A-015, or save a new template version in C8.
+
+### AD-A-016 — Role change and deactivation rules for users (C9)
+- **Task:** P1-E03-T04
+- **Options:** allow any role change; allow a role change only while the user has no thesis, seat or record that depends on the role
+- **Decision and reason:** The second option. BR-03 makes roles exclusive, and INV-02 and INV-03 check the role only when the row is written. A role change after that would leave a Student row on an Adviser, for example. So the data layer refuses a role change when any row names the user. The Coordinator deactivates the account and makes a new one instead. A Coordinator cannot deactivate their own account, so at least one active Coordinator stays.
+- **Risk:** low. A typo in the role is fixed the same day, before any row names the user.
+- **Undo:** revert the commits with AD-A-016.
+
 ### AD-B-018 — Appointment board: data functions first, paper links, and when "Appointed" is allowed
 - **Task:** P1-E05-T02
 - **Options:** for "Appointed": need the appointment form and each NDA linked, or need them verified; for the scope: build the C3 screen in the same task, or split it out
