@@ -4,13 +4,16 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { AccessDeniedError, type Actor, type DataContext } from "@/server/data/access";
 import {
   attemptCount,
+  checkPrintedCopies,
   closeDefense,
   confirmDefenseDate,
   confirmSheetUpload,
   issueMinutes,
   listAttempts,
   markDefenseHeld,
+  printedCopyStatus,
   proposeDefenseDate,
+  recordPrintedCopies,
   recordVerdict,
   requestSheetUpload,
   saveSheet,
@@ -298,6 +301,31 @@ describe("verdict, held, Minutes and close (FR-DEF-07 to 10, INV-15, INV-16)", (
     await db.update(s.submissionPr).set({ readyCommitId: w.commit.id }).where(eq(s.submissionPr.id, w.pr.id));
     await proposeDefenseDate(as(w.student), w.milestone.id, isoDay(5));
     expect(await attemptCount(as(w.student), w.milestone.id)).toBe(2);
+  });
+});
+
+describe("printed copies (FR-DEF-04, BR-09, BR-17)", () => {
+  it("records the receipt, checks the match and warns when late, never blocking", async () => {
+    const w = await scheduled();
+    // The defense was 10 days ago: the copies were due 17 days ago.
+    const before = await printedCopyStatus(as(w.coordinator), w.attempt.id, new Date());
+    expect(before).toMatchObject({ dueDate: isoDay(17), expectedCount: 5, receipt: null, late: true });
+    await expect(recordPrintedCopies(as(w.student), w.attempt.id, 5)).rejects.toBeInstanceOf(AccessDeniedError);
+    await expect(recordPrintedCopies(as(w.coordinator), w.attempt.id, 0)).rejects.toThrow(/one or more/);
+    await expect(checkPrintedCopies(as(w.coordinator), w.attempt.id, "matched")).rejects.toThrow(/receipt/);
+    await recordPrintedCopies(as(w.coordinator), w.attempt.id, 5, daysAgo(20));
+    expect((await printedCopyStatus(as(w.student), w.attempt.id)).late).toBe(false);
+    await recordPrintedCopies(as(w.coordinator), w.attempt.id, 6, daysAgo(12));
+    const late = await printedCopyStatus(as(w.student), w.attempt.id);
+    expect(late).toMatchObject({ late: true });
+    expect(late.receipt).toMatchObject({ copyCount: 6, matchResult: "pending" });
+    await checkPrintedCopies(as(w.coordinator), w.attempt.id, "mismatch");
+    await checkPrintedCopies(as(w.coordinator), w.attempt.id, "matched");
+    await expect(recordPrintedCopies(as(w.coordinator), w.attempt.id, 5)).rejects.toThrow(/checked already/);
+    // BR-17: a late receipt does not block the date or the close.
+    await expect(printedCopyStatus(as(w.adviser), w.attempt.id)).resolves.toBeDefined();
+    const stranger = await makeUser(db, "student");
+    await expect(printedCopyStatus(as(stranger), w.attempt.id)).rejects.toBeInstanceOf(AccessDeniedError);
   });
 });
 

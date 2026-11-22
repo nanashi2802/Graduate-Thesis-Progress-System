@@ -902,7 +902,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Goal:** The Coordinator records the printed copies (FR-DEF-04, `printed_copy_receipt`), and the defense screens call T01 to T04.
 - **Depends on:** T01 to T04, P1-E14
 - **Done when:**
-  - [ ] The printed copies receipt and the match against the locked manuscript, with a late warning (BR-09).
+  - [x] The printed copies receipt and the match against the locked manuscript, with a late warning (BR-09): `recordPrintedCopies`, `checkPrintedCopies`, `printedCopyStatus` in `defense.ts`.
   - [ ] Each action shows its refusal reason (BR-18).
 - **Tests:** unit, typecheck, build
 
