@@ -2,7 +2,7 @@
 import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { AccessDeniedError, type Actor, type DataContext } from "@/server/data/access";
-import { readClearance, verifyClearanceItem } from "@/server/data/clearance";
+import { EVIDENCE_FORM, readClearance, verifyClearanceItem } from "@/server/data/clearance";
 import type { Db } from "@/server/data/db";
 import { transitionMilestone } from "@/server/data/milestones";
 import { setOutsideStatus } from "@/server/data/outside";
@@ -39,6 +39,11 @@ async function world() {
   await db.insert(s.gateAction).values({ milestoneInstanceId: m3!.id, gate: "gate_2", result: "approved", actorUserId: member.id, actorRole: "panel_member" });
   return { ...t, member, m3: m3! };
 }
+// The Student's evidence scan, already uploaded (FR-CLR-02), then the Coordinator verifies.
+async function verify(w: Awaited<ReturnType<typeof world>>, kind: keyof typeof EVIDENCE_FORM, matchesApproved?: boolean) {
+  await db.insert(s.documentRecord).values({ milestoneInstanceId: w.m3.id, formCode: EVIDENCE_FORM[kind], state: "locked_as_submitted" });
+  await verifyClearanceItem(as(w.coordinator), { milestoneId: w.m3.id, kind, matchesApproved });
+}
 const doneOf = async (w: Awaited<ReturnType<typeof world>>, gate2 = true) =>
   Object.fromEntries((await readClearance(as(w.student), w.m3.id, gate2)).map((r) => [r.kind, r.done]));
 
@@ -66,14 +71,23 @@ describe("Clearance checklist (FR-CLR-01 to 04)", () => {
     await expect(verifyClearanceItem(as(w.student), { milestoneId: w.m3.id, kind: "conference_cert" })).rejects.toBeInstanceOf(AccessDeniedError);
     await expect(verifyClearanceItem(as(w.coordinator), { milestoneId: w.m3.id, kind: "final_copy" })).rejects.toThrow(/approved manuscript/);
     await expect(verifyClearanceItem(as(w.coordinator), { milestoneId: w.m3.id, kind: "ipmo" as "final_copy" })).rejects.toThrow(/another record/);
-    await verifyClearanceItem(as(w.coordinator), { milestoneId: w.m3.id, kind: "final_copy", matchesApproved: true });
+    await expect(verifyClearanceItem(as(w.coordinator), { milestoneId: w.m3.id, kind: "final_copy", matchesApproved: true })).rejects.toThrow(/evidence/);
+    // A returned or mismatched scan is not evidence (FR-CLR-02).
+    for (const state of ["returned", "mismatch"] as const) {
+      const [r] = await db.insert(s.documentRecord).values({ milestoneInstanceId: w.m3.id, formCode: "FINAL_COPY", state }).returning();
+      await expect(verifyClearanceItem(as(w.coordinator), { milestoneId: w.m3.id, kind: "final_copy", matchesApproved: true })).rejects.toThrow(/evidence/);
+      await db.delete(s.documentRecord).where(eq(s.documentRecord.id, r!.id));
+    }
+    await verify(w, "final_copy", true);
+    const [row] = await db.select().from(s.clearanceItem).where(eq(s.clearanceItem.milestoneInstanceId, w.m3.id));
+    expect(row!.evidenceDocumentId).not.toBeNull();
     await expect(verifyClearanceItem(as(w.coordinator), { milestoneId: w.m3.id, kind: "final_copy", matchesApproved: true })).rejects.toThrow(/already verified/);
     expect(await doneOf(w)).toMatchObject({ final_copy: true, conference_cert: false });
   });
 
   it("keeps a verified item: no update and no delete (INV-08, BR-19)", async () => {
     const w = await world();
-    await verifyClearanceItem(as(w.coordinator), { milestoneId: w.m3.id, kind: "journal_pub" });
+    await verify(w, "journal_pub");
     await expect(db.delete(s.clearanceItem).where(eq(s.clearanceItem.milestoneInstanceId, w.m3.id))).rejects.toThrow();
     await expect(db.update(s.clearanceItem).set({ kind: "rpo" }).where(eq(s.clearanceItem.milestoneInstanceId, w.m3.id))).rejects.toThrow();
   });
@@ -81,7 +95,7 @@ describe("Clearance checklist (FR-CLR-01 to 04)", () => {
   it("ends the Panel Member's manuscript access at the final copy (INV-33, BR-21)", async () => {
     const w = await world();
     expect(await manuscriptAccessEnded(as(w.coordinator), w.thesis.id)).toBe(false);
-    await verifyClearanceItem(as(w.coordinator), { milestoneId: w.m3.id, kind: "final_copy", matchesApproved: true });
+    await verify(w, "final_copy", true);
     expect(await manuscriptAccessEnded(as(w.coordinator), w.thesis.id)).toBe(true);
   });
 
@@ -91,10 +105,10 @@ describe("Clearance checklist (FR-CLR-01 to 04)", () => {
     for (const [kind, value] of [["ipmo", "PASSED"], ["rpo", "DONE"], ["copyright", "REGISTERED"]] as const) {
       await setOutsideStatus(as(w.coordinator), w.m3.id, kind, value);
     }
-    await verifyClearanceItem(as(w.coordinator), { milestoneId: w.m3.id, kind: "final_copy", matchesApproved: true });
-    await verifyClearanceItem(as(w.coordinator), { milestoneId: w.m3.id, kind: "conference_cert" });
+    await verify(w, "final_copy", true);
+    await verify(w, "conference_cert");
     await expect(transitionMilestone(as(w.coordinator), w.m3.id, "CLEARED")).rejects.toMatchObject({ code: "clearance_incomplete" });
-    await verifyClearanceItem(as(w.coordinator), { milestoneId: w.m3.id, kind: "journal_pub" });
+    await verify(w, "journal_pub");
     await expect(transitionMilestone(as(w.adviser), w.m3.id, "CLEARED")).rejects.toMatchObject({ code: "wrong_actor" });
     await transitionMilestone(as(w.coordinator), w.m3.id, "CLEARED");
     const [m] = await db.select().from(s.milestoneInstance).where(eq(s.milestoneInstance.id, w.m3.id));

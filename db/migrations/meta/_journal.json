@@ -64,6 +64,13 @@
       "when": 1795361336054,
       "tag": "0008_clearance_item_rules",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1795371825948,
+      "tag": "0009_clearance_evidence_items",
+      "breakpoints": true
     }
   ]
 }
