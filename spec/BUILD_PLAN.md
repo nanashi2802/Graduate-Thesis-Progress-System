@@ -757,6 +757,34 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [ ] Gate 2 and the close to CLEARED run end-to-end (P3-E03, P3-E04 give the data).
 - **Tests:** unit (Vitest with PGlite)
 
+### 3.11 P1-E06 Manuscript workspace and threads (Track A, `agent-a`, §8 Phase 1 step 5)
+
+**Decisions:** AD-A-019 (comment contexts A and B). Context C and the Defense Day threads are P3-E02. Document comments (FR-REV-11) and the review queue (FR-REV-09) wait for the screens (the data part is in T04).
+
+### P1-E06-T01 — Commits and the Ready mark
+- **Goal:** The Student uploads a commit straight to storage, the server checks the hash, and a new commit clears the Ready mark.
+- **Covers:** FR-REV-01, FR-REV-02, FR-REV-07, FR-REV-08, BR-07, INV-05, INV-06, INV-09, INV-10, INV-11, NFR-02
+- **Changes:** `src/server/data/manuscript.ts`, `tests/unit/data/manuscript.test.ts`
+- **Done when:**
+  - [x] A locked manuscript, a hash mismatch, a bad file and a repeated key are refused. Only the Student of the thesis uploads.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E06-T02 — Threads and replies
+- **Goal:** The Adviser and the Panel Members post threads, the Student replies, only the author resolves, and an older commit shows an Outdated badge.
+- **Covers:** FR-REV-04, FR-REV-05, FR-REV-06, BR-05, BR-06, INV-07, INV-24, NFR-01
+- **Changes:** `src/server/data/manuscript.ts`, `tests/unit/data/manuscript.test.ts`
+- **Done when:**
+  - [x] Posting follows AD-A-019. A Panel Member needs the verified forms. A stranger has no access.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E06-T03 — Screens S2, A2 and P2
+- **Goal:** The split screen with the PDF viewer and the thread panel, for the Student, the Adviser and the Panel Member.
+- **Covers:** FR-REV-03, BR-18
+- **Depends on:** T01, T02, P0-E04 (signed links), the shared UI parts (P1-E14)
+- **Done when:**
+  - [ ] Each action calls the T01 and T02 functions through a server action and shows the refusal reason.
+- **Tests:** typecheck, build
+
 ## 4. Phase 2 — Milestone 2 and email
 
 **Goal:** One Student completes the Pre-Final Defense.
