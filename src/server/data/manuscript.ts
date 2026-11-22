@@ -354,3 +354,24 @@ export async function listThreads(ctx: DataContext, milestoneId: string): Promis
     addressedByOrdinals: tags.filter((g) => g.critiqueThreadId === t.id).map((g) => ordinalOf.get(g.commitId)!).sort((a, b) => a - b),
   }));
 }
+
+// The milestone of a Submission PR, for the screens whose route holds the PR id (S2, A2, P2).
+export async function milestoneOfPr(ctx: DataContext, prId: string): Promise<{ milestoneId: string; code: typeof milestoneInstance.$inferSelect["milestoneCode"] }> {
+  requireActive(ctx.actor);
+  const [row] = await ctx.db
+    .select({ m: milestoneInstance })
+    .from(submissionPr)
+    .innerJoin(milestoneInstance, eq(milestoneInstance.id, submissionPr.milestoneInstanceId))
+    .where(eq(submissionPr.id, prId));
+  if (!row) throw new InputProblem("This manuscript does not exist.");
+  await requireThesisRead(ctx, row.m.thesisInstanceId);
+  return { milestoneId: row.m.id, code: row.m.milestoneCode };
+}
+
+// Read only. The reason why this user cannot post a thread now, or null when they can (BR-18).
+export async function threadPostBlock(ctx: DataContext, milestoneId: string): Promise<string | null> {
+  const m = await loadMilestone(ctx, milestoneId);
+  if (ctx.actor.role === "student") return "Only the Adviser and the Panel Members post threads. Reply to a thread below.";
+  if (ctx.actor.role === "coordinator") return "The Coordinator reads threads and does not post them.";
+  return (await openContext(ctx, m)) ? null : "You cannot post a thread on this manuscript now.";
+}

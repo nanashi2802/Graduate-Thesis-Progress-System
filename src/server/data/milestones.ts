@@ -260,10 +260,8 @@ export async function disapproveToDraft(ctx: DataContext, milestoneId: string): 
 
 const GATE_1B_FROM: MilestoneStatus[] = ["COMMITTEE_APPOINTED", "ADVISER_ENDORSED"];
 
-// Gate 1b: the Adviser or one accepted Panel Member endorses the Ready commit (FR-WFL-04, INV-21).
-// The last endorsement moves the milestone to COMMITTEE_ENDORSED and locks the manuscript (BR-07).
-export async function endorseGate1b(ctx: DataContext, milestoneId: string): Promise<{ completed: boolean }> {
-  const mctx = await loadAllowed(ctx, milestoneId);
+// The checks before a Gate 1b endorsement. They throw, so the screen and `endorseGate1b` share one rule (BR-18).
+async function gate1bChecks(ctx: DataContext, mctx: MilestoneContext): Promise<{ commitId: string; from: MilestoneStatus }> {
   const { role, userId } = ctx.actor;
   const isMember = role === "panel_member" && mctx.memberIds.includes(userId);
   if (role !== "adviser" && !isMember) throw new AccessDeniedError("only the Adviser or an accepted Panel Member endorses");
@@ -275,13 +273,46 @@ export async function endorseGate1b(ctx: DataContext, milestoneId: string): Prom
   }
   const commitId = mctx.pr?.readyCommitId;
   if (!commitId) throw new TransitionRefused("Upload a commit first.", "no_ready_commit");
-
   const gate = checkGate1b({
     milestone: mctx.code,
     ownOpenThreads: await ownOpenThreads(ctx.db, mctx.pr?.id, userId),
     preFinalRevisionsAccepted: mctx.code === "final" ? await acceptedPreFinalItems(ctx.db, mctx.thesis.id, userId) : true,
   });
   if (!gate.ok) throw new TransitionRefused(gate.reason, gate.code);
+  return { commitId, from };
+}
+
+// Read only. The reason why this user cannot endorse at Gate 1b now, or null when they can (BR-18).
+export async function gate1bBlock(ctx: DataContext, milestoneId: string): Promise<string | null> {
+  const mctx = await loadAllowed(ctx, milestoneId);
+  try {
+    const { commitId } = await gate1bChecks(ctx, mctx);
+    const sinceReturn = await lastReturnGateId(ctx.db, milestoneId);
+    const [own] = await ctx.db
+      .select({ id: gateAction.id })
+      .from(gateAction)
+      .where(
+        and(
+          eq(gateAction.milestoneInstanceId, milestoneId),
+          eq(gateAction.gate, "gate_1b"),
+          eq(gateAction.actorUserId, ctx.actor.userId),
+          eq(gateAction.commitId, commitId),
+          gt(gateAction.id, sinceReturn),
+        ),
+      );
+    return own ? "You already endorsed this commit." : null;
+  } catch (e) {
+    if (e instanceof TransitionRefused || e instanceof AccessDeniedError) return e.message;
+    throw e;
+  }
+}
+
+// Gate 1b: the Adviser or one accepted Panel Member endorses the Ready commit (FR-WFL-04, INV-21).
+// The last endorsement moves the milestone to COMMITTEE_ENDORSED and locks the manuscript (BR-07).
+export async function endorseGate1b(ctx: DataContext, milestoneId: string): Promise<{ completed: boolean }> {
+  const mctx = await loadAllowed(ctx, milestoneId);
+  const { role, userId } = ctx.actor;
+  const { commitId, from } = await gate1bChecks(ctx, mctx);
 
   return ctx.db.transaction(async (tx) => {
     const txCtx = { db: tx, actor: ctx.actor };
