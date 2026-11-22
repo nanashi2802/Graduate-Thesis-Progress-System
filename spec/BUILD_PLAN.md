@@ -859,11 +859,11 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [x] No minimum count. A confirmed entry does not change. A Panel Member does not read the log.
 - **Tests:** unit (Vitest with PGlite)
 
-### P1-E08-T04 — Screens S4, A3 and A4
+### P1-E08-T04 — Screens S4, A3, A4 and P3
 - **Goal:** The booking, log and slot screens call the T01 to T03 functions.
 - **Depends on:** T01 to T03, P1-E14
 - **Done when:**
-  - [ ] Each action shows its refusal reason (BR-18).
+  - [x] Each action shows its refusal reason (BR-18). Pages: `/student/schedule` (S4, with the defense date), `/adviser/availability` (A4), `/adviser/consultations` (A3), `/panel/availability` (P3).
 - **Tests:** typecheck, build
 
 ### 3.13 P1-E09 Defense (Milestone 1, TDW 08) (Track A, `agent-a`, §8 Phase 1 step 7)
