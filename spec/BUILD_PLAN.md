@@ -108,7 +108,7 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 - [x] P0-E01 Scaffold and tooling. Done: `.env.example`, the Next.js 16 app, Tailwind v4, shadcn/ui, Vitest, Playwright, the CI workflow, `AGENTS.md` §12 commands. The first CI run happens at the first push. Tasks: §2.2.
 - [x] P0-E02 Database and data layer. Done: Drizzle ORM and drizzle-kit (AD-A-001), migration `0000_app_user` on Neon, `getUser` with an access check and PGlite tests (AD-A-002). Tasks: §2.3.
 - [x] P0-E03 Sign-in. Done: email and password sign-in, the Coordinator path, the account block for sign-ins with no account, Access Denied on each portal. Open: a manual check with a real Google user. Tasks: §2.4.
-- [~] P0-E04 Files. Done: the bucket exists. Not done: signed upload, hash check, range-request viewer.
+- [x] P0-E04 Files. Done: signed write-once upload, hash check, CORS rule, range-request viewer, 4.5 MB+ file. Tasks: §2.5.
 - [~] P0-E05 Deploy, daily job and email. Done: the Resend key, the Vercel sign-in. Not done: Vercel project, deploy, cron, test email.
 - [ ] P0-E06 Measure and report.
 
@@ -258,6 +258,44 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
   - [ ] A real Google user with no account is blocked. Manual check by the human: the test needs a real Google sign-in.
 - **Tests:** unit, end-to-end (Playwright, local only: CI has no Neon secrets)
 
+### 2.5 P0-E04 tasks (agent-a, done 22 Nov 2026)
+
+**Decisions in this epic:** AD-A-007 (AWS S3 SDK), AD-A-008 (CORS rule and key prefix), AD-A-009 (spike screen and PDF viewer).
+**Storage facts found (for P0-E06):** Neon Object Storage honors `If-None-Match: *` on PUT (HTTP 412 on a second write), `x-amz-checksum-sha256` (HTTP 400 `BadDigest` on other bytes), signed `content-length` and `content-type` (HTTP 403 on another size or type), range GET (HTTP 206), and returns the stored SHA-256 on HEAD with checksum mode.
+
+### P0-E04-T01 — Signed write-once upload and hash check
+- **Goal:** The server issues an upload link signed with the hash, size, type and `If-None-Match: *`, and checks the stored hash after upload.
+- **Covers:** NFR-02, NFR-10, NFR-12, INV-09, BR-19, DFD T1 to T4
+- **Reads:** `DFD.md` §4 (T1 to T5), PRD §11.3, FR NFR-10
+- **Changes:** `package.json`, `src/server/files/rules.ts`, `src/server/files/storage.ts`, `tests/unit/files-rules.test.ts`
+- **Depends on:** P0-E03
+- **Done when:**
+  - [x] Unit tests cover the type, size and hash rules (NFR-10, NFR-02) and the write-once key (INV-09).
+  - [x] A second PUT to the same key fails with HTTP 412 on Neon storage.
+  - [x] Other bytes fail with `BadDigest`. A PUT with no `If-None-Match` fails the signature.
+- **Tests:** unit, end-to-end (local)
+
+### P0-E04-T02 — CORS rule on `thesis-files`
+- **Goal:** Only the app origins can use the bucket from a browser.
+- **Covers:** NFR-12, DFD T2, T5
+- **Changes:** `scripts/set-storage-cors.mjs`
+- **Depends on:** the Vercel domain from agent-b (AD-B-001)
+- **Done when:**
+  - [x] `pnpm storage:cors` sets GET, HEAD and PUT for localhost, the production origin and the preview pattern. DELETE is not allowed.
+  - [x] A preflight from another origin gets HTTP 403.
+- **Tests:** manual check (`curl` preflight)
+
+### P0-E04-T03 — Browser hash, direct upload and range viewer
+- **Goal:** The browser hashes a fake 100-page PDF, uploads it straight to storage and views it by page ranges.
+- **Covers:** NFR-02, NFR-12, PRD §11.3 rules 1 to 3, DFD T1 to T5
+- **Changes:** `src/app/coordinator/spike-files/`, `tests/support/fake-pdf.ts`, `tests/e2e/files.spec.ts`
+- **Depends on:** T01, T02
+- **Done when:**
+  - [x] A 5.3 MB, 100-page fake PDF uploads and passes the hash check (end-to-end, local).
+  - [x] No request to the app carries a body of 64 KB or more (the server never receives the bytes).
+  - [x] The viewer shows page 1 of 100 with range requests.
+- **Tests:** end-to-end (Playwright, local only)
+
 ---
 
 ## 3. Phase 1 — Foundation and Milestone 1
@@ -341,7 +379,7 @@ All code is in `src/`. Next.js reads routes from `src/app/`. P0-E01 made and con
 | `src/app/student/`, `src/app/adviser/`, `src/app/panel/`, `src/app/coordinator/` | The 29 role routes (`SITEMAP.md` §3). Each portal `layout.tsx` checks the role. | **Made** (P0-E03, dashboard stubs only) |
 | `src/server/data/` | The one server-side data layer. Every read and write goes here (NFR-01). | **Made** (P0-E02) |
 | `src/server/domain/` | State machines and invariant checks (`ERD.md` §6, §7), with no framework code | `[CONFIRM]` P1-E04 |
-| `src/server/files/` | Signed links and hash checks (P11.0) | `[CONFIRM]` P0-E04 |
+| `src/server/files/` | Signed links and hash checks (P11.0) | **Made** (P0-E04) |
 | `src/server/notify/` | Events, emails and the daily job (P9.0) | `[CONFIRM]` P0-E05 |
 | `src/components/` | Shared UI from `DESIGN.md` | **Made** (`ui/` holds shadcn/ui parts) |
 | `src/lib/` | Small shared helpers, for example `cn()` | **Made** |

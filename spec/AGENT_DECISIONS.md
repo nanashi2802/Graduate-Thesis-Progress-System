@@ -61,3 +61,24 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** The app makes users with `admin/create-user` and the signed-in Coordinator's session (`src/server/auth/admin.ts`, `createAccount`). The Coordinator's Neon Auth user has the role `admin`. This needs no extra secret. The first Coordinator cannot come from the app, and no Neon API key is available. So `pnpm db:seed-dev` writes the fake bootstrap Coordinator into `neon_auth.user` and `neon_auth.account` (Better Auth scrypt password format), then makes the other fake users through `admin/create-user`. Fake users use `@example.test` and the password in `DEV_SEED_PASSWORD` (`.env.local` only).
 - **Risk:** medium. The direct write depends on the Neon Auth table shape, and it is for a development branch only. For the pilot, the human makes the first real Coordinator in the Neon console (Auth, Users) and selects "Make admin". `neonCreateAuthUser` is not yet run live from the app. P1-E03 runs it from `/coordinator/users`.
 - **Undo:** revert the commits with AD-A-006. Remove the fake users in the Neon console.
+
+### AD-A-007 — Storage client: AWS SDK for JavaScript v3
+- **Task:** P0-E04-T01
+- **Options:** `@aws-sdk/client-s3` + `@aws-sdk/s3-request-presigner`; a small S3 signer such as `aws4fetch`; hand-written SigV4
+- **Decision and reason:** The AWS SDK. Neon Object Storage is S3-compatible (PRD §11.2), and the SDK signs `If-None-Match`, `x-amz-checksum-sha256`, size and type into the link. Tests on Neon storage proved each guard (`spec/BUILD_PLAN.md` §2.5). It is used only in `src/server/files/` and one script. No paid service.
+- **Risk:** low. The SDK is large, but only server code loads it.
+- **Undo:** revert the commits with AD-A-007. Replace `storage.ts` with another signer.
+
+### AD-A-008 — CORS rule and test key prefix on `thesis-files`
+- **Task:** P0-E04-T02
+- **Options:** keep the bucket rule `*` (it allowed all origins and DELETE); allow only the app origins
+- **Decision and reason:** Only `http://localhost:3000`, `https://thesisko-tau.vercel.app` and `https://thesisko-*-yushinbjornmatsuda-9110s-projects.vercel.app` (AD-B-001). Methods GET, HEAD and PUT. No DELETE, because the app never deletes (BR-19). The rule is in `scripts/set-storage-cors.mjs` (`pnpm storage:cors`). Test files use the new `FILE_KEY_PREFIX` (`agent-a` in this worktree, AGENTS.md §13.8).
+- **Risk:** low. The preview pattern lets any preview of this Vercel project use the bucket, which is intended. A new domain needs a new rule. CORS does not stop a holder of a valid signed link outside a browser; the short link life does.
+- **Undo:** edit the origin list and run `pnpm storage:cors` again.
+
+### AD-A-009 — Spike screen `/coordinator/spike-files` and the PDF viewer
+- **Task:** P0-E04-T03
+- **Options:** a test-only route; a spike screen in the Coordinator portal
+- **Decision and reason:** A spike screen in the Coordinator portal, so the portal gate and the server-side Coordinator check (NFR-01) protect it. It is not in `SITEMAP.md`. P1-E06 removes it when commit uploads exist. The viewer uses `react-pdf` (PRD §11.2) and `pdfjs-dist` at the same version, with `disableAutoFetch` and `disableStream`, so pdf.js reads only the byte ranges of the page in view (PRD §11.3 rule 2).
+- **Risk:** low. Spike code only.
+- **Undo:** delete `src/app/coordinator/spike-files/`.
