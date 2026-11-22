@@ -2,7 +2,7 @@
 // Pick a Student, then work through the records of each milestone.
 import Link from "next/link";
 import { EmptyState } from "@/components/empty-state";
-import { DocumentStamp } from "@/components/status";
+import { DocumentStamp, documentStateView } from "@/components/status";
 import { deliverables, documentHistory } from "@/server/data/documents";
 import { listStudents } from "@/server/data/students";
 import { decideDocumentChange, type DocumentState } from "@/server/domain/documents";
@@ -99,7 +99,7 @@ export default async function Page({ searchParams }: PageProps<"/coordinator/doc
                                       <ol className="mt-1 flex flex-col gap-1 text-xs">
                                         {history.events.map((e, i) => (
                                           <li key={i}>
-                                            {e.fromState} → {e.toState}
+                                            {documentStateView(e.fromState).label} → {documentStateView(e.toState).label}
                                             {e.reason ? ` · ${e.reason}` : ""}
                                           </li>
                                         ))}
