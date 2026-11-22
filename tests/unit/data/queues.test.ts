@@ -50,6 +50,9 @@ describe("adviserDashboard (A1)", () => {
     const d = await adviserDashboard(adviser());
     expect(d.queue.map((q) => q.kind).sort()).toEqual(["gate_1a", "tdw03"]);
     expect(d.queue[0]).toMatchObject({ studentName: seed.student.fullName, milestone: "proposal" });
+    const tdw03 = d.queue.find((q) => q.kind === "tdw03")!;
+    expect(tdw03.requiredItemId).toEqual(expect.any(String));
+    expect(d.queue.find((q) => q.kind === "gate_1a")!.requiredItemId).toBeNull();
     expect(d.advisees).toEqual([expect.objectContaining({ studentName: seed.student.fullName, status: "READY", pacingFlag: false })]);
   });
 

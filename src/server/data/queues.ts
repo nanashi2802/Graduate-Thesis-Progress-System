@@ -54,6 +54,8 @@ export type AdviserQueueItem = {
   milestoneId: string | null;
   studentName: string;
   milestone: MilestoneCode | null;
+  /** The template item of the TDW 03 scan, for `tdw03`. The A1 screen uploads the signed scan against it. */
+  requiredItemId: string | null;
   since: Date;
   daysWaiting: number;
 };
@@ -97,8 +99,8 @@ export async function adviserDashboard(ctx: DataContext, now: Date = new Date())
 
   const daysSince = (d: Date) => Math.max(0, Math.floor((now.getTime() - d.getTime()) / DAY_MS));
   const queue: AdviserQueueItem[] = [];
-  const add = (kind: AdviserQueueKind, r: (typeof rows)[number], since: Date) =>
-    queue.push({ kind, thesisId: r.thesisId, prId: r.prId, milestoneId: r.milestoneId, studentName: r.studentName, milestone: r.code, since, daysWaiting: daysSince(since) });
+  const add = (kind: AdviserQueueKind, r: (typeof rows)[number], since: Date, requiredItemId: string | null = null) =>
+    queue.push({ kind, thesisId: r.thesisId, prId: r.prId, milestoneId: r.milestoneId, studentName: r.studentName, milestone: r.code, requiredItemId, since, daysWaiting: daysSince(since) });
 
   const ids = rows.map((r) => r.milestoneId);
   const gates = ids.length ? await ctx.db.select().from(gateAction).where(inArray(gateAction.milestoneInstanceId, ids)) : [];
@@ -124,7 +126,7 @@ export async function adviserDashboard(ctx: DataContext, now: Date = new Date())
         .from(templateRequiredItem)
         .where(and(eq(templateRequiredItem.templateVersionId, r.templateVersionId), eq(templateRequiredItem.formCode, "TDW_03"), eq(templateRequiredItem.uploaderRole, "adviser")));
       const done = docs.some((d) => d.milestoneInstanceId === r.milestoneId && d.formCode === "TDW_03" && d.state !== "not_started" && d.state !== "prepared");
-      if (item && !done) add("tdw03", r, r.openedAt);
+      if (item && !done) add("tdw03", r, r.openedAt, item.id);
     }
   }
 
@@ -140,6 +142,7 @@ export async function adviserDashboard(ctx: DataContext, now: Date = new Date())
       milestoneId: null,
       studentName: nameOf.get(thesisId) ?? "",
       milestone: null,
+      requiredItemId: null,
       since: b.booking.requestedAt ?? now,
       daysWaiting: daysSince(b.booking.requestedAt ?? now),
     });

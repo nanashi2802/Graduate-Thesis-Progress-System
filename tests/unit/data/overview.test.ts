@@ -49,6 +49,15 @@ describe("coordinatorOverview", () => {
     expect((await coordinatorOverview(coord())).queue).toEqual([]);
   });
 
+  it("gives the latest attempt for the link to the defense page", async () => {
+    await db.insert(s.defenseAttempt).values({ milestoneInstanceId: seed.milestone.id, attemptNo: 1, status: "held" });
+    const [second] = await db.insert(s.defenseAttempt).values({ milestoneInstanceId: seed.milestone.id, attemptNo: 2, status: "held" }).returning();
+    await setStatus("DEFENSE_HELD");
+    expect((await coordinatorOverview(coord())).queue[0]).toMatchObject({ kind: "close_stage", attemptId: second!.id });
+    await setStatus("ADVISER_ENDORSED");
+    expect((await coordinatorOverview(coord())).queue[0]!.attemptId).toBe(second!.id);
+  });
+
   it("queues the scans that wait for review, with a count", async () => {
     await db.insert(s.documentRecord).values([
       { milestoneInstanceId: seed.milestone.id, formCode: "TDW_07", state: "locked_as_submitted" },

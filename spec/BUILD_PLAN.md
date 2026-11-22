@@ -591,8 +591,12 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 ### P1-E11-T04 — Dashboard screens S1, A1, P1, C1
 - **Goal:** Each role lands on its dashboard with the next action (NFR-04). Each disabled action shows its reason.
 - **Covers:** FR-TRK-01 to FR-TRK-04, NFR-04, BR-18
+- **Changes:** `src/app/student/dashboard/`, `src/app/adviser/dashboard/`, `src/app/panel/dashboard/`, `src/app/coordinator/dashboard/`, `src/app/_components/dash.tsx`
 - **Depends on:** T02, T03
-- **Done when:** `[ ]` A Playwright step opens each dashboard and finds the next-action card or the queue.
+- **Done when:**
+  - [x] S1 (Docket as the next-action card, checklist, outside chips, defense card, key dates), A1 (action queue with inline TDW 03 scan upload and data gathering approval, advisee roster), P1 (assignments with the access reason) and C1 (KPI strip that opens its queue, grouped queue, Student table) are built. Each blocked item shows its reason.
+  - [ ] A Playwright step opens each dashboard and finds the next-action card or the queue. It waits for a local run with `DEV_SEED_PASSWORD` (`portals.spec.ts` already opens each home and finds the `Dashboard` heading).
+  - [ ] The P1 action links to the Defense Day page (P4) after `agent-a` merges #30. The S1 residency indicator waits for R7.
 
 ### 3.5 P1-E12 Audit records and in-app notifications (Track B, `agent-b`)
 

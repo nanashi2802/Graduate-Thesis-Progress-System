@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { checkPrintedCopies, confirmDefenseDate, recordPrintedCopies } from "@/server/data/defense";
 import { InputProblem } from "@/server/data/coordinator";
 import { transitionMilestone } from "@/server/data/milestones";
+import { pstDateTime } from "@/app/_lib/run";
 import { int, runAction, text, type FormState } from "../_lib/action";
 
 async function done(result: FormState): Promise<FormState> {
@@ -14,7 +15,7 @@ async function done(result: FormState): Promise<FormState> {
 
 export async function confirmDateAction(_prev: FormState, form: FormData): Promise<FormState> {
   const local = text(form, "startsAt"); // `datetime-local` has no zone. The app uses Philippine Standard Time (NFR-11).
-  const startsAt = new Date(`${local}:00+08:00`);
+  const startsAt = pstDateTime(local);
   if (!local || Number.isNaN(startsAt.getTime())) return { error: "Enter the start date and time." };
   return done(
     await runAction(async (ctx) => {
