@@ -21,11 +21,13 @@ describe("dossier export", () => {
   it("gives the Coordinator commits, scans, Minutes and logs with an index, and records the export", async () => {
     f = await runMilestone1(db);
     const d = await exportDossier(as(f.coordinator), f.thesisId);
-    expect(d.index).toEqual({ commits: d.commits.length, scans: d.scans.length, minutes: d.minutes.length, logs: d.logs.length });
+    expect(d.index).toEqual({ commits: d.commits.length, scans: d.scans.length, minutes: d.minutes.length, consultationLogs: d.consultationLogs.length, logs: d.logs.length });
     expect(d.commits.length).toBeGreaterThan(0);
     expect(d.scans.length).toBeGreaterThan(0);
     expect(d.minutes[0]?.body).toContain("approved");
     expect(d.logs.length).toBeGreaterThan(0);
+    expect(d.logs.some((l) => l.table === "committee")).toBe(true);
+    expect(d.logs.some((l) => l.action.startsWith("thread.") || l.action.startsWith("log."))).toBe(true);
     const rows = await db.select().from(auditRecord).where(eq(auditRecord.targetId, f.thesisId));
     expect(rows.some((r) => r.action === "dossier.export")).toBe(true);
   });
