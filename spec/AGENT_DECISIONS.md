@@ -65,7 +65,7 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 ### AD-A-007 — Storage client: AWS SDK for JavaScript v3
 - **Task:** P0-E04-T01
 - **Options:** `@aws-sdk/client-s3` + `@aws-sdk/s3-request-presigner`; a small S3 signer such as `aws4fetch`; hand-written SigV4
-- **Decision and reason:** The AWS SDK. Neon Object Storage is S3-compatible (PRD §11.2), and the SDK signs `If-None-Match`, `x-amz-checksum-sha256`, size and type into the link. Tests on Neon storage proved each guard (`spec/BUILD_PLAN.md` §2.5). It is used only in `src/server/files/` and one script. No paid service.
+- **Decision and reason:** The AWS SDK. Neon Object Storage is S3-compatible (PRD §11.2), and the SDK signs `If-None-Match`, `x-amz-checksum-sha256`, size and type into the link. Tests on Neon storage proved each guard (`spec/BUILD_PLAN.md` §2.7). It is used only in `src/server/files/` and one script. No paid service.
 - **Risk:** low. The SDK is large, but only server code loads it.
 - **Undo:** revert the commits with AD-A-007. Replace `storage.ts` with another signer.
 
@@ -82,3 +82,51 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** A spike screen in the Coordinator portal, so the portal gate and the server-side Coordinator check (NFR-01) protect it. It is not in `SITEMAP.md`. P1-E06 removes it when commit uploads exist. The viewer uses `react-pdf` (PRD §11.2) and `pdfjs-dist` at the same version, with `disableAutoFetch` and `disableStream`, so pdf.js reads only the byte ranges of the page in view (PRD §11.3 rule 2).
 - **Risk:** low. Spike code only.
 - **Undo:** delete `src/app/coordinator/spike-files/`.
+### AD-B-001 — Vercel project name, settings and origins
+- **Task:** P0-E05-T01
+- **Options:** name `thesisko` (same as the Neon project); a longer name from the repository
+- **Decision and reason:** Project `thesisko` in the personal Hobby scope. Vercel gave the production domain `thesisko-tau.vercel.app`, because `thesisko.vercel.app` is taken. Framework preset `nextjs`. Node.js `24.x` (the current LTS; `package.json` asks for 22 or newer). The Git production branch stays `main` (`AGENTS.md` §13.8). CORS origins sent to `agent-a`: the production origin, `https://thesisko-*-yushinbjornmatsuda-9110s-projects.vercel.app` for previews, and `http://localhost:3000`.
+- **Risk:** low. The domain name can change later with a custom domain. Then the CORS rule must change too.
+- **Undo:** Rename or delete the Vercel project. Update the CORS rule on `thesis-files`.
+
+### AD-B-002 — Resend through its REST API, with no SDK
+- **Task:** P0-E05-T04
+- **Options:** add the `resend` package; call `https://api.resend.com/emails` with `fetch`
+- **Decision and reason:** `fetch`. One POST is all Phase 0 needs. It adds no dependency (`AGENTS.md` §10) and needs no change to `package.json`.
+- **Risk:** low. P2-E04 can add the SDK if batch sends or webhooks need it.
+- **Undo:** Replace `sendEmail` in `src/server/notify/email.ts`.
+
+### AD-B-003 — Daily job time and access
+- **Task:** P0-E05-T02, P0-E05-T03
+- **Options:** schedule `0 0 * * *`; another hour
+- **Decision and reason:** `0 0 * * *`. Hobby runs it between 00:00 and 00:59 UTC, which is 08:00 to 08:59 PST, at the start of the work day (NFR-11). The route accepts only `Authorization: Bearer <CRON_SECRET>`. With no `CRON_SECRET`, it refuses every request (fail closed).
+- **Risk:** low.
+- **Undo:** Change `vercel.json`.
+
+### AD-B-004 — Test email through `NOTIFY_TEST_TO`
+- **Task:** P0-E05-T04
+- **Options:** a separate test route; an optional variable that makes the daily job send one email
+- **Decision and reason:** The optional variable `NOTIFY_TEST_TO` in `.env.example`. It adds no new route to secure. It proves the cron and the email in one run. The email holds the event, the next action, the deadline and a link only (FR-NTF-02, `AGENTS.md` §10). Remove the variable in Vercel after the spike.
+- **Risk:** low. In Vercel, `NOTIFY_TEST_TO` is `delivered@resend.dev`, the Resend test address. It proves the send and puts no personal address in Vercel. With `onboarding@resend.dev`, Resend sends only to that address or to the account owner.
+- **Undo:** Remove the variable, and remove the test branch in `src/server/notify/daily.ts`.
+
+### AD-B-005 — Start the P1-E04 domain part before the Phase 1 gates
+- **Task:** P1-E04-T01, P1-E04-T02
+- **Options:** wait for the Phase 1 gates (`BUILD_PLAN.md` §1: ERD v1.1 approved, spike report accepted); write the pure code now as look-ahead work
+- **Decision and reason:** Write it now. §8 says Track B starts Phase 1 with this part, and the code has no database, no route and no dependency. It follows ERD v1.1 §7.1 as written. If the human changes the ERD, only `src/server/domain/` and its tests change.
+- **Risk:** low. The code is pure and nothing calls it yet.
+- **Undo:** Revert the commits with this ID. Delete `src/server/domain/`.
+
+### AD-B-006 — Return purpose for the Coordinator (BR-13)
+- **Task:** P1-E04-T02
+- **Options:** trust the Coordinator with no check; ask the Coordinator to pick a purpose (`compliance`, `eligibility`) when they Return
+- **Decision and reason:** `checkReturn` takes a `purpose`. A Coordinator Return must be `compliance` or `eligibility` (BR-13, INV-19). The Adviser and Panel Members can Return for content. ERD v1.1 has no column for the purpose. `agent-a` decides whether `gate_action` stores it (P1-E04 wiring). Until then the purpose is a UI choice only.
+- **Risk:** medium. The purpose is not stored, so an audit cannot show it. The human must check whether BR-13 needs it on the record.
+- **Undo:** Remove the `purpose` check in `src/server/domain/gates.ts`.
+
+### AD-B-007 — `DEFENSE_HELD` needs the verdict
+- **Task:** P1-E04-T01
+- **Options:** set `DEFENSE_HELD` at the start time and the verdict later; set `DEFENSE_HELD` when the Lead Panel Member or Panel Chair records the verdict
+- **Decision and reason:** The verdict. ERD §7.1 gives the actor as the Lead Panel Member or Panel Chair with guard INV-15, which is the verdict rule. So the verdict and the status change happen together. A Disapproved verdict then moves the milestone back to `DRAFT` (system step, FR-WFL-09), and `CLOSED` refuses a Disapproved attempt.
+- **Risk:** low. It matches ERD §7.1 and §7.2 (`defense_attempt` stays `held` when Disapproved).
+- **Undo:** Change the `DEFENSE_SCHEDULED` to `DEFENSE_HELD` guard in `src/server/domain/milestone.ts`.
