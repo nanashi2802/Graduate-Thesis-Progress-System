@@ -234,8 +234,8 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 - **Done when:**
   - [x] `vercel env ls` shows every name in `.env.example` for Production and Preview.
   - [x] `CRON_SECRET` and `NEON_AUTH_COOKIE_SECRET` in production are new values, not the local ones.
-  - [ ] `vercel deploy --prod` from a clean checkout of `dev` succeeds, and the home page loads.
-  - [ ] A manual run of the cron route on production logs the run and sends the test email.
+  - [x] `vercel deploy --prod` from a clean checkout of `dev` succeeds, and the home page loads. (22 Nov 2026, `dev` at `3705e97`, deployment `dpl_DRqirx4E673oQjobsnhPcKKCKCw9`, alias `https://thesisko-tau.vercel.app`)
+  - [x] A manual run of the cron route on production logs the run and sends the test email. (`vercel crons run /api/cron/daily`: status 200, log `[daily-job] run ... PST date 2026-11-22` and `test email sent`. A request with no secret gets 401.)
 - **Tests:** manual check (`vercel logs`)
 
 ### 2.4 P0-E06 tasks (Track B, `agent-b`)
