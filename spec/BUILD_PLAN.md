@@ -555,6 +555,38 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [x] Each disabled action shows its reason (BR-18). The C4 reasons come from `decideDocumentChange`, the rule the action runs.
   - [ ] An end-to-end step uploads a TDW 07 scan, and the Coordinator verifies it. It waits for the Playwright setup (P1-E13).
 
+### 3.4a P1-E11 Dashboards (Track B, `agent-b`)
+
+**Decisions:** none yet. T01 is pure code. T02 and T03 wait for P1-E09 and P1-E10 (`agent-a`).
+
+### P1-E11-T01 — Next action for each role and status (pure)
+- **Goal:** One function gives the next-action card of a milestone: who acts, one sentence, and the one primary action, for each status (NFR-04).
+- **Covers:** FR-TRK-01, NFR-04, BR-18
+- **Reads:** `UTP` §3.2 (S1), §3.8, `src/server/domain/milestone.ts` (the transition table)
+- **Changes:** `src/server/domain/next-action.ts`, `tests/unit/domain/next-action.test.ts`
+- **Done when:**
+  - [x] Each status of each milestone has a next action for the Student, and a test checks the list against `statusesFor`.
+  - [x] The "who acts" names the role in the transition table for that step.
+- **Tests:** unit (Vitest)
+
+### P1-E11-T02 — Student tracker data (S1)
+- **Goal:** One data function returns the S1 regions: identity card, stepper, next action, readiness checklist, outside chips, defense card, key dates.
+- **Covers:** FR-TRK-01, FR-TRK-05, NFR-01, NFR-04, BR-17
+- **Depends on:** T01, P1-E09, P1-E10
+- **Done when:** `[ ]` A test shows each region for a Student, and that another Student's data is refused.
+
+### P1-E11-T03 — Queues for the Adviser, Panel Member and Coordinator (A1, P1, C1)
+- **Goal:** Data functions return the action queue and the roster (A1), the assignments (P1), and the KPI strip, grouped queue and Student table (C1). Each count opens its queue.
+- **Covers:** FR-TRK-02 to FR-TRK-04, NFR-01, BR-17
+- **Depends on:** T01, P1-E09, P1-E10
+- **Done when:** `[ ]` A test shows each queue for its role, and that a role never reads another role's queue.
+
+### P1-E11-T04 — Dashboard screens S1, A1, P1, C1
+- **Goal:** Each role lands on its dashboard with the next action (NFR-04). Each disabled action shows its reason.
+- **Covers:** FR-TRK-01 to FR-TRK-04, NFR-04, BR-18
+- **Depends on:** T02, T03
+- **Done when:** `[ ]` A Playwright step opens each dashboard and finds the next-action card or the queue.
+
 ### 3.5 P1-E12 Audit records and in-app notifications (Track B, `agent-b`)
 
 **Decisions:** AD-B-014. The audit insert itself is in P1-E02 (`agent-a`). T01 is pure code. T02 and T03 wait for P1-E02.
