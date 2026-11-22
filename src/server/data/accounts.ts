@@ -1,8 +1,16 @@
 // Account creation by the Coordinator (FR-ACC-05, BR-03, D-23). Server only.
 import "server-only";
 import { randomBytes } from "node:crypto";
+import { eq } from "drizzle-orm";
 import { AccessDeniedError, requireActive, type DataContext } from "./access";
 import { appUser, type AppUser, type UserRole } from "./schema";
+
+export class DuplicateEmailError extends Error {
+  constructor() {
+    super("An account with this email address already exists.");
+    this.name = "DuplicateEmailError";
+  }
+}
 
 export type NewAccount = { fullName: string; email: string; role: UserRole };
 
@@ -26,6 +34,9 @@ export async function createAccount(
     throw new AccessDeniedError("only the Coordinator makes accounts");
   }
   const email = input.email.trim().toLowerCase();
+  // Check first, so a duplicate email leaves no Neon Auth user without an account.
+  const [taken] = await ctx.db.select({ id: appUser.id }).from(appUser).where(eq(appUser.email, email));
+  if (taken) throw new DuplicateEmailError();
   const { authUserId } = await createAuthUser({ name: input.fullName, email, password });
   const [row] = await ctx.db
     .insert(appUser)

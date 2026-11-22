@@ -2,7 +2,7 @@
 // (FR-ACC-04, FR-ACC-05, FR-ACC-06, BR-03, D-23).
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AccessDeniedError, type Actor } from "@/server/data/access";
-import { createAccount } from "@/server/data/accounts";
+import { createAccount, DuplicateEmailError } from "@/server/data/accounts";
 import { resolveActor } from "@/server/data/actors";
 import type { Db } from "@/server/data/db";
 import { appUser } from "@/server/data/schema";
@@ -40,6 +40,17 @@ describe("createAccount", () => {
     await expect(
       createAccount({ db, actor: adviser }, { fullName: "X", email: "x@example.test", role: "student" }, fakeAuth),
     ).rejects.toThrow(AccessDeniedError);
+    expect(fakeAuth).not.toHaveBeenCalled();
+  });
+
+  it("refuses a duplicate email before it makes a Neon Auth user", async () => {
+    await expect(
+      createAccount(
+        { db, actor: coordinator },
+        { fullName: "Again", email: "COORDINATOR@example.test", role: "adviser" },
+        fakeAuth,
+      ),
+    ).rejects.toThrow(DuplicateEmailError);
     expect(fakeAuth).not.toHaveBeenCalled();
   });
 

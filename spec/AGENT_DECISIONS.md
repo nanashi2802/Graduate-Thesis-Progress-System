@@ -130,3 +130,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** The verdict. ERD §7.1 gives the actor as the Lead Panel Member or Panel Chair with guard INV-15, which is the verdict rule. So the verdict and the status change happen together. A Disapproved verdict then moves the milestone back to `DRAFT` (system step, FR-WFL-09), and `CLOSED` refuses a Disapproved attempt.
 - **Risk:** low. It matches ERD §7.1 and §7.2 (`defense_attempt` stays `held` when Disapproved).
 - **Undo:** Change the `DEFENSE_SCHEDULED` to `DEFENSE_HELD` guard in `src/server/domain/milestone.ts`.
+
+### AD-A-010 — The auth proxy blocks admin, sign-up and delete paths
+- **Task:** P0-E03 (fix from the agent-r review of #4)
+- **Options:** pass every path to Neon Auth; block the paths the browser never needs
+- **Decision and reason:** `/api/auth/admin/*`, `/api/auth/sign-up/email` and `/api/auth/delete-user` return 404 (`src/server/auth/blocked-paths.ts`). The Coordinator's Neon Auth role is `admin` (AD-A-006), so without the block the browser could call remove-user or impersonate. That breaks "accounts are deactivated, never deleted" (FR-ACC-06, ERD §1, BR-19). Sign-up is off anyway (D-23). The server still calls `admin/create-user` directly with the SDK.
+- **Risk:** medium. The block covers only this app's proxy. The Neon Auth base URL is public, so a Coordinator session token sent straight to Neon Auth could still call admin paths. Only the Coordinator has that token. P1-E03 must check whether the session cookie works on the Neon Auth host directly, and log the result.
+- **Undo:** revert the commits with AD-A-010.
