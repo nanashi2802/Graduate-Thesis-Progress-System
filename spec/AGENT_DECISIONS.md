@@ -400,3 +400,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** AD-A-029 said a new form code was needed. The enum already has the three codes. Migration 0009 adds the three items to version 1 of the Final template. The Student uploads on the existing S3 screen. `verifyClearanceItem` now refuses until the Student has uploaded the scan, and links it in `evidence_document_id` (FR-CLR-02). The S6 and C7 clearance screens stay open as P3-E04-T03.
 - **Risk:** low. A Final template version other than 1 needs the three items added by the Coordinator in template editing. The Coordinator can no longer verify an item without a scan.
 - **Undo:** revert the commits with AD-A-030. Migration 0009 only inserts rows.
+
+### AD-B-024 — P3-E01 needs a test only: the Final reuses the appointment and sheet code
+- **Task:** P3-E01-T01
+- **Options:** build new Final Panel and TDW 13 code; test that the existing code (AD-B-016, AD-B-017) already serves the Final
+- **Decision and reason:** The second. `expectedEvaluatorsFor` and `evaluationFormFor` already pick the Final Panel and TDW 13 from the milestone code. A test now proves it: the Adviser is refused, a score above the weight is refused, and the Coordinator verifies both sheets (FR-DEF-06, INV-25). TDW 12 is a generic scan item in the Final template.
+- **Risk:** low. No source code changed.
+- **Undo:** delete `tests/unit/data/defense-final.test.ts`.
