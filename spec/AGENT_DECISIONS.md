@@ -259,12 +259,41 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Risk:** low. If the owner wants verified paper before "Appointed", add two state checks in `markAppointed`.
 - **Undo:** revert the commits with AD-B-018.
 
+### AD-A-017 — The outside status table comes with P1-E04, not P2-E01
+- **Task:** P1-E04-T03 (the milestone facts need `ipmo`, `rpo` and `ethics`). Plan §3.10 owns the work.
+- **Options:** facts read fixed "not submitted" values until P2-E01; the table and its write function now, the Coordinator screen in P2-E01
+- **Decision and reason:** Table `outside_status_event` (ERD §4.1) and `setOutsideStatus` now (migrations 0004, 0005). INV-20 and INV-22 read IPMO and RPO, and the TDW 08 checklist reads the ethics status. A fixed value would make those guards untestable. The screen, the notices and the Milestone 2 gate flow stay in P2-E01.
+- **Risk:** low. INV-27 is a database check and a trigger (role) plus a data-layer check. The table is append-only (INV-08).
+- **Undo:** revert the commits with AD-A-017 (the migrations too, before any database has them).
+
+### AD-A-018 — Gate rows and the Return rule in `transitionMilestone`
+- **Task:** P1-E04-T04, T05
+- **Options:** one `gate_action` row for every status change; a gate row only where ERD §7.1 names a gate, an audit row for the rest
+- **Decision and reason:** Every change writes an audit row (NFR-03). A `gate_action` row is added for Gate 1a, the date confirmation, the stage close, the certification, the Final approval and the clearance close. A Return writes a `returned` gate row with the reason, then moves the milestone to DRAFT in the same transaction (INV-18). The Return also unlocks the manuscript and clears the Ready mark (BR-07 names only the close as an unlock, so this is a decision; without it a Return at DATE_PROPOSED blocks Gate 1b for good). Gate 1b rows before the last `returned` gate row do not count, so a new round starts from zero. The Student marks Ready again. Gate 1b and Gate 2 have one row for each person, so they have their own functions and the status moves when the last person endorses.
+- **Risk:** low (was medium before the review of #17). A Return at DATE_PROPOSED discards the locked state and the earlier endorsements. The Return reason tells the Student why.
+- **Undo:** revert the commits with AD-A-018.
+
 ### AD-B-019 — Document data layer: the file store as a parameter, and how a scan key is checked
 - **Task:** P1-E07-T02
 - **Options:** for the store: import `src/server/files/storage.ts` directly, or take the two calls as a parameter; for the key: store each signed key until the upload is confirmed (new table), sign a token with a new secret, or check the key shape and that no file row uses it yet
 - **Decision and reason:** `requestScanUpload` and `confirmScanUpload` take a `FilePort` (`createUploadLink`, `checkStoredFile`). The app passes `storage.ts`. Tests pass a fake, so unit tests never call S3. `confirmScanUpload` accepts only a `scan/` key that no `document_file` row uses yet, and only when the stored hash and size match (NFR-02). It needs no new table and no new secret. The key holds a random UUID, and only the uploader receives it. The uploader role comes from `template_required_item.uploader_role` (TDW 05, 06 and 11 default to the Coordinator, FR-CMT-04). The record goes to Prepared when the first upload is asked for. The prefilled PDF comes with the form pack (FR-DOC-05, Phase 4). A Mismatch also needs a reason, because the ERD check on `document_event` asks for one. The S3 and C4 screens are a new task, P1-E07-T04.
 - **Risk:** low. A user who learns another user's unconfirmed key within the 5-minute link time could attach that file to their own record. It stays a locked, audited record, and the Coordinator can Return it. If this matters, add a pending-upload table.
 - **Undo:** revert the commits with AD-B-019.
+
+### AD-A-019 — Comment contexts A and B: who posts, and when
+- **Task:** P1-E06-T02
+- **Options:** let each role with thread access post in any open stage; follow Unified §2.12 to the letter with one window for each context
+- **Decision and reason:** Follow §2.12. Context A: only the Adviser, while the status is DRAFT or READY (before Gate 1a, and after a Return). Context B: only an accepted Panel Member of the Evaluation Committee, in Milestones 1 and 2, from the appointment until Gate 1b (`COMMITTEE_APPOINTED` in M1, `ADVISER_ENDORSED` in M2). A Panel Member does not see context A threads. The Student and the Adviser reply, and so do reviewers. The Coordinator only reads. Context C (Defense Day) comes with P3-E02. A Student upload in READY is refused, so the Adviser reads a fixed commit. A new commit clears the Ready mark (INV-06), which also closes the stale mark risk of AD-A-018 for new uploads.
+- **Risk:** low. A Panel Member with no verified appointment form or NDA cannot read or post (INV-24, BR-08).
+- **Undo:** revert the commits with AD-A-019.
+
+### AD-A-020 — Slots: weekly copies, a link rule, and the log belongs to the newest milestone
+- **Task:** P1-E08-T01 to T03
+- **Options:** store one slot with a recurrence rule and expand it on read; write one row for each week. One log entry for each milestone chosen by the Student; the newest milestone of the thesis
+- **Decision and reason:** One row for each week (up to 16 slots in one publish), with `recurrence_rule` = `weekly:N` as a label. A row per slot keeps booking and INV-28 simple: each slot has its own status. A slot lasts 8 hours at most, starts in the future, and cannot overlap another slot of the same owner. The log entry goes to the newest milestone of the thesis when the Adviser drafts it, because `consultation_log_entry` needs a milestone and the Adviser has no milestone picker (ERD §4.1). The TDW 03 scan upload stays in P1-E07 (`documents.ts`). A Panel Member does not read the consultation log.
+- **Correction (22 Nov 2026, after the agent-r review of #17):** the common free time (FR-SCH-08) now uses the committee of the newest milestone: the Evaluation Committee and the Adviser at Milestones 1 and 2, the Final Panel only at Milestone 3 (the Adviser completes no sheet at the Final, FR-DEF-06).
+- **Risk:** low. A consultation held between two milestones lands on the newer one, which is the milestone the Student works on.
+- **Undo:** revert the commits with AD-A-020.
 
 ### AD-B-020 — Notification rows now, the `email_log` row with P2-E04
 - **Task:** P1-E12-T02
