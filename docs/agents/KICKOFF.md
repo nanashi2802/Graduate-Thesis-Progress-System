@@ -16,6 +16,7 @@
 | Read an agent's output | `claude logs agent-a` |
 | Talk to an agent | `claude attach agent-a` (`/exit` detaches and does not stop it) |
 | Stop an agent | `claude stop agent-a` |
+| Models | Builders (`agent-a`, `agent-b`): Sonnet 5.5 at high effort. Reviewer (`agent-r`): Opus 5.5 at medium effort. `scripts/agents.sh` sets them. |
 | Restart after a reboot | `claude respawn` |
 | Restart one agent that stopped | `scripts/agents.sh start agent-b` |
 

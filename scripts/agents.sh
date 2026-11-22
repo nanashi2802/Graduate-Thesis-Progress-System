@@ -38,8 +38,9 @@ names=("$@"); [ ${#names[@]} -gt 0 ] || names=(agent-r agent-a agent-b)
 # "/loop" with no interval is the self-paced loop: the agent wakes itself with ScheduleWakeup and does not stop while it waits.
 for name in "${names[@]}"; do
   case "$name" in agent-a|agent-b|agent-r) ;; *) echo "Unknown agent: $name" >&2; exit 1;; esac
-  settings="$root/.claude/agent-session.json"
-  [ "$name" = agent-r ] && settings="$root/.claude/agent-review-session.json"
-  (cd "$root/.claude/worktrees/$name" && claude --bg --name "$name" --settings "$settings" "/loop $(cat "$root/docs/agents/$name.md")")
+  # Builders: Sonnet 5.5 at high effort. Reviewer: Opus 5.5 at medium effort.
+  settings="$root/.claude/agent-session.json"; model=claude-sonnet-5-5; effort=high
+  if [ "$name" = agent-r ]; then settings="$root/.claude/agent-review-session.json"; model=claude-opus-5-5; effort=medium; fi
+  (cd "$root/.claude/worktrees/$name" && claude --bg --name "$name" --settings "$settings" --model "$model" --effort "$effort" "/loop $(cat "$root/docs/agents/$name.md")")
 done
 echo "Started. Watch with: claude agents"
