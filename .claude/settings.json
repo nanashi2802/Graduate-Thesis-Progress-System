@@ -7,18 +7,27 @@
   "includeCoAuthoredBy": false,
   "permissions": {
     "ask": [
-      "Bash(git commit *)",
-      "Bash(git push *)",
       "Bash(git commit --amend *)",
       "Bash(git rebase *)",
-      "Bash(git merge *)",
-      "Bash(git tag *)",
-      "Bash(gh pr create *)"
+      "Bash(git tag *)"
     ],
     "deny": [
       "Bash(git push --force *)",
       "Bash(git push -f *)",
+      "Bash(git push * --force *)",
+      "Bash(git push * -f *)",
       "Bash(git push --force-with-lease *)",
+      "Bash(git push * main)",
+      "Bash(git push * main:*)",
+      "Bash(git push * HEAD:main)",
+      "Bash(git push * master)",
+      "Bash(git push * master:*)",
+      "Bash(git push * HEAD:master)",
+      "Bash(git push * --delete *)",
+      "Bash(gh pr create * --base main*)",
+      "Bash(gh pr create * -B main*)",
+      "Bash(gh pr create * --base master*)",
+      "Bash(gh pr merge * --admin*)",
       "Bash(git commit * --no-verify *)",
       "Bash(git commit --no-verify *)",
       "Bash(git push * --no-verify *)",

@@ -1,7 +1,7 @@
 # BUILD PLAN — PUP CpE Thesis Progress Monitoring System
 
 **Compliance standard:** Simplified Technical English (ASD-STE100) at about 80%
-**Version:** 1.0 draft · 22 Nov 2026 · Change log: 22 Nov 2026, added §2.1 Phase 0 progress. 22 Nov 2026, owner approved fixes to P0-E02 to P0-E06 (D-23 sign-in, write-once and CORS checks, `sin1` region, Vercel env, cron timing, scan sizes), the Phase 0 dependencies, the §1 hook gate and the §7 `src/app/` layout.
+**Version:** 1.0 draft · 22 Nov 2026 · Change log: 22 Nov 2026, added §2.1 Phase 0 progress. 22 Nov 2026, owner approved fixes to P0-E02 to P0-E06 (D-23 sign-in, write-once and CORS checks, `sin1` region, Vercel env, cron timing, scan sizes), the Phase 0 dependencies, the §1 hook gate and the §7 `src/app/` layout. 22 Nov 2026, expanded P0-E01 into tasks (§2.2) and marked it done. pnpm chosen by the owner. §7 confirms the folders that P0-E01 made. 22 Nov 2026, the owner added §8 (two-agent tracks, `AGENTS.md` §13) and accepted two changes: the audit insert moves from P1-E12 to P1-E02, and the pure state machines of P1-E04 start early in Track B. The commit hook is on.
 **Derived from:** `PRD.md` §8 (release phases, approved as D-22), `ERD.md`, `DFD.md`, `SITEMAP.md`, `USERFLOW.md`, Functional Requirements v1.1
 **Rule for this file:** This plan orders the work. It adds no requirement. The FR, BR, NFR and INV IDs it cites are the scope. If this plan and a spec file disagree, the spec file wins. Correct this plan.
 
@@ -63,7 +63,7 @@ This plan is a skeleton. It has three levels. Expand one level at a time, only f
 | Before | Needs | Owner |
 | :---- | :---- | :---- |
 | P0 | Release phases approved | **Done** (D-22) |
-| P0 | Enforcement files exist (`AGENTS.md` §3) | **Files done.** Still open: the human turns on the hook once (`git config core.hooksPath .githooks`). It was not on at 22 Nov 2026. The human makes the CI check required on `main`. |
+| P0 | Enforcement files exist (`AGENTS.md` §3) | **Files done. Hook on** (22 Nov 2026). Still open: the human makes the CI checks required on `main` and `dev`. |
 | P1 | `ERD.md` v1.1 approved | Owner |
 | P1 | BR-21 and INV-33 default accepted (access ends at the final copy) | Owner |
 | P1 | `DESIGN.md` D-01 (PUP Gold) and D-02 (font and neutrals) decided | Owner |
@@ -102,15 +102,83 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 - [x] Resend account and API key exist. It sends from `onboarding@resend.dev` only.
 - [x] The human signed in to the Vercel CLI. No Vercel project exists yet.
 - [x] `.env.example` exists. `.env.local` is filled and ignored by git (AGENTS.md §11).
-- [ ] The human turns on the commit hook: `git config core.hooksPath .githooks` (§1 gate). It is not on in this clone.
+- [x] The human turned on the commit hook: `git config core.hooksPath .githooks` (§1 gate).
 
 **Epics**
-- [~] P0-E01 Scaffold and tooling. Done: `.env.example`. Not done: app, Tailwind, shadcn/ui, Vitest, Playwright, CI jobs, `AGENTS.md` §12 commands.
+- [x] P0-E01 Scaffold and tooling. Done: `.env.example`, the Next.js 16 app, Tailwind v4, shadcn/ui, Vitest, Playwright, the CI workflow, `AGENTS.md` §12 commands. The first CI run happens at the first push. Tasks: §2.2.
 - [~] P0-E02 Database and data layer. Done: the Neon database exists. Not done: the `[CONFIRM]` tool choice, one migration, one data-layer read with a test.
 - [~] P0-E03 Sign-in. Done: Neon Auth is set up. Not done: a fake user signs in, the Access Denied route.
 - [~] P0-E04 Files. Done: the bucket exists. Not done: signed upload, hash check, range-request viewer.
 - [~] P0-E05 Deploy, daily job and email. Done: the Resend key, the Vercel sign-in. Not done: Vercel project, deploy, cron, test email.
 - [ ] P0-E06 Measure and report.
+
+### 2.2 P0-E01 tasks (done 22 Nov 2026)
+
+**Decisions in this epic:** pnpm is the package manager (owner). No web font loads, and the shadcn/ui neutral theme stays, because `DESIGN.md` D-01 and D-02 are open. `next.config.ts` sets `agentRules: false`, so `next dev` does not write into `AGENTS.md`. No library was added beyond PRD §11.2.
+
+### P0-E01-T01 — Next.js app and TypeScript strict
+- **Goal:** A Next.js 16 App Router app runs from `src/app/` with pnpm.
+- **Covers:** PRD §11.2
+- **Reads:** PRD §11.2, `AGENTS.md` §10, §11
+- **Changes:** `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `tsconfig.json` (`strict`, `noUncheckedIndexedAccess`), `next.config.ts`, `eslint.config.mjs`, `src/app/`, `.gitignore`
+- **Depends on:** none
+- **Done when:**
+  - [x] `pnpm dev` serves `/` on port 3000.
+  - [x] `pnpm typecheck`, `pnpm lint` and `pnpm build` pass.
+- **Tests:** manual check, commands
+
+### P0-E01-T02 — Tailwind and shadcn/ui
+- **Goal:** shadcn/ui runs on Tailwind v4 with Lucide icons.
+- **Covers:** PRD §11.2
+- **Reads:** PRD §11.2, `DESIGN.md` D-01, D-02
+- **Changes:** `components.json`, `src/lib/utils.ts`, `src/components/ui/button.tsx`, `src/app/globals.css`, `src/app/page.tsx`
+- **Depends on:** P0-E01-T01
+- **Done when:**
+  - [x] The home page shows a shadcn/ui button with a Lucide icon.
+  - [x] `pnpm build` passes.
+- **Tests:** end-to-end (Playwright)
+
+### P0-E01-T03 — Vitest
+- **Goal:** Unit tests run with Vitest from `tests/unit/`.
+- **Covers:** PRD §11.2, §0.2
+- **Reads:** PRD §11.2
+- **Changes:** `vitest.config.ts`, `tests/unit/smoke.test.ts`
+- **Depends on:** P0-E01-T02
+- **Done when:**
+  - [x] `pnpm test` runs one test and it passes.
+- **Tests:** unit (Vitest)
+
+### P0-E01-T04 — Playwright
+- **Goal:** End-to-end tests run with Playwright from `tests/e2e/`.
+- **Covers:** PRD §11.2
+- **Reads:** PRD §11.2
+- **Changes:** `playwright.config.ts`, `tests/e2e/home.spec.ts`
+- **Depends on:** P0-E01-T02
+- **Done when:**
+  - [x] `pnpm test:e2e` builds the app, starts it and passes on Chromium.
+- **Tests:** end-to-end (Playwright)
+
+### P0-E01-T05 — CI workflow
+- **Goal:** GitHub Actions runs lint, type check, unit tests, the build and the end-to-end tests.
+- **Covers:** PRD §11.2
+- **Reads:** `AGENTS.md` §3
+- **Changes:** `.github/workflows/ci.yml` (new). `commit-policy.yml` did not change.
+- **Depends on:** P0-E01-T03, P0-E01-T04
+- **Done when:**
+  - [x] The workflow file is valid YAML. Each step's command passes locally.
+  - [ ] The first CI run passes on GitHub (after the owner pushes). The owner makes the `ci` check required on `main`.
+- **Tests:** CI
+
+### P0-E01-T06 — Record commands and layout
+- **Goal:** `AGENTS.md` §12 lists the real commands and points to the layout.
+- **Covers:** `AGENTS.md` §12, §7 of this plan
+- **Reads:** `AGENTS.md` §12
+- **Changes:** `AGENTS.md` §12, this file (§2.1, §2.2, §7), `README.md`
+- **Depends on:** P0-E01-T05
+- **Done when:**
+  - [x] Every command in `AGENTS.md` §12 runs.
+  - [x] §2.1 shows P0-E01 as done.
+- **Tests:** manual check
 
 ---
 
@@ -122,7 +190,7 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 | Epic | Name | Covers | Main spec |
 | :---- | :---- | :---- | :---- |
 | P1-E01 | Schema from the ERD (all Phase 1 tables) | ERD §3, §4, INV-01 to INV-11, INV-26 | `ERD.md` |
-| P1-E02 | Data layer and row access | NFR-01, FR-ACC-03, BR-04, BR-08, ERD §8, INV-24, INV-33 | `ERD.md` §8, `DFD.md` TB1, TB2 |
+| P1-E02 | Data layer and row access, plus the audit insert (moved from P1-E12) | NFR-01, NFR-03, FR-ACC-03, BR-04, BR-08, ERD §8, INV-08, INV-24, INV-33 | `ERD.md` §8, `DFD.md` TB1, TB2, T7 |
 | P1-E03 | Accounts, users and templates | FR-ACC-01 to 08, FR-TPL-01 to 05, BR-03 | `SITEMAP.md` C2, C8, C9 |
 | P1-E04 | Milestone state machine and gates | FR-WFL-01 to 09, 13, 14, BR-02, BR-13, ERD §7.1, INV-17 to INV-21 | `ERD.md` §7, `USERFLOW.md` §4 |
 | P1-E05 | Committee appointment | FR-CMT-01 to 06, BR-08 | `SITEMAP.md` C3, P1 |
@@ -132,7 +200,7 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 | P1-E09 | Defense (Milestone 1, TDW 08) | FR-DEF-01 to 12, BR-09 to BR-11, INV-12 to INV-16 | `USERFLOW.md` §6.2, §6.3, `DFD.md` §5.2 |
 | P1-E10 | Certification and data gathering | FR-WFL-06, FR-WFL-11, FR-REV-13, INV-34 | `USERFLOW.md` §3 |
 | P1-E11 | Dashboards | FR-TRK-01 to 04, NFR-04 | `SITEMAP.md` S1, A1, P1, C1 |
-| P1-E12 | Audit log and in-app notifications | FR-RPT-01, FR-NTF-01, NFR-03, INV-08 | `DFD.md` T7, §5.3 |
+| P1-E12 | Audit log records for each event, and in-app notifications (the audit insert itself is in P1-E02) | FR-RPT-01, FR-NTF-01, NFR-03, INV-08 | `DFD.md` T7, §5.3 |
 | P1-E13 | Milestone 1 end-to-end test and fake seed data | Exit test | `USERFLOW.md` §5 |
 
 Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09 → E10 → E11, E12 → E13.
@@ -184,18 +252,62 @@ The human picks from this list. Each item already has an FR.
 
 ---
 
-## 7. Proposed repository layout `[CONFIRM]`
+## 7. Repository layout
 
-P0-E01 confirms this layout and records it in `AGENTS.md` §12. All code is in `src/`. Next.js reads routes from `src/app/`.
+All code is in `src/`. Next.js reads routes from `src/app/`. P0-E01 made and confirmed the rows marked **Made**. The other rows stay `[CONFIRM]` until the epic that makes them.
 
-| Path | Holds |
+| Path | Holds | Status |
+| :---- | :---- | :---- |
+| `src/app/` | Root layout and home page | **Made** |
+| `src/app/(auth)/login` | Sign-in route | `[CONFIRM]` P0-E03 |
+| `src/app/student/`, `src/app/adviser/`, `src/app/panel/`, `src/app/coordinator/` | The 29 role routes (`SITEMAP.md` §3) | `[CONFIRM]` Phase 1 |
+| `src/server/data/` | The one server-side data layer. Every read and write goes here (NFR-01). | `[CONFIRM]` P0-E02 |
+| `src/server/domain/` | State machines and invariant checks (`ERD.md` §6, §7), with no framework code | `[CONFIRM]` P1-E04 |
+| `src/server/files/` | Signed links and hash checks (P11.0) | `[CONFIRM]` P0-E04 |
+| `src/server/notify/` | Events, emails and the daily job (P9.0) | `[CONFIRM]` P0-E05 |
+| `src/components/` | Shared UI from `DESIGN.md` | **Made** (`ui/` holds shadcn/ui parts) |
+| `src/lib/` | Small shared helpers, for example `cn()` | **Made** |
+| `db/migrations/` | Migrations from `ERD.md` | `[CONFIRM]` P0-E02 |
+| `tests/unit/`, `tests/e2e/` | Vitest and Playwright tests | **Made** |
+
+---
+
+## 8. Two-agent tracks (`AGENTS.md` §13)
+
+Each agent does its track from top to bottom. "Waits for" names work from the other track that must be merged into `dev` first. While an agent waits, it does look-ahead work: it expands the next epic into tasks, writes the INV tests first, reviews the other agent's open pull request, or makes fake seed data.
+
+### Phase 0
+
+| Step | Track A (`agent-a`) | Track B (`agent-b`) |
+| :---- | :---- | :---- |
+| 1 | P0-E02 data layer (decide the query and migration tool, log it) | P0-E05: make the Vercel project first and send `agent-a` the domain. Then `sin1`, the env, the cron and the Resend email. |
+| 2 | P0-E03 sign-in | The first part of P0-E06: fake TDW scans and MB per page |
+| 3 | P0-E04 files. Waits for: the Vercel domain (B step 1), for CORS. | Review A's pull requests |
+| 4 | Review B's report | P0-E06 report. Waits for: P0-E04. |
+
+### Phase 1
+
+| Step | Track A | Track B |
+| :---- | :---- | :---- |
+| 1 | P1-E01 schema | P1-E04 domain part: the pure state machines in `src/server/domain/` with INV-17 to INV-21 tests |
+| 2 | P1-E02 data layer, row access and audit insert | Shared UI parts from `DESIGN.md` in `src/components/` (BR-18 disabled reasons) |
+| 3 | P1-E03 accounts and templates | P1-E05 committee. Waits for: P1-E02. |
+| 4 | P1-E04 wiring of the domain part to the data layer and gates. Waits for: B step 1. | P1-E07 documents and compliance |
+| 5 | P1-E06 manuscript and threads | P1-E12 audit records and in-app notifications |
+| 6 | P1-E08 consultations | Fake seed data and the Playwright setup for P1-E13 |
+| 7 | P1-E09 defense, then P1-E10 certification. Waits for: P1-E05, P1-E07. | P1-E11 dashboards. Waits for: P1-E10. |
+| 8 | P1-E13 end-to-end test (lead) | P1-E13: run it, report and fix failures in Track B files |
+
+### Phase 2
+
+| Track A | Track B |
 | :---- | :---- |
-| `src/app/(auth)/login` | Sign-in route |
-| `src/app/student/`, `src/app/adviser/`, `src/app/panel/`, `src/app/coordinator/` | The 29 role routes (`SITEMAP.md` §3) |
-| `src/server/data/` | The one server-side data layer. Every read and write goes here (NFR-01). |
-| `src/server/domain/` | State machines and invariant checks (`ERD.md` §6, §7), with no framework code |
-| `src/server/files/` | Signed links and hash checks (P11.0) |
-| `src/server/notify/` | Events, emails and the daily job (P9.0) |
-| `src/components/` | Shared UI from `DESIGN.md` |
-| `db/migrations/` | Migrations from `ERD.md` |
-| `tests/unit/`, `tests/e2e/` | Vitest and Playwright tests |
+| P2-E01 outside statuses, then P2-E03 revision items, then P2-E05 end-to-end test (lead) | P2-E04 emails, digests and preferences, then P2-E02 TDW 09 and TDW 10, then help with P2-E05 |
+
+### Phase 3
+
+| Track A | Track B |
+| :---- | :---- |
+| P3-E02 Defense Day threads, then P3-E03 Gate 2, then P3-E04 clearance, then P3-E06 end-to-end test (lead) | P3-E01 Final Panel and TDW 12, TDW 13, then P3-E05 submission view and dossier, then help with P3-E06 |
+
+Phase 4 is not in a track. The human picks it (§6).
