@@ -159,6 +159,20 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Risk:** low. Interaction tests come later with Playwright.
 - **Undo:** Add the test library in a later task. The static tests stay valid.
 
+### AD-A-011 — Start Phase 1 before the §1 gates are signed
+- **Task:** P1-E01
+- **Options:** wait for the human to approve ERD v1.1, BR-21 and INV-33, DESIGN D-01 and D-02, and the P0 spike report (`BUILD_PLAN.md` §1); build on the drafts now
+- **Decision and reason:** Build now on `ERD.md` v1.1 as written, with the BR-21 / INV-33 default (access ends at the `final_copy` record). AGENTS.md §13.3 says to decide the §1 gates. AD-B-005 and AD-B-009 already did the same for the domain code and the design tokens. The P0 report (P0-E06) is not done yet. The only Phase 1 schema input from it is the 50 MB limit (AS-11), which stays as the proposed value in one constant.
+- **Risk:** medium. If the human changes the ERD, the migrations need a new migration on top (never an edit of an applied one).
+- **Undo:** revert the commits with AD-A-011, or add a migration that changes the tables.
+
+### AD-A-012 — Phase 1 table set, with triggers in a custom migration
+- **Task:** P1-E01-T01 to T05
+- **Options:** all ERD tables now; only the tables each epic needs; the Phase 1 tables now
+- **Decision and reason:** The Phase 1 tables now (`BUILD_PLAN.md` §3.3 scope). P1-E01 says "all Phase 1 tables". Later tables wait for their epics, so the schema has no unused tables. Drizzle writes tables, keys and checks. Rules that need a trigger (INV-02, INV-03, INV-05, INV-08, INV-26, INV-34) go into one custom SQL migration. INV-08 uses triggers that refuse UPDATE, DELETE and TRUNCATE, not grants, because the app and the migrations use the same Neon role now.
+- **Risk:** low. Triggers are plain Postgres. A separate app role with INSERT and SELECT only is still a good second layer later.
+- **Undo:** revert the commits with AD-A-012.
+
 ### AD-B-011 — The Coordinator records a seat's Accepted or Declined status
 - **Task:** P1-E05-T01
 - **Options:** the Panel Member accepts or declines in the system; the Coordinator records the member's answer
