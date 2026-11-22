@@ -48,7 +48,7 @@ export function EditUserForm({
         </Field>
         <Field label="Role" htmlFor={id("role")}>
           <select id={id("role")} name="role" defaultValue={user.role} className={fieldClass}>
-            {(Object.keys(ROLE_LABEL) as Role[]).map((r) => (
+            {(user.role === "student" ? (["student"] as Role[]) : (["adviser", "panel_member", "coordinator"] as Role[])).map((r) => (
               <option key={r} value={r}>
                 {ROLE_LABEL[r]}
               </option>

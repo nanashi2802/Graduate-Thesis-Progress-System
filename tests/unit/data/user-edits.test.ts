@@ -49,6 +49,11 @@ describe("updateUser", () => {
     await expect(updateUser({ db, actor: coordinator }, member.id, { role: "adviser" })).rejects.toThrow(InputProblem);
   });
 
+  it("refuses a change to Student, even for an account that no row names (FR-ACC-04)", async () => {
+    const fresh = await makeUser(db, "adviser");
+    await expect(updateUser({ db, actor: coordinator }, fresh.id, { role: "student" })).rejects.toThrow(/Accounts page/);
+  });
+
   it("refuses a change of the Coordinator's own role", async () => {
     await expect(updateUser({ db, actor: coordinator }, coordinator.userId, { role: "adviser" })).rejects.toThrow(/own role/);
   });

@@ -89,6 +89,8 @@ export async function updateUser(ctx: DataContext, userId: string, edit: UserEdi
   }
   if (edit.role !== undefined && edit.role !== user.role) {
     if (userId === ctx.actor.userId) throw new InputProblem("You cannot change your own role.");
+    // FR-ACC-04: a Student account comes only with its Thesis Instance, from the Accounts page.
+    if (edit.role === "student") throw new InputProblem("Make Student accounts on the Accounts page (FR-ACC-04).");
     if (await roleInUse(ctx, userId)) {
       throw new InputProblem(
         "This account already acts in its role. Deactivate it and make a new account for the other role (BR-03).",
