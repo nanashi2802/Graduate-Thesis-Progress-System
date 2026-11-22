@@ -330,3 +330,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** A migration (`0006_default_signed_items.sql`). The `CERTIFICATION` item (Proposal) and the `SIGNED_FINAL_MANUSCRIPT` item (Final) are part of the process (FR-WFL-06, INV-34). A template without them blocks CERTIFIED and FINAL_APPROVED, so no Coordinator should have to add them first. Uploader: the Student. Not needed for the date confirmation. The migration adds the item to version 1 only where it is missing, and no milestone has used these items before. A later template version made in C8 must keep the item, so the C8 form must show it (agent-b screen C8).
 - **Risk:** low. A running milestone on version 1 gets the new item, which is the intended default.
 - **Undo:** revert the commits with AD-A-023. Delete the two rows by hand if a database already ran the migration.
+
+### AD-A-024 — One PR workspace screen for the three roles
+- **Task:** P1-E06-T03 (S2, A2, P2)
+- **Options:** three separate screens; one shared server component with role-based actions
+- **Decision and reason:** One component, `src/app/_components/pr-workspace.tsx`, with three thin pages under `/student/pr/[prId]`, `/adviser/pr/[prId]` and `/panel/pr/[prId]` (SITEMAP). The three screens share the viewer, the commit list and the thread panel (SITEMAP S2, A2, P2 "shared split screen"). The role decides the actions: the Student uploads and marks Ready, the Adviser endorses at Gate 1a and Returns, the Adviser and the Panel Member post threads and endorse at Gate 1b. Every blocked action shows its reason (BR-18) from the data layer (`checkTransition`, `gate1bBlock`, `threadPostBlock`). The Adviser Return from this screen has the purpose "content". The screen has no automated browser test yet: P1-E13 covers it.
+- **Risk:** low. The data layer checks every action again (NFR-01).
+- **Undo:** revert the commits with AD-A-024.
