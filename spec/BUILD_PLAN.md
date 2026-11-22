@@ -193,8 +193,8 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 - **Changes:** Vercel project settings only
 - **Depends on:** P0-E01
 - **Done when:**
-  - [ ] `vercel project ls` shows the project. Its Git repository is this repository. The production branch is `main`.
-  - [ ] `agent-a` has the production origin and the preview origin pattern.
+  - [x] `vercel project ls` shows the project. Its Git repository is this repository. The production branch is `main`.
+  - [x] `agent-a` has the production origin and the preview origin pattern.
 - **Tests:** manual check (`vercel project inspect`)
 
 ### P0-E05-T02 — `vercel.json`: region and cron
@@ -203,7 +203,7 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 - **Changes:** `vercel.json`
 - **Depends on:** T01
 - **Done when:**
-  - [ ] `vercel.json` sets `regions: ["sin1"]` and one cron at `0 0 * * *` (00:00 to 00:59 UTC on Hobby).
+  - [x] `vercel.json` sets `regions: ["sin1"]` and one cron at `0 0 * * *` (00:00 to 00:59 UTC on Hobby).
 - **Tests:** unit test reads `vercel.json`
 
 ### P0-E05-T03 — Daily job route
@@ -212,8 +212,8 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 - **Changes:** `src/app/api/cron/daily/route.ts`, `src/server/notify/`
 - **Depends on:** T02
 - **Done when:**
-  - [ ] A request without `Authorization: Bearer <CRON_SECRET>` gets 401.
-  - [ ] A good request gets 200 and logs the run with the PST date.
+  - [x] A request without `Authorization: Bearer <CRON_SECRET>` gets 401.
+  - [x] A good request gets 200 and logs the run with the PST date.
 - **Tests:** unit (Vitest)
 
 ### P0-E05-T04 — Resend email with a link only
@@ -222,8 +222,8 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 - **Changes:** `src/server/notify/`
 - **Depends on:** T03
 - **Done when:**
-  - [ ] A unit test checks the email body: event, next action, deadline, link, and nothing else.
-  - [ ] The daily job sends one test email when `NOTIFY_TEST_TO` is set.
+  - [x] A unit test checks the email body: event, next action, deadline, link, and nothing else.
+  - [x] The daily job sends one test email when `NOTIFY_TEST_TO` is set.
 - **Tests:** unit (Vitest), manual check of one real send
 
 ### P0-E05-T05 — Environment and production deploy
