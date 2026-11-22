@@ -1112,8 +1112,10 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 ### P3-E04-T03 - S6 and C7 clearance screens
 - **Goal:** S6 and C7 show the checklist. C7 lets the Coordinator verify.
 - **Covers:** FR-CLR-01, FR-CLR-04
+- **Changes:** `src/app/student/clearance/`, `src/app/coordinator/clearance/`, `src/app/_components/clearance-list.tsx`, `role-shell.tsx`, `clearanceView` in `src/server/data/clearance.ts`
 - **Done when:**
-  - [ ] Open.
+  - [x] S6 shows the seven items. C7 verifies the three Coordinator items and closes to CLEARED. A blocked action shows its reason (BR-18).
+- **Tests:** typecheck, lint, unit (the data rules have tests from T01 and T02)
 
 ---
 

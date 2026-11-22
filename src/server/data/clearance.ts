@@ -7,6 +7,7 @@ import { requireActive, type DataContext } from "./access";
 import { recordAudit } from "./audit";
 import { InputProblem, requireCoordinator } from "./coordinator";
 import type { Db } from "./db";
+import { loadMilestoneContext, loadMilestoneFacts } from "./milestone-facts";
 import { currentOutsideStatuses } from "./outside";
 import { clearanceItem, documentRecord, milestoneInstance } from "./schema";
 import { requireThesisRead } from "./scope";
@@ -78,6 +79,16 @@ export async function readClearance(ctx: DataContext, milestoneId: string, gate2
   if (!m || m.milestoneCode !== "final") throw new InputProblem("Only Milestone 3 has a clearance checklist.");
   await requireThesisRead(ctx, m.thesisInstanceId);
   return clearanceStatuses(ctx.db, milestoneId, gate2Complete);
+}
+
+/** S6 and C7: the checklist of a Milestone 3. Gate 2 comes from the gate rows, so the screen needs no extra input. */
+export async function clearanceView(ctx: DataContext, milestoneId: string): Promise<{ status: string; rows: ClearanceRow[] }> {
+  requireActive(ctx.actor);
+  const mctx = await loadMilestoneContext(ctx.db, milestoneId);
+  if (!mctx || mctx.code !== "final") throw new InputProblem("Only Milestone 3 has a clearance checklist.");
+  await requireThesisRead(ctx, mctx.thesis.id);
+  const { gate2Complete } = await loadMilestoneFacts(ctx.db, mctx);
+  return { status: mctx.milestone.status, rows: await clearanceStatuses(ctx.db, milestoneId, gate2Complete) };
 }
 
 /**
