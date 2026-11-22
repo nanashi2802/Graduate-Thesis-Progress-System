@@ -3,12 +3,12 @@
 // Each KPI count is the length of its queue, so a count always opens the same list.
 // A pacing flag is information only (BR-17). It never blocks an action.
 import "server-only";
-import { asc, count, eq, inArray, max } from "drizzle-orm";
+import { asc, count, desc, eq, inArray, max } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import type { MilestoneCode, MilestoneStatus, PstDate } from "@/server/domain/milestone";
 import { pstDate } from "@/server/notify/time";
 import { AccessDeniedError, requireActive, type DataContext } from "./access";
-import { appUser, documentRecord, gateAction, milestoneInstance, thesisInstance } from "./schema";
+import { appUser, defenseAttempt, documentRecord, gateAction, milestoneInstance, thesisInstance } from "./schema";
 
 export type QueueKind =
   | "appoint_committee"
@@ -38,6 +38,8 @@ export type QueueItem = {
   milestone: MilestoneCode;
   /** Scans waiting, for `review_documents`. */
   count: number;
+  /** The latest defense attempt of the milestone, for the link to the defense page (C6). Null when none exists. */
+  attemptId: string | null;
   /** The last gate change, or the day the milestone opened. */
   since: Date;
   daysWaiting: number;
@@ -111,6 +113,16 @@ export async function coordinatorOverview(ctx: DataContext, now: Date = new Date
         .where(inArray(documentRecord.state, [...WAITING_SCAN_STATES]))
         .groupBy(documentRecord.milestoneInstanceId)
     : [];
+  // The newest attempt of each milestone (the rows run newest first, so the first one for a milestone wins).
+  const attempts = ids.length
+    ? await ctx.db
+        .select({ id: defenseAttempt.id, milestoneId: defenseAttempt.milestoneInstanceId })
+        .from(defenseAttempt)
+        .where(inArray(defenseAttempt.milestoneInstanceId, ids))
+        .orderBy(desc(defenseAttempt.attemptNo))
+    : [];
+  const attemptOf = new Map<string, string>();
+  for (const a of attempts) if (!attemptOf.has(a.milestoneId)) attemptOf.set(a.milestoneId, a.id);
   const gateAt = new Map(lastGate.map((g) => [g.id, g.at]));
   const scans = new Map(waitingScans.map((w) => [w.id, Number(w.n)]));
 
@@ -118,7 +130,7 @@ export async function coordinatorOverview(ctx: DataContext, now: Date = new Date
   for (const r of rows) {
     const since = gateAt.get(r.milestoneId) ?? r.openedAt;
     const daysWaiting = Math.max(0, Math.floor((now.getTime() - since.getTime()) / DAY_MS));
-    const base = { thesisId: r.thesisId, milestoneId: r.milestoneId, studentName: r.studentName, milestone: r.code, since, daysWaiting };
+    const base = { thesisId: r.thesisId, milestoneId: r.milestoneId, studentName: r.studentName, milestone: r.code, since, daysWaiting, attemptId: attemptOf.get(r.milestoneId) ?? null };
     const kind = KIND_BY_STATUS[r.status]?.(r.code) ?? null;
     if (kind) queue.push({ ...base, kind, count: 1 });
     const n = scans.get(r.milestoneId) ?? 0;
