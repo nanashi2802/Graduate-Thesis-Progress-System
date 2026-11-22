@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Make the agent worktrees (agent-a, agent-b and the reviewer agent-r) for autonomous build mode (AGENTS.md §13).
-# Usage: scripts/agents.sh [start]. Run from the main checkout. Safe to run again.
-# Without "start" it only makes the worktrees. With "start" it also starts the three agents.
+# Usage: scripts/agents.sh [start [agent-a|agent-b|agent-r ...]]. Run from the main checkout. Safe to run again.
+# Without "start" it only makes the worktrees. With "start" it also starts the named agents (all three if none). Do not start an agent that already runs.
 set -euo pipefail
 root="$(git rev-parse --show-toplevel)"
 cd "$root"
@@ -33,9 +33,13 @@ rdir=".claude/worktrees/agent-r"
 echo "Ready: $rdir (detached, reviewer)"
 
 [ "${1:-}" = start ] || { echo "Worktrees ready. Start with: scripts/agents.sh start"; exit 0; }
-for name in agent-r agent-a agent-b; do
+shift
+names=("$@"); [ ${#names[@]} -gt 0 ] || names=(agent-r agent-a agent-b)
+# "/loop" with no interval is the self-paced loop: the agent wakes itself with ScheduleWakeup and does not stop while it waits.
+for name in "${names[@]}"; do
+  case "$name" in agent-a|agent-b|agent-r) ;; *) echo "Unknown agent: $name" >&2; exit 1;; esac
   settings="$root/.claude/agent-session.json"
   [ "$name" = agent-r ] && settings="$root/.claude/agent-review-session.json"
-  (cd "$root/.claude/worktrees/$name" && claude --bg --name "$name" --settings "$settings" "$(cat "$root/docs/agents/$name.md")")
+  (cd "$root/.claude/worktrees/$name" && claude --bg --name "$name" --settings "$settings" "/loop $(cat "$root/docs/agents/$name.md")")
 done
 echo "Started. Watch with: claude agents"
