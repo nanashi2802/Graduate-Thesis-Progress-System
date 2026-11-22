@@ -136,12 +136,13 @@ function expectedSheets(expected: readonly string[], sheets: readonly SheetState
   return expected.map((id) => sheets.find((s) => s.memberUserId === id));
 }
 
-/** The INV-16 sheet part: each expected sheet exists, is verified and matches its scan. */
+/**
+ * The INV-16 sheet part: each expected sheet exists, and every entry of the attempt
+ * is verified and matches its scan (ERD INV-16 "every evaluation_entry").
+ */
 export function sheetsVerifiedAndMatched(expected: readonly string[], sheets: readonly SheetState[]): boolean {
-  return (
-    expected.length > 0 &&
-    expectedSheets(expected, sheets).every((s) => s !== undefined && s.verifiedAt !== null && s.sheetMatch === "matched")
-  );
+  const done = (s: SheetState | undefined) => s !== undefined && s.verifiedAt !== null && s.sheetMatch === "matched";
+  return expected.length > 0 && expectedSheets(expected, sheets).every(done) && sheets.every(done);
 }
 
 /** BR-11: the Student sees the results only when every expected sheet is verified. */

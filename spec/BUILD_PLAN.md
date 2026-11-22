@@ -639,7 +639,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [x] Tests cover both group kinds and the held Defense Day items.
 - **Tests:** unit (Vitest)
 
-### 4.2 P2-E02 TDW 09 and TDW 10 (Track B, `agent-b`)
+### 4.2 P2-E02 TDW 09 and TDW 10, with the shared sheet rules for TDW 08, 10 and 13 (Track B, `agent-b`)
 
 **Decisions:** AD-B-016. T01 is pure code and look-ahead. P1-E09 (`agent-a`) and P3-E01 use it too.
 
