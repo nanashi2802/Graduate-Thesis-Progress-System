@@ -870,6 +870,32 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [ ] Each action shows its refusal reason (BR-18).
 - **Tests:** unit, typecheck, build
 
+### 3.14 P1-E10 Certification and data gathering (Track A, `agent-a`, §8 Phase 1 step 7)
+
+**Decisions:** AD-A-022. The status change reuses `transitionMilestone`. Revision items are P2-E03.
+
+### P1-E10-T01 — Certification
+- **Goal:** The Coordinator records CERTIFIED when every revision item is accepted and the Certification is verified with its linked commit.
+- **Covers:** FR-WFL-06, BR-02, INV-17, INV-34
+- **Changes:** `tests/unit/data/certification.test.ts` (the rule is in `milestone.ts`)
+- **Done when:**
+  - [x] A missing acceptance, a missing or unverified Certification and a wrong role are refused. The database refuses a Certification with no linked commit.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E10-T02 — Approve data gathering
+- **Goal:** The Adviser approves the start of data gathering after CERTIFIED.
+- **Covers:** FR-WFL-11
+- **Changes:** `src/server/data/certification.ts`, `tests/unit/data/certification.test.ts`
+- **Done when:**
+  - [x] Only the Adviser of the thesis approves, once, for the Proposal, after CERTIFIED.
+- **Tests:** unit (Vitest with PGlite)
+
+### P1-E10-T03 — Screens (A1, C6)
+- **Depends on:** T01, T02, P1-E14
+- **Done when:**
+  - [ ] The A1 button shows its reason (BR-18). The C6 action calls `transitionMilestone`.
+- **Tests:** typecheck, build
+
 ## 4. Phase 2 — Milestone 2 and email
 
 **Goal:** One Student completes the Pre-Final Defense.

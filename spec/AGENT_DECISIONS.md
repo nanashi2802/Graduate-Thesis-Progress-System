@@ -315,3 +315,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
   - Minutes are issued once (BR-19). The Student sees verdict, sheets and Minutes only when every expected sheet is verified (BR-11).
 - **Risk:** medium. The nested transaction needs a check on the Neon pool in the end-to-end test (P1-E13). Printed copies (FR-DEF-04, `printed_copy_receipt`) are not in this task. The P1-E07 documents or a later task own them.
 - **Undo:** revert the commits with AD-A-021.
+
+### AD-A-022 — Certification reuses the rule table. Data gathering is one Adviser action
+- **Task:** P1-E10-T01, T02
+- **Options:** a new `certify` function; the existing `transitionMilestone(CERTIFIED)` of the Coordinator
+- **Decision and reason:** Reuse `transitionMilestone`. ERD §7.1 already holds the guard: every revision item accepted by the Adviser and each member, and the verified `CERTIFICATION` document with its linked commit (INV-34). It writes the `certification` gate row. `approveDataGathering` is one Adviser action after CERTIFIED, for the Proposal only, once (a `data_gathering` gate row and `data_gathering_approved_at`). Revision items and their acceptance screens are P2-E03 (FR-REV-13 has priority S). Without items, the Certification needs only the verified document. `documents.ts` (agent-b) must set `linked_commit_id` when it makes the `CERTIFICATION` record: the database refuses a record without it. I told agent-b.
+- **Risk:** low. Until P2-E03 a Coordinator cannot enter revision items, so a Proposal with revisions can be certified without tracking them. Phase 1 runs the Approved case.
+- **Undo:** revert the commits with AD-A-022.
