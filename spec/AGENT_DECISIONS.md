@@ -216,7 +216,6 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Risk:** low. `agent-a` can wire it in P1-E09 or keep its own rules. The verdict and the close stay in `milestone.ts`.
 - **Undo:** revert the commits with AD-B-016.
 
-<<<<<<< HEAD
 ### AD-B-017 — The Final Panel has one seat more than its size: the Panel Chair
 - **Task:** P1-E13-T01 (look-ahead). It changes `seatCount` in `src/server/domain/committee.ts` (P1-E05-T01).
 - **Options:** store 4 / 5 in the Final template and relabel the C8 field; or keep the FR §3 and ERD value (3 / 4, "besides the Chair") and add the Chair seat in `seatCount`
@@ -224,6 +223,7 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Correction (22 Nov 2026, after the agent-r review of #12):** the first version stored 4 / 5 and asked for a new C8 label. That changed the meaning of an FR §3 parameter. A Coordinator who entered 3 would get `wrong_size` on every valid Final Panel.
 - **Risk:** low. The default templates (P1-E03, migration 0003) must store 3 / 4 for Final.
 - **Undo:** revert the commits with AD-B-017.
+
 ### AD-A-013 — Row access: who counts as a Panel Member of a thesis, and when access ends
 - **Task:** P1-E02-T01, T02
 - **Options:** any `committee_member` row gives thesis read (ERD §8 literal); only seats that are not `declined`, plus substitutes. For INV-33: wait for `clearance_item` (P3-E04); use one function that answers "not ended" until P3-E04 adds the table.
@@ -237,4 +237,3 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** A flat object. Each value is a string of 200 characters or fewer, a number, a boolean or null. NFR-03 needs who, what and when, not content. The limit stops a caller from copying manuscript text or comments into the audit table, which is never deleted (BR-19). `recordAudit` takes the transaction of the write, so the audit row and the change commit together.
 - **Risk:** low. A later event that needs more detail can point to its own row by `target_id`.
 - **Undo:** revert the commits with AD-A-014.
->>>>>>> origin/dev
