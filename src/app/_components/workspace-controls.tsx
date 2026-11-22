@@ -10,8 +10,8 @@ import {
   replyAction,
   resolveAction,
   returnToStudent,
-  type Result,
 } from "@/app/_lib/pr-actions";
+import type { Result } from "@/app/_lib/run";
 import { ActionButton } from "@/components/action-button";
 import { Button } from "@/components/ui/button";
 
