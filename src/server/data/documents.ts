@@ -4,7 +4,7 @@
 // `document_event` history row for each step and one audit record, in one transaction.
 // The browser sends the bytes straight to storage (NFR-12). The server never gets them.
 import "server-only";
-import { and, asc, eq, isNull, max, ne } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, max, ne } from "drizzle-orm";
 import { canUploadScan, decideDocumentChange, type DocumentActor, type DocumentState } from "@/server/domain/documents";
 import { uploadProblem, type UploadRequest } from "@/server/files/rules";
 import type { UploadLink } from "@/server/files/storage";
@@ -20,7 +20,7 @@ import {
   templateRequiredItem,
   type UserRole,
 } from "./schema";
-import { requireThesisRead } from "./scope";
+import { readableTheses, requireThesisRead } from "./scope";
 
 /** The two storage calls this module needs. The app passes `src/server/files/storage.ts`; tests pass a fake. */
 export type FilePort = {
@@ -88,6 +88,18 @@ type Tx = Parameters<Parameters<DataContext["db"]["transaction"]>[0]>[0];
 
 async function step(tx: Tx, ctx: DataContext, documentId: string, from: DocumentState, to: DocumentState, reason: string | null) {
   await tx.insert(documentEvent).values({ documentRecordId: documentId, fromState: from, toState: to, reason, actorUserId: ctx.actor.userId });
+}
+
+/** The milestones of the theses the actor can read, oldest first. For a Student: their own thesis only (ERD §8). */
+export async function readableMilestones(ctx: DataContext) {
+  requireActive(ctx.actor);
+  const theses = await readableTheses(ctx);
+  if (theses.length === 0) return [];
+  return ctx.db
+    .select({ id: milestoneInstance.id, thesisId: milestoneInstance.thesisInstanceId, code: milestoneInstance.milestoneCode, status: milestoneInstance.status })
+    .from(milestoneInstance)
+    .where(inArray(milestoneInstance.thesisInstanceId, theses.map((x) => x.id)))
+    .orderBy(asc(milestoneInstance.openedAt));
 }
 
 export type Deliverable = {

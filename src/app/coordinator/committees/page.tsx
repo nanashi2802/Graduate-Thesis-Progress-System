@@ -2,6 +2,7 @@
 // Pick a Student, then work on the Evaluation Committee (Milestone 1) and the Final Panel (Milestone 3).
 import Link from "next/link";
 import { EmptyState } from "@/components/empty-state";
+import { milestoneStatusView } from "@/components/status";
 import { appointmentBoard, type AppointmentBoard } from "@/server/data/committees";
 import { deliverables } from "@/server/data/documents";
 import { listStudents, type StudentRow } from "@/server/data/students";
@@ -59,7 +60,7 @@ function StudentPicker({ students }: { students: StudentRow[] }) {
                   <tr key={s.thesisId}>
                     <td className={td}>{s.studentName}</td>
                     <td className={td}>{s.adviserName}</td>
-                    <td className={td}>{current ? `${MILESTONE_LABEL[current.code] ?? current.code} · ${current.status}` : "None"}</td>
+                    <td className={td}>{current ? `${MILESTONE_LABEL[current.code] ?? current.code} · ${milestoneStatusView(current.status, current.code as MilestoneCode).label}` : "None"}</td>
                     <td className={td}>
                       <Link className="text-sm font-medium text-primary underline-offset-4 hover:underline" href={`/coordinator/committees?thesis=${s.thesisId}`}>
                         Open the board<span className="sr-only"> of {s.studentName}</span>

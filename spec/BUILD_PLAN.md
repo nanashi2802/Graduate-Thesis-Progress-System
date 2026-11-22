@@ -548,8 +548,11 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 ### P1-E07-T04 — S3 deliverables and C4 document review screens
 - **Goal:** The Student uploads scans on S3. The Coordinator reviews them on C4. Each disabled action shows its reason.
 - **Covers:** FR-DOC-01, FR-DOC-03, FR-DOC-06, FR-DOC-07, FR-DOC-11, BR-18
+- **Changes:** `src/app/student/documents/` (S3: `page.tsx`, `actions.ts`, `scan-uploader.tsx`), `src/app/coordinator/documents/` (C4: `page.tsx`, `actions.ts`, `review-form.tsx`), `src/server/data/documents.ts` (`readableMilestones`)
 - **Depends on:** T02
-- **Done when:** `[ ]` An end-to-end step uploads a TDW 07 scan, and the Coordinator verifies it.
+- **Done when:**
+  - [x] Each disabled action shows its reason (BR-18). The C4 reasons come from `decideDocumentChange`, the rule the action runs.
+  - [ ] An end-to-end step uploads a TDW 07 scan, and the Coordinator verifies it. It waits for the Playwright setup (P1-E13).
 
 ### 3.5 P1-E12 Audit records and in-app notifications (Track B, `agent-b`)
 
