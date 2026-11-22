@@ -123,3 +123,14 @@ export const outsideValue = app.enum("outside_value", [
 ]);
 export type OutsideKind = (typeof outsideKind.enumValues)[number];
 export type OutsideValue = (typeof outsideValue.enumValues)[number];
+// Clearance items (ERD §2, FR-CLR-01).
+export const clearanceKind = app.enum("clearance_kind", [
+  "ipmo",
+  "rpo",
+  "gate_2",
+  "copyright",
+  "final_copy",
+  "conference_cert",
+  "journal_pub",
+]);
+export type ClearanceKind = (typeof clearanceKind.enumValues)[number];

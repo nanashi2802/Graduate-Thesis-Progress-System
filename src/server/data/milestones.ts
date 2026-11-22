@@ -2,7 +2,7 @@
 // The pure rules are in src/server/domain/milestone.ts and gates.ts. This file loads the facts,
 // asks the rules, writes the change and the audit row in one transaction. Server only.
 import "server-only";
-import { and, eq, gt, inArray } from "drizzle-orm";
+import { and, desc, eq, gt, inArray } from "drizzle-orm";
 import {
   checkGate1b,
   checkGate2,
@@ -35,6 +35,7 @@ import {
   type GateResultValue,
 } from "./schema";
 import { requireThesisRead } from "./scope";
+import { latestVersionId } from "./templates";
 
 // A refused change. The screen shows `message` as it is (BR-18).
 export class TransitionRefused extends InputProblem {
@@ -258,6 +259,21 @@ export async function disapproveToDraft(ctx: DataContext, milestoneId: string): 
   });
 }
 
+// FR-WFL-01: Milestone 2 opens when Milestone 1 is CERTIFIED and the Adviser approved data gathering. Milestone 3 opens
+// when Milestone 2 is CLOSED. The new milestone uses the newest template version (FR-TPL-04). It is DRAFT. Safe to repeat.
+export async function openMilestone(ctx: DataContext, thesisId: string, code: "pre_final" | "final"): Promise<void> {
+  requireActive(ctx.actor);
+  const versionId = await latestVersionId(ctx.db, code);
+  const made = await ctx.db
+    .insert(milestoneInstance)
+    .values({ thesisInstanceId: thesisId, templateVersionId: versionId, milestoneCode: code })
+    .onConflictDoNothing()
+    .returning({ id: milestoneInstance.id });
+  if (made.length > 0) {
+    await recordAudit(ctx, { action: "milestone.open", targetTable: "milestone_instance", targetId: made[0]!.id, detail: { code } });
+  }
+}
+
 const GATE_1B_FROM: MilestoneStatus[] = ["COMMITTEE_APPOINTED", "ADVISER_ENDORSED"];
 
 // The checks before a Gate 1b endorsement. They throw, so the screen and `endorseGate1b` share one rule (BR-18).
@@ -355,10 +371,8 @@ export async function endorseGate1b(ctx: DataContext, milestoneId: string): Prom
   });
 }
 
-// Gate 2: one Final Panel member marks the final manuscript approved (FR-WFL-07, BR-20, INV-22).
-// The Coordinator then moves the milestone to FINAL_APPROVED with `transitionMilestone`.
-export async function approveGate2(ctx: DataContext, milestoneId: string): Promise<void> {
-  const mctx = await loadAllowed(ctx, milestoneId);
+// The checks before a Gate 2 approval. They throw, so the screen and `approveGate2` share one rule (BR-18).
+async function gate2Checks(ctx: DataContext, mctx: MilestoneContext): Promise<void> {
   const { role, userId } = ctx.actor;
   if (role !== "panel_member" || !mctx.memberIds.includes(userId)) {
     throw new AccessDeniedError("only a Final Panel member approves at Gate 2");
@@ -373,18 +387,47 @@ export async function approveGate2(ctx: DataContext, milestoneId: string): Promi
     rpo: facts.rpo,
   });
   if (!gate.ok) throw new TransitionRefused(gate.reason, gate.code);
-  await ctx.db.transaction(async (tx) => {
-    const own = await tx
+}
+
+const hasApproved = async (db: Tx, milestoneId: string, userId: string) =>
+  (
+    await db
       .select({ id: gateAction.id })
       .from(gateAction)
-      .where(and(eq(gateAction.milestoneInstanceId, milestoneId), eq(gateAction.gate, "gate_2"), eq(gateAction.actorUserId, userId)));
-    if (own.length > 0) throw new TransitionRefused("You already approved the final manuscript.", "gate_done");
+      .where(and(eq(gateAction.milestoneInstanceId, milestoneId), eq(gateAction.gate, "gate_2"), eq(gateAction.actorUserId, userId)))
+  ).length > 0;
+
+// Read only. The reason why this user cannot approve at Gate 2 now, or null when they can (BR-18).
+export async function gate2Block(ctx: DataContext, milestoneId: string): Promise<string | null> {
+  const mctx = await loadAllowed(ctx, milestoneId);
+  try {
+    await gate2Checks(ctx, mctx);
+    return (await hasApproved(ctx.db, milestoneId, ctx.actor.userId)) ? "You already approved the final manuscript." : null;
+  } catch (e) {
+    if (e instanceof TransitionRefused || e instanceof AccessDeniedError) return e.message;
+    throw e;
+  }
+}
+
+// Gate 2: one Final Panel member marks the final manuscript approved (FR-WFL-07, BR-20, INV-22).
+// The row names the newest commit, the version that the member approves and that the signed paper must match (INV-34).
+// The Coordinator then moves the milestone to FINAL_APPROVED with `transitionMilestone`.
+export async function approveGate2(ctx: DataContext, milestoneId: string): Promise<void> {
+  const mctx = await loadAllowed(ctx, milestoneId);
+  const { role, userId } = ctx.actor;
+  await gate2Checks(ctx, mctx);
+  await ctx.db.transaction(async (tx) => {
+    if (await hasApproved(tx, milestoneId, userId)) throw new TransitionRefused("You already approved the final manuscript.", "gate_done");
+    const [newest] = mctx.pr
+      ? await tx.select({ id: manuscriptCommit.id }).from(manuscriptCommit).where(eq(manuscriptCommit.submissionPrId, mctx.pr.id)).orderBy(desc(manuscriptCommit.ordinal)).limit(1)
+      : [];
     await tx.insert(gateAction).values({
       milestoneInstanceId: milestoneId,
       gate: "gate_2",
       result: "approved",
       actorUserId: userId,
       actorRole: role,
+      commitId: newest?.id ?? null,
     });
     await recordAudit({ db: tx, actor: ctx.actor }, { action: "gate_2.approve", targetTable: "milestone_instance", targetId: milestoneId });
   });

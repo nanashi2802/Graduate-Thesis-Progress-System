@@ -6,6 +6,7 @@ import { and, eq } from "drizzle-orm";
 import { AccessDeniedError, requireActive, type DataContext } from "./access";
 import { recordAudit } from "./audit";
 import { InputProblem } from "./coordinator";
+import { openMilestone } from "./milestones";
 import { gateAction, milestoneInstance, submissionPr } from "./schema";
 import { requireThesisRead } from "./scope";
 
@@ -37,6 +38,8 @@ export async function approveDataGathering(ctx: DataContext, milestoneId: string
       commitId: pr?.ready ?? null,
     });
     await recordAudit({ db: tx, actor: ctx.actor }, { action: "data_gathering.approve", targetTable: "milestone_instance", targetId: milestoneId });
+    // FR-WFL-01: Milestone 2 opens now.
+    await openMilestone({ db: tx, actor: ctx.actor }, m.thesisInstanceId, "pre_final");
   });
 }
 
