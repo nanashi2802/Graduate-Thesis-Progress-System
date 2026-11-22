@@ -215,3 +215,17 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** One module now. The three forms share INV-14, INV-16, BR-11 and FR-DEF-07. Only the score part differs (TDW 10 has comment boxes only). `src/server/domain/` belongs to `agent-b`, and P1-E09 is the next user of the rules. The expected sheets come from the appointed members, plus the Adviser at Proposal and Pre-Final (FR-DEF-06). A substitute takes the absent member's sheet (FR-CMT-06). So the count follows FR §3 when the committee has its template size. Scores are from 0 to the line weight (ERD `evaluation_score.score`). The total is the plain sum, with no grade equivalent (BR-15).
 - **Risk:** low. `agent-a` can wire it in P1-E09 or keep its own rules. The verdict and the close stay in `milestone.ts`.
 - **Undo:** revert the commits with AD-B-016.
+
+### AD-A-013 — Row access: who counts as a Panel Member of a thesis, and when access ends
+- **Task:** P1-E02-T01, T02
+- **Options:** any `committee_member` row gives thesis read (ERD §8 literal); only seats that are not `declined`, plus substitutes. For INV-33: wait for `clearance_item` (P3-E04); use one function that answers "not ended" until P3-E04 adds the table.
+- **Decision and reason:** A `declined` seat gives no access. A declined member never joins the committee (FR-CMT-03), so no reason exists to show them the thesis. Manuscript read uses agent-b's `memberAccess` (P1-E05-T01) with facts from the database: appointment form `verified`, the member's NDA `verified`. `manuscriptAccessEnded` returns false until P3-E04 adds `clearance_item`. P3-E04 must change only this one function.
+- **Risk:** medium. Until P3-E04, a Panel Member keeps manuscript read after the `final_copy` record. No `final_copy` record can exist before P3-E04, so the gap is not reachable in the app.
+- **Undo:** revert the commits with AD-A-013.
+
+### AD-A-014 — The audit insert keeps no long text
+- **Task:** P1-E02-T03
+- **Options:** free JSON in `audit_record.detail`; a flat object of short values only
+- **Decision and reason:** A flat object. Each value is a string of 200 characters or fewer, a number, a boolean or null. NFR-03 needs who, what and when, not content. The limit stops a caller from copying manuscript text or comments into the audit table, which is never deleted (BR-19). `recordAudit` takes the transaction of the write, so the audit row and the change commit together.
+- **Risk:** low. A later event that needs more detail can point to its own row by `target_id`.
+- **Undo:** revert the commits with AD-A-014.
