@@ -2,7 +2,7 @@
 import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { AccessDeniedError, type Actor, type DataContext } from "@/server/data/access";
-import { readClearance, verifyClearanceItem } from "@/server/data/clearance";
+import { EVIDENCE_FORM, readClearance, verifyClearanceItem } from "@/server/data/clearance";
 import type { Db } from "@/server/data/db";
 import { transitionMilestone } from "@/server/data/milestones";
 import { setOutsideStatus } from "@/server/data/outside";
@@ -40,9 +40,8 @@ async function world() {
   return { ...t, member, m3: m3! };
 }
 // The Student's evidence scan, already uploaded (FR-CLR-02), then the Coordinator verifies.
-const FORM = { final_copy: "FINAL_COPY", conference_cert: "CONFERENCE_CERT", journal_pub: "JOURNAL_PUB" } as const;
-async function verify(w: Awaited<ReturnType<typeof world>>, kind: keyof typeof FORM, matchesApproved?: boolean) {
-  await db.insert(s.documentRecord).values({ milestoneInstanceId: w.m3.id, formCode: FORM[kind], state: "locked_as_submitted" });
+async function verify(w: Awaited<ReturnType<typeof world>>, kind: keyof typeof EVIDENCE_FORM, matchesApproved?: boolean) {
+  await db.insert(s.documentRecord).values({ milestoneInstanceId: w.m3.id, formCode: EVIDENCE_FORM[kind], state: "locked_as_submitted" });
   await verifyClearanceItem(as(w.coordinator), { milestoneId: w.m3.id, kind, matchesApproved });
 }
 const doneOf = async (w: Awaited<ReturnType<typeof world>>, gate2 = true) =>
@@ -73,6 +72,12 @@ describe("Clearance checklist (FR-CLR-01 to 04)", () => {
     await expect(verifyClearanceItem(as(w.coordinator), { milestoneId: w.m3.id, kind: "final_copy" })).rejects.toThrow(/approved manuscript/);
     await expect(verifyClearanceItem(as(w.coordinator), { milestoneId: w.m3.id, kind: "ipmo" as "final_copy" })).rejects.toThrow(/another record/);
     await expect(verifyClearanceItem(as(w.coordinator), { milestoneId: w.m3.id, kind: "final_copy", matchesApproved: true })).rejects.toThrow(/evidence/);
+    // A returned or mismatched scan is not evidence (FR-CLR-02).
+    for (const state of ["returned", "mismatch"] as const) {
+      const [r] = await db.insert(s.documentRecord).values({ milestoneInstanceId: w.m3.id, formCode: "FINAL_COPY", state }).returning();
+      await expect(verifyClearanceItem(as(w.coordinator), { milestoneId: w.m3.id, kind: "final_copy", matchesApproved: true })).rejects.toThrow(/evidence/);
+      await db.delete(s.documentRecord).where(eq(s.documentRecord.id, r!.id));
+    }
     await verify(w, "final_copy", true);
     const [row] = await db.select().from(s.clearanceItem).where(eq(s.clearanceItem.milestoneInstanceId, w.m3.id));
     expect(row!.evidenceDocumentId).not.toBeNull();

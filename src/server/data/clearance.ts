@@ -1,7 +1,7 @@
 // The clearance checklist of Milestone 3 (FR-CLR-01 to 04, BR-21, INV-33, AD-A-029). Server only.
 // IPMO, RPO, copyright and Gate 2 come from their own records. The Coordinator verifies the other three.
 import "server-only";
-import { and, eq, notInArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import type { ClearanceKind, FormCode } from "./schema";
 import { requireActive, type DataContext } from "./access";
 import { recordAudit } from "./audit";
@@ -32,11 +32,11 @@ const LABELS: Record<ClearanceKind, string> = {
 export const CLEARANCE_KINDS = Object.keys(LABELS) as ClearanceKind[];
 export const COORDINATOR_KINDS = ["final_copy", "conference_cert", "journal_pub"] as const satisfies readonly ClearanceKind[];
 
-const EVIDENCE_FORM: Record<(typeof COORDINATOR_KINDS)[number], FormCode> = {
+export const EVIDENCE_FORM = {
   final_copy: "FINAL_COPY",
   conference_cert: "CONFERENCE_CERT",
   journal_pub: "JOURNAL_PUB",
-};
+} as const satisfies Record<(typeof COORDINATOR_KINDS)[number], FormCode>;
 
 // Call only after an access check.
 export async function clearanceStatuses(db: Db, milestoneId: string, gate2Complete: boolean): Promise<ClearanceRow[]> {
@@ -107,7 +107,7 @@ export async function verifyClearanceItem(
       and(
         eq(documentRecord.milestoneInstanceId, m.id),
         eq(documentRecord.formCode, EVIDENCE_FORM[input.kind]),
-        notInArray(documentRecord.state, ["not_started", "prepared"]),
+        inArray(documentRecord.state, ["locked_as_submitted", "physical_received", "verified"]),
       ),
     );
   if (!evidence) throw new InputProblem("The Student has not uploaded the evidence for this item yet (FR-CLR-02).");
