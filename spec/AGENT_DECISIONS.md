@@ -137,3 +137,24 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** `/api/auth/admin/*`, `/api/auth/sign-up/email` and `/api/auth/delete-user` return 404 (`src/server/auth/blocked-paths.ts`). The Coordinator's Neon Auth role is `admin` (AD-A-006), so without the block the browser could call remove-user or impersonate. That breaks "accounts are deactivated, never deleted" (FR-ACC-06, ERD §1, BR-19). Sign-up is off anyway (D-23). The server still calls `admin/create-user` directly with the SDK.
 - **Risk:** medium. The block covers only this app's proxy. The Neon Auth base URL is public, so a Coordinator session token sent straight to Neon Auth could still call admin paths. Only the Coordinator has that token. P1-E03 must check whether the session cookie works on the Neon Auth host directly, and log the result.
 - **Undo:** revert the commits with AD-A-010.
+
+### AD-B-008 — Shared UI parts get the epic ID P1-E14
+- **Task:** P1-E14 (Track B, Phase 1 step 2)
+- **Options:** put the tasks under P1-E11 (dashboards); add a new epic P1-E14
+- **Decision and reason:** A new epic P1-E14. `spec/BUILD_PLAN.md` §8 names the work, but §3 has no epic for it. P1-E11 waits for P1-E10, and the shared parts are needed earlier by P1-E05 to P1-E09. The ID rule of §0 needs an epic ID for each task.
+- **Risk:** low. It is a label in the plan only.
+- **Undo:** Move the tasks of §3.2 into another epic and rename the IDs in the commit messages.
+
+### AD-B-009 — Apply the DESIGN.md v0.1 tokens and fonts now
+- **Task:** P1-E14-T01
+- **Options:** wait for the owner to close DESIGN.md D-01 (gold hex) and D-02 (IBM Plex Sans, warm neutrals); apply the draft values now
+- **Decision and reason:** Apply the draft values now: PUP Gold `#F4C430`, Source Serif 4, IBM Plex Sans and IBM Plex Mono through `next/font/google` (self-hosted at build, NFR-06), and the warm neutral ramp. Every screen from P1-E03 on needs the tokens. All values sit in `src/app/globals.css` and `src/app/layout.tsx`, so a later change is one place.
+- **Risk:** low. D-01 and D-02 are still `[CONFIRM]`. If the owner picks other values, only the token values change.
+- **Undo:** Change the values in `src/app/globals.css` (`@theme` and `:root`) and the fonts in `src/app/layout.tsx`.
+
+### AD-B-010 — Component tests render to static HTML, with no new test library
+- **Task:** P1-E14-T02 to T05
+- **Options:** add `@testing-library/react` and `jsdom`; render with `react-dom/server` `renderToStaticMarkup` in the Node test environment
+- **Decision and reason:** `renderToStaticMarkup`. The shared parts are mostly markup: labels, tones, `aria-disabled`, `aria-describedby`. Static HTML checks these with no new dependency (AGENTS.md §10) and no change to `package.json`, which `agent-a` owns. Click behavior comes from Base UI `focusableWhenDisabled`, and the P1-E13 end-to-end tests cover it.
+- **Risk:** low. Interaction tests come later with Playwright.
+- **Undo:** Add the test library in a later task. The static tests stay valid.
