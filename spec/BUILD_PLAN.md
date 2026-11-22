@@ -182,6 +182,91 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 
 ---
 
+### 2.3 P0-E05 tasks (Track B, `agent-b`)
+
+**Decisions in this epic:** `spec/AGENT_DECISIONS.md` AD-B-001 to AD-B-004.
+
+### P0-E05-T01 — Vercel project and Git link
+- **Goal:** Make the Vercel project, link it to the repository, and send `agent-a` the domain for CORS.
+- **Covers:** DFD T6, NFR-12 (CORS origins for P0-E04)
+- **Reads:** `PRD.md` §11.2, `AGENTS.md` §13.8
+- **Changes:** Vercel project settings only
+- **Depends on:** P0-E01
+- **Done when:**
+  - [x] `vercel project ls` shows the project. Its Git repository is this repository. The production branch is `main`.
+  - [x] `agent-a` has the production origin and the preview origin pattern.
+- **Tests:** manual check (`vercel project inspect`)
+
+### P0-E05-T02 — `vercel.json`: region and cron
+- **Goal:** Run functions in `sin1` and schedule the daily job in the Hobby window.
+- **Covers:** FR-NTF-06, NFR-11
+- **Changes:** `vercel.json`
+- **Depends on:** T01
+- **Done when:**
+  - [x] `vercel.json` sets `regions: ["sin1"]` and one cron at `0 0 * * *` (00:00 to 00:59 UTC on Hobby).
+- **Tests:** unit test reads `vercel.json`
+
+### P0-E05-T03 — Daily job route
+- **Goal:** A cron route that accepts only the Vercel cron secret and logs one line with the PST date.
+- **Covers:** FR-NTF-06, NFR-11, DFD T6
+- **Changes:** `src/app/api/cron/daily/route.ts`, `src/server/notify/`
+- **Depends on:** T02
+- **Done when:**
+  - [x] A request without `Authorization: Bearer <CRON_SECRET>` gets 401.
+  - [x] A good request gets 200 and logs the run with the PST date.
+- **Tests:** unit (Vitest)
+
+### P0-E05-T04 — Resend email with a link only
+- **Goal:** Send one test email through the Resend API. It holds the event, the next action, the deadline and a link only.
+- **Covers:** FR-NTF-02, `AGENTS.md` §10 (email content)
+- **Changes:** `src/server/notify/`
+- **Depends on:** T03
+- **Done when:**
+  - [x] A unit test checks the email body: event, next action, deadline, link, and nothing else.
+  - [x] The daily job sends one test email when `NOTIFY_TEST_TO` is set.
+- **Tests:** unit (Vitest), manual check of one real send
+
+### P0-E05-T05 — Environment and production deploy
+- **Goal:** Put every name in `.env.example` into Vercel with new production secrets, and deploy `dev` to production.
+- **Covers:** NFR-11, `AGENTS.md` §11, §13.8
+- **Changes:** Vercel environment variables
+- **Depends on:** T04 merged into `dev`
+- **Done when:**
+  - [x] `vercel env ls` shows every name in `.env.example` for Production and Preview.
+  - [x] `CRON_SECRET` and `NEON_AUTH_COOKIE_SECRET` in production are new values, not the local ones.
+  - [ ] `vercel deploy --prod` from a clean checkout of `dev` succeeds, and the home page loads.
+  - [ ] A manual run of the cron route on production logs the run and sends the test email.
+- **Tests:** manual check (`vercel logs`)
+
+### 2.4 P0-E06 tasks (Track B, `agent-b`)
+
+### P0-E06-T01 — Fake TDW scans and MB per page
+- **Goal:** Make fake scans (PDF and image) of the 13 TDW form layouts and a fake 100-page manuscript, and measure MB per page.
+- **Covers:** AS-11, AS-12, NFR-10
+- **Reads:** `docs/reference/tdw-forms/text/`, `PRD.md` §11.4
+- **Changes:** `spec/spikes/fake_scans.py`, `spec/spikes/P0-scan-sizes.md`
+- **Depends on:** none
+- **Done when:**
+  - [x] `python spec/spikes/fake_scans.py` makes the files and prints the size tables.
+  - [x] `spec/spikes/P0-scan-sizes.md` holds the tables. No generated file is committed.
+- **Tests:** manual check (run the script)
+
+### P0-E06-T02 — Transfer-limit and file store test
+- **Goal:** Check whether downloads count against the Neon 5 GB transfer limit, and record file store issues.
+- **Covers:** AS-13, R12, R13, NFR-12, NFR-13
+- **Depends on:** P0-E04 merged into `dev`
+- **Done when:**
+  - [ ] A known number of MB is downloaded from `thesis-files` under the `agent-b/` prefix, and the Neon usage before and after is recorded.
+- **Tests:** manual check
+
+### P0-E06-T03 — Spike report
+- **Goal:** Write `spec/spikes/P0-report.md` with the answers to R12, R13, AS-11 to AS-13, and an updated capacity estimate (PRD §11.4).
+- **Covers:** AS-11, AS-12, AS-13, R12, R13
+- **Depends on:** T01, T02, P0-E05-T05
+- **Done when:**
+  - [ ] The report exists and each item has an answer or a stated open point for the human.
+- **Tests:** review by `agent-a` (§8 step 4)
+
 ## 3. Phase 1 — Foundation and Milestone 1
 
 **Goal:** One Student completes the Proposal Defense and reaches `CERTIFIED`.
@@ -204,6 +289,31 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 | P1-E13 | Milestone 1 end-to-end test and fake seed data | Exit test | `USERFLOW.md` §5 |
 
 Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09 → E10 → E11, E12 → E13.
+
+### 3.1 P1-E04 domain part (Track B, `agent-b`, look-ahead)
+
+**Decisions:** AD-B-005 to AD-B-007. The wiring to the data layer and the gate screens stays with `agent-a` (§8 Phase 1 step 4).
+
+### P1-E04-T01 — Milestone state machine (pure)
+- **Goal:** One function decides each status change of ERD §7.1, with the actor and the guard, and gives a reason for each refusal.
+- **Covers:** FR-WFL-02, FR-WFL-08, FR-WFL-09, FR-WFL-13, BR-02, BR-13, BR-18, INV-12, INV-13, INV-15 to INV-18
+- **Reads:** `ERD.md` §7.1, Operational Flow v3.1 §4.7
+- **Changes:** `src/server/domain/milestone.ts`, `tests/unit/domain/milestone.test.ts`
+- **Depends on:** none (pure code)
+- **Done when:**
+  - [x] Each of the 16 rows of ERD §7.1 has a test for its actor and its guard.
+  - [x] INV-17: only the Coordinator sets `CLOSED`, `CERTIFIED`, `FINAL_APPROVED` and `CLEARED`.
+  - [x] Each refusal has a code and a message.
+- **Tests:** unit (Vitest)
+
+### P1-E04-T02 — Gate checks for one actor (pure)
+- **Goal:** Check one actor's Gate 1a, Gate 1b, Gate 2 or Return before the data layer writes the `gate_action` row.
+- **Covers:** FR-WFL-03 to FR-WFL-05, FR-WFL-07, BR-13, BR-20, INV-19 to INV-22
+- **Changes:** `src/server/domain/gates.ts`, `tests/unit/domain/gates.test.ts`
+- **Depends on:** T01
+- **Done when:**
+  - [x] Tests cover open threads, IPMO in Milestone 2, Pre-Final revision items in Milestone 3, IPMO and RPO at Gate 2, and the Return reason and purpose.
+- **Tests:** unit (Vitest)
 
 ---
 
