@@ -40,3 +40,24 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** Use the existing `.env.local` URL for Phase 0. §13.8 asks for own branches only "when both builders need the database". In Phase 0, agent-b works on Vercel, email and the spike report, not on the database. No Neon API key or `neonctl` sign-in is available to make a branch. The first migration adds only the `app` schema, one enum and one empty table.
 - **Risk:** medium. A migration runs on the database of branch `main`. Before Phase 1, the human (or agent-a, with a Neon API key) must make branches `agent-a` and `agent-b` and put their URLs into each worktree `.env.local`.
 - **Undo:** on Neon `main`, run `DROP SCHEMA app CASCADE; DROP SCHEMA drizzle CASCADE;`.
+
+### AD-A-004 — Neon Auth SDK package: `@neon/auth`
+- **Task:** P0-E03-T01
+- **Options:** `@neon/auth` 0.8 (the Neon docs reference page); `@neondatabase/auth` 0.7 beta (the older name in the neon-js guide)
+- **Decision and reason:** `@neon/auth`. The Neon docs for the Next.js server SDK use it, and it is the newer version. It wraps Better Auth (PRD §11.2: "Neon Auth (managed Better Auth)"). The server makes the instance on first use, so `next build` works in CI with no secrets.
+- **Risk:** low. The SDK is pre-1.0, so its API can change. The SDK is used only in `src/server/auth/` and the login form.
+- **Undo:** revert the commits with AD-A-004.
+
+### AD-A-005 — The app account is the `app_user` row, not the Neon Auth user
+- **Task:** P0-E03-T02, P0-E03-T03
+- **Options:** block unknown Google users in the Neon Auth settings; block them in the app
+- **Decision and reason:** Block in the app. Neon Auth has `disableSignUp` for email and password (it is on), but the Neon project settings show no such switch for the shared Google provider. So a Google sign-in with a new email can make a row in `neon_auth.user`. The app treats only an `app_user` row that the Coordinator made as an account (FR-ACC-04, FR-ACC-05, D-23). After each sign-in, a user with no `app_user` row, or a deactivated one, is signed out at once and sees the reason. The first sign-in links `app_user.auth_user_id` by the email address. A linked row never moves to another Neon Auth user.
+- **Risk:** medium. A stray `neon_auth.user` row can stay for a Google user who has no account. It has no access, because each portal and each data-layer call needs an `app_user` row. The human must check with a real Google user (P0-E03-T03, open item). Linking by email trusts the email that Neon Auth gives. For Google, Google verifies the email.
+- **Undo:** revert the commits with AD-A-005. If Neon adds a Google sign-up switch, turn it on as well.
+
+### AD-A-006 — Coordinator path and the bootstrap Coordinator
+- **Task:** P0-E03-T02
+- **Options:** the Neon REST API (`POST /projects/{id}/branches/{id}/auth/users`, needs a Neon API key); the Better Auth admin plugin (`admin/create-user`, needs an admin session); write the users into the Neon Auth tables
+- **Decision and reason:** The app makes users with `admin/create-user` and the signed-in Coordinator's session (`src/server/auth/admin.ts`, `createAccount`). The Coordinator's Neon Auth user has the role `admin`. This needs no extra secret. The first Coordinator cannot come from the app, and no Neon API key is available. So `pnpm db:seed-dev` writes the fake bootstrap Coordinator into `neon_auth.user` and `neon_auth.account` (Better Auth scrypt password format), then makes the other fake users through `admin/create-user`. Fake users use `@example.test` and the password in `DEV_SEED_PASSWORD` (`.env.local` only).
+- **Risk:** medium. The direct write depends on the Neon Auth table shape, and it is for a development branch only. For the pilot, the human makes the first real Coordinator in the Neon console (Auth, Users) and selects "Make admin". `neonCreateAuthUser` is not yet run live from the app. P1-E03 runs it from `/coordinator/users`.
+- **Undo:** revert the commits with AD-A-006. Remove the fake users in the Neon console.

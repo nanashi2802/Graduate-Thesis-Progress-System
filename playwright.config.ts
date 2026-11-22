@@ -2,6 +2,11 @@ import { defineConfig, devices } from "@playwright/test";
 
 const PORT = 3000;
 
+// Local runs read .env.local (for the sign-in test). CI has no such file.
+try {
+  process.loadEnvFile(".env.local");
+} catch {}
+
 export default defineConfig({
   testDir: "tests/e2e",
   forbidOnly: !!process.env.CI,

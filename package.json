@@ -12,10 +12,12 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed-dev": "node scripts/seed-dev.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
+    "@neon/auth": "^0.8.2",
     "@neondatabase/serverless": "^1.2.1",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.2",
