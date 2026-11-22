@@ -372,7 +372,7 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 - **Covers:** AS-13, R12, R13, NFR-12, NFR-13
 - **Depends on:** P0-E04 merged into `dev`
 - **Done when:**
-  - [ ] A known number of MB is downloaded from `thesis-files` under the `agent-b/` prefix, and the Neon usage before and after is recorded.
+  - [x] A known number of MB is downloaded from `thesis-files` under the `agent-b/` prefix, and the Neon usage before and after is recorded. (100 MB on 22 Nov 2026, `spec/spikes/transfer_test.mjs`, results in `spec/spikes/P0-report.md` §3)
 - **Tests:** manual check
 
 ### P0-E06-T03 — Spike report
@@ -380,7 +380,7 @@ Dependencies: E01 → E02 → E03 → E04. E01 → E05. E04 and E05 → E06.
 - **Covers:** AS-11, AS-12, AS-13, R12, R13
 - **Depends on:** T01, T02, P0-E05-T05
 - **Done when:**
-  - [ ] The report exists and each item has an answer or a stated open point for the human.
+  - [x] The report exists and each item has an answer or a stated open point for the human.
 - **Tests:** review by `agent-a` (§8 step 4)
 
 ## 3. Phase 1 — Foundation and Milestone 1
