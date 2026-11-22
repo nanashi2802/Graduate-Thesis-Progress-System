@@ -36,7 +36,9 @@
       "Bash(git config user.email *)",
       "Bash(git config --global *)",
       "Bash(git config core.hooksPath *)",
-      "Bash(git -c *)"
+      "Bash(git -c *)",
+      "Bash(git add -f *)",
+      "Bash(git add --force *)"
     ]
   }
 }

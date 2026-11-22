@@ -1,11 +1,12 @@
-# CI checks for the app (P0-E01). Make this check required on `main` in the repository settings.
+# CI checks for the app (P0-E01). Required on `dev` by the repository ruleset (AGENTS.md §3).
 # It needs no secrets. The commit check is in commit-policy.yml.
 name: ci
 
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, dev]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -15,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check:
+  ci:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

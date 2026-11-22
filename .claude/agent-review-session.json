@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "defaultMode": "auto",
+    "deny": [
+      "Edit",
+      "Write",
+      "NotebookEdit",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(git merge *)",
+      "Bash(git add *)",
+      "Bash(gh pr merge *)",
+      "Bash(gh pr create *)",
+      "Bash(gh pr close *)",
+      "Bash(gh ruleset *)",
+      "Bash(gh api *rulesets*)",
+      "Bash(gh api *branches*protection*)",
+      "Bash(gh repo edit *)",
+      "Bash(vercel *)"
+    ]
+  },
+  "crossSessionInbound": "accept"
+}

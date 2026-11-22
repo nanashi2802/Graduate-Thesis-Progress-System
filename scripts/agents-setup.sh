@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Make the two agent worktrees for autonomous build mode (AGENTS.md §13).
+# Make the agent worktrees (agent-a, agent-b and the reviewer agent-r) for autonomous build mode (AGENTS.md §13).
 # Run from the main checkout, once, after `dev` exists on origin. Safe to run again.
 set -euo pipefail
 root="$(git rev-parse --show-toplevel)"
@@ -23,6 +23,13 @@ for name in agent-a agent-b; do
   (cd "$dir" && pnpm install --frozen-lockfile)
   echo "Ready: $dir on branch $name"
 done
+
+# Reviewer: detached checkout, no branch. It never commits.
+rdir=".claude/worktrees/agent-r"
+[ -d "$rdir" ] || git worktree add --detach "$rdir" origin/dev
+[ -f .env.local ] && cp -n .env.local "$rdir/.env.local" || true
+(cd "$rdir" && pnpm install --frozen-lockfile)
+echo "Ready: $rdir (detached, reviewer)"
 
 echo
 echo "Start the agents (see docs/agents/KICKOFF.md):"

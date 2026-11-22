@@ -1,6 +1,15 @@
 {
   "permissions": {
-    "defaultMode": "auto"
+    "defaultMode": "auto",
+    "deny": [
+      "Bash(gh api *statuses*)",
+      "Bash(git add -f *)",
+      "Bash(git add --force *)",
+      "Bash(gh ruleset *)",
+      "Bash(gh api *rulesets*)",
+      "Bash(gh api *branches*protection*)",
+      "Bash(gh repo edit *)"
+    ]
   },
   "crossSessionInbound": "accept"
 }

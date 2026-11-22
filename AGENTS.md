@@ -1,7 +1,7 @@
 # AGENTS.md — PUP CpE Thesis Progress Monitoring System
 
 **Status:** Draft v0.8 (22 Nov 2026). Phase 0. The scaffold exists (P0-E01).
-**Change log:** v0.8, 22 Nov 2026: the owner added autonomous build mode (§13). Two agents build on their own branches, decide open items, log each decision and merge into `dev`. `main` and `master` stay human-only.
+**Change log:** v0.8, 22 Nov 2026: the owner added autonomous build mode (§13). Two agents build on their own branches, decide open items, log each decision and merge into `dev`. `main` and `master` stay human-only. Later on 22 Nov 2026: added the reviewer `agent-r` (§13.7), shared-service rules (§13.8), the secret scan in the push hook, and the GitHub rulesets (§3).
 **This file is the single home of all agent rules.** Other files hold no rules. They are a pointer (`CLAUDE.md`) or they enforce this file (Section 3).
 
 ## 1. Project
@@ -52,9 +52,10 @@ Tools can add trailers even when their settings say no. So the rules have three 
 | Pointer | `CLAUDE.md` | One line, `@AGENTS.md`. Claude Code reads `CLAUDE.md`, not `AGENTS.md`. |
 | Tool settings | `.claude/settings.json`, `.aider.conf.yml` | Turn off attribution. Deny git write commands. Stop auto-commits. |
 | Local check | `.githooks/commit-msg` + `scripts/check-commit-policy.sh` | Reject AI authors and AI trailers. `--no-verify` skips it. |
-| Local check | `.githooks/pre-push` | Reject a push to `main` or `master` and a push of a `.env` file |
-| Agent session settings | `.claude/agent-session.json` | Autonomous build mode only: `auto` permission mode, accept messages from the other agent |
-| CI check | `.github/workflows/commit-policy.yml`, `.github/workflows/ci.yml` | Commit check, lint, type check, tests and build on every pull request (also into `dev`) and push to `main` |
+| Local check | `.githooks/pre-push` | Reject a push to `main` or `master`, a push of a `.env` file, and added lines that look like a secret |
+| Agent session settings | `.claude/agent-session.json` (builders), `.claude/agent-review-session.json` (reviewer) | Autonomous build mode only: `auto` permission mode, accept messages, and deny each role the commands of the other roles |
+| CI check | `.github/workflows/commit-policy.yml` (job `commit-policy`), `.github/workflows/ci.yml` (job `ci`) | Commit check, lint, type check, tests and build on every pull request and every push to `main` or `dev` |
+| GitHub rules | Repository rulesets and settings | `main` is locked: nobody can push or merge into it. `dev` needs a pull request and the checks `ci`, `commit-policy` and `agent-review`. No force push or delete on `dev`, `agent-a` or `agent-b`. Secret scanning with push protection is on. The default branch is `dev`. |
 
 The human must also require the CI check and pull requests on `main` in the repository settings.
 
@@ -175,7 +176,7 @@ CI (`.github/workflows/ci.yml`) runs lint, type check, unit tests, the build and
 ## 13. Autonomous build mode (two agents)
 
 **When it is on:** a session that starts with `.claude/agent-session.json` and the kickoff prompt in `docs/agents/KICKOFF.md`. Every other session uses the normal rules.
-**Goal:** two agents build `spec/BUILD_PLAN.md` from P0-E02 to the end of Phase 3 with no input from the human. The human reviews the decision log and `dev` later.
+**Goal:** two builder agents and one reviewer agent build `spec/BUILD_PLAN.md` from P0-E02 to the end of Phase 3 with no input from the human. The human reviews the decision log and `dev` later.
 
 ### 13.1 Agents and branches
 
@@ -183,6 +184,7 @@ CI (`.github/workflows/ci.yml`) runs lint, type check, unit tests, the build and
 | :---- | :---- | :---- | :---- | :---- |
 | `agent-a` (integrator) | `agent-a` | `.claude/worktrees/agent-a` | `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `db/migrations/`, the core of `src/server/data/` (database client, access check, audit insert), `src/server/files/`, `AGENTS.md` §12, `spec/BUILD_PLAN.md` §1, §2.1 and §8 | Track A in `spec/BUILD_PLAN.md` §8 |
 | `agent-b` | `agent-b` | `.claude/worktrees/agent-b` | `vercel.json`, `src/server/notify/`, `src/server/domain/`, shared parts in `src/components/`, `spec/spikes/` | Track B in `spec/BUILD_PLAN.md` §8 |
+| `agent-r` (reviewer) | none (detached pull-request checkouts) | `.claude/worktrees/agent-r` | Nothing. It never commits or pushes. | §13.7 |
 
 - A new file belongs to the agent that made it. Files not in the table belong to nobody: edit them, and tell the other agent in your task-start message.
 
@@ -200,9 +202,10 @@ CI (`.github/workflows/ci.yml`) runs lint, type check, unit tests, the build and
 4. Build the task. Write the test first for an `INV-nn` or a state change. Meet the definition of done (`spec/BUILD_PLAN.md` §0.2).
 5. Commit small steps. Each message names the task ID, the FR, BR, NFR or INV IDs and any `AD-` decision ID. Push to your own branch.
 6. Run `pnpm lint`, `pnpm typecheck` and `pnpm test`. At the end of an epic, also run `pnpm test:e2e`.
-7. Mark the pull request ready (`gh pr ready`). Write a hand-off note in it: what changed, which shared file or interface changed, and what the other agent must know. Send `agent-a` a message.
-8. **Integrator (`agent-a`) only:** merge one pull request at a time. Run `gh pr checks <n> --watch`. Merge only when all checks pass: `gh pr merge <n> --merge`. Then send `agent-b` the message "dev moved".
-9. If a check fails, fix it on the author's branch. Never merge red checks.
+7. Mark the pull request ready (`gh pr ready`). Write a hand-off note in it: what changed, which shared file or interface changed, and what the other agent must know. Send `agent-r` the message "review #<n>". Send `agent-a` the same message.
+8. **Integrator (`agent-a`) only:** merge one pull request at a time. Run `gh pr checks <n> --watch`. Merge only when `ci`, `commit-policy` and `agent-review` all pass: `gh pr merge <n> --merge`. GitHub also blocks the merge without them. Then send `agent-b` and `agent-r` the message "dev moved".
+9. If a check fails or `agent-r` reports findings, the author fixes them on its own branch, pushes, and sends `agent-r` "review #<n> again". Never merge red checks.
+10. A pull request can wait for review. Start your next task on top of it if it does not depend on the findings.
 
 ### 13.3 Decisions and the decision log
 
@@ -233,5 +236,38 @@ CI (`.github/workflows/ci.yml`) runs lint, type check, unit tests, the build and
 - Force-push, rebase, amend a pushed commit, or delete the branches `dev`, `agent-a` or `agent-b`.
 - Use `--no-verify`. Change `git config`, the hooks, the branch rules, `.claude/` settings, §2 or this section.
 - Merge a pull request whose checks fail or have not run.
-- Commit a `.env` file other than `.env.example`. The repository is public.
+- Commit a `.env` file other than `.env.example`. Use `git add -f`. Put a secret in code, tests, logs or pull request text. The repository is public.
 - Build a deferred item (§9).
+- Set the `agent-review` status yourself (builders). Only `agent-r` sets it.
+- Remove or weaken a CI check, a test, or a step in `.github/workflows/`. Edit `ci.yml` only to fix a failing step, and log the change as a decision. Never edit `commit-policy.yml`.
+- Change GitHub rulesets or repository settings.
+
+### 13.7 Reviewer (`agent-r`)
+
+**Job:** review each pull request into `dev` before it merges. Set the `agent-review` status. `dev` requires it.
+
+1. Wait for a "review #<n>" message. Also check `gh pr list --base dev --state open` when you start, and after each message.
+2. Check out the pull request in your worktree: `gh pr checkout <n> --detach --force`, then `pnpm install --frozen-lockfile`.
+3. Run `pnpm lint`, `pnpm typecheck` and `pnpm test`. Read the diff: `gh pr diff <n>`.
+4. Check the diff against this list:
+   - It does what its task says, and it cites the FR, BR, NFR or INV IDs.
+   - The server data layer checks access for each new read and write (NFR-01). The browser never touches the database.
+   - It breaks no domain rule (§7) and no invariant (`spec/ERD.md`). It builds no deferred item (§9).
+   - Tests exist for each `INV-nn` and each state change. No test is removed or skipped without a logged decision.
+   - No secret, real data or `.env` file. No AI attribution (§2).
+   - It does not change §2, §13, `.claude/`, `.githooks/`, `commit-policy.yml` or the rulesets. A change to `ci.yml` only fixes a step.
+   - Each decision is in `spec/AGENT_DECISIONS.md`, and its risk is stated honestly.
+   - Every disabled action shows its reason (BR-18). UI text follows §5.
+5. **Pass:** set the status on the head commit:
+   `gh api repos/{owner}/{repo}/statuses/<head-sha> -f state=success -f context=agent-review -f description="Reviewed by agent-r"`.
+   Post a short comment with `gh pr comment <n>`. Send the author and `agent-a` "#<n> passed".
+6. **Findings:** set `state=failure` with a one-line description. Post the findings as one comment: file, line, problem, rule ID, and the fix. Send the author "#<n> has findings".
+7. Only blocking findings fail a review: a broken rule, a missing test for an invariant, a bug, or a security problem. Post style points as notes and pass.
+8. Review the decision log too. If a decision is risky, say so in the comment, and add it to the list for the human in the phase summary request to `agent-a`.
+9. Never commit, push, merge, or edit files that are tracked by git. A new commit on the pull request needs a new review, because the status belongs to one commit.
+
+### 13.8 Shared services
+
+- **Database:** when both builders need the database, each uses its own Neon branch (`agent-a`, `agent-b`), made from `main` on the free plan. Put its URL in your own worktree `.env.local`. Log it as a decision. `dev` merges run migrations only on the Neon branch of `agent-a`.
+- **File store:** each agent writes test files only under its own key prefix in `thesis-files` (`agent-a/`, `agent-b/`). Keys are write-once (INV-09), so shared keys fail.
+- **Vercel:** only `agent-b` changes the Vercel project. The Git production branch stays `main`, so a push makes only a preview deployment. The daily cron runs only on a production deployment, so `agent-b` makes production deployments with the CLI (`vercel deploy --prod`) from a clean checkout of `dev` only.

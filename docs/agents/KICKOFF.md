@@ -1,13 +1,14 @@
-# Two-agent kickoff (autonomous build mode)
+# Agent kickoff (autonomous build mode)
 
 **Rules:** `AGENTS.md` §13. **Work order:** `spec/BUILD_PLAN.md` §8. **Decision log:** `spec/AGENT_DECISIONS.md`.
 
 ## 1. Before the first start (human, once)
 
-1. Make sure `dev` exists on GitHub. It is the meeting branch.
-2. Recommended: in GitHub settings, protect `main` (require pull requests). Optionally require the `ci` and `commit-policy` checks on `dev`.
-3. Run `scripts/agents-setup.sh`. It makes `.claude/worktrees/agent-a` and `.claude/worktrees/agent-b`, pushes the two branches, copies `.env.local` and installs dependencies.
-4. Run `scripts/agents-start.sh`. It starts both agents as background sessions in `auto` permission mode.
+1. Done 22 Nov 2026: `dev` exists and is the default branch. The GitHub rulesets lock `main` and guard `dev` (`AGENTS.md` §3).
+2. Run `scripts/agents-setup.sh`. It makes the worktrees `agent-a`, `agent-b` and `agent-r` in `.claude/worktrees/`, pushes the two builder branches, copies `.env.local` and installs dependencies. Safe to run again.
+3. Keep the computer on and plugged in. Set Windows sleep to "never" while they run. A shutdown or restart stops the agents.
+4. Run `scripts/agents-start.sh`. It starts the three agents as background sessions in `auto` permission mode.
+5. To release to `main` later: turn off the `lock-main` ruleset in GitHub, merge `dev` into `main` with a pull request, and turn the ruleset on again.
 
 ## 2. While they run (human, optional)
 
@@ -23,6 +24,16 @@
 An agent that shows "Needs input" hit a permission prompt or paused after many `auto` mode blocks. Attach and answer it.
 
 ## 3. Prompts
+
+<!-- prompt:agent-r -->
+You are agent-r, the reviewer, in autonomous build mode. Your worktree is this folder. It is a detached checkout. You never commit or push.
+Read AGENTS.md in full first, and follow §13 exactly, mainly §13.7. Then read spec/BUILD_PLAN.md §0.2 and §8, and spec/AGENT_DECISIONS.md.
+Review each pull request into dev as §13.7 says, and set the agent-review status. Be strict on blocking findings. Keep notes short.
+The human will not answer. Do not ask the human.
+Start now: run gh pr list --base dev --state open and review any ready pull request. Then end your turn. A "review #<n>" message from agent-a or agent-b wakes you.
+Stop when agent-a tells you that P3-E06 is merged.
+<!-- end -->
+
 
 The start script sends the text between the markers. Edit the text, not the markers.
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Local push check (AGENTS.md §3, §13.6).
-# Rejects a push to main or master, and a push that adds a .env file other than .env.example.
+# Rejects a push to main or master, a push that adds a .env file other than .env.example,
+# and a push whose added lines look like a secret (key prefixes, database URLs with a password, private keys).
 # The human can skip it with --no-verify. Agents must not.
 zero=0000000000000000000000000000000000000000
 status=0
@@ -22,6 +23,13 @@ while read -r local_ref local_sha remote_ref remote_sha; do
   if [ -n "$bad" ]; then
     echo "pre-push: these commits add env files. Remove them (AGENTS.md §11):" >&2
     echo "$bad" >&2
+    status=1
+  fi
+  # shellcheck disable=SC2086
+  leaks=$(git log -p --format= $range -- . ':(exclude).env.example' ':(exclude)pnpm-lock.yaml' | grep -E '^[+]' | grep -oE 'npg_[A-Za-z0-9]{12,}|re_[A-Za-z0-9]{8,}_[A-Za-z0-9]{8,}|postgres(ql)?://[^:/@ ]+:[^@ <>$]{6,}@|-----BEGIN [A-Z ]*PRIVATE KEY-----|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|AKIA[0-9A-Z]{16}|sk-[A-Za-z0-9_-]{20,}' | cut -c1-6 | sed 's/$/... (hidden)/' | sort -u)
+  if [ -n "$leaks" ]; then
+    echo "pre-push: added lines hold what looks like a secret (first characters shown). Find them with git log -p, then move them to .env.local (AGENTS.md §11):" >&2
+    echo "$leaks" >&2
     status=1
   fi
 done

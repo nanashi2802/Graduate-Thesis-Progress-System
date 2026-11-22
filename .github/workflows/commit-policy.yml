@@ -1,17 +1,18 @@
 # CI commit check (AGENTS.md §3). The same check as the local hook.
-# Make this check required on `main` in the repository settings.
+# Required on `dev` by the repository ruleset (AGENTS.md §3).
 name: commit-policy
 
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, dev]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  check:
+  commit-policy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,6 +30,8 @@ jobs:
           chmod +x scripts/check-commit-policy.sh
           if [ "$EVENT" = "pull_request" ]; then
             scripts/check-commit-policy.sh --range "$PR_BASE..$PR_HEAD"
+          elif [ "$EVENT" = "workflow_dispatch" ]; then
+            scripts/check-commit-policy.sh --commit "$GITHUB_SHA"
           elif [ "$PUSH_BEFORE" = "0000000000000000000000000000000000000000" ]; then
             scripts/check-commit-policy.sh --commit "$PUSH_AFTER"
           else
