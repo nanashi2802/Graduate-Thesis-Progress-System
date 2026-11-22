@@ -1125,7 +1125,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Goal:** The Coordinator exports a Student dossier with an index.
 - **Covers:** FR-DOC-10
 - **Done when:**
-  - [ ] Open.
+  - [x] The Coordinator downloads one JSON dossier with an index from the SV screen. A test shows the content, the audit row and the refusal of other roles (AD-B-026).
 
 ### 5.2 P3-E04 Clearance (Track A, `agent-a`)
 
