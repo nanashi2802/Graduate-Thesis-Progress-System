@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { AccessDeniedError, type Actor } from "@/server/data/access";
 import type { Db } from "@/server/data/db";
 import * as s from "@/server/data/schema";
-import { studentTracker } from "@/server/data/tracker";
+import { readinessChecklist, studentTracker } from "@/server/data/tracker";
 import { seedMilestone1 } from "../../support/seed-m1";
 import { makeTestDb } from "../../support/test-db";
 
@@ -58,6 +58,14 @@ describe("studentTracker", () => {
     expect(t.next.text).toContain("2026-12-15");
   });
 
+  it("takes the printed copies due days from the template version (BR-09)", async () => {
+    await db.update(s.templateVersion).set({ printedCopiesDueDays: 10 }).where(eq(s.templateVersion.id, seed.versions.proposal.id));
+    await db.update(s.milestoneInstance).set({ status: "DEFENSE_SCHEDULED" }).where(eq(s.milestoneInstance.id, seed.milestone.id));
+    await db.insert(s.defenseAttempt).values({ milestoneInstanceId: seed.milestone.id, attemptNo: 1, status: "scheduled", scheduledStartAt: new Date("2026-12-15T01:00:00Z"), roomOrLink: "Room 301" });
+    const t = (await studentTracker(asStudent()))!;
+    expect(t.defense!.printedCopiesDue).toBe("2026-12-05");
+  });
+
   it("shows the written reason of a Return as the next action (BR-13)", async () => {
     await db.update(s.milestoneInstance).set({ returnReason: "The method chapter is missing." }).where(eq(s.milestoneInstance.id, seed.milestone.id));
     const t = (await studentTracker(asStudent()))!;
@@ -73,5 +81,14 @@ describe("studentTracker", () => {
       .values({ email: "other@example.test", fullName: "Other Student", role: "student", authUserId: "other-auth" })
       .returning();
     expect(await studentTracker({ db, actor: actorOf(other!) })).toBeNull();
+  });
+});
+
+describe("readinessChecklist (C5 names the missing items, BR-18)", () => {
+  it("gives the Coordinator and the thesis Student the list, and refuses a Panel Member with no seat (NFR-01)", async () => {
+    const forCoordinator = await readinessChecklist({ db, actor: actorOf(seed.coordinator) }, seed.milestone.id);
+    expect(forCoordinator.length).toBeGreaterThan(0);
+    expect(await readinessChecklist(asStudent(), seed.milestone.id)).toEqual(forCoordinator);
+    await expect(readinessChecklist({ db, actor: actorOf(seed.panel[0]!) }, seed.milestone.id)).rejects.toBeInstanceOf(AccessDeniedError);
   });
 });

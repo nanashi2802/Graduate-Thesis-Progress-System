@@ -9,8 +9,10 @@ import type { DocumentState } from "@/server/domain/documents";
 import { nextAction, type NextAction } from "@/server/domain/next-action";
 import { pstDate } from "@/server/notify/time";
 import { requireActive, AccessDeniedError, type DataContext } from "./access";
+import { printedCopyStatus } from "./defense";
 import { loadMilestoneContext, loadMilestoneFacts } from "./milestone-facts";
 import { currentOutsideStatuses, type OutsideStatuses } from "./outside";
+import { requireThesisRead } from "./scope";
 import {
   appUser,
   committee,
@@ -20,9 +22,6 @@ import {
   milestoneInstance,
   thesisInstance,
 } from "./schema";
-
-/** Printed copies are due this many days before the defense (BR-09). */
-export const PRINTED_COPIES_DAYS_BEFORE = 7;
 
 export type StudentTracker = {
   identity: {
@@ -43,6 +42,40 @@ export type StudentTracker = {
 };
 
 const formKey = (code: string) => code.replace("_", " ");
+
+type Db = DataContext["db"];
+
+// The readiness checklist (FR-DOC-08), the same list as the date confirmation. Call only after an access check.
+async function loadChecklist(db: Db, milestoneId: string, code: MilestoneCode, committeeId: string | null) {
+  const docs = await db.select().from(documentRecord).where(eq(documentRecord.milestoneInstanceId, milestoneId));
+  const documents: Record<string, DocumentState | undefined> = {};
+  for (const d of docs) documents[formKey(d.formCode)] = d.state as DocumentState;
+  const seatNdas = committeeId
+    ? await db
+        .select({ ndaDocumentId: committeeMember.ndaDocumentId })
+        .from(committeeMember)
+        .where(and(eq(committeeMember.committeeId, committeeId), ne(committeeMember.status, "declined")))
+    : [];
+  const ndas = seatNdas.map((s) => (docs.find((d) => d.id === s.ndaDocumentId)?.state ?? "not_started") as DocumentState);
+  const outside = await currentOutsideStatuses(db, milestoneId);
+  const checklist = complianceChecklist(code, {
+    documents,
+    ndas,
+    officialReceipt: docs.find((d) => d.formCode === "OR")?.state as DocumentState | undefined,
+    ethics: outside.ethics,
+    ipmo: outside.ipmo,
+  });
+  return { checklist, outside };
+}
+
+/** The FR-DOC-08 list of one milestone, for a reader of the thesis. C5 names the missing items from it (BR-18). */
+export async function readinessChecklist(ctx: DataContext, milestoneId: string): Promise<ChecklistItem[]> {
+  requireActive(ctx.actor);
+  const mctx = await loadMilestoneContext(ctx.db, milestoneId);
+  if (!mctx) throw new AccessDeniedError("no access to this milestone");
+  await requireThesisRead(ctx, mctx.thesis.id);
+  return (await loadChecklist(ctx.db, milestoneId, mctx.code, mctx.committeeId)).checklist;
+}
 
 /** The S1 regions for the signed-in Student. Any other role is refused (NFR-01). */
 export async function studentTracker(ctx: DataContext, now: Date = new Date()): Promise<StudentTracker | null> {
@@ -73,25 +106,7 @@ export async function studentTracker(ctx: DataContext, now: Date = new Date()): 
     .where(and(eq(committee.thesisInstanceId, thesis.id), eq(committeeMember.status, "accepted")))
     .orderBy(asc(appUser.fullName));
 
-  // The readiness checklist (FR-DOC-08), the same list as the date confirmation.
-  const docs = await ctx.db.select().from(documentRecord).where(eq(documentRecord.milestoneInstanceId, current.id));
-  const documents: Record<string, DocumentState | undefined> = {};
-  for (const d of docs) documents[formKey(d.formCode)] = d.state as DocumentState;
-  const seatNdas = mctx.committeeId
-    ? await ctx.db
-        .select({ ndaDocumentId: committeeMember.ndaDocumentId })
-        .from(committeeMember)
-        .where(and(eq(committeeMember.committeeId, mctx.committeeId), ne(committeeMember.status, "declined")))
-    : [];
-  const ndas = seatNdas.map((s) => (docs.find((d) => d.id === s.ndaDocumentId)?.state ?? "not_started") as DocumentState);
-  const outside = await currentOutsideStatuses(ctx.db, current.id);
-  const checklist = complianceChecklist(code, {
-    documents,
-    ndas,
-    officialReceipt: docs.find((d) => d.formCode === "OR")?.state as DocumentState | undefined,
-    ethics: outside.ethics,
-    ipmo: outside.ipmo,
-  });
+  const { checklist, outside } = await loadChecklist(ctx.db, current.id, code, mctx.committeeId);
 
   // The defense card shows after the date is confirmed (FR-DEF-03): the latest attempt with a start time.
   const [scheduled] = await ctx.db
@@ -101,7 +116,8 @@ export async function studentTracker(ctx: DataContext, now: Date = new Date()): 
     .orderBy(desc(defenseAttempt.attemptNo))
     .limit(1);
   const defenseDate = scheduled?.scheduledStartAt ? pstDate(scheduled.scheduledStartAt) : null;
-  const printedCopiesDue = defenseDate ? addDays(defenseDate, -PRINTED_COPIES_DAYS_BEFORE) : null;
+  // The due date follows the template value (BR-09, FR-DEF-04), the same as the Coordinator screen.
+  const printedCopiesDue = scheduled ? (await printedCopyStatus(ctx, scheduled.id, now)).dueDate : null;
 
   return {
     identity: {
