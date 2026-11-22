@@ -124,6 +124,10 @@ export async function confirmCommitUpload(
   const tags = [...new Set(input.addressesThreadIds ?? [])];
 
   return ctx.db.transaction(async (tx) => {
+    // Lock the PR row, then check the lock again: the last Gate 1b endorsement sets `locked_at` in its own
+    // transaction, so this check cannot run in parallel with it (BR-07, INV-05).
+    const [fresh] = await tx.select({ lockedAt: submissionPr.lockedAt }).from(submissionPr).where(eq(submissionPr.id, pr.id)).for("update");
+    if (fresh?.lockedAt) throw new InputProblem("The manuscript is locked.");
     if (tags.length > 0) {
       // FR-REV-08: tag only threads of this PR.
       const own = await tx
