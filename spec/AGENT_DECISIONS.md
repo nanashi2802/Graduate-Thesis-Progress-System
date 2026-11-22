@@ -337,3 +337,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** Reuse `transitionMilestone`. ERD §7.1 already holds the guard: every revision item accepted by the Adviser and each member, and the verified `CERTIFICATION` document with its linked commit (INV-34). It writes the `certification` gate row. `approveDataGathering` is one Adviser action after CERTIFIED, for the Proposal only, once (a `data_gathering` gate row and `data_gathering_approved_at`). Revision items and their acceptance screens are P2-E03 (FR-REV-13 has priority S). Without items, the Certification needs only the verified document. `documents.ts` (agent-b) must set `linked_commit_id` when it makes the `CERTIFICATION` record: the database refuses a record without it. I told agent-b.
 - **Risk:** low. Until P2-E03 a Coordinator cannot enter revision items, so a Proposal with revisions can be certified without tracking them. Phase 1 runs the Approved case.
 - **Undo:** revert the commits with AD-A-022.
+
+### AD-A-023 — The signed-paper items join the default templates (migration 0006)
+- **Task:** P1-E10-T01 (found by agent-b while fixing INV-34 in `documents.ts`, AD-B-022)
+- **Options:** a Coordinator adds the item in C8 (makes version 2); a data migration adds the item to version 1; a seed script
+- **Decision and reason:** A migration (`0006_default_signed_items.sql`). The `CERTIFICATION` item (Proposal) and the `SIGNED_FINAL_MANUSCRIPT` item (Final) are part of the process (FR-WFL-06, INV-34). A template without them blocks CERTIFIED and FINAL_APPROVED, so no Coordinator should have to add them first. Uploader: the Student. Not needed for the date confirmation. The migration adds the item to version 1 only where it is missing, and no milestone has used these items before. A later template version made in C8 must keep the item, so the C8 form must show it (agent-b screen C8).
+- **Risk:** low. A running milestone on version 1 gets the new item, which is the intended default.
+- **Undo:** revert the commits with AD-A-023. Delete the two rows by hand if a database already ran the migration.
