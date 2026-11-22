@@ -12,7 +12,7 @@
 #   AGENT_LIMIT_WAIT      seconds to wait after a usage-limit error before the next try (default 1800)
 #   AGENT_MAX_TRIES       runs for one job on one commit before the runner skips it (default 3). A new commit resets it.
 #   AGENT_BUILDER_MODEL / AGENT_BUILDER_EFFORT   default sonnet / medium
-#   AGENT_REVIEW_MODEL  / AGENT_REVIEW_EFFORT    default sonnet / medium
+#   AGENT_REVIEW_MODEL  / AGENT_REVIEW_EFFORT    default opus / high (the reviewer is the quality gate)
 set -uo pipefail
 root="$(git rev-parse --show-toplevel)"
 cd "$root"
@@ -23,7 +23,7 @@ TIMEOUT="${AGENT_TIMEOUT:-90m}"
 LIMIT_WAIT="${AGENT_LIMIT_WAIT:-1800}"
 MAX_TRIES="${AGENT_MAX_TRIES:-3}"
 BUILDER_MODEL="${AGENT_BUILDER_MODEL:-sonnet}"; BUILDER_EFFORT="${AGENT_BUILDER_EFFORT:-medium}"
-REVIEW_MODEL="${AGENT_REVIEW_MODEL:-sonnet}"; REVIEW_EFFORT="${AGENT_REVIEW_EFFORT:-medium}"
+REVIEW_MODEL="${AGENT_REVIEW_MODEL:-opus}"; REVIEW_EFFORT="${AGENT_REVIEW_EFFORT:-high}"
 
 logdir="$root/.claude/agent-runs"
 stopfile="$root/.claude/agents.stop"
