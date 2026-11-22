@@ -2,6 +2,7 @@
 // Server only. A meeting link goes only to the slot owner and to the Student of a confirmed booking (INV-28).
 import "server-only";
 import { and, asc, desc, eq, gt, inArray, lt, ne } from "drizzle-orm";
+import { committeeKindFor } from "@/server/domain/committee";
 import { AccessDeniedError, requireActive, type DataContext } from "./access";
 import { recordAudit } from "./audit";
 import { InputProblem } from "./coordinator";
@@ -383,7 +384,7 @@ export async function listLogEntries(ctx: DataContext, milestoneId: string) {
 
 // ---- Defense availability (FR-SCH-08) ----
 
-// The periods in which the Adviser and every accepted Panel Member of the committee are free. A booked
+// The periods in which every required evaluator is free. A booked
 // defense slot (status not available) is not free.
 export async function commonDefenseWindows(
   ctx: DataContext,
@@ -392,12 +393,28 @@ export async function commonDefenseWindows(
 ): Promise<Interval[]> {
   await requireThesisRead(ctx, thesisId);
   const [thesis] = await ctx.db.select().from(thesisInstance).where(eq(thesisInstance.id, thesisId));
+  // The defense of the newest milestone: Milestones 1 and 2 use the Evaluation Committee, Milestone 3 the
+  // Final Panel (FR-CMT-01). The Adviser completes no sheet at the Final, so is not required there (FR-DEF-06).
+  const [current] = await ctx.db
+    .select({ code: milestoneInstance.milestoneCode })
+    .from(milestoneInstance)
+    .where(eq(milestoneInstance.thesisInstanceId, thesisId))
+    .orderBy(desc(milestoneInstance.openedAt))
+    .limit(1);
+  const code = current?.code ?? "proposal";
   const seats = await ctx.db
     .select({ userId: committeeMember.memberUserId })
     .from(committeeMember)
     .innerJoin(committee, eq(committee.id, committeeMember.committeeId))
-    .where(and(eq(committee.thesisInstanceId, thesisId), ne(committeeMember.status, "declined")));
-  const required = [thesis!.adviserUserId, ...new Set(seats.map((s) => s.userId))];
+    .where(
+      and(
+        eq(committee.thesisInstanceId, thesisId),
+        eq(committee.kind, committeeKindFor(code) ?? "evaluation_committee"),
+        ne(committeeMember.status, "declined"),
+      ),
+    );
+  const members = [...new Set(seats.map((s) => s.userId))];
+  const required = code === "final" ? members : [thesis!.adviserUserId, ...members];
   const rows = await ctx.db
     .select({ owner: slot.ownerUserId, start: slot.startsAt, end: slot.endsAt })
     .from(slot)

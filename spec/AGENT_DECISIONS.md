@@ -291,6 +291,7 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Task:** P1-E08-T01 to T03
 - **Options:** store one slot with a recurrence rule and expand it on read; write one row for each week. One log entry for each milestone chosen by the Student; the newest milestone of the thesis
 - **Decision and reason:** One row for each week (up to 16 slots in one publish), with `recurrence_rule` = `weekly:N` as a label. A row per slot keeps booking and INV-28 simple: each slot has its own status. A slot lasts 8 hours at most, starts in the future, and cannot overlap another slot of the same owner. The log entry goes to the newest milestone of the thesis when the Adviser drafts it, because `consultation_log_entry` needs a milestone and the Adviser has no milestone picker (ERD §4.1). The TDW 03 scan upload stays in P1-E07 (`documents.ts`). A Panel Member does not read the consultation log.
+- **Correction (22 Nov 2026, after the agent-r review of #17):** the common free time (FR-SCH-08) now uses the committee of the newest milestone: the Evaluation Committee and the Adviser at Milestones 1 and 2, the Final Panel only at Milestone 3 (the Adviser completes no sheet at the Final, FR-DEF-06).
 - **Risk:** low. A consultation held between two milestones lands on the newer one, which is the milestone the Student works on.
 - **Undo:** revert the commits with AD-A-020.
 

@@ -231,6 +231,16 @@ describe("defense availability (FR-SCH-07, FR-SCH-08)", () => {
     expect(await commonDefenseWindows(as(t.student), t.thesis.id, NOW)).toEqual([{ start: at(10, 11), end: at(10, 12) }]);
     const stranger = await makeUser(db, "student");
     await expect(commonDefenseWindows(as(stranger), t.thesis.id, NOW)).rejects.toBeInstanceOf(AccessDeniedError);
+    // At the Final only the Final Panel is required, not the Adviser or the Evaluation Committee (FR-DEF-06).
+    const [preTpl] = await db.select().from(s.milestoneTemplate).where(eq(s.milestoneTemplate.code, "final"));
+    const [v] = await db.select().from(s.templateVersion).where(eq(s.templateVersion.milestoneTemplateId, preTpl!.id));
+    await db.insert(s.milestoneInstance).values({ thesisInstanceId: t.thesis.id, templateVersionId: v!.id, milestoneCode: "final", openedAt: at(1) });
+    const chair = await makeUser(db, "panel_member");
+    const [fp] = await db.insert(s.committee).values({ thesisInstanceId: t.thesis.id, kind: "final_panel" }).returning();
+    await db.insert(s.committeeMember).values({ committeeId: fp!.id, memberUserId: chair.id, designation: "panel_chair", status: "accepted" });
+    expect(await commonDefenseWindows(as(t.student), t.thesis.id, NOW)).toEqual([]);
+    await publishSlots(as(chair), win(9, 10), NOW);
+    expect(await commonDefenseWindows(as(t.student), t.thesis.id, NOW)).toEqual([{ start: at(10, 9), end: at(10, 10) }]);
     // A Student never sees a defense slot in the consultation list.
     expect(await listSlots(as(t.student), { slotType: "defense" }, NOW)).toEqual([]);
   });
