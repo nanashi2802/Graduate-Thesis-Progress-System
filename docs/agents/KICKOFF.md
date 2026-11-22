@@ -5,7 +5,7 @@
 ## Start
 
 1. Keep the computer on and plugged in. A shutdown or restart stops the agents.
-2. From the main checkout, run `scripts/agents.sh start`. It makes the worktrees if they are missing, then starts the three agents in bypass permission mode. The first start asks you once to accept the bypass notice.
+2. From the main checkout, run `scripts/agents.sh start`. It makes the worktrees if they are missing, then starts the three agents in bypass permission mode. Each agent runs in a self-paced `/loop`: it wakes itself every 5 minutes while it waits, so it does not stop. The first start asks you once to accept the bypass notice.
 
 ## While they run
 
@@ -16,7 +16,9 @@
 | Read an agent's output | `claude logs agent-a` |
 | Talk to an agent | `claude attach agent-a` (`/exit` detaches and does not stop it) |
 | Stop an agent | `claude stop agent-a` |
+| Models | Builders (`agent-a`, `agent-b`): Sonnet 5.5 at high effort. Reviewer (`agent-r`): Opus 5.5 at medium effort. `scripts/agents.sh` sets them. |
 | Restart after a reboot | `claude respawn` |
+| Restart one agent that stopped | `scripts/agents.sh start agent-b` |
 
 ## Release to `main`
 
