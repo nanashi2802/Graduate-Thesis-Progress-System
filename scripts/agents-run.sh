@@ -119,15 +119,24 @@ while [ ! -f "$stopfile" ]; do
   while read -r n sha; do
     [ -n "${n:-}" ] || continue
     if [ "$(check_bucket "$n" ci)" = pass ] && [ "$(check_bucket "$n" commit-policy)" = pass ] && [ "$(check_bucket "$n" agent-review)" = pass ]; then
-      if gh pr merge "$n" --merge >/dev/null 2>&1; then log "merged #$n"; worked=1; break; fi
+      if gh pr merge "$n" --merge >/dev/null 2>&1; then
+        log "merged #$n"; worked=1
+        # §13.8: a merge with migrations runs them on the Neon branch in .env.local. agent-r is idle here.
+        if gh pr diff "$n" --name-only 2>/dev/null | grep -q '^db/migrations/'; then
+          r=".claude/worktrees/agent-r"
+          if git -C "$r" checkout -q --detach --force origin/dev && (cd "$r" && pnpm db:migrate >/dev/null 2>&1); then log "migrated after #$n"; else log "MIGRATE FAILED after #$n"; fi
+        fi
+        break
+      fi
     fi
   done <<<"$prs"
   [ $worked -eq 1 ] && continue
 
   # 2. Review one pull request whose head commit has no agent-review status (§13.7).
+  # Only after ci passes: a red commit gets a fix run first, so no review is spent on it.
   while read -r n sha; do
     [ -n "${n:-}" ] || continue
-    if [ -z "$(review_state "$sha")" ]; then
+    if [ -z "$(review_state "$sha")" ] && [ "$(check_bucket "$n" ci)" = pass ]; then
       run_claude agent-r "review pull request #$n (head $sha)." "agent-r-review-${sha:0:12}"; rc=$?
       [ $rc -eq 2 ] && { nap "$LIMIT_WAIT"; continue 2; }
       [ $rc -eq 3 ] && continue
