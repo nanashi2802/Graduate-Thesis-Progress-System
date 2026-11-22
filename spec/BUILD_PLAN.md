@@ -579,6 +579,14 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [x] B2 stays off with no target date (G24).
 - **Tests:** unit (Vitest)
 
+### P2-E04-T02 — Digest grouping (pure)
+- **Goal:** Group C2 to C5 into one email for each recipient and commit, and B4 and B7 into one daily email. Hold the Student's Defense Day thread emails until the defense closes.
+- **Covers:** FR-NTF-04, INV-23, BR-20
+- **Changes:** `src/server/notify/digest.ts`, `tests/unit/notify-digest.test.ts`
+- **Done when:**
+  - [x] Tests cover both group kinds and the held Defense Day items.
+- **Tests:** unit (Vitest)
+
 ---
 
 ## 5. Phase 3 — Milestone 3 and clearance
