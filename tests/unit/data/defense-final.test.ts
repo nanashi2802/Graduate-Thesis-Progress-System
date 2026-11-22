@@ -1,4 +1,4 @@
-// P3-E01: a Final defense takes TDW 13 scored sheets from the Final Panel only, and the Coordinator verifies them (FR-DEF-05, FR-DEF-06, INV-14, INV-25, BR-15).
+// P3-E01: a Final defense takes TDW 13 scored sheets from the Final Panel only, and the Coordinator verifies them (FR-DEF-05, FR-DEF-06, BR-15).
 import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Actor, DataContext } from "@/server/data/access";
@@ -45,14 +45,14 @@ async function finalWorld() {
   return { ...t, chair, member, attempt: attempt!, scores: rubric.map((r) => ({ indicatorId: r.id, score: r.weightPct })) };
 }
 
-describe("TDW 13 sheet at Final (FR-DEF-05, FR-DEF-06, INV-25)", () => {
+describe("TDW 13 sheet at Final (FR-DEF-05, FR-DEF-06)", () => {
   it("takes scored sheets from the Panel Chair and a Panel Member, none from the Adviser, and the Coordinator verifies", async () => {
     const w = await finalWorld();
     expect(w.scores.length).toBeGreaterThan(0);
     const sheet = { actionTaken: "approved" as const, comments: [] };
     // The Adviser completes no sheet at the Final (FR-DEF-06).
     await expect(saveSheet(as(w.adviser), w.attempt.id, { ...sheet, scores: w.scores })).rejects.toThrow();
-    // A score above the indicator weight is refused (INV-25).
+    // A score above the indicator weight is refused (FR-DEF-05).
     await expect(saveSheet(as(w.member), w.attempt.id, { ...sheet, scores: [{ indicatorId: w.scores[0]!.indicatorId, score: 999 }] })).rejects.toThrow();
     const a = await saveSheet(as(w.chair), w.attempt.id, { ...sheet, scores: w.scores });
     const b = await saveSheet(as(w.member), w.attempt.id, { ...sheet, scores: w.scores });

@@ -1073,7 +1073,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 
 **Decisions:** AD-B-024. The Final Panel appointment (TDW 11) runs through the P1-E05 code with `kind = final_panel` (AD-B-017). TDW 12 runs through the generic document flow (`checklist.ts`).
 
-### P3-E01-T01 � TDW 13 sheets at the Final
+### P3-E01-T01 — TDW 13 sheets at the Final
 - **Goal:** The Final Panel (Panel Chair and Panel Members) completes scored TDW 13 sheets. The Adviser has none. The Coordinator verifies them.
 - **Covers:** FR-DEF-05, FR-DEF-06, INV-14, INV-25, BR-15
 - **Changes:** `tests/unit/data/defense-final.test.ts`
@@ -1106,7 +1106,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 
 **Decisions:** AD-A-029.
 
-### P3-E04-T01 � Checklist, verify and close to CLEARED
+### P3-E04-T01 — Checklist, verify and close to CLEARED
 - **Goal:** The checklist shows seven items. The Coordinator verifies three. The close to CLEARED needs all seven.
 - **Covers:** FR-CLR-01, FR-CLR-03, FR-CLR-04, BR-02, BR-21, INV-33
 - **Changes:** `src/server/data/schema/clearance.ts`, `db/migrations/0007_*`, `0008_*`, `src/server/data/clearance.ts`, `milestone-facts.ts`, `scope.ts`, `tests/unit/data/clearance.test.ts`
