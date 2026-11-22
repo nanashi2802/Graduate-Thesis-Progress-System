@@ -214,19 +214,16 @@ export async function linkNda(ctx: DataContext, input: { seatId: string; documen
   });
 }
 
-/**
- * Mark the committee and its active seats Appointed (FR-CMT-04). The seats must pass
- * `checkAppointment`, and the form and each NDA must be linked (AD-B-018). Manuscript
- * access still needs both records verified (`memberAccess`, BR-08). The milestone status
- * change to COMMITTEE_APPOINTED belongs to the P1-E04 wiring.
- */
-export async function markAppointed(ctx: DataContext, input: { committeeId: string }): Promise<BoardResult<null>> {
-  requireCoordinator(ctx);
-  const loaded = await loadCommittee(ctx, input.committeeId);
-  if (!loaded) return refuse("not_found");
-  const { committee: c, milestone: m } = loaded;
-  if (c.appointedAt) return refuse("already_appointed");
-  if (m.status !== "ADVISER_ENDORSED") return refuse("before_gate_1a");
+type LoadedCommittee = NonNullable<Awaited<ReturnType<typeof loadCommittee>>>;
+
+/** Why the committee cannot be marked Appointed now, or null (BR-18). One check for the action and the screen. */
+async function appointmentProblem(
+  ctx: DataContext,
+  { committee: c, milestone: m }: LoadedCommittee,
+): Promise<{ code: BoardBlockCode; reason: string } | null> {
+  const blocked = (code: BoardBlockCode, reason?: string) => ({ code, reason: reason ?? MESSAGES[code] ?? "This action is not allowed." });
+  if (c.appointedAt) return blocked("already_appointed");
+  if (m.status !== "ADVISER_ENDORSED") return blocked("before_gate_1a");
   const seats = await seatsOf(ctx, c.id);
   const sizes: PanelSizes = {
     masters: { proposal: m.panelSizeMasters, final: m.panelSizeMasters },
@@ -240,10 +237,26 @@ export async function markAppointed(ctx: DataContext, input: { committeeId: stri
     adviserUserId: m.adviserUserId,
     seats: seats.map((x) => ({ memberUserId: x.memberUserId, designation: x.designation, status: x.status })),
   });
-  if (!rule.ok) return refuse(rule.code, rule.reason);
-  if (!c.appointmentDocumentId) return refuse("appointment_not_linked");
-  const active = seats.filter((x) => x.status !== "declined");
-  if (active.some((x) => !x.ndaDocumentId)) return refuse("nda_not_linked");
+  if (!rule.ok) return blocked(rule.code, rule.reason);
+  if (!c.appointmentDocumentId) return blocked("appointment_not_linked");
+  if (seats.some((x) => x.status !== "declined" && !x.ndaDocumentId)) return blocked("nda_not_linked");
+  return null;
+}
+
+/**
+ * Mark the committee and its active seats Appointed (FR-CMT-04). The seats must pass
+ * `checkAppointment`, and the form and each NDA must be linked (AD-B-018). Manuscript
+ * access still needs both records verified (`memberAccess`, BR-08). The milestone status
+ * change to COMMITTEE_APPOINTED belongs to the P1-E04 wiring.
+ */
+export async function markAppointed(ctx: DataContext, input: { committeeId: string }): Promise<BoardResult<null>> {
+  requireCoordinator(ctx);
+  const loaded = await loadCommittee(ctx, input.committeeId);
+  if (!loaded) return refuse("not_found");
+  const { committee: c } = loaded;
+  const problem = await appointmentProblem(ctx, loaded);
+  if (problem) return refuse(problem.code, problem.reason);
+  const active = (await seatsOf(ctx, c.id)).filter((x) => x.status !== "declined");
 
   return ctx.db.transaction(async (tx) => {
     const now = new Date();
@@ -276,8 +289,11 @@ export type AppointmentBoard = {
   committees: {
     id: string;
     kind: CommitteeKind;
+    milestoneId: string;
     appointmentFormLinked: boolean;
     appointed: boolean;
+    /** Why "Mark Appointed" is blocked now (BR-18). Null when it is open. */
+    appointBlockedReason: string | null;
     seats: BoardSeat[];
   }[];
   /** Every active Panel Member, with workload and availability (FR-CMT-02). The Adviser pool is separate (SITEMAP C3). */
@@ -318,12 +334,21 @@ export async function appointmentBoard(ctx: DataContext, thesisId: string): Prom
   const loadBy = new Map(load.map((r) => [r.userId, Number(r.n)]));
   const freeBy = new Map(free.map((r) => [r.userId, Number(r.n)]));
 
+  const blockedBy = new Map<string, { milestoneId: string; reason: string | null }>();
+  for (const c of committees) {
+    const loaded = await loadCommittee(ctx, c.id);
+    const problem = loaded ? await appointmentProblem(ctx, loaded) : null;
+    blockedBy.set(c.id, { milestoneId: loaded?.milestone.milestoneId ?? "", reason: problem?.reason ?? null });
+  }
+
   return {
     committees: committees.map((c) => ({
       id: c.id,
       kind: c.kind,
+      milestoneId: blockedBy.get(c.id)!.milestoneId,
       appointmentFormLinked: c.appointmentDocumentId !== null,
       appointed: c.appointedAt !== null,
+      appointBlockedReason: blockedBy.get(c.id)!.reason,
       seats: seats
         .filter((r) => r.seat.committeeId === c.id)
         .map(({ seat, fullName }) => ({

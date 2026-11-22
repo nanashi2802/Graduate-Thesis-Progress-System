@@ -507,8 +507,11 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 ### P1-E05-T04 — C3 appointment board screen
 - **Goal:** `/coordinator/committees` shows the board and calls the T02 actions. Each disabled action shows its reason.
 - **Covers:** FR-CMT-01 to FR-CMT-04, BR-18
+- **Changes:** `src/app/coordinator/committees/` (`page.tsx`, `actions.ts`, `committee-forms.tsx`), `src/server/data/committees.ts` (`appointBlockedReason` on the board, one `appointmentProblem` check for the action and the screen)
 - **Depends on:** T02, P1-E07-T02 (scan upload)
-- **Done when:** `[ ]` An end-to-end step proposes two seats, records the answers and marks the committee Appointed.
+- **Done when:**
+  - [x] Each disabled action shows its reason (BR-18). The reason of "Mark Appointed" comes from the same check as the action.
+  - [ ] An end-to-end step proposes two seats, records the answers and marks the committee Appointed. It waits for the Playwright setup (P1-E13).
 
 ### 3.4 P1-E07 Documents and compliance (Track B, `agent-b`)
 

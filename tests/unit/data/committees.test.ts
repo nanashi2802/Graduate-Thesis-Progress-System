@@ -193,6 +193,14 @@ describe("appointmentBoard (FR-CMT-02)", () => {
     expect(board.pool.some((p) => p.userId === seed.adviser.id)).toBe(false);
   });
 
+  it("gives the reason why Appointed is blocked, from the same check as the action (BR-18)", async () => {
+    const { committeeId } = await fullCommittee();
+    const before = (await appointmentBoard(ctx(), seed.thesis.id)).committees[0]!;
+    expect(before.appointBlockedReason).toBe("Upload the appointment form first.");
+    expect(before.milestoneId).toBe(seed.milestone.id);
+    expect(await markAppointed(ctx(), { committeeId })).toMatchObject({ ok: false, reason: before.appointBlockedReason });
+  });
+
   it("is for the Coordinator only (NFR-01)", async () => {
     await expect(appointmentBoard({ db, actor: actorOf(seed.adviser) }, seed.thesis.id)).rejects.toThrow(AccessDeniedError);
   });
