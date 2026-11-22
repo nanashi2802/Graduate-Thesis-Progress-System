@@ -2,6 +2,7 @@
 
 **Compliance standard:** Simplified Technical English (ASD-STE100) at about 80%
 **Version:** 1.0 draft · 22 Nov 2026 · Change log: 22 Nov 2026, added §2.1 Phase 0 progress. 22 Nov 2026, owner approved fixes to P0-E02 to P0-E06 (D-23 sign-in, write-once and CORS checks, `sin1` region, Vercel env, cron timing, scan sizes), the Phase 0 dependencies, the §1 hook gate and the §7 `src/app/` layout. 22 Nov 2026, expanded P0-E01 into tasks (§2.2) and marked it done. pnpm chosen by the owner. §7 confirms the folders that P0-E01 made. 22 Nov 2026, the owner added §8 (two-agent tracks, `AGENTS.md` §13) and accepted two changes: the audit insert moves from P1-E12 to P1-E02, and the pure state machines of P1-E04 start early in Track B. The commit hook is on.
+**Gap closure (23 Nov 2026, owner):** both tracks reported phase-complete with P2-E04 not built. The owner added P2-E04-T03 to T10, P3-E07 and the §8 gap closure track. A track is done only after P3-E07-T03 passes.
 **Derived from:** `PRD.md` §8 (release phases, approved as D-22), `ERD.md`, `DFD.md`, `SITEMAP.md`, `USERFLOW.md`, Functional Requirements v1.1
 **Rule for this file:** This plan orders the work. It adds no requirement. The FR, BR, NFR and INV IDs it cites are the scope. If this plan and a spec file disagree, the spec file wins. Correct this plan.
 
@@ -51,6 +52,7 @@ This plan is a skeleton. It has three levels. Expand one level at a time, only f
 - [ ] Type check, lint and tests pass (commands in `AGENTS.md` §12, after P0-E01).
 - [ ] The server data layer checks access for every new read and write (NFR-01).
 - [ ] Every disabled action shows its reason (BR-18).
+- [ ] Each changed route renders in `pnpm dev` with no error in the Next.js dev overlay. Check it once on a page load and once on a client navigation from a sibling route.
 - [ ] UI text and docs follow ASD-STE100 at about 80% (`AGENTS.md` §5). Terms follow `AGENTS.md` §8.
 - [ ] Times show in Philippine Standard Time (NFR-11).
 - [ ] No secret, real student data or real manuscript is in the repository (`AGENTS.md` §11).
@@ -70,6 +72,8 @@ This plan is a skeleton. It has three levels. Expand one level at a time, only f
 | P1 | P0 spike report accepted (P0-E06) | Owner |
 | P2 | Official form layouts in hand for the form pack (AS-08) | Owner |
 | Pilot | Success targets (PRD §9, Q3). Retention period (Q8). | Owner, PUP Data Protection Officer |
+| Pilot | A sender domain is verified in Resend. Without it, Resend sends only to the owner's address (FR-NTF-08). | Owner |
+| Pilot | Production checklist: Vercel production env vars and `CRON_SECRET`, Google OAuth for the production domain, a Neon branch for the pilot with no demo data, `pnpm db:migrate` on it, and the first real Coordinator made in the Neon console (AD-A-006). | Owner |
 
 ---
 
@@ -829,7 +833,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/data/milestones.ts`, `tests/unit/data/milestones.test.ts`
 - **Done when:**
   - [x] A member with an open thread, a second endorsement and a user with no seat are refused.
-  - [ ] Gate 2 and the close to CLEARED run end-to-end (P3-E03, P3-E04 give the data).
+  - [x] Gate 2 and the close to CLEARED run end-to-end (P3-E03, P3-E04 give the data). Covered by `tests/unit/flow/milestone3.test.ts` (P3-E06-T01).
 - **Tests:** unit (Vitest with PGlite)
 
 ### 3.11 P1-E06 Manuscript workspace and threads (Track A, `agent-a`, §8 Phase 1 step 5)
@@ -992,6 +996,100 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [x] Tests cover both group kinds and the held Defense Day items.
 - **Tests:** unit (Vitest)
 
+### 4.1a P2-E04 rest (gap closure, 23 Nov 2026)
+
+**Context:** `notifyEvent` writes the `notification` rows and sends immediate emails (AD-B-020). Reminders and digests are pure code only (T01, T02). Only B3 is emitted. The daily job sends only the Phase 0 test email. Event texts stay in code (AD-B-014), so this epic adds no `email_template` table. FR-NTF-10 (template editing) stays in Phase 4.
+
+### P2-E04-T03 — Email log and preference tables (Track A, `agent-a`)
+- **Goal:** Add `email_log` and `notification_preference` from `ERD.md` §4.1.
+- **Covers:** FR-NTF-05, FR-NTF-07, INV-29, INV-30, BR-19, NFR-05
+- **Reads:** `ERD.md` §4.1 (`email_log`, `notification_preference`), §5 (append-only list), INV-29, INV-30
+- **Changes:** `src/server/data/schema/`, `db/migrations/0010_*`, `tests/unit/schema/`
+- **Depends on:** none
+- **Done when:**
+  - [ ] `email_log` accepts INSERT and SELECT only, like the other append-only tables (trigger test). `email_template_version` is nullable: texts live in code (AD-B-014).
+  - [ ] `notification_preference` refuses an event code outside A4, B1, B2, B4, B6, B7, C2 to C5 (DB check, test).
+  - [ ] `pnpm db:migrate` runs on the `agent-a` Neon branch (§13.8).
+- **Tests:** unit (Vitest with PGlite)
+
+### P2-E04-T04 — Log each email send (Track B, `agent-b`)
+- **Goal:** `notifyEvent` writes one `email_log` row for each email it tries: sent or failed, with the error.
+- **Covers:** FR-NTF-07, INV-30, NFR-05
+- **Reads:** `src/server/data/notifications.ts`, AD-B-020
+- **Changes:** `src/server/data/notifications.ts`, `tests/unit/data/notifications.test.ts`
+- **Depends on:** P2-E04-T03
+- **Done when:**
+  - [ ] A failed send writes a `failed` row with the error. The `notification` row stays (INV-30). This closes the open box of P1-E12-T02.
+  - [ ] A turned-off optional event writes no email and no log row (FR-NTF-05).
+- **Tests:** unit (Vitest with PGlite, fake email port)
+
+### P2-E04-T05 — Residency end date and warning (Track B, `agent-b`)
+- **Goal:** Calculate the residency end date and show a warning near it. Never block an action.
+- **Covers:** FR-WFL-12, BR-17, R7 (values unverified: warning only)
+- **Reads:** `ERD.md` residency row (start term + 5 years Master's, + 7 years Doctoral), `PRD.md` R7
+- **Changes:** `src/server/domain/residency.ts`, `src/server/data/tracker.ts`, the S1 and C1 screens, `tests/unit/domain/residency.test.ts`
+- **Depends on:** none
+- **Done when:**
+  - [ ] Tests cover both degree levels and a bad start term (no date, no warning).
+  - [ ] S1 and C1 show the end date and a warning inside 90 days. No action is disabled by it (BR-17). This closes the residency boxes of P1-E11-T02 and T04.
+- **Tests:** unit (Vitest)
+
+### P2-E04-T06 — Daily job: reminders and digests (Track B, `agent-b`)
+- **Goal:** The daily job sends the reminders (A4, B1, B2, B6) and the digests (B4, B7, C2 to C5) from T01 and T02.
+- **Covers:** FR-NTF-04, FR-NTF-05, FR-NTF-06, FR-NTF-07, INV-23, BR-20, NFR-11
+- **Reads:** `src/server/notify/daily.ts`, `reminders.ts`, `digest.ts`, DFD T6
+- **Changes:** `src/server/notify/daily.ts`, a data function for the job, tests
+- **Depends on:** P2-E04-T04, P2-E04-T05
+- **Done when:**
+  - [ ] Reminders go out on their day only. A second run on the same day sends nothing new (check `email_log`).
+  - [ ] Digests group the digest `notification` rows that have no `email_log` row yet. Student Defense Day thread items wait until the defense closes (BR-20).
+  - [ ] A user with an optional event turned off gets no email for it. The in-app row still exists.
+  - [ ] The Phase 0 test email (AD-B-004) still works through `NOTIFY_TEST_TO`.
+- **Tests:** unit (Vitest with PGlite, fake email port, fixed clock)
+
+### P2-E04-T07 — Emit events from the Track A data functions (Track A, `agent-a`)
+- **Goal:** Each event of FR §4.10 that a Track A data function causes calls `emitSafely` after it commits.
+- **Covers:** FR-NTF-01, FR-NTF-02, FR-NTF-08, INV-28, INV-30
+- **Reads:** `src/server/notify/events.ts`, `src/server/data/recipients.ts`, B3 in `documents.ts` (the pattern)
+- **Changes:** `defense.ts` (A1, A2, A3, A5, A6), `manuscript.ts` (C1, B7, C2, C3, C4, E2), `milestones.ts` (C6), `revisions.ts` (B4), `clearance.ts` (B5), `consultations.ts` (F1, F2), their tests
+- **Depends on:** none (the emit helper exists)
+- **Done when:**
+  - [ ] Each listed event has a test: the right recipients get a `notification` row, and the actor gets none.
+  - [ ] No email holds a meeting link, a score, a verdict or comment text (FR-NTF-03, INV-28).
+  - [ ] Each event commits even when the email port throws (INV-30). This closes the wiring box of P1-E12-T04 for these events.
+- **Tests:** unit (Vitest with PGlite)
+
+### P2-E04-T08 — Emit events from the Track B data functions (Track B, `agent-b`)
+- **Goal:** Same as T07, for `committees.ts` (E3) and the document comment event (C5).
+- **Covers:** FR-NTF-01, FR-NTF-02, FR-NTF-04
+- **Changes:** `src/server/data/committees.ts`, `src/server/data/documents.ts`, their tests
+- **Depends on:** none
+- **Done when:**
+  - [ ] E3 and C5 have tests like T07. If no document comment feature exists, log an AD that C5 has no source yet.
+- **Tests:** unit (Vitest with PGlite)
+
+### P2-E04-T09 — Account setup and password reset email (Track A, `agent-a`)
+- **Goal:** A new user gets an E1 email with a link to set a password. A user can ask for a password reset at `/login`.
+- **Covers:** FR-ACC-08, FR-NTF-02, FR-NTF-03, FR-NTF-08
+- **Reads:** the Neon Auth reset-password API, `src/server/data/students.ts`, `src/server/auth/`
+- **Changes:** `src/server/data/students.ts`, the user-create path (C9), `src/app/(auth)/login/`, tests
+- **Depends on:** none
+- **Done when:**
+  - [ ] First, check whether Neon Auth sends the reset email itself or returns a token for the app to send. Log the choice as an AD.
+  - [ ] Creating a user emits E1. The email holds the link only, never a password (FR-NTF-03).
+  - [ ] `/login` has a "Forgot password" action. It shows the same message for a known and an unknown address.
+- **Tests:** unit (Vitest), manual check of one reset on a development branch
+
+### P2-E04-T10 — Notification preferences panel (Track B, `agent-b`)
+- **Goal:** The user menu opens a panel that turns the optional events on and off.
+- **Covers:** FR-NTF-05, FR-NTF-09, INV-29, BR-18
+- **Changes:** `src/components/app-shell.tsx` (the menu), a preferences data function, tests
+- **Depends on:** P2-E04-T03
+- **Done when:**
+  - [ ] Only A4, B1, B2, B4, B6, B7 and C2 to C5 have a switch. Other events show "Always on" with the reason (BR-18).
+  - [ ] The data function refuses a code outside INV-29 and a write for another user (NFR-01).
+- **Tests:** unit (Vitest with PGlite), component test
+
 ### 4.2 P2-E02 TDW 09 and TDW 10, with the shared sheet rules for TDW 08, 10 and 13 (Track B, `agent-b`)
 
 **Decisions:** AD-B-016. T01 is pure code and look-ahead. P1-E09 (`agent-a`) and P3-E01 use it too.
@@ -1068,6 +1166,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 | P3-E04 | Clearance checklist and close | FR-CLR-01 to 04, BR-21 |
 | P3-E05 | Shared submission view and dossier export | FR-SUB-01 to 05, FR-DOC-10 |
 | P3-E06 | Milestone 3 end-to-end test | Exit test |
+| P3-E07 | Close-out: home route, browser runs, FR coverage check | FR-ACC-02, exit check |
 
 ### 5.0 P3-E01 Final Panel and TDW 13 (Track B, `agent-b`)
 
@@ -1164,6 +1263,39 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
   - [ ] The same flow runs in a browser (blocked, AD-A-025).
 - **Tests:** unit (Vitest with PGlite)
 
+### 5.4 P3-E07 Close-out (gap closure, 23 Nov 2026)
+
+### P3-E07-T01 — Home route (Track B, `agent-b`)
+- **Goal:** `/` sends a signed-in user to their portal and everyone else to `/login`. It replaces the Phase 0 placeholder.
+- **Covers:** FR-ACC-02
+- **Changes:** `src/app/page.tsx`
+- **Depends on:** none
+- **Done when:**
+  - [ ] Each role lands on its dashboard (`PORTAL` in `src/server/auth/session.ts`). A user with no account sees the reason.
+- **Tests:** end-to-end (Playwright) or a component test
+
+### P3-E07-T02 — Browser runs of the flow tests (Track A, `agent-a`)
+- **Goal:** Run `pnpm test:e2e` with the seeded sign-in and close the boxes that wait for AD-A-025.
+- **Covers:** P1-E13, P2-E05, P3-E06 exit tests, NFR-01
+- **Reads:** `tests/e2e/`, `scripts/seed-dev.mjs`, `tests/demo/seed-demo.test.ts`
+- **Changes:** `tests/e2e/`
+- **Depends on:** `DEV_SEED_PASSWORD` in the worktree `.env.local` (the owner sets it)
+- **Done when:**
+  - [ ] `pnpm test:e2e` passes locally. The tests do not expect an empty Student: the demo seed links `student@example.test` to a thesis.
+  - [ ] The blocked browser boxes in P1-E11-T04, P1-E13-T02, P2-E02-T02, P2-E05-T01 and P3-E06-T01 are checked or have a new reason.
+- **Tests:** end-to-end (Playwright)
+
+### P3-E07-T03 — FR coverage check (Track A, `agent-a`, last task)
+- **Goal:** Prove that no Must or Should FR of Phases 0 to 3 is unplanned before a track reports `phase-complete`.
+- **Covers:** the exit check of Phase 3, `AGENTS.md` §13.5
+- **Changes:** `spec/AGENT_DECISIONS.md` (the phase summary)
+- **Depends on:** every other task in the §8 gap closure track
+- **Done when:**
+  - [ ] This command lists each FR ID that no commit, source file or test cites:
+    `f=docs/PUP_CpE_Thesis_Progress_System_Functional_Requirements_v1.1.md; comm -23 <(grep -oE '\bFR-[A-Z]+-[0-9]+\b' $f | sort -u) <( (git log --format=%B origin/dev; grep -rhoE 'FR-[A-Z]+-[0-9]+' src tests) | grep -oE '\bFR-[A-Z]+-[0-9]+\b' | sort -u)`
+  - [ ] Each listed Must or Should FR is built, or it is Phase 4 (§6), deferred (`AGENTS.md` §9) or a role alias row (FR-ADM, FR-ADV, FR-PAN, FR-STU, FR-SYS). The phase summary lists each one with its reason.
+- **Tests:** the command above
+
 ---
 
 ## 6. Phase 4 — Enhancements (chosen by value)
@@ -1239,5 +1371,17 @@ Each agent does its track from top to bottom. "Waits for" names work from the ot
 | Track A | Track B |
 | :---- | :---- |
 | P3-E02 Defense Day threads, then P3-E03 Gate 2, then P3-E04 clearance, then P3-E06 end-to-end test (lead) | P3-E01 Final Panel and TDW 12, TDW 13, then P3-E05 submission view and dossier, then help with P3-E06 |
+
+### Gap closure (after P3-E06)
+
+| Step | Track A | Track B |
+| :---- | :---- | :---- |
+| 1 | P2-E04-T03 email tables | P2-E04-T05 residency |
+| 2 | P2-E04-T07 emit events (Track A files) | P2-E04-T04 email log. Waits for: A step 1. |
+| 3 | P2-E04-T09 account setup and reset email | P2-E04-T06 daily job |
+| 4 | P3-E07-T02 browser runs | P2-E04-T08 emit events (Track B files), then P2-E04-T10 preferences. T10 waits for: A step 1. |
+| 5 | P3-E07-T03 FR coverage check (last). Waits for: every step above. | P3-E07-T01 home route |
+
+A track reports `phase-complete` only when its gap closure steps are done or blocked, and P3-E07-T03 has passed.
 
 Phase 4 is not in a track. The human picks it (§6).
