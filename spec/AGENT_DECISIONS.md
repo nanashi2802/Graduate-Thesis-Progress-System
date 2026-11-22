@@ -158,3 +158,24 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** `renderToStaticMarkup`. The shared parts are mostly markup: labels, tones, `aria-disabled`, `aria-describedby`. Static HTML checks these with no new dependency (AGENTS.md §10) and no change to `package.json`, which `agent-a` owns. Click behavior comes from Base UI `focusableWhenDisabled`, and the P1-E13 end-to-end tests cover it.
 - **Risk:** low. Interaction tests come later with Playwright.
 - **Undo:** Add the test library in a later task. The static tests stay valid.
+
+### AD-B-011 — The Coordinator records a seat's Accepted or Declined status
+- **Task:** P1-E05-T01
+- **Options:** the Panel Member accepts or declines in the system; the Coordinator records the member's answer
+- **Decision and reason:** The Coordinator. FR-CMT-03 lists only screen C3 (Coordinator). The Dean assigns on paper (FR-CMT-04), so the answer comes to the office, not to the system. The pure check `checkSeatStatus` takes the actor role, so a later change is one line.
+- **Risk:** low. If the owner wants members to answer in the system, add `panel_member` (own seat only) to the check and a P1 screen action.
+- **Undo:** Change `checkSeatStatus` in `src/server/domain/committee.ts`.
+
+### AD-B-012 — Document states follow ERD §7.2 strictly, with three actors
+- **Task:** P1-E07-T01
+- **Options:** allow `not_started` to `scan_uploaded` for documents with no prefill (for example the OR); keep the ERD path, where each document passes `prepared`
+- **Decision and reason:** Keep the ERD path. The data layer sets `prepared` (actor `system`) when it opens a deliverable that has no prefilled form. The actors are `system` (prefill, lock on upload), `uploader` (the Student, or the Coordinator for TDW 05, 06 and 11, FR-CMT-04) and `coordinator` (received, verified, mismatch, Return). A strict path is easier to loosen later than to tighten.
+- **Risk:** low. The data layer must write the `prepared` step for the OR and other blank uploads. P1-E07 wiring must do this.
+- **Undo:** Add a `not_started` to `scan_uploaded` row in `src/server/domain/documents.ts`.
+
+### AD-B-013 — What "done" means for each checklist item (FR-DOC-08)
+- **Task:** P1-E07-T03
+- **Options:** every item must be `verified`; scans count once locked, and only the appointment form, the NDAs and the OR must be `verified`
+- **Decision and reason:** The second option. FR-DOC-08 says "TDW 07 scan" and "OR verified", so it treats the scan and the OR differently. The appointment form and the NDAs must be verified because BR-08 opens the manuscript only after they are recorded. A scan in `mismatch` still counts, because BR-12 says a mismatch never stops a defense. TDW 03 counts once locked.
+- **Risk:** medium. The owner may want TDW 03 or the defense-form scan verified before the date is confirmed. Then the date waits for the Coordinator's paper check.
+- **Undo:** Change `submitted(...)` to `verified(...)` for that item in `src/server/domain/checklist.ts`.
