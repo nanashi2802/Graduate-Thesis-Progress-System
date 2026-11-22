@@ -73,7 +73,16 @@ export default async function Page() {
                         </span>
                       )}
                     </td>
-                    <td className={td}>{a.actionRequired ?? "None"}</td>
+                    <td className={td}>
+                      {a.actionRequired ?? "None"}
+                      {a.actionRequired && a.attemptId && /sheet|verdict/.test(a.actionRequired) ? (
+                        <div>
+                          <Link className={linkClass} href={`/panel/defense/${a.attemptId}`}>
+                            Open the Defense Day page<span className="sr-only"> of {a.studentName}</span>
+                          </Link>
+                        </div>
+                      ) : null}
+                    </td>
                     <td className={td}>
                       {a.defense ? (
                         <>

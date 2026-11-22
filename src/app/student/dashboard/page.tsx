@@ -129,6 +129,9 @@ export default async function Page() {
             <dt className="text-muted-foreground">Printed copies due</dt>
             <dd>{t.defense.printedCopiesDue}</dd>
           </dl>
+          <Link className="text-sm font-medium text-primary underline-offset-4 hover:underline" href={`/student/defense/${t.defense.attemptId}`}>
+            Open the defense results page
+          </Link>
         </Section>
       ) : null}
 

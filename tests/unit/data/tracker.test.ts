@@ -45,15 +45,18 @@ describe("studentTracker", () => {
 
   it("shows the defense card with the printed copies due date after the date is confirmed (BR-09)", async () => {
     await db.update(s.milestoneInstance).set({ status: "DEFENSE_SCHEDULED" }).where(eq(s.milestoneInstance.id, seed.milestone.id));
-    await db.insert(s.defenseAttempt).values({
-      milestoneInstanceId: seed.milestone.id,
-      attemptNo: 1,
-      status: "scheduled",
-      scheduledStartAt: new Date("2026-12-15T01:00:00Z"), // 09:00 PST
-      roomOrLink: "Room 301",
-    });
+    const [att] = await db
+      .insert(s.defenseAttempt)
+      .values({
+        milestoneInstanceId: seed.milestone.id,
+        attemptNo: 1,
+        status: "scheduled",
+        scheduledStartAt: new Date("2026-12-15T01:00:00Z"), // 09:00 PST
+        roomOrLink: "Room 301",
+      })
+      .returning();
     const t = (await studentTracker(asStudent()))!;
-    expect(t.defense).toEqual({ date: "2026-12-15", roomOrLink: "Room 301", printedCopiesDue: "2026-12-08" });
+    expect(t.defense).toEqual({ attemptId: att!.id, date: "2026-12-15", roomOrLink: "Room 301", printedCopiesDue: "2026-12-08" });
     expect(t.keyDates.printedCopiesDue).toBe("2026-12-08");
     expect(t.next.text).toContain("2026-12-15");
   });

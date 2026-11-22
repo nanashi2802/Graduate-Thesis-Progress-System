@@ -103,6 +103,7 @@ export default async function Page() {
                   <th className={th}>Milestone</th>
                   <th className={th}>Status</th>
                   <th className={th}>Target date</th>
+                  <th className={th}>Open</th>
                 </tr>
               </thead>
               <tbody>
@@ -116,6 +117,22 @@ export default async function Page() {
                     <td className={td}>
                       {a.targetDate ?? "Not set"}
                       {a.pacingFlag ? <span className="ml-2 text-xs font-medium text-muted-foreground">Past the target date</span> : null}
+                    </td>
+                    <td className={td}>
+                      <div className="flex flex-col gap-1">
+                        {a.prId ? (
+                          <Link className={linkClass} href={`/adviser/pr/${a.prId}`}>
+                            Review<span className="sr-only"> {a.studentName}</span>
+                          </Link>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">No commit yet</span>
+                        )}
+                        {a.attemptId ? (
+                          <Link className={linkClass} href={`/adviser/defense/${a.attemptId}`}>
+                            Defense Day<span className="sr-only"> of {a.studentName}</span>
+                          </Link>
+                        ) : null}
+                      </div>
                     </td>
                   </tr>
                 ))}

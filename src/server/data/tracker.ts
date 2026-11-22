@@ -37,7 +37,7 @@ export type StudentTracker = {
   checklist: ChecklistItem[];
   outside: OutsideStatuses;
   /** After the Coordinator confirms the date (FR-DEF-03). */
-  defense: { date: PstDate; roomOrLink: string | null; printedCopiesDue: PstDate } | null;
+  defense: { attemptId: string; date: PstDate; roomOrLink: string | null; printedCopiesDue: PstDate } | null;
   keyDates: { earliestDefenseDate: PstDate | null; printedCopiesDue: PstDate | null; targetDate: PstDate | null };
 };
 
@@ -136,7 +136,7 @@ export async function studentTracker(ctx: DataContext, now: Date = new Date()): 
     }),
     checklist,
     outside,
-    defense: defenseDate && printedCopiesDue ? { date: defenseDate, roomOrLink: scheduled!.roomOrLink, printedCopiesDue } : null,
+    defense: defenseDate && printedCopiesDue ? { attemptId: scheduled!.id, date: defenseDate, roomOrLink: scheduled!.roomOrLink, printedCopiesDue } : null,
     keyDates: {
       earliestDefenseDate: facts.gate1bCompletedOn ? addDays(facts.gate1bCompletedOn, facts.minNoticeDays) : null,
       printedCopiesDue,

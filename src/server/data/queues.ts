@@ -2,7 +2,7 @@
 // FR-TRK-02, FR-TRK-03, FR-TRK-06, NFR-01, NFR-04, BR-08, BR-17, BR-18. Server only.
 // Each role reads its own rows only (ERD §8). A pacing flag is information only (BR-17).
 import "server-only";
-import { and, asc, eq, gt, inArray, ne } from "drizzle-orm";
+import { and, asc, desc, eq, gt, inArray, ne } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import type { Designation, MilestoneCode, MilestoneStatus, PstDate } from "@/server/domain/milestone";
 import { pstDate } from "@/server/notify/time";
@@ -63,6 +63,10 @@ export type AdviserQueueItem = {
 export type AdviseeRow = {
   thesisId: string;
   studentName: string;
+  /** The submission PR of the current milestone, for the Review link. */
+  prId: string | null;
+  /** The scheduled or held defense of the current milestone, for the Defense Day link (A5). */
+  attemptId: string | null;
   milestone: MilestoneCode;
   status: MilestoneStatus;
   targetDate: PstDate | null;
@@ -152,11 +156,21 @@ export async function adviserDashboard(ctx: DataContext, now: Date = new Date())
   const today = pstDate(now);
   const latest = new Map<string, (typeof rows)[number]>();
   for (const r of rows) latest.set(r.thesisId, r);
+  const open = ids.length
+    ? await ctx.db
+        .select({ id: defenseAttempt.id, milestoneId: defenseAttempt.milestoneInstanceId })
+        .from(defenseAttempt)
+        .where(and(inArray(defenseAttempt.milestoneInstanceId, ids), inArray(defenseAttempt.status, ["scheduled", "held"])))
+        .orderBy(desc(defenseAttempt.attemptNo))
+    : [];
+  const attemptOf = (milestoneId: string) => open.find((a) => a.milestoneId === milestoneId)?.id ?? null;
   return {
     queue,
     advisees: [...latest.values()].map((r) => ({
       thesisId: r.thesisId,
       studentName: r.studentName,
+      prId: r.prId,
+      attemptId: attemptOf(r.milestoneId),
       milestone: r.code,
       status: r.status,
       targetDate: r.targetDate,
@@ -176,6 +190,8 @@ export type Assignment = {
   status: MilestoneStatus;
   designation: Designation;
   isSubstitute: boolean;
+  /** The scheduled or held defense, for the Defense Day link (P4). Null before the date is confirmed. */
+  attemptId: string | null;
   /** BR-08: the manuscript opens after the verified form and the member's verified NDA. */
   access: { open: true } | { open: false; reason: string };
   /** One sentence, or null when nothing is due. */
@@ -269,6 +285,7 @@ export async function panelDashboard(ctx: DataContext, now: Date = new Date()): 
       status: m.status,
       designation: seat?.designation ?? "none",
       isSubstitute,
+      attemptId: attempt?.id ?? null,
       access: access.ok ? { open: true } : { open: false, reason: access.reason },
       actionRequired,
       defense: startsAt ? { startsAt, roomOrLink: attempt?.roomOrLink ?? null } : null,

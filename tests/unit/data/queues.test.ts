@@ -84,6 +84,13 @@ describe("adviserDashboard (A1)", () => {
     expect((await adviserDashboard(adviser(), now)).queue.some((q) => q.kind === "consultation_request")).toBe(false);
   });
 
+  it("links the roster row to the review and to the scheduled defense", async () => {
+    const { prId } = await readyCommit();
+    await setStatus("DEFENSE_SCHEDULED");
+    const [att] = await db.insert(s.defenseAttempt).values({ milestoneInstanceId: seed.milestone.id, attemptNo: 1, status: "scheduled", scheduledStartAt: new Date("2026-12-01T01:00:00Z") }).returning();
+    expect((await adviserDashboard(adviser())).advisees[0]).toMatchObject({ prId, attemptId: att!.id });
+  });
+
   it("flags a Student past the target date as information only (FR-TRK-06, BR-17)", async () => {
     await setStatus("DRAFT", { targetDate: "2026-11-01" });
     const d = await adviserDashboard(adviser(), new Date("2026-11-20T00:00:00Z"));
@@ -137,6 +144,7 @@ describe("panelDashboard (P1)", () => {
     const first = (await panelDashboard(panel(), now)).assignments[0]!;
     expect(first.actionRequired).toBe("Save your evaluation sheet.");
     expect(first.defense).toEqual({ startsAt: new Date("2026-11-20T01:00:00Z"), roomOrLink: "Room 2" });
+    expect(first.attemptId).toBe(att!.id);
     await db.insert(s.evaluationEntry).values({ defenseAttemptId: att!.id, memberUserId: seed.panel[0]!.id, form: "TDW_08", actionTaken: "approved" });
     expect((await panelDashboard(panel(), now)).assignments[0]!.actionRequired).toBe("Record the verdict.");
     // Before the defense date nothing is due (INV-15).
