@@ -572,8 +572,11 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 ### P1-E11-T02 — Student tracker data (S1)
 - **Goal:** One data function returns the S1 regions: identity card, stepper, next action, readiness checklist, outside chips, defense card, key dates.
 - **Covers:** FR-TRK-01, FR-TRK-05, NFR-01, NFR-04, BR-17
+- **Changes:** `src/server/data/tracker.ts`, `tests/unit/data/tracker.test.ts`
 - **Depends on:** T01, P1-E09, P1-E10
-- **Done when:** `[ ]` A test shows each region for a Student, and that another Student's data is refused.
+- **Done when:**
+  - [x] A test shows each region for a Student. The function reads only the signed-in Student's thesis, and any other role is refused (NFR-01).
+  - [ ] The residency indicator and the printed copies status are not in the data yet. The residency date waits for R7. The printed copies status waits for `printedCopyStatus` (`agent-a`, P1-E09-T05).
 
 ### P1-E11-T03 — Queues for the Adviser, Panel Member and Coordinator (A1, P1, C1)
 - **Goal:** Data functions return the action queue and the roster (A1), the assignments (P1), and the KPI strip, grouped queue and Student table (C1). Each count opens its queue.
