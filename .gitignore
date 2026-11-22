@@ -22,3 +22,6 @@ blob-report/
 # Agent worktrees (AGENTS.md §13)
 .claude/worktrees/
 tests/e2e/.auth/
+.claude/agent-runs/
+.claude/agents.stop
+.claude/agent-runner.lock/
