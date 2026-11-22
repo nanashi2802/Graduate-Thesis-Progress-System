@@ -5,6 +5,7 @@ import { MODE, pst, pstRange, SLOT_STATUS } from "@/app/_lib/format";
 import { proposeDateAction, requestBookingAction, topicAction } from "@/app/_lib/schedule-actions";
 import { EmptyState } from "@/components/empty-state";
 import { getSessionState } from "@/server/auth/session";
+import { AccessDeniedError } from "@/server/data/access";
 import { commonDefenseWindows, listBookings, listLogEntries, listSlots } from "@/server/data/consultations";
 import { getDb } from "@/server/data/db";
 import { listAttempts } from "@/server/data/defense";
@@ -26,7 +27,12 @@ export default async function Page() {
   const slots = (await listSlots(ctx, { slotType: "consultation" })).filter((s) => s.status === "available");
   const bookings = await listBookings(ctx);
   const entries = await listLogEntries(ctx, milestone.id);
-  const threads = (await listThreads(ctx, milestone.id).catch(() => [])).filter((t) => t.thread.state === "OPEN");
+  const threads = (
+    await listThreads(ctx, milestone.id).catch((e) => {
+      if (e instanceof AccessDeniedError) return [];
+      throw e;
+    })
+  ).filter((t) => t.thread.state === "OPEN");
   const windows = await commonDefenseWindows(ctx, milestone.thesisId);
   const attempts = await listAttempts(ctx, milestone.id);
   const proposed = attempts.at(-1)?.attempt;
@@ -147,7 +153,7 @@ export default async function Page() {
           </p>
         ) : null}
         <p className="max-w-[72ch] text-sm text-muted-foreground">
-          The date must be at least 7 days after Gate 1b (BR-09). These periods have every member free:
+          The date must be after the minimum notice period from Gate 1b (7 days by default, BR-09). The system shows the reason if a date is too early. These periods have every member free:
         </p>
         {windows.length === 0 ? (
           <p className="text-sm text-muted-foreground">No common free time yet. Your committee publishes its availability.</p>
