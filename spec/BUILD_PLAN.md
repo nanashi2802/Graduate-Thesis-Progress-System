@@ -528,6 +528,32 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Done when:**
   - [x] A test covers the list of each milestone.
 
+### 3.5 P1-E12 Audit records and in-app notifications (Track B, `agent-b`)
+
+**Decisions:** AD-B-014. The audit insert itself is in P1-E02 (`agent-a`). T01 is pure code. T02 and T03 wait for P1-E02.
+
+### P1-E12-T01 — Event catalog and email rules (pure)
+- **Goal:** One catalog gives the fixed text, the recipients and the delivery of each of the 24 events, and the preference rule.
+- **Covers:** FR-NTF-01 to FR-NTF-05, INV-29, BR-15
+- **Changes:** `src/server/notify/events.ts`, `tests/unit/notify-events.test.ts`
+- **Done when:**
+  - [x] The 24 events of FR §4.10 exist, with reminders and digests marked.
+  - [x] Only A4, B1, B2, B4, B6, B7 and C2 to C5 can be turned off (INV-29).
+  - [x] No text holds a verdict, score or link (FR-NTF-03).
+- **Tests:** unit (Vitest)
+
+### P1-E12-T02 — Notification rows and the notification center (NC)
+- **Goal:** Each event writes one `notification` row for each recipient, then tries the email and logs it (INV-30, FR-NTF-07). The user sees read and unread states.
+- **Covers:** FR-NTF-01, FR-NTF-07, NFR-05, INV-30
+- **Depends on:** T01, P1-E02
+- **Done when:** `[ ]` A failed email leaves the `notification` row and an `email_log` row with the failure.
+
+### P1-E12-T03 — Audit records for each event (FR-RPT-01)
+- **Goal:** Each event in FR-RPT-01 writes one `audit_record` through the P1-E02 insert.
+- **Covers:** FR-RPT-01, NFR-03, INV-08
+- **Depends on:** P1-E02
+- **Done when:** `[ ]` A test for each event kind shows its audit record with actor, role, time and target.
+
 ---
 
 ## 4. Phase 2 — Milestone 2 and email

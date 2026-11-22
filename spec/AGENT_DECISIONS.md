@@ -179,3 +179,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** The second option. FR-DOC-08 says "TDW 07 scan" and "OR verified", so it treats the scan and the OR differently. The appointment form and the NDAs must be verified because BR-08 opens the manuscript only after they are recorded. A scan in `mismatch` still counts, because BR-12 says a mismatch never stops a defense. TDW 03 counts once locked.
 - **Risk:** medium. The owner may want TDW 03 or the defense-form scan verified before the date is confirmed. Then the date waits for the Coordinator's paper check.
 - **Undo:** Change `submitted(...)` to `verified(...)` for that item in `src/server/domain/checklist.ts`.
+
+### AD-B-014 — Event texts live in code until FR-NTF-10
+- **Task:** P1-E12-T01
+- **Options:** store the email texts in the ERD template table (`event_code`, `version_no`) now; keep fixed texts in `src/server/notify/events.ts` now
+- **Decision and reason:** Fixed texts in code. FR-NTF-10 (edit and version the wording) is priority C and sits in Phase 4 (`spec/BUILD_PLAN.md` §6). FR-NTF-02 needs fixed templates with no free text, and constants meet it. A test checks that no text holds a verdict, score or link word (FR-NTF-03, BR-15).
+- **Risk:** low. When Phase 4 adds FR-NTF-10, the constants become the first template version.
+- **Undo:** Load the texts from the template table in `buildNotificationEmail`.
