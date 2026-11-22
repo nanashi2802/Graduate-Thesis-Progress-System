@@ -426,3 +426,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** The second. The workspace already holds the viewer and the access checks (INV-24). The view is open when a `gate_1b` endorse exists and the status is past `COMMITTEE_APPOINTED`. A Return closes it again. The Coordinator has no PR route, so the view shows no link for that role. Panel Members need the verified form and NDA (BR-08).
 - **Risk:** low. Read only. No schema change.
 - **Undo:** delete `src/server/data/submission-view.ts`, `src/app/_components/submission-view.tsx` and the four `submission/[id]` routes.
+
+### AD-B-026 — The dossier is one JSON file with an index, and holds file keys, not file bytes
+- **Task:** P3-E05-T03
+- **Options:** a ZIP with the PDFs; one JSON file with an index and the key and SHA-256 of each file
+- **Decision and reason:** The second. The server never receives file bytes (§10), and a ZIP needs a new dependency. The JSON lists commits, scans, Minutes, consultation log entries and audit records of the thesis (committees, threads, evaluation entries, revision items, bookings and log entries included). Each export writes an audit row (`dossier.export`).
+- **Risk:** low. Read only. The Coordinator cannot download the files from the dossier alone. A ZIP with signed links is a later step.
+- **Undo:** delete `src/server/data/dossier.ts`, the `coordinator/dossier` route and the link in `submission-view.tsx`.

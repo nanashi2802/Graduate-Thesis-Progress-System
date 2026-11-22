@@ -16,6 +16,7 @@ export type SubmissionView =
   | {
       open: true;
       milestone: MilestoneCode;
+      thesisId: string;
       status: MilestoneStatus;
       /** The Submission PR: the link target of the user's own workspace (FR-SUB-04). */
       prId: string | null;
@@ -69,6 +70,7 @@ export async function submissionView(ctx: DataContext, milestoneId: string): Pro
   return {
     open: true,
     milestone: m.milestoneCode,
+    thesisId: m.thesisInstanceId,
     status: m.status,
     prId: pr?.id ?? null,
     lockedCommit: locked ? { id: locked.id, ordinal: locked.ordinal } : null,

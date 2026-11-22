@@ -39,6 +39,7 @@ export async function SubmissionViewScreen({ milestoneId }: { milestoneId: strin
         <h1 className="text-xl font-semibold">{NAME[v.milestone]}: submission record</h1>
         <MilestoneStatusPill status={v.status} />
       </header>
+      {role === "coordinator" && <a className="text-sm underline" href={`/coordinator/dossier/${v.thesisId}`} download>Export the Student dossier (JSON, with index)</a>}
 
       <section aria-labelledby="sv-ms" className="flex flex-col gap-1">
         <h2 id="sv-ms" className="text-base font-semibold">Locked manuscript</h2>
