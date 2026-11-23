@@ -1020,8 +1020,8 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/data/notifications.ts`, `tests/unit/data/notifications.test.ts`
 - **Depends on:** P2-E04-T03
 - **Done when:**
-  - [ ] A failed send writes a `failed` row with the error. The `notification` row stays (INV-30). This closes the open box of P1-E12-T02.
-  - [ ] A turned-off optional event writes no email and no log row (FR-NTF-05).
+  - [x] A failed send writes a `failed` row with the error. The `notification` row stays (INV-30). This closes the open box of P1-E12-T02.
+  - [x] A turned-off optional event writes no email and no log row (FR-NTF-05).
 - **Tests:** unit (Vitest with PGlite, fake email port)
 
 ### P2-E04-T05 — Residency end date and warning (Track B, `agent-b`)
