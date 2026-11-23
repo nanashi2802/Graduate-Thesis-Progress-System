@@ -67,27 +67,34 @@ describe("createAccount", () => {
 
 describe("resolveActor", () => {
   it("returns no actor for a Neon Auth user with no app account (D-23)", async () => {
-    const actor = await resolveActor(db, { authUserId: "google-1", email: "stranger@example.test" });
+    const actor = await resolveActor(db, { authUserId: "google-1", email: "stranger@example.test", emailVerified: true });
     expect(actor).toBeNull();
     expect(await db.select().from(appUser)).toHaveLength(1);
   });
 
   it("links the account by email at the first sign-in, then by the Neon Auth id", async () => {
-    const actor = await resolveActor(db, { authUserId: "auth-c", email: "Coordinator@example.test" });
+    const actor = await resolveActor(db, { authUserId: "auth-c", email: "Coordinator@example.test", emailVerified: true });
     expect(actor).toEqual(coordinator);
     const [row] = await db.select().from(appUser);
     expect(row!.authUserId).toBe("auth-c");
-    expect(await resolveActor(db, { authUserId: "auth-c", email: "changed@example.test" })).toEqual(coordinator);
+    expect(await resolveActor(db, { authUserId: "auth-c", email: "changed@example.test", emailVerified: true })).toEqual(coordinator);
+  });
+
+  it("does not link an unverified identity to an unlinked account (FR-ACC-05)", async () => {
+    const identity = { authUserId: "auth-c", email: "coordinator@example.test", emailVerified: false };
+    expect(await resolveActor(db, identity)).toBeNull();
+    expect((await db.select().from(appUser))[0]!.authUserId).toBeNull();
+    expect(await resolveActor(db, { ...identity, emailVerified: true })).toEqual(coordinator);
   });
 
   it("does not take over an account that is linked to another Neon Auth user", async () => {
-    await resolveActor(db, { authUserId: "auth-c", email: "coordinator@example.test" });
-    expect(await resolveActor(db, { authUserId: "auth-other", email: "coordinator@example.test" })).toBeNull();
+    await resolveActor(db, { authUserId: "auth-c", email: "coordinator@example.test", emailVerified: true });
+    expect(await resolveActor(db, { authUserId: "auth-other", email: "coordinator@example.test", emailVerified: true })).toBeNull();
   });
 
   it("keeps a deactivated account inactive", async () => {
     await db.update(appUser).set({ isActive: false });
-    const actor = await resolveActor(db, { authUserId: "auth-c", email: "coordinator@example.test" });
+    const actor = await resolveActor(db, { authUserId: "auth-c", email: "coordinator@example.test", emailVerified: true });
     expect(actor?.isActive).toBe(false);
   });
 });
