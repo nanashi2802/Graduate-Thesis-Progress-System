@@ -441,3 +441,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** The second. The term reads "2025-1" and the spec has no term calendar. Only the year is read. R7 says the 5 and 7 year values are unverified, so the result is a warning only (BR-17). The warning starts 90 days before the end date (AD-B-015 uses 90 and 30 for B6).
 - **Risk:** low. The date can be up to about 5 months late for a term 1 start. No action depends on it. The Coordinator must confirm the rule with the Registrar (R7).
 - **Undo:** delete `src/server/domain/residency.ts` and its uses in `tracker.ts`, `overview.ts` and the two dashboards.
+
+### AD-A-032 — Email tables: one migration, a 30 s limit for the Milestone 3 flow test
+- **Task:** P2-E04-T03
+- **Options:** put the append-only triggers in a second migration; put them in 0010 with the tables. Keep the 5 s test limit; raise it for the flow test.
+- **Decision and reason:** Migration 0010 holds the tables and the `email_log` triggers, so the table never exists without them. `notification_preference` has a DB check for INV-29. The Milestone 3 flow test took 7 s on a loaded machine and hit the 5 s limit, so it now has a 30 s limit. No assertion changed.
+- **Risk:** low.
+- **Undo:** revert the commits with AD-A-032. Migration 0010 only adds two tables and one type.
