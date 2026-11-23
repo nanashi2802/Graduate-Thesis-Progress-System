@@ -237,14 +237,14 @@ describe("threads (FR-REV-04 to 06, BR-05, BR-06, INV-07)", () => {
   });
 });
 
-describe("events of the manuscript (C1, B7, C2, C3, C4)", () => {
+describe("events of the manuscript (C1, C2, C3, C4)", () => {
   const who = async (code: string, targetId: string) =>
     (await db.select().from(s.notification)).filter((n) => n.eventCode === code && n.targetId === targetId).map((n) => n.recipientUserId).sort();
   it("tells the right people after each commit, never the actor", async () => {
     const t = await setup();
     await markCommitReady(as(t.student), t.milestone.id, t.commit.id);
     expect(await who("C1", t.commit.id)).toEqual([t.adviser.id, t.member.id].sort());
-    expect(await who("B7", t.commit.id)).toEqual([t.adviser.id, t.member.id].sort());
+    expect(await who("B7", t.commit.id)).toEqual([]); // B7 is a late-review reminder of the daily job (AS-05).
     const { threadId } = await postThread(as(t.adviser), { commitId: t.commit.id, body: "Clarify the aim." });
     expect(await who("C2", threadId)).toEqual([t.student.id]);
     await replyToThread(as(t.student), threadId, "Done.");

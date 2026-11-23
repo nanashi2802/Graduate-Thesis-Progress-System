@@ -194,9 +194,6 @@ export async function markCommitReady(ctx: DataContext, milestoneId: string, com
   });
   // C1 (FR-NTF-01): after the commit. Never throws (INV-30).
   await emitSafely(ctx, "C1", { thesisId: m.thesisInstanceId, milestone: m.milestoneCode }, { link: appLink("/login"), targetTable: "manuscript_commit", targetId: commitId });
-  // B7 (digest): the reviewers are the Adviser and the accepted Panel Members of the committee.
-  const mctx = await loadMilestoneContext(ctx.db, milestoneId);
-  if (mctx) await emitSafely(ctx, "B7", { thesisId: m.thesisInstanceId, milestone: m.milestoneCode, userIds: [mctx.thesis.adviserUserId, ...mctx.memberIds] }, { link: appLink("/login"), targetTable: "manuscript_commit", targetId: commitId });
 }
 
 // A signed read link for one commit (INV-24: the access check comes first).

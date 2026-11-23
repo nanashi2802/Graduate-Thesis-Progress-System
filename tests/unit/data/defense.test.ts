@@ -460,7 +460,7 @@ describe("events of the defense (A1, A2, A3, A6)", () => {
     await confirmDefenseDate(as(v.coordinator), v.milestone.id, { startsAt: startOf(PROPOSED), roomOrLink: "Room 101" });
     expect(await who("A2", v.milestone.id)).toEqual([v.student.id, v.adviser.id, v.lead.id, v.chair.id].sort());
   });
-  it("tells the Student when the last sheet is verified (A6) and when the defense closes (C6)", async () => {
+  it("tells the Student when the last sheet is verified (A6)", async () => {
     const w = await scheduled();
     await allSheets(w);
     await verifyAll(w);

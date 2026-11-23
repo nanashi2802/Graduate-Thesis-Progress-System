@@ -238,14 +238,13 @@ export async function transitionMilestone(
       detail: { from, to },
     });
   });
-  // A transaction has `rollback`. A nested call (a data function that holds its own transaction) emits after its own commit.
-  if (!("rollback" in ctx.db)) {
-    const scope = { thesisId: mctx.thesis.id, milestone: mctx.code, userIds: mctx.memberIds };
-    const at = { link: appLink("/login"), targetTable: "milestone_instance", targetId: milestoneId };
-    // A3: a date request that came back. C6: any other Return or gate. A2 comes from `confirmDefenseDate`.
-    if (to === "RETURNED") await emitSafely(ctx, from === "DATE_PROPOSED" ? "A3" : "C6", scope, at);
-    else if (GATE_FOR[to] && to !== "DEFENSE_SCHEDULED") await emitSafely(ctx, "C6", scope, at);
-  }
+  // After the commit (INV-30). A3: a date request that came back; A2 comes from `confirmDefenseDate`.
+  // C6 (FR-NTF-01): Gate 1a and Gate 2 only. Gate 1b is in `endorseGate1b`. The callers of this function that hold a
+  // transaction never reach these statuses, so no notice is written before an outer commit.
+  const scope = { thesisId: mctx.thesis.id, milestone: mctx.code, userIds: mctx.memberIds };
+  const at = { link: appLink("/login"), targetTable: "milestone_instance", targetId: milestoneId };
+  if (to === "RETURNED" && from === "DATE_PROPOSED") await emitSafely(ctx, "A3", scope, at);
+  else if (to === "ADVISER_ENDORSED" || to === "FINAL_APPROVED") await emitSafely(ctx, "C6", scope, at);
   return to === "RETURNED" ? "DRAFT" : to;
 }
 

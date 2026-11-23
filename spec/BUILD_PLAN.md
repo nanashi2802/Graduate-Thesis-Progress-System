@@ -1052,13 +1052,13 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Goal:** Each event of FR §4.10 that a Track A data function causes calls `emitSafely` after it commits.
 - **Covers:** FR-NTF-01, FR-NTF-02, FR-NTF-08, INV-28, INV-30
 - **Reads:** `src/server/notify/events.ts`, `src/server/data/recipients.ts`, B3 in `documents.ts` (the pattern)
-- **Changes:** `defense.ts` (A1, A2, A3, A5, A6), `manuscript.ts` (C1, B7, C2, C3, C4, E2), `milestones.ts` (C6), `revisions.ts` (B4), `clearance.ts` (B5), `consultations.ts` (F1, F2), their tests
+- **Changes:** `defense.ts` (A1, A2, A3, A6), `manuscript.ts` (C1, C2, C3, C4), `milestones.ts` (C6), `revisions.ts` (B4), `clearance.ts` (B5), `consultations.ts` (F1, F2), their tests
 - **Depends on:** none (the emit helper exists)
 - **Done when:**
-  - [x] Each listed event has a test: the right recipients get a `notification` row, and the actor gets none.
+  - [x] Each listed event that has a source has a test: the right recipients get a `notification` row, and the actor gets none.
   - [x] No email holds a meeting link, a score, a verdict or comment text (FR-NTF-03, INV-28).
   - [x] Each event commits even when the email port throws (INV-30). This closes the wiring box of P1-E12-T04 for these events.
-- **Note:** A5 and E2 are left to `agent-b` (AD-A-033).
+- **Note:** B7 waits for the daily job (AS-05). A5 has no source yet. E2 is requested from `agent-b` (AD-A-033).
 - **Tests:** unit (Vitest with PGlite)
 
 ### P2-E04-T08 — Emit events from the Track B data functions (Track B, `agent-b`)

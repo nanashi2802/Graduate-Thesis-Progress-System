@@ -381,7 +381,6 @@ export async function closeDefense(ctx: DataContext, milestoneId: string, now: D
     // FR-WFL-01: Milestone 3 opens when Milestone 2 is CLOSED.
     if (mctx.code === "pre_final") await openMilestone({ db: tx, actor: ctx.actor }, mctx.thesis.id, "final");
   });
-  await emitSafely(ctx, "C6", { thesisId: mctx.thesis.id, milestone: mctx.code }, { link: appLink("/login"), targetTable: "milestone_instance", targetId: milestoneId });
 }
 
 // ---- Printed copies (FR-DEF-04, BR-09) ----
