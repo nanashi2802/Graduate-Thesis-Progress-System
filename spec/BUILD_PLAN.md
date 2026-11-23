@@ -1305,8 +1305,8 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/data/actors.ts`, `src/server/auth/session.ts` (pass `emailVerified`), `tests/unit/data/actors.test.ts`
 - **Depends on:** none
 - **Done when:**
-  - [ ] Test first: an unverified identity does not link to an unlinked row. A verified identity (Google) still links.
-  - [ ] The pull request text says `Fixes #54`.
+  - [x] Test first: an unverified identity does not link to an unlinked row. A verified identity (Google) still links.
+  - [x] The pull request text says `Fixes #54`.
 - **Tests:** unit (Vitest with PGlite)
 
 ### P3-E07-T06 — Delete the P0-E04 file spike (Track A, `agent-a`, issue #55)
