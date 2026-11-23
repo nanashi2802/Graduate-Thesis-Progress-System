@@ -581,7 +581,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Depends on:** T01, P1-E09, P1-E10
 - **Done when:**
   - [x] A test shows each region for a Student. The function reads only the signed-in Student's thesis, and any other role is refused (NFR-01).
-  - [ ] The residency indicator and the printed copies status are not in the data yet. The residency date waits for R7. The printed copies status waits for `printedCopyStatus` (`agent-a`, P1-E09-T05).
+  - [ ] The printed copies status is in S1 (`printedCopyStatus`). The residency date is in S1 (P2-E04-T05). (Closed by later work.) The residency date waits for R7. The printed copies status waits for `printedCopyStatus` (`agent-a`, P1-E09-T05).
 
 ### P1-E11-T03 — Queues for the Adviser, Panel Member and Coordinator (A1, P1, C1)
 - **Goal:** Data functions return the action queue and the roster (A1), the assignments (P1), and the KPI strip, grouped queue and Student table (C1). Each count opens its queue.
@@ -1031,8 +1031,8 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/domain/residency.ts`, `src/server/data/tracker.ts`, the S1 and C1 screens, `tests/unit/domain/residency.test.ts`
 - **Depends on:** none
 - **Done when:**
-  - [ ] Tests cover both degree levels and a bad start term (no date, no warning).
-  - [ ] S1 and C1 show the end date and a warning inside 90 days. No action is disabled by it (BR-17). This closes the residency boxes of P1-E11-T02 and T04.
+  - [x] Tests cover both degree levels and a bad start term (no date, no warning).
+  - [x] S1 and C1 show the end date and a warning inside 90 days. No action is disabled by it (BR-17). This closes the residency boxes of P1-E11-T02 and T04.
 - **Tests:** unit (Vitest)
 
 ### P2-E04-T06 — Daily job: reminders and digests (Track B, `agent-b`)

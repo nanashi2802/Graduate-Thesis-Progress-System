@@ -121,6 +121,7 @@ export default async function Page() {
                   <th className={th}>Milestone</th>
                   <th className={th}>Status</th>
                   <th className={th}>Target date</th>
+                  <th className={th}>Residency end</th>
                 </tr>
               </thead>
               <tbody>
@@ -135,6 +136,10 @@ export default async function Page() {
                     <td className={td}>
                       {s.targetDate ?? "Not set"}
                       {s.pacingFlag ? <span className="ml-2 text-xs font-medium text-muted-foreground">Past the target date</span> : null}
+                    </td>
+                    <td className={td}>
+                      {s.residency?.endDate ?? "Not set"}
+                      {s.residency?.warning ? <span className="ml-2 text-xs font-medium text-muted-foreground">Near or past the end date</span> : null}
                     </td>
                   </tr>
                 ))}

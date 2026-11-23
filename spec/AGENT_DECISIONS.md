@@ -433,3 +433,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** The second. The server never receives file bytes (§10), and a ZIP needs a new dependency. The JSON lists commits, scans, Minutes, consultation log entries and audit records of the thesis (committees, threads, evaluation entries, revision items, bookings and log entries included). Each export writes an audit row (`dossier.export`).
 - **Risk:** low. Read only. The Coordinator cannot download the files from the dossier alone. A ZIP with signed links is a later step.
 - **Undo:** delete `src/server/data/dossier.ts`, the `coordinator/dossier` route and the link in `submission-view.tsx`.
+
+### AD-B-027 — Residency ends on 31 December of the start year plus 5 (Master's) or 7 (Doctoral) years
+- **Task:** P2-E04-T05
+- **Options:** count from the term's first day (the calendar of each term is not in the spec); use 31 December of the start year
+- **Decision and reason:** The second. The term reads "2025-1" and the spec has no term calendar. Only the year is read. R7 says the 5 and 7 year values are unverified, so the result is a warning only (BR-17). The warning starts 90 days before the end date (AD-B-015 uses 90 and 30 for B6).
+- **Risk:** low. The date can be up to about 5 months late for a term 1 start. No action depends on it. The Coordinator must confirm the rule with the Registrar (R7).
+- **Undo:** delete `src/server/domain/residency.ts` and its uses in `tracker.ts`, `overview.ts` and the two dashboards.
