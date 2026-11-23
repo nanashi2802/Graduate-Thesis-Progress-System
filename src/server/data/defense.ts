@@ -15,6 +15,7 @@ import {
   type Tdw10Section,
 } from "@/server/domain/evaluation";
 import { addDays, type Verdict } from "@/server/domain/milestone";
+import { appLink } from "@/server/notify/link";
 import { pstDate } from "@/server/notify/time";
 import { uploadProblem } from "@/server/files/rules";
 import { AccessDeniedError, requireActive, type DataContext } from "./access";
@@ -22,6 +23,7 @@ import { recordAudit } from "./audit";
 import { InputProblem, requireCoordinator } from "./coordinator";
 import type { FilePort } from "./documents";
 import { expectedEvaluatorsFor, loadMilestoneContext, type MilestoneContext } from "./milestone-facts";
+import { emitSafely } from "./recipients";
 import { checkTransition, disapproveToDraft, openMilestone, transitionMilestone } from "./milestones";
 import {
   committeeMember,
@@ -85,7 +87,7 @@ export async function proposeDefenseDate(ctx: DataContext, milestoneId: string, 
   if (!DATE.test(proposedDate) || Number.isNaN(new Date(`${proposedDate}T00:00:00Z`).getTime())) {
     throw new InputProblem("Enter the date as YYYY-MM-DD.");
   }
-  return ctx.db.transaction(async (tx) => {
+  const out = await ctx.db.transaction(async (tx) => {
     const last = await latestAttempt(tx, milestoneId);
     let attemptId: string;
     if (last && last.status === "proposed") {
@@ -102,6 +104,9 @@ export async function proposeDefenseDate(ctx: DataContext, milestoneId: string, 
     await transitionMilestone({ db: tx, actor: ctx.actor }, mctx.milestone.id, "DATE_PROPOSED");
     return { attemptId };
   });
+  // A1 (FR-NTF-01): after the commit. Never throws (INV-30).
+  await emitSafely(ctx, "A1", { thesisId: mctx.thesis.id, milestone: mctx.code }, { link: appLink("/login"), targetTable: "defense_attempt", targetId: out.attemptId });
+  return out;
 }
 
 /**
@@ -130,6 +135,8 @@ export async function confirmDefenseDate(
       .where(eq(defenseAttempt.id, a.id));
     await transitionMilestone({ db: tx, actor: ctx.actor }, mctx.milestone.id, "DEFENSE_SCHEDULED");
   });
+  // A2: the email holds no date, room or link (FR-NTF-03).
+  await emitSafely(ctx, "A2", { thesisId: mctx.thesis.id, milestone: mctx.code }, { link: appLink("/login"), targetTable: "milestone_instance", targetId: milestoneId });
 }
 
 // ---- Sheets ----
@@ -270,6 +277,13 @@ export async function verifySheet(ctx: DataContext, entryId: string, result: "ma
       .where(eq(evaluationEntry.id, entryId));
     await recordAudit({ db: tx, actor: ctx.actor }, { action: `sheet.${result}`, targetTable: "evaluation_entry", targetId: entryId });
   });
+  if (result !== "matched") return;
+  // A6 (BR-11): the results open when the last expected sheet is verified. The email names no verdict (FR-NTF-03).
+  const { attempt, mctx } = await loadAttempt(ctx, e.defenseAttemptId);
+  const sheets = await ctx.db.select().from(evaluationEntry).where(eq(evaluationEntry.defenseAttemptId, attempt.id));
+  if (resultsVisible(await expectedEvaluatorsFor(ctx.db, mctx, attempt.id), sheets)) {
+    await emitSafely(ctx, "A6", { thesisId: mctx.thesis.id, milestone: mctx.code }, { link: appLink("/login"), targetTable: "defense_attempt", targetId: attempt.id });
+  }
 }
 
 // ---- Verdict, held, Minutes, close ----
@@ -367,6 +381,7 @@ export async function closeDefense(ctx: DataContext, milestoneId: string, now: D
     // FR-WFL-01: Milestone 3 opens when Milestone 2 is CLOSED.
     if (mctx.code === "pre_final") await openMilestone({ db: tx, actor: ctx.actor }, mctx.thesis.id, "final");
   });
+  await emitSafely(ctx, "C6", { thesisId: mctx.thesis.id, milestone: mctx.code }, { link: appLink("/login"), targetTable: "milestone_instance", targetId: milestoneId });
 }
 
 // ---- Printed copies (FR-DEF-04, BR-09) ----

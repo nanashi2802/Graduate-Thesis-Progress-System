@@ -19,6 +19,8 @@ import {
 } from "@/server/domain/milestone";
 import { AccessDeniedError, requireActive, type DataContext } from "./access";
 import { recordAudit } from "./audit";
+import { emitSafely } from "./recipients";
+import { appLink } from "@/server/notify/link";
 import { InputProblem } from "./coordinator";
 import { lastReturnGateId, loadMilestoneContext, loadMilestoneFacts, type MilestoneContext } from "./milestone-facts";
 import {
@@ -236,6 +238,14 @@ export async function transitionMilestone(
       detail: { from, to },
     });
   });
+  // A transaction has `rollback`. A nested call (a data function that holds its own transaction) emits after its own commit.
+  if (!("rollback" in ctx.db)) {
+    const scope = { thesisId: mctx.thesis.id, milestone: mctx.code, userIds: mctx.memberIds };
+    const at = { link: appLink("/login"), targetTable: "milestone_instance", targetId: milestoneId };
+    // A3: a date request that came back. C6: any other Return or gate. A2 comes from `confirmDefenseDate`.
+    if (to === "RETURNED") await emitSafely(ctx, from === "DATE_PROPOSED" ? "A3" : "C6", scope, at);
+    else if (GATE_FOR[to] && to !== "DEFENSE_SCHEDULED") await emitSafely(ctx, "C6", scope, at);
+  }
   return to === "RETURNED" ? "DRAFT" : to;
 }
 
@@ -340,7 +350,7 @@ export async function endorseGate1b(ctx: DataContext, milestoneId: string): Prom
   const { role, userId } = ctx.actor;
   const { commitId, from } = await gate1bChecks(ctx, mctx);
 
-  return ctx.db.transaction(async (tx) => {
+  const result = await ctx.db.transaction(async (tx) => {
     const txCtx = { db: tx, actor: ctx.actor };
     const sinceReturn = await lastReturnGateId(tx, milestoneId);
     const own = await tx
@@ -379,6 +389,8 @@ export async function endorseGate1b(ctx: DataContext, milestoneId: string): Prom
     });
     return { completed: true };
   });
+  if (result.completed) await emitSafely(ctx, "C6", { thesisId: mctx.thesis.id, milestone: mctx.code }, { link: appLink("/login"), targetTable: "milestone_instance", targetId: milestoneId });
+  return result;
 }
 
 // The checks before a Gate 2 approval. They throw, so the screen and `approveGate2` share one rule (BR-18).

@@ -9,6 +9,9 @@ import type { UploadLink } from "@/server/files/storage";
 import { AccessDeniedError, requireActive, type DataContext } from "./access";
 import { recordAudit } from "./audit";
 import { InputProblem } from "./coordinator";
+import { appLink } from "@/server/notify/link";
+import { loadMilestoneContext } from "./milestone-facts";
+import { emitSafely } from "./recipients";
 import type { FilePort } from "./documents";
 import {
   appUser,
@@ -189,6 +192,11 @@ export async function markCommitReady(ctx: DataContext, milestoneId: string, com
     await tx.update(submissionPr).set({ readyCommitId: commitId }).where(eq(submissionPr.id, pr.id));
     await recordAudit({ db: tx, actor: ctx.actor }, { action: "manuscript.ready", targetTable: "manuscript_commit", targetId: commitId });
   });
+  // C1 (FR-NTF-01): after the commit. Never throws (INV-30).
+  await emitSafely(ctx, "C1", { thesisId: m.thesisInstanceId, milestone: m.milestoneCode }, { link: appLink("/login"), targetTable: "manuscript_commit", targetId: commitId });
+  // B7 (digest): the reviewers are the Adviser and the accepted Panel Members of the committee.
+  const mctx = await loadMilestoneContext(ctx.db, milestoneId);
+  if (mctx) await emitSafely(ctx, "B7", { thesisId: m.thesisInstanceId, milestone: m.milestoneCode, userIds: [mctx.thesis.adviserUserId, ...mctx.memberIds] }, { link: appLink("/login"), targetTable: "manuscript_commit", targetId: commitId });
 }
 
 // A signed read link for one commit (INV-24: the access check comes first).
@@ -294,7 +302,7 @@ export async function postThread(
   await requireManuscriptRead(ctx, m.thesisInstanceId);
   const context = await openContext(ctx, m);
   if (!context) throw new InputProblem("You cannot post a thread on this manuscript now.");
-  return ctx.db.transaction(async (tx) => {
+  const posted = await ctx.db.transaction(async (tx) => {
     const [t] = await tx
       .insert(critiqueThread)
       .values({
@@ -308,6 +316,8 @@ export async function postThread(
     await recordAudit({ db: tx, actor: ctx.actor }, { action: "thread.post", targetTable: "critique_thread", targetId: t!.id, detail: { context } });
     return { threadId: t!.id };
   });
+  await emitSafely(ctx, "C2", { thesisId: m.thesisInstanceId, milestone: m.milestoneCode }, { link: appLink("/login"), targetTable: "critique_thread", targetId: posted.threadId });
+  return posted;
 }
 
 async function loadThread(ctx: DataContext, threadId: string) {
@@ -347,17 +357,20 @@ export async function replyToThread(ctx: DataContext, threadId: string, body: st
     await tx.insert(threadReply).values({ critiqueThreadId: threadId, authorUserId: ctx.actor.userId, ordinal: (last?.n ?? 0) + 1, body: text });
     await recordAudit({ db: tx, actor: ctx.actor }, { action: "thread.reply", targetTable: "critique_thread", targetId: threadId });
   });
+  // C3: the thread author learns of the reply. emitEvent drops the actor.
+  await emitSafely(ctx, "C3", { thesisId: milestone.thesisInstanceId, milestone: milestone.milestoneCode, userIds: [thread.authorUserId] }, { link: appLink("/login"), targetTable: "critique_thread", targetId: threadId });
 }
 
 // BR-05, INV-07: only the author resolves a thread.
 export async function resolveThread(ctx: DataContext, threadId: string): Promise<void> {
-  const { thread } = await loadThread(ctx, threadId);
+  const { thread, milestone } = await loadThread(ctx, threadId);
   if (thread.authorUserId !== ctx.actor.userId) throw new AccessDeniedError("only the author resolves a thread");
   if (thread.state === "RESOLVED") return;
   await ctx.db.transaction(async (tx) => {
     await tx.update(critiqueThread).set({ state: "RESOLVED", resolvedAt: new Date() }).where(eq(critiqueThread.id, threadId));
     await recordAudit({ db: tx, actor: ctx.actor }, { action: "thread.resolve", targetTable: "critique_thread", targetId: threadId });
   });
+  await emitSafely(ctx, "C4", { thesisId: milestone.thesisInstanceId, milestone: milestone.milestoneCode }, { link: appLink("/login"), targetTable: "critique_thread", targetId: threadId });
 }
 
 export type ThreadView = {

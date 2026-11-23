@@ -236,3 +236,20 @@ describe("threads (FR-REV-04 to 06, BR-05, BR-06, INV-07)", () => {
     await expect(postThread(as(stranger), { commitId: t.commit.id, body: "x" })).rejects.toBeInstanceOf(AccessDeniedError);
   });
 });
+
+describe("events of the manuscript (C1, B7, C2, C3, C4)", () => {
+  const who = async (code: string, targetId: string) =>
+    (await db.select().from(s.notification)).filter((n) => n.eventCode === code && n.targetId === targetId).map((n) => n.recipientUserId).sort();
+  it("tells the right people after each commit, never the actor", async () => {
+    const t = await setup();
+    await markCommitReady(as(t.student), t.milestone.id, t.commit.id);
+    expect(await who("C1", t.commit.id)).toEqual([t.adviser.id, t.member.id].sort());
+    expect(await who("B7", t.commit.id)).toEqual([t.adviser.id, t.member.id].sort());
+    const { threadId } = await postThread(as(t.adviser), { commitId: t.commit.id, body: "Clarify the aim." });
+    expect(await who("C2", threadId)).toEqual([t.student.id]);
+    await replyToThread(as(t.student), threadId, "Done.");
+    expect(await who("C3", threadId)).toEqual([t.adviser.id]);
+    await resolveThread(as(t.adviser), threadId);
+    expect(await who("C4", threadId)).toEqual([t.student.id]);
+  });
+});

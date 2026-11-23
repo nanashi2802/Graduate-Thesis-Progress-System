@@ -448,3 +448,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** Migration 0010 holds the tables and the `email_log` triggers, so the table never exists without them. `notification_preference` has a DB check for INV-29. The Milestone 3 flow test took 7 s on a loaded machine and hit the 5 s limit, so it now has a 30 s limit. No assertion changed.
 - **Risk:** low.
 - **Undo:** revert the commits with AD-A-032. Migration 0010 only adds two tables and one type.
+
+### AD-A-033 — Where each Track A event is emitted, and two events left to Track B
+- **Task:** P2-E04-T07
+- **Options:** emit inside `transitionMilestone` always; emit after the outer commit only; leave A5 and E2 to the committee code.
+- **Decision and reason:** Each data function calls `emitSafely` after its own commit. `transitionMilestone` is also called inside the transactions of `proposeDefenseDate`, `confirmDefenseDate`, `markDefenseHeld` and `closeDefense`. It emits only when its db is not a transaction (a transaction has `rollback`), so no notice is written before the outer commit (INV-30). Those callers emit for themselves: A1, A2 and C6 (close). A3 is a Return of a date request. Other Returns and gates give C6. A6 fires when the last expected sheet is verified (BR-11). B7 goes to the Adviser and the accepted members when a commit is marked Ready. B4 fires when items are added and when one is linked. A5 (substitute) and E2 (access open) happen in the committee code that `agent-b` owns (P2-E04-T08), so they are not emitted here.
+- **Risk:** low. A5 and E2 stay unsent until `agent-b` adds them. The test of the nested rule is the A1, A2 and A3 test in `defense.test.ts`.
+- **Undo:** revert the commits with AD-A-033. The change only adds calls after commits.
