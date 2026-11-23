@@ -95,6 +95,8 @@ export const eventCode = app.enum("event_code", [
   "F1", "F2",
 ]);
 
+export const emailResult = app.enum("email_result", ["sent", "failed"]);
+
 export type UserRole = (typeof userRole.enumValues)[number];
 export type MilestoneCodeValue = (typeof milestoneCode.enumValues)[number];
 export type MilestoneStatusValue = (typeof milestoneStatus.enumValues)[number];

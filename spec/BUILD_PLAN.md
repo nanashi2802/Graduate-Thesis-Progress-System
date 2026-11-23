@@ -1008,9 +1008,9 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/data/schema/`, `db/migrations/0010_*`, `tests/unit/schema/`
 - **Depends on:** none
 - **Done when:**
-  - [ ] `email_log` accepts INSERT and SELECT only, like the other append-only tables (trigger test). `email_template_version` is nullable: texts live in code (AD-B-014).
-  - [ ] `notification_preference` refuses an event code outside A4, B1, B2, B4, B6, B7, C2 to C5 (DB check, test).
-  - [ ] `pnpm db:migrate` runs on the `agent-a` Neon branch (§13.8).
+  - [x] `email_log` accepts INSERT and SELECT only, like the other append-only tables (trigger test). `email_template_version` is nullable: texts live in code (AD-B-014).
+  - [x] `notification_preference` refuses an event code outside A4, B1, B2, B4, B6, B7, C2 to C5 (DB check, test).
+  - [x] `pnpm db:migrate` runs on the `agent-a` Neon branch (§13.8).
 - **Tests:** unit (Vitest with PGlite)
 
 ### P2-E04-T04 — Log each email send (Track B, `agent-b`)
