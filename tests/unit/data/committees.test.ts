@@ -249,3 +249,14 @@ describe("appointmentBoard (FR-CMT-02)", () => {
     await expect(appointmentBoard({ db, actor: actorOf(seed.adviser) }, seed.thesis.id)).rejects.toThrow(AccessDeniedError);
   });
 });
+
+describe("E3 committee changed (FR-NTF-01, INV-30)", () => {
+  it("notifies the Student after a proposal and an answer, never the Coordinator", async () => {
+    const a = await propose(seed.panel[0]!.id, "lead_panel_member");
+    if (!a.ok) throw new Error("setup");
+    await recordSeatAnswer(ctx(), { seatId: a.value.id, status: "accepted" });
+    const got = await db.select().from(s.notification).where(eq(s.notification.eventCode, "E3"));
+    expect(got).toHaveLength(2);
+    expect(got.every((r) => r.recipientUserId === seed.student.id)).toBe(true);
+  });
+});

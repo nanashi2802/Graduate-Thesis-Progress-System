@@ -1066,7 +1066,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/data/committees.ts`, `src/server/data/documents.ts`, their tests
 - **Depends on:** none
 - **Done when:**
-  - [ ] E3 and C5 have tests like T07. If no document comment feature exists, log an AD that C5 has no source yet.
+  - [x] E3 and C5 have tests like T07. If no document comment feature exists, log an AD that C5 has no source yet.
 - **Tests:** unit (Vitest with PGlite)
 
 ### P2-E04-T09 — Account setup and password reset email (Track A, `agent-a`)

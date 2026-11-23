@@ -14,8 +14,10 @@ import {
   type PanelSizes,
 } from "@/server/domain/committee";
 import type { Designation, MilestoneCode } from "@/server/domain/milestone";
+import { appLink } from "@/server/notify/link";
 import { AccessDeniedError, requireActive, type DataContext } from "./access";
 import { recordAudit } from "./audit";
+import { emitSafely } from "./recipients";
 import { checkTransition, transitionMilestone, TransitionRefused } from "./milestones";
 import {
   appUser,
@@ -90,6 +92,11 @@ async function loadCommittee(ctx: DataContext, committeeId: string) {
   return m ? { committee: c, milestone: m } : null;
 }
 
+// E3 (FR-NTF-01): the Student learns of a committee change. It runs after the commit and never throws (INV-30).
+async function emitCommitteeChanged(ctx: DataContext, c: { id: string; thesisInstanceId: string; kind: CommitteeKind }) {
+  await emitSafely(ctx, "E3", { thesisId: c.thesisInstanceId, milestone: KIND_MILESTONE[c.kind] }, { link: appLink("/student/committee"), targetTable: "committee", targetId: c.id });
+}
+
 async function seatsOf(ctx: DataContext, committeeId: string) {
   return ctx.db.select().from(committeeMember).where(eq(committeeMember.committeeId, committeeId));
 }
@@ -106,7 +113,7 @@ export async function proposeSeat(
   const [candidate] = await ctx.db.select().from(appUser).where(eq(appUser.id, input.memberUserId));
   if (!candidate) return refuse("not_found");
 
-  return ctx.db.transaction(async (tx) => {
+  const res: BoardResult<typeof committeeMember.$inferSelect> = await ctx.db.transaction(async (tx) => {
     const txCtx = { db: tx, actor: ctx.actor };
     const [existing] = kind
       ? await tx
@@ -138,8 +145,13 @@ export async function proposeSeat(
       targetId: seat!.id,
       detail: { committeeKind: c.kind, designation: input.designation },
     });
-    return { ok: true, value: seat! };
+    return { ok: true, value: seat! } as const;
   });
+  if (res.ok) {
+    const [c] = await ctx.db.select().from(committee).where(eq(committee.id, res.value.committeeId));
+    await emitCommitteeChanged(ctx, c!);
+  }
+  return res;
 }
 
 /** Record the member's answer: Accepted or Declined, once (FR-CMT-03, AD-B-011). */
@@ -152,15 +164,18 @@ export async function recordSeatAnswer(
   if (!seat) return refuse("not_found");
   const rule = checkSeatStatus(ctx.actor.role, seat.status, input.status);
   if (!rule.ok) return refuse(rule.code, rule.reason);
-  return ctx.db.transaction(async (tx) => {
+  const res = await ctx.db.transaction(async (tx) => {
     await tx.update(committeeMember).set({ status: input.status }).where(eq(committeeMember.id, seat.id));
     await recordAudit({ db: tx, actor: ctx.actor }, {
       action: `committee_member.${input.status}`,
       targetTable: "committee_member",
       targetId: seat.id,
     });
-    return { ok: true, value: null };
+    return { ok: true, value: null } as const;
   });
+  const [c] = await ctx.db.select().from(committee).where(eq(committee.id, seat.committeeId));
+  await emitCommitteeChanged(ctx, c!);
+  return res;
 }
 
 /** Link the TDW 06 (Evaluation Committee) or TDW 11 (Final Panel) record (FR-CMT-04). */
@@ -259,7 +274,7 @@ export async function markAppointed(ctx: DataContext, input: { committeeId: stri
   if (problem) return refuse(problem.code, problem.reason);
   const active = (await seatsOf(ctx, c.id)).filter((x) => x.status !== "declined");
 
-  return ctx.db.transaction(async (tx) => {
+  const res = await ctx.db.transaction(async (tx) => {
     const now = new Date();
     await tx.update(committee).set({ appointedAt: now }).where(eq(committee.id, c.id));
     await tx
@@ -272,8 +287,10 @@ export async function markAppointed(ctx: DataContext, input: { committeeId: stri
       targetId: c.id,
       detail: { committeeKind: c.kind, seats: active.length },
     });
-    return { ok: true, value: null };
+    return { ok: true, value: null } as const;
   });
+  await emitCommitteeChanged(ctx, c);
+  return res;
 }
 
 /**

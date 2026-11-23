@@ -441,3 +441,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** The second. The term reads "2025-1" and the spec has no term calendar. Only the year is read. R7 says the 5 and 7 year values are unverified, so the result is a warning only (BR-17). The warning starts 90 days before the end date (AD-B-015 uses 90 and 30 for B6).
 - **Risk:** low. The date can be up to about 5 months late for a term 1 start. No action depends on it. The Coordinator must confirm the rule with the Registrar (R7).
 - **Undo:** delete `src/server/domain/residency.ts` and its uses in `tracker.ts`, `overview.ts` and the two dashboards.
+
+### AD-B-028 — E3 is emitted from the committee writes; C5 has no source yet
+- **Task:** P2-E04-T08
+- **Options:** emit E3 from `proposeSeat`, `recordSeatAnswer` and `markAppointed`, or from `markAppointed` only; emit C5 from a document comment feature, or log that none exists
+- **Decision and reason:** E3 on all three writes: each one changes the committee. `documents.ts` has no comment feature (Return reasons go with B3). So C5 has no source, and no code emits it. Add the emit when a document comment function exists.
+- **Risk:** low. The Student can get one E3 notice for each seat answer. The emit runs after the commit and never throws (INV-30).
+- **Undo:** remove `emitCommitteeChanged` and its three calls in `committees.ts`.
