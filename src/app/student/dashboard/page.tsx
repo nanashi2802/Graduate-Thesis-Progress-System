@@ -1,9 +1,10 @@
 // `/student/dashboard` (S1): the thesis tracker (FR-TRK-01, FR-TRK-05, NFR-04, BR-17, BR-18).
 // The Docket is the next-action card. The other regions are ruled sections, not cards (DESIGN.md §5.2, §5.3).
-// The residency indicator waits for the residency rule (R7). The portal layout checks the role.
+// The residency warning is a flag only (FR-WFL-12, BR-17). The portal layout checks the role.
 import Link from "next/link";
 import { CircleCheck, CircleDashed } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
+import { FlagBanner } from "@/components/banners";
 import { Docket } from "@/components/docket";
 import { MilestoneStepper, type StepperStageIndex } from "@/components/milestone-stepper";
 import { MilestoneStatusPill, OutsideChip } from "@/components/status";
@@ -68,6 +69,14 @@ export default async function Page() {
           {t.identity.committeeNames.length > 0 ? ` · Committee: ${t.identity.committeeNames.join(", ")}` : ""}
         </p>
       </header>
+
+      {t.residency?.warning ? (
+        <FlagBanner className="-mb-6">
+          {t.residency.daysLeft < 0
+            ? `Your residency period ended on ${t.residency.endDate}. Speak to the Coordinator.`
+            : `Your residency period ends on ${t.residency.endDate}, in ${t.residency.daysLeft} days.`}
+        </FlagBanner>
+      ) : null}
 
       <Docket
         label="Next action"
@@ -143,6 +152,8 @@ export default async function Page() {
           <dd>{t.keyDates.printedCopiesDue ?? "After the date is confirmed"}</dd>
           <dt className="text-muted-foreground">Target date</dt>
           <dd>{t.keyDates.targetDate ?? "Not set"}</dd>
+          <dt className="text-muted-foreground">Residency end date</dt>
+          <dd>{t.residency?.endDate ?? "Not set"}</dd>
         </dl>
         <p className="text-sm text-muted-foreground">These dates are information. They never block an action.</p>
       </Section>
