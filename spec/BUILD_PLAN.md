@@ -1077,10 +1077,10 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/data/students.ts`, the user-create path (C9), `src/app/(auth)/login/`, tests
 - **Depends on:** none
 - **Done when:**
-  - [ ] First, check whether Neon Auth sends the reset email itself or returns a token for the app to send. Log the choice as an AD.
-  - [ ] Creating a user emits E1. The email holds the link only, never a password (FR-NTF-03).
-  - [ ] `/login` has a "Forgot password" action. It shows the same message for a known and an unknown address.
-- **Tests:** unit (Vitest), manual check of one reset on a development branch
+  - [x] First, check whether Neon Auth sends the reset email itself or returns a token for the app to send. Log the choice as an AD.
+  - [x] Creating a user emits E1. The email holds the link only, never a password (FR-NTF-03).
+  - [x] `/login` has a "Forgot password" action. It shows the same message for a known and an unknown address.
+- **Tests:** unit (Vitest), manual check of one reset on a development branch (not done: AD-A-034, for the human)
 
 ### P2-E04-T10 — Notification preferences panel (Track B, `agent-b`)
 - **Goal:** The user menu opens a panel that turns the optional events on and off.

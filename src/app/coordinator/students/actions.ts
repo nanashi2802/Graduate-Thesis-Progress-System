@@ -1,7 +1,8 @@
 "use server";
 // C2 actions (FR-ACC-04, FR-ACC-07). The data layer checks the role (NFR-01).
+import { defaultMailPort } from "@/server/data/recipients";
 import { revalidatePath } from "next/cache";
-import { neonCreateAuthUser } from "@/server/auth/admin";
+import { neonCreateAuthUser, neonSendSetLink } from "@/server/auth/admin";
 import { createStudent } from "@/server/data/students";
 import type { DegreeLevelValue, Writing1CourseValue } from "@/server/data/schema";
 import { optionalText, runAction, text, type FormState } from "../_lib/action";
@@ -20,6 +21,8 @@ export async function createStudentAction(_prev: FormState, form: FormData): Pro
         adviserUserId: text(form, "adviserUserId"),
       },
       neonCreateAuthUser,
+      undefined,
+      { sendSetLink: neonSendSetLink, sendMail: defaultMailPort() },
     );
     return "Account made. The Thesis Instance and Milestone 1 are open. The Student gets the sign-in email.";
   });

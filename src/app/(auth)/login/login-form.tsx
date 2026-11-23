@@ -3,12 +3,13 @@
 import { useActionState } from "react";
 import { createAuthClient } from "@neon/auth/next";
 import { Button } from "@/components/ui/button";
-import { signInWithEmail, type SignInState } from "./actions";
+import { requestReset, signInWithEmail, type SignInState } from "./actions";
 
 const authClient = createAuthClient();
 
 export function LoginForm() {
   const [state, action, pending] = useActionState<SignInState, FormData>(signInWithEmail, {});
+  const [reset, resetAction, resetPending] = useActionState<SignInState & { message?: string }, FormData>(requestReset, {});
   return (
     <div className="flex flex-col gap-4">
       <form action={action} className="flex flex-col gap-3">
@@ -42,6 +43,16 @@ export function LoginForm() {
       >
         Sign in with Google
       </Button>
+      <details className="text-sm">
+        <summary className="cursor-pointer">Forgot password</summary>
+        <form action={resetAction} className="mt-2 flex flex-col gap-2">
+          <input name="email" type="email" autoComplete="email" required aria-label="Email address" className="rounded-md border px-3 py-2" />
+          <Button type="submit" variant="outline" disabled={resetPending}>
+            Send reset link
+          </Button>
+          {(reset.message || reset.error) && <p role="status">{reset.message ?? reset.error}</p>}
+        </form>
+      </details>
     </div>
   );
 }
