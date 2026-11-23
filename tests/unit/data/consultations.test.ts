@@ -234,7 +234,7 @@ describe("defense availability (FR-SCH-07, FR-SCH-08)", () => {
     // At the Final only the Final Panel is required, not the Adviser or the Evaluation Committee (FR-DEF-06).
     const [preTpl] = await db.select().from(s.milestoneTemplate).where(eq(s.milestoneTemplate.code, "final"));
     const [v] = await db.select().from(s.templateVersion).where(eq(s.templateVersion.milestoneTemplateId, preTpl!.id));
-    await db.insert(s.milestoneInstance).values({ thesisInstanceId: t.thesis.id, templateVersionId: v!.id, milestoneCode: "final", openedAt: at(1) });
+    await db.insert(s.milestoneInstance).values({ thesisInstanceId: t.thesis.id, templateVersionId: v!.id, milestoneCode: "final", openedAt: new Date("2100-01-01T00:00:00Z") });
     const chair = await makeUser(db, "panel_member");
     const [fp] = await db.insert(s.committee).values({ thesisInstanceId: t.thesis.id, kind: "final_panel" }).returning();
     await db.insert(s.committeeMember).values({ committeeId: fp!.id, memberUserId: chair.id, designation: "panel_chair", status: "accepted" });
