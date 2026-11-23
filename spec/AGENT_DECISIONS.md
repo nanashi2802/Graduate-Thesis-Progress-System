@@ -448,3 +448,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** Migration 0010 holds the tables and the `email_log` triggers, so the table never exists without them. `notification_preference` has a DB check for INV-29. The Milestone 3 flow test took 7 s on a loaded machine and hit the 5 s limit, so it now has a 30 s limit. No assertion changed.
 - **Risk:** low.
 - **Undo:** revert the commits with AD-A-032. Migration 0010 only adds two tables and one type.
+
+### AD-A-033 — Where each Track A event is emitted, and what has no source yet
+- **Task:** P2-E04-T07
+- **Options:** emit inside `transitionMilestone` always; emit after the outer commit only.
+- **Decision and reason:** Each data function calls `emitSafely` after its own commit (INV-30). C6 follows FR-NTF-01: Gate 1a (`transitionMilestone` to ADVISER_ENDORSED), Gate 1b (`endorseGate1b`, when the last endorsement completes) and Gate 2 (`transitionMilestone` to FINAL_APPROVED). A Return, CLOSED, CERTIFIED and CLEARED send no C6. A3 is a Return of a date request (DATE_PROPOSED). A1 and A2 come from `proposeDefenseDate` and `confirmDefenseDate`. A6 fires when the last expected sheet is verified (BR-11). B4 fires when items are added and when one is linked. B7 ("commit waiting too long for review") is not emitted here: it needs the daily job and the AS-05 threshold. A5 (substitute) has no source yet: no code writes `defense_substitute` (like C5 in AD-B-028). E2 (access open) is requested from `agent-b` in the pull request text.
+- **Risk:** low. A5, B7 and E2 stay unsent until their sources exist. No test covers the nested-transaction guard, because no nested caller reaches a status that emits, so the guard is removed.
+- **Undo:** revert the commits with AD-A-033. The change only adds calls after commits.

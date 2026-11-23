@@ -234,7 +234,7 @@ describe("defense availability (FR-SCH-07, FR-SCH-08)", () => {
     // At the Final only the Final Panel is required, not the Adviser or the Evaluation Committee (FR-DEF-06).
     const [preTpl] = await db.select().from(s.milestoneTemplate).where(eq(s.milestoneTemplate.code, "final"));
     const [v] = await db.select().from(s.templateVersion).where(eq(s.templateVersion.milestoneTemplateId, preTpl!.id));
-    await db.insert(s.milestoneInstance).values({ thesisInstanceId: t.thesis.id, templateVersionId: v!.id, milestoneCode: "final", openedAt: at(1) });
+    await db.insert(s.milestoneInstance).values({ thesisInstanceId: t.thesis.id, templateVersionId: v!.id, milestoneCode: "final", openedAt: new Date(Date.now() + 86_400_000) }); // Newer than the Proposal milestone, whatever the clock says.
     const chair = await makeUser(db, "panel_member");
     const [fp] = await db.insert(s.committee).values({ thesisInstanceId: t.thesis.id, kind: "final_panel" }).returning();
     await db.insert(s.committeeMember).values({ committeeId: fp!.id, memberUserId: chair.id, designation: "panel_chair", status: "accepted" });
@@ -243,5 +243,18 @@ describe("defense availability (FR-SCH-07, FR-SCH-08)", () => {
     expect(await commonDefenseWindows(as(t.student), t.thesis.id, NOW)).toEqual([{ start: at(10, 9), end: at(10, 10) }]);
     // A Student never sees a defense slot in the consultation list.
     expect(await listSlots(as(t.student), { slotType: "defense" }, NOW)).toEqual([]);
+  });
+});
+
+describe("events of consultations (F1, F2)", () => {
+  const who = async (code: string, targetId: string) =>
+    (await db.select().from(s.notification)).filter((n) => n.eventCode === code && n.targetId === targetId).map((n) => n.recipientUserId);
+  it("tells the Adviser of a request and the Student of the answer", async () => {
+    const t = await makeThesisChain(db);
+    const { slotIds } = await publishSlots(as(t.adviser), slotIn(3), NOW);
+    const { bookingId } = await requestBooking(as(t.student), { slotId: slotIds[0]! }, NOW);
+    expect(await who("F1", bookingId)).toEqual([t.adviser.id]);
+    await decideBooking(as(t.adviser), bookingId, "confirm");
+    expect(await who("F2", bookingId)).toEqual([t.student.id]);
   });
 });
