@@ -1326,9 +1326,9 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `next.config.ts` (`headers()`)
 - **Depends on:** none
 - **Done when:**
-  - [ ] `curl -I` on `/login` shows the three headers.
-  - [ ] The PDF viewer and the file upload still work. No full Content Security Policy now: add it only if the app ever shows HTML that users write.
-  - [ ] The pull request text says `Fixes #56`.
+  - [x] `curl -I` on `/login` shows the three headers.
+  - [x] The PDF viewer and the file upload still work. No full Content Security Policy now: add it only if the app ever shows HTML that users write.
+  - [x] The pull request text says `Fixes #56`.
 - **Tests:** a unit test of the `headers()` result, end-to-end (Playwright)
 
 ### P3-E07-T08 — No data calls after the role check refuses (Track A, `agent-a`, issue #58)
