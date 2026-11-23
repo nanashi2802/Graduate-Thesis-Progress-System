@@ -47,9 +47,15 @@ repo="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
 # State of the agent-review status on a commit: success, failure, pending or empty.
 review_state() { gh api "repos/$repo/commits/$1/statuses" --jq '[.[]|select(.context=="agent-review")][0].state // ""' 2>/dev/null; }
 
-# Bucket of one check on a pull request: pass, fail, pending, skipping or empty. A passing entry wins.
+# Bucket of one check on a head commit: pass, fail, pending, skipping or empty. A passing entry wins.
+# Reads every check run on the commit. `gh pr checks` keeps one entry per name, so a skipped draft run can hide a pass.
 check_bucket() {
-  gh pr checks "$1" --json name,bucket --jq "[.[]|select(.name==\"$2\")|.bucket] | if index(\"pass\") then \"pass\" elif index(\"fail\") then \"fail\" elif index(\"pending\") then \"pending\" else (.[0] // \"\") end" 2>/dev/null
+  if [ "$2" = agent-review ]; then
+    case "$(review_state "$1")" in success) echo pass;; failure|error) echo fail;; pending) echo pending;; esac; return
+  fi
+  gh api "repos/$repo/commits/$1/check-runs?check_name=$2&per_page=100" --jq '[.check_runs[]|.conclusion // "pending"]
+    | if index("success") then "pass" elif (index("failure") or index("timed_out") or index("cancelled")) then "fail"
+      elif index("pending") then "pending" elif index("skipped") then "skipping" else "" end' 2>/dev/null
 }
 
 # Wait, but stop early when the stop file appears.
@@ -71,20 +77,30 @@ run_claude() {
     model="$REVIEW_MODEL"; effort="$REVIEW_EFFORT"; settings="$root/.claude/agent-review-session.json"
   else
     model="$BUILDER_MODEL"; effort="$BUILDER_EFFORT"; settings="$root/.claude/agent-session.json"
+    # §13.2 step 1 in shell: a builder must not read a stale plan. A conflict is left to the agent.
+    local wt="$root/.claude/worktrees/$name"
+    if ! git -C "$wt" merge -q --no-edit origin/dev >/dev/null 2>&1; then
+      git -C "$wt" merge --abort >/dev/null 2>&1; log "sync: $name has a merge conflict with origin/dev; the agent must fix it"
+    fi
   fi
   out="$logdir/$(date +%Y%m%d-%H%M%S)-$name.log"
   log "start $name ($model, $effort): $task"
-  (cd "$root/.claude/worktrees/$name" && timeout "$TIMEOUT" claude -p --model "$model" --effort "$effort" --settings "$settings" \
+  (cd "$root/.claude/worktrees/$name" && timeout "$TIMEOUT" claude -p --output-format json --model "$model" --effort "$effort" --settings "$settings" \
     "$(cat "$root/docs/agents/$name.md")
 
-This run: $task") >"$out" 2>&1
+This run: $task") >"$out.json" 2>"$out"
   rc=$?
+  # Append the final text to the log and read the cost of the run. Not JSON (a timeout): keep the raw output.
+  cost="$(node -e 'const fs=require("fs"),[i,o]=process.argv.slice(1);let t=fs.readFileSync(i,"utf8"),c="?";
+    try{const j=JSON.parse(t);t=String(j.result??"");if(j.total_cost_usd!=null)c=j.total_cost_usd.toFixed(2)}catch{}
+    fs.appendFileSync(o,t);process.stdout.write(c)' "$out.json" "$out" 2>/dev/null)"
+  rm -f "$out.json"
   if grep -qiE "hit your .*limit|usage limit (was )?reached" "$out"; then log "usage limit: $name stopped (log $out)"; return 2; fi
   echo $((n + 1)) >"$triedir/$key"
   result="$(grep -oE 'RESULT: [a-z-]+' "$out" | tail -1)"
   [ "$result" = "RESULT: phase-complete" ] && touch "$logdir/$name.done"
   [ $rc -eq 124 ] && result="timeout after $TIMEOUT"
-  log "end $name rc=$rc ${result:-no RESULT line} (log $out)"
+  log "end $name rc=$rc ${result:-no RESULT line} cost \$${cost:-?} (log $out)"
   return 0
 }
 
@@ -100,7 +116,7 @@ builder_job() {
   if [ "$draft" = true ]; then echo "$b-resume-$k|resume: finish the task of draft pull request #$n"; return; fi
   if [ "$mergeable" = CONFLICTING ]; then echo "$b-conflict-$k|fix: pull request #$n has a merge conflict with dev"; return; fi
   if [ "$(review_state "$sha")" = failure ]; then echo "$b-findings-$k|fix: pull request #$n has agent-review findings"; return; fi
-  if [ "$(check_bucket "$n" ci)" = fail ] || [ "$(check_bucket "$n" commit-policy)" = fail ]; then echo "$b-check-$k|fix: pull request #$n has a failed check"; return; fi
+  if [ "$(check_bucket "$sha" ci)" = fail ] || [ "$(check_bucket "$sha" commit-policy)" = fail ]; then echo "$b-check-$k|fix: pull request #$n has a failed check"; return; fi
 }
 
 rm -f "$stopfile"
@@ -118,7 +134,7 @@ while [ ! -f "$stopfile" ]; do
   # 1. Merge one green pull request (§13.2 step 8). No model turn.
   while read -r n sha; do
     [ -n "${n:-}" ] || continue
-    if [ "$(check_bucket "$n" ci)" = pass ] && [ "$(check_bucket "$n" commit-policy)" = pass ] && [ "$(check_bucket "$n" agent-review)" = pass ]; then
+    if [ "$(check_bucket "$sha" ci)" = pass ] && [ "$(check_bucket "$sha" commit-policy)" = pass ] && [ "$(check_bucket "$sha" agent-review)" = pass ]; then
       if gh pr merge "$n" --merge >/dev/null 2>&1; then
         log "merged #$n"; worked=1
         # §13.8: a merge with migrations runs them on the Neon branch in .env.local. agent-r is idle here.
@@ -136,7 +152,7 @@ while [ ! -f "$stopfile" ]; do
   # Only after ci passes: a red commit gets a fix run first, so no review is spent on it.
   while read -r n sha; do
     [ -n "${n:-}" ] || continue
-    if [ -z "$(review_state "$sha")" ] && [ "$(check_bucket "$n" ci)" = pass ]; then
+    if [ -z "$(review_state "$sha")" ] && [ "$(check_bucket "$sha" ci)" = pass ]; then
       run_claude agent-r "review pull request #$n (head $sha)." "agent-r-review-${sha:0:12}"; rc=$?
       [ $rc -eq 2 ] && { nap "$LIMIT_WAIT"; continue 2; }
       [ $rc -eq 3 ] && continue
