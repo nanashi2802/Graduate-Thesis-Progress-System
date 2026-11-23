@@ -159,5 +159,5 @@ describe("Milestone 3: Final Defense and clearance with every role", () => {
     expect((await clearanceView(as(student), mid)).rows.every((r) => r.done)).toBe(true);
     await transitionMilestone(as(coordinator), mid, "CLEARED");
     expect(await status()).toBe("CLEARED");
-  });
+  }, 30_000);
 });

@@ -94,7 +94,7 @@ async function loadCommittee(ctx: DataContext, committeeId: string) {
 
 // E3 (FR-NTF-01): the Student learns of a committee change. It runs after the commit and never throws (INV-30).
 async function emitCommitteeChanged(ctx: DataContext, c: { id: string; thesisInstanceId: string; kind: CommitteeKind }) {
-  await emitSafely(ctx, "E3", { thesisId: c.thesisInstanceId, milestone: KIND_MILESTONE[c.kind] }, { link: appLink("/student/committee"), targetTable: "committee", targetId: c.id });
+  await emitSafely(ctx, "E3", { thesisId: c.thesisInstanceId, milestone: KIND_MILESTONE[c.kind] }, { link: appLink("/student/dashboard"), targetTable: "committee", targetId: c.id });
 }
 
 async function seatsOf(ctx: DataContext, committeeId: string) {
@@ -147,10 +147,6 @@ export async function proposeSeat(
     });
     return { ok: true, value: seat! } as const;
   });
-  if (res.ok) {
-    const [c] = await ctx.db.select().from(committee).where(eq(committee.id, res.value.committeeId));
-    await emitCommitteeChanged(ctx, c!);
-  }
   return res;
 }
 
@@ -173,8 +169,10 @@ export async function recordSeatAnswer(
     });
     return { ok: true, value: null } as const;
   });
-  const [c] = await ctx.db.select().from(committee).where(eq(committee.id, seat.committeeId));
-  await emitCommitteeChanged(ctx, c!);
+  if (input.status === "declined") {
+    const [c] = await ctx.db.select().from(committee).where(eq(committee.id, seat.committeeId));
+    await emitCommitteeChanged(ctx, c!);
+  }
   return res;
 }
 

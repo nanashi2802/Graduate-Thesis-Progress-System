@@ -71,6 +71,13 @@
       "when": 1795371825948,
       "tag": "0009_clearance_evidence_items",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1795421096871,
+      "tag": "0010_email_tables",
+      "breakpoints": true
     }
   ]
 }

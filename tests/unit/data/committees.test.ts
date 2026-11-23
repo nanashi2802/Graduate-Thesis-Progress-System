@@ -1,6 +1,6 @@
 // P1-E05-T02: appointment board data and actions (FR-CMT-01 to 04, NFR-01, NFR-03, AD-B-018).
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AccessDeniedError, type Actor } from "@/server/data/access";
 import {
   advanceMilestone,
@@ -251,12 +251,50 @@ describe("appointmentBoard (FR-CMT-02)", () => {
 });
 
 describe("E3 committee changed (FR-NTF-01, INV-30)", () => {
-  it("notifies the Student after a proposal and an answer, never the Coordinator", async () => {
+  const e3 = () => db.select().from(s.notification).where(eq(s.notification.eventCode, "E3"));
+
+  it("sends nothing for a proposal or an acceptance", async () => {
     const a = await propose(seed.panel[0]!.id, "lead_panel_member");
     if (!a.ok) throw new Error("setup");
     await recordSeatAnswer(ctx(), { seatId: a.value.id, status: "accepted" });
-    const got = await db.select().from(s.notification).where(eq(s.notification.eventCode, "E3"));
-    expect(got).toHaveLength(2);
-    expect(got.every((r) => r.recipientUserId === seed.student.id)).toBe(true);
+    expect(await e3()).toHaveLength(0);
+  });
+
+  it("notifies the Student, never the acting Coordinator, when a member declines", async () => {
+    const a = await propose(seed.panel[0]!.id, "lead_panel_member");
+    if (!a.ok) throw new Error("setup");
+    await recordSeatAnswer(ctx(), { seatId: a.value.id, status: "declined" });
+    const got = await e3();
+    expect(got).toHaveLength(1);
+    expect(got[0]!.recipientUserId).toBe(seed.student.id);
+  });
+
+  it("notifies the Student when the committee is appointed", async () => {
+    const { committeeId, lead, chair } = await fullCommittee();
+    await linkAppointmentForm(ctx(), { committeeId, documentId: (await doc("TDW_06")).id });
+    for (const seat of [lead, chair]) {
+      await linkNda(ctx(), { seatId: seat.id, documentId: (await doc("TDW_05", seat.memberUserId)).id });
+    }
+    expect(await markAppointed(ctx(), { committeeId })).toMatchObject({ ok: true });
+    const got = await e3();
+    expect(got).toHaveLength(1);
+    expect(got[0]!.recipientUserId).toBe(seed.student.id);
+  });
+
+  it("commits the write when the email send throws (INV-30)", async () => {
+    vi.stubEnv("RESEND_API_KEY", "k");
+    vi.stubEnv("EMAIL_FROM", "a@example.com");
+    vi.stubGlobal("fetch", async () => {
+      throw new Error("down");
+    });
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    const a = await propose(seed.panel[0]!.id, "lead_panel_member");
+    if (!a.ok) throw new Error("setup");
+    expect(await recordSeatAnswer(ctx(), { seatId: a.value.id, status: "declined" })).toMatchObject({ ok: true });
+    const [seat] = await db.select().from(s.committeeMember).where(eq(s.committeeMember.id, a.value.id));
+    expect(seat!.status).toBe("declined");
+    log.mockRestore();
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
   });
 });
