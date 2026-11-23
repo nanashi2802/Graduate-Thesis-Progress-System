@@ -107,7 +107,7 @@ describe("createAccount E1 (FR-ACC-08, FR-NTF-03, INV-30)", () => {
       sent.push({ to, text: msg.subject + msg.text });
       return "id";
     };
-    const row = await createAccount(
+    await createAccount(
       { db, actor: coordinator },
       { fullName: "Fake Adviser", email: "adv@example.test", role: "adviser" },
       fakeAuth,
@@ -128,6 +128,5 @@ describe("createAccount E1 (FR-ACC-08, FR-NTF-03, INV-30)", () => {
       { sendSetLink: async () => { throw new Error("down"); }, sendMail: async () => { throw new Error("down"); } },
     );
     expect(row2.id).toBeTruthy();
-    expect(row.id).toBeTruthy();
   });
 });

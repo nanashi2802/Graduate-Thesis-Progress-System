@@ -2,8 +2,7 @@
 // C9 actions (FR-ACC-05, FR-ACC-06, BR-03, AD-A-016). The data layer checks the role (NFR-01).
 import { revalidatePath } from "next/cache";
 import { neonCreateAuthUser, neonSendSetLink } from "@/server/auth/admin";
-import { createAccount } from "@/server/data/accounts";
-import { defaultMailPort } from "@/server/data/recipients";
+import { accountMailPort, createAccount } from "@/server/data/accounts";
 import { InputProblem } from "@/server/data/coordinator";
 import type { UserRole } from "@/server/data/schema";
 import { setUserActive, updateUser } from "@/server/data/users";
@@ -25,7 +24,7 @@ export async function addUserAction(_prev: FormState, form: FormData): Promise<F
       if (!text(form, "fullName")) throw new InputProblem("Enter the name.");
       await createAccount(ctx, { fullName: text(form, "fullName"), email: text(form, "email"), role }, neonCreateAuthUser, undefined, {
         sendSetLink: neonSendSetLink,
-        sendMail: defaultMailPort(),
+        sendMail: accountMailPort(),
       });
       return "Account made. The user gets the sign-in email.";
     }),

@@ -37,6 +37,12 @@ const student = (over: Partial<NewStudent> = {}): NewStudent => ({
 });
 
 describe("createStudent", () => {
+  it("sends the set-password link to the new student (FR-ACC-08, INV-30)", async () => {
+    const sendSetLink = vi.fn(async () => {});
+    await createStudent({ db, actor: coordinator }, student(), fakeAuth, undefined, { sendSetLink });
+    expect(sendSetLink).toHaveBeenCalledWith("fake.student@example.test");
+  });
+
   it("makes the account, the thesis, Milestone 1 on the latest Proposal version, and one audit record", async () => {
     const res = await createStudent({ db, actor: coordinator }, student(), fakeAuth);
     const [user] = await db.select().from(s.appUser).where(eq(s.appUser.id, res.userId));

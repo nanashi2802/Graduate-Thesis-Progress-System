@@ -4,6 +4,7 @@ import { randomBytes } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { AccessDeniedError, requireActive, type DataContext } from "./access";
 import { appLink } from "@/server/notify/link";
+import { sendEmail } from "@/server/notify/email";
 import { notifyEvent, type EmailPort } from "./notifications";
 import { appUser, type AppUser, type UserRole } from "./schema";
 
@@ -53,7 +54,16 @@ export async function createAccount(
   return row!;
 }
 
+// The Resend port for E1, when the keys are set. Without keys there is only the in-app row.
+export function accountMailPort(): EmailPort | null {
+  const { RESEND_API_KEY, EMAIL_FROM } = process.env;
+  if (!RESEND_API_KEY || !EMAIL_FROM) return null;
+  return (to, msg) => sendEmail(to, msg, { apiKey: RESEND_API_KEY, from: EMAIL_FROM });
+}
+
 export async function afterAccountCreated(ctx: DataContext, userId: string, email: string, after: AfterCreate): Promise<void> {
+  requireActive(ctx.actor);
+  if (ctx.actor.role !== "coordinator") throw new AccessDeniedError("only the Coordinator makes accounts");
   try {
     await after.sendSetLink?.(email);
   } catch {

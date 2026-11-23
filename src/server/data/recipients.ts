@@ -67,7 +67,7 @@ export async function emitEvent(
 }
 
 // The real email port: Resend, when the keys are set. Without keys (tests, local) there is no email, only the in-app row.
-export function defaultMailPort(): EmailPort | null {
+function defaultMailPort(): EmailPort | null {
   const { RESEND_API_KEY, EMAIL_FROM } = process.env;
   if (!RESEND_API_KEY || !EMAIL_FROM) return null;
   return (to, msg) => sendEmail(to, msg, { apiKey: RESEND_API_KEY, from: EMAIL_FROM });

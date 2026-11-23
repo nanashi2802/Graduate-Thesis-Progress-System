@@ -1,11 +1,11 @@
 "use server";
 // Email and password sign-in (FR-ACC-01).
 import { redirect } from "next/navigation";
-import { appLink } from "@/server/notify/link";
+import { neonSendSetLink } from "@/server/auth/admin";
 import { getAuth } from "@/server/auth/neon-auth";
 import { afterSignInPath } from "@/server/auth/session";
 
-export type SignInState = { error?: string };
+export type SignInState = { error?: string; message?: string };
 
 export async function signInWithEmail(_prev: SignInState, formData: FormData): Promise<SignInState> {
   const email = String(formData.get("email") ?? "").trim();
@@ -24,18 +24,18 @@ export async function signOut(): Promise<void> {
 const SENT = "If this address has an account, an email with a reset link is on its way.";
 
 // The same message for a known and an unknown address (FR-ACC-08). Neon Auth sends the email.
-export async function requestReset(_prev: SignInState, formData: FormData): Promise<SignInState & { message?: string }> {
+export async function requestReset(_prev: SignInState, formData: FormData): Promise<SignInState> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   if (!email) return { error: "Enter your email address." };
   try {
-    await getAuth().requestPasswordReset({ email, redirectTo: appLink("/login/reset") });
+    await neonSendSetLink(email);
   } catch {
     // Show no difference to the user.
   }
   return { message: SENT };
 }
 
-export async function setNewPassword(_prev: SignInState, formData: FormData): Promise<SignInState & { message?: string }> {
+export async function setNewPassword(_prev: SignInState, formData: FormData): Promise<SignInState> {
   const token = String(formData.get("token") ?? "");
   const newPassword = String(formData.get("password") ?? "");
   if (!token) return { error: "This reset link is not valid. Ask for a new one." };

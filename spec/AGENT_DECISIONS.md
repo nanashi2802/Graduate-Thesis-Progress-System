@@ -469,3 +469,4 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** The first. The SDK method `requestPasswordReset({ email, redirectTo })` returns no token, so the app cannot send the link. A new account calls it after the commit, then emits E1 through Resend (link to `/login`, no password, FR-NTF-03). `/login/reset` takes the token and calls `resetPassword`. The "Forgot password" action shows one message for a known and an unknown address.
 - **Risk:** medium. I could not run one real reset on a development branch in this run (no live Neon Auth session). The human must check one reset, and that the Neon Auth email sender is on. A failing link or E1 never undoes the account (INV-30).
 - **Undo:** revert the commits with AD-A-034.
+- **Gap (agent-r review of #71):** the E1 notice "your password was reset" is not built. `setNewPassword` runs with no signed-in actor, so it cannot call `notifyEvent`. Open for a later task.

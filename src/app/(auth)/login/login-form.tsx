@@ -9,7 +9,7 @@ const authClient = createAuthClient();
 
 export function LoginForm() {
   const [state, action, pending] = useActionState<SignInState, FormData>(signInWithEmail, {});
-  const [reset, resetAction, resetPending] = useActionState<SignInState & { message?: string }, FormData>(requestReset, {});
+  const [reset, resetAction, resetPending] = useActionState<SignInState, FormData>(requestReset, {});
   return (
     <div className="flex flex-col gap-4">
       <form action={action} className="flex flex-col gap-3">
