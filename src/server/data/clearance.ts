@@ -5,6 +5,8 @@ import { and, eq, inArray } from "drizzle-orm";
 import type { ClearanceKind, FormCode } from "./schema";
 import { requireActive, type DataContext } from "./access";
 import { recordAudit } from "./audit";
+import { appLink } from "@/server/notify/link";
+import { emitSafely } from "./recipients";
 import { InputProblem, requireCoordinator } from "./coordinator";
 import type { Db } from "./db";
 import { loadMilestoneContext, loadMilestoneFacts } from "./milestone-facts";
@@ -134,5 +136,7 @@ export async function verifyClearanceItem(
       { action: "clearance.verify", targetTable: "milestone_instance", targetId: m.id, detail: { kind: input.kind } },
     );
   });
+  // B5 (FR-NTF-01): the email names no item detail (FR-NTF-03).
+  await emitSafely(ctx, "B5", { thesisId: m.thesisInstanceId }, { link: appLink("/login"), targetTable: "milestone_instance", targetId: m.id });
 }
 

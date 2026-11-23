@@ -115,3 +115,12 @@ describe("Clearance checklist (FR-CLR-01 to 04)", () => {
     expect(m!.status).toBe("CLEARED");
   });
 });
+
+describe("event B5", () => {
+  it("tells the Student when the Coordinator verifies an item", async () => {
+    const w = await world();
+    await verify(w, "conference_cert");
+    const rows = (await db.select().from(s.notification)).filter((n) => n.eventCode === "B5" && n.targetId === w.m3.id);
+    expect(rows.map((n) => n.recipientUserId)).toEqual([w.student.id]);
+  });
+});
