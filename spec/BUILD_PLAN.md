@@ -1315,9 +1315,9 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** delete `src/app/coordinator/spike-files/`, and any link or test that names the route
 - **Depends on:** none
 - **Done when:**
-  - [ ] `/coordinator/spike-files` returns 404. No file names the route.
-  - [ ] The e2e file test uses the real commit upload, not the spike.
-  - [ ] The pull request text says `Fixes #55`.
+  - [x] `/coordinator/spike-files` returns 404. Only the e2e 404 test names the route.
+  - [ ] The e2e file test uses the real commit upload, not the spike. Blocked: the run needs `DEV_SEED_PASSWORD` and storage in `.env.local`. P3-E07-T02 adds it. The 404 test replaces the spike test now.
+  - [x] The pull request text says `Fixes #55`.
 - **Tests:** lint, typecheck, unit, end-to-end (Playwright)
 
 ### P3-E07-T07 — Security headers (Track B, `agent-b`, issue #56)

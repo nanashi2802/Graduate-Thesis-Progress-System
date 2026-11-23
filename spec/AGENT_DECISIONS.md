@@ -87,6 +87,7 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** A spike screen in the Coordinator portal, so the portal gate and the server-side Coordinator check (NFR-01) protect it. It is not in `SITEMAP.md`. P1-E06 removes it when commit uploads exist. The viewer uses `react-pdf` (PRD §11.2) and `pdfjs-dist` at the same version, with `disableAutoFetch` and `disableStream`, so pdf.js reads only the byte ranges of the page in view (PRD §11.3 rule 2).
 - **Risk:** low. Spike code only.
 - **Undo:** delete `src/app/coordinator/spike-files/`.
+- **Status:** removed in P3-E07-T06 (issue #55). The route signed a read link for any key (INV-24).
 ### AD-B-001 — Vercel project name, settings and origins
 - **Task:** P0-E05-T01
 - **Options:** name `thesisko` (same as the Neon project); a longer name from the repository
