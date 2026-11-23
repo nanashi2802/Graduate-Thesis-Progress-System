@@ -442,7 +442,7 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Risk:** low. The date can be up to about 5 months late for a term 1 start. No action depends on it. The Coordinator must confirm the rule with the Registrar (R7).
 - **Undo:** delete `src/server/domain/residency.ts` and its uses in `tracker.ts`, `overview.ts` and the two dashboards.
 
-### AD-B-028 — E3 is emitted when the committee is appointed or a member declines; C5 has no source yet
+### AD-B-028 â€” E3 is emitted when the committee is appointed or a member declines; C5 has no source yet
 - **Task:** P2-E04-T08
 - **Options:** emit E3 on every committee write; emit E3 only on the FR-NTF-01 triggers. Emit C5 from a document comment feature, or log that none exists.
 - **Decision and reason:** E3 only in `markAppointed` and in `recordSeatAnswer` with a decline (FR-NTF-01: "Committee appointed, or a member declines"). A proposal or an acceptance sends nothing. The link is `/student/dashboard` (S1, shows the committee). The Coordinator recipients get the same link. `documents.ts` has no comment feature, so no code emits C5. Add the emit when a document comment function exists.
