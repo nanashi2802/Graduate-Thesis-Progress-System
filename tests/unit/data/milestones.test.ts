@@ -43,6 +43,10 @@ async function setup() {
   return { ...chain, lead, chair, committee: com! };
 }
 
+// C6 (FR-NTF-01): who got the notice for one milestone. A Coordinator is shared in the test database, so tests use `toContain`.
+const c6For = async (milestoneId: string) =>
+  (await db.select().from(s.notification)).filter((n) => n.eventCode === "C6" && n.targetId === milestoneId).map((n) => n.recipientUserId);
+
 const setStatus = (milestoneId: string, status: s.MilestoneStatusValue) =>
   db.update(s.milestoneInstance).set({ status }).where(eq(s.milestoneInstance.id, milestoneId));
 const setReady = (prId: string, commitId: string) =>
@@ -102,6 +106,11 @@ describe("transitionMilestone (ERD §7.1)", () => {
     const rows = await db.select().from(s.gateAction).where(eq(s.gateAction.milestoneInstanceId, t.milestone.id));
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ gate: "gate_1a", result: "endorsed", actorUserId: t.adviser.id, commitId: t.commit.id });
+    // C6: the Student and the Coordinator hear of Gate 1a. The actor does not.
+    const c6 = await c6For(t.milestone.id);
+    expect(c6).toContain(t.student.id);
+    expect(c6).toContain(t.coordinator.id);
+    expect(c6).not.toContain(t.adviser.id);
   });
 
   it("makes a Return need a reason and goes back to DRAFT with the reason kept (INV-18, INV-19, BR-13)", async () => {
@@ -171,11 +180,17 @@ describe("endorseGate1b (FR-WFL-04, INV-21, BR-07)", () => {
     const t = await atGate1b();
     await expect(endorseGate1b(as(t.adviser), t.milestone.id)).resolves.toEqual({ completed: false });
     await expect(endorseGate1b(as(t.lead), t.milestone.id)).resolves.toEqual({ completed: false });
+    expect(await c6For(t.milestone.id)).toEqual([]);
     expect((await statusOf(t.milestone.id)).status).toBe("COMMITTEE_APPOINTED");
     await expect(endorseGate1b(as(t.chair), t.milestone.id)).resolves.toEqual({ completed: true });
     expect((await statusOf(t.milestone.id)).status).toBe("COMMITTEE_ENDORSED");
     const [pr] = await db.select().from(s.submissionPr).where(eq(s.submissionPr.id, t.pr.id));
     expect(pr!.lockedAt).not.toBeNull();
+    // C6 only when the last endorsement completes Gate 1b.
+    const c6 = await c6For(t.milestone.id);
+    expect(c6).toContain(t.student.id);
+    expect(c6).toContain(t.coordinator.id);
+    expect(c6).not.toContain(t.chair.id);
   });
 
   it("starts a new Gate 1b round after a Coordinator Return at DATE_PROPOSED (BR-13, BR-07, AD-A-018)", async () => {

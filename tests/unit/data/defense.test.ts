@@ -442,3 +442,28 @@ describe("listAttempts (FR-DEF-11, FR-DEF-12, BR-11, BR-15)", () => {
     await expect(listAttempts(as(stranger), w.milestone.id)).rejects.toBeInstanceOf(AccessDeniedError);
   });
 });
+
+// P2-E04-T07: the events of the defense (FR-NTF-01, INV-30). The actor gets no notice. No email text holds a date or a verdict.
+describe("events of the defense (A1, A2, A3, A6)", () => {
+  const who = async (code: string, targetId: string) =>
+    (await db.select().from(s.notification)).filter((n) => n.eventCode === code && n.targetId === targetId).map((n) => n.recipientUserId).sort();
+  it("tells the right people after each commit", async () => {
+    const w = await setup();
+    const { attemptId } = await proposeDefenseDate(as(w.student), w.milestone.id, PROPOSED);
+    const a1 = await who("A1", attemptId); // Every active Coordinator gets it, so the shared test database holds several.
+    expect(a1).toContain(w.coordinator.id);
+    expect(a1).not.toContain(w.student.id);
+    await transitionMilestone(as(w.coordinator), w.milestone.id, "RETURNED", { reason: "Wrong room.", purpose: "compliance" });
+    expect(await who("A3", w.milestone.id)).toEqual([w.student.id, w.lead.id, w.chair.id].sort());
+    const v = await setup();
+    await proposeDefenseDate(as(v.student), v.milestone.id, PROPOSED);
+    await confirmDefenseDate(as(v.coordinator), v.milestone.id, { startsAt: startOf(PROPOSED), roomOrLink: "Room 101" });
+    expect(await who("A2", v.milestone.id)).toEqual([v.student.id, v.adviser.id, v.lead.id, v.chair.id].sort());
+  });
+  it("tells the Student when the last sheet is verified (A6)", async () => {
+    const w = await scheduled();
+    await allSheets(w);
+    await verifyAll(w);
+    expect(await who("A6", w.attempt.id)).toEqual([w.student.id]);
+  });
+});

@@ -4,7 +4,7 @@ import { randomBytes } from "node:crypto";
 import { asc, eq } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import type { DataContext } from "./access";
-import type { CreateAuthUser } from "./accounts";
+import { afterAccountCreated, type AfterCreate, type CreateAuthUser } from "./accounts";
 import { DuplicateEmailError } from "./accounts";
 import { recordAudit } from "./audit";
 import { InputProblem, requireCoordinator } from "./coordinator";
@@ -46,6 +46,7 @@ export async function createStudent(
   input: NewStudent,
   createAuthUser: CreateAuthUser,
   password: string = randomBytes(24).toString("base64url"),
+  after: AfterCreate = {},
 ): Promise<CreatedStudent> {
   requireCoordinator(ctx, "makes accounts");
   const problem = inputProblem(input);
@@ -61,7 +62,7 @@ export async function createStudent(
 
   const { authUserId } = await createAuthUser({ name: input.fullName.trim(), email, password });
   const versionId = await latestVersionId(ctx.db, "proposal");
-  return ctx.db.transaction(async (tx) => {
+  const created = await ctx.db.transaction(async (tx) => {
     const [user] = await tx
       .insert(appUser)
       .values({ fullName: input.fullName.trim(), email, role: "student", authUserId })
@@ -93,6 +94,8 @@ export async function createStudent(
     );
     return { userId: user!.id, thesisId: thesis!.id, milestoneId: milestone!.id };
   });
+  await afterAccountCreated(ctx, created.userId, email, after);
+  return created;
 }
 
 export type StudentRow = {

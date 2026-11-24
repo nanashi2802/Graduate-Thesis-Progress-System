@@ -1020,8 +1020,8 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/data/notifications.ts`, `tests/unit/data/notifications.test.ts`
 - **Depends on:** P2-E04-T03
 - **Done when:**
-  - [ ] A failed send writes a `failed` row with the error. The `notification` row stays (INV-30). This closes the open box of P1-E12-T02.
-  - [ ] A turned-off optional event writes no email and no log row (FR-NTF-05).
+  - [x] A failed send writes a `failed` row with the error. The `notification` row stays (INV-30). This closes the open box of P1-E12-T02.
+  - [x] A turned-off optional event writes no email and no log row (FR-NTF-05).
 - **Tests:** unit (Vitest with PGlite, fake email port)
 
 ### P2-E04-T05 — Residency end date and warning (Track B, `agent-b`)
@@ -1052,12 +1052,13 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Goal:** Each event of FR §4.10 that a Track A data function causes calls `emitSafely` after it commits.
 - **Covers:** FR-NTF-01, FR-NTF-02, FR-NTF-08, INV-28, INV-30
 - **Reads:** `src/server/notify/events.ts`, `src/server/data/recipients.ts`, B3 in `documents.ts` (the pattern)
-- **Changes:** `defense.ts` (A1, A2, A3, A5, A6), `manuscript.ts` (C1, B7, C2, C3, C4, E2), `milestones.ts` (C6), `revisions.ts` (B4), `clearance.ts` (B5), `consultations.ts` (F1, F2), their tests
+- **Changes:** `defense.ts` (A1, A2, A3, A6), `manuscript.ts` (C1, C2, C3, C4), `milestones.ts` (C6), `revisions.ts` (B4), `clearance.ts` (B5), `consultations.ts` (F1, F2), their tests
 - **Depends on:** none (the emit helper exists)
 - **Done when:**
-  - [ ] Each listed event has a test: the right recipients get a `notification` row, and the actor gets none.
-  - [ ] No email holds a meeting link, a score, a verdict or comment text (FR-NTF-03, INV-28).
-  - [ ] Each event commits even when the email port throws (INV-30). This closes the wiring box of P1-E12-T04 for these events.
+  - [x] Each listed event that has a source has a test: the right recipients get a `notification` row, and the actor gets none.
+  - [x] No email holds a meeting link, a score, a verdict or comment text (FR-NTF-03, INV-28).
+  - [x] Each event commits even when the email port throws (INV-30). This closes the wiring box of P1-E12-T04 for these events.
+- **Note:** B7 waits for the daily job (AS-05). A5 has no source yet. E2 is requested from `agent-b` (AD-A-033).
 - **Tests:** unit (Vitest with PGlite)
 
 ### P2-E04-T08 — Emit events from the Track B data functions (Track B, `agent-b`)
@@ -1066,7 +1067,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/data/committees.ts`, `src/server/data/documents.ts`, their tests
 - **Depends on:** none
 - **Done when:**
-  - [ ] E3 and C5 have tests like T07. If no document comment feature exists, log an AD that C5 has no source yet.
+  - [x] E3 and C5 have tests like T07. If no document comment feature exists, log an AD that C5 has no source yet.
 - **Tests:** unit (Vitest with PGlite)
 
 ### P2-E04-T09 — Account setup and password reset email (Track A, `agent-a`)
@@ -1076,10 +1077,10 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/data/students.ts`, the user-create path (C9), `src/app/(auth)/login/`, tests
 - **Depends on:** none
 - **Done when:**
-  - [ ] First, check whether Neon Auth sends the reset email itself or returns a token for the app to send. Log the choice as an AD.
-  - [ ] Creating a user emits E1. The email holds the link only, never a password (FR-NTF-03).
-  - [ ] `/login` has a "Forgot password" action. It shows the same message for a known and an unknown address.
-- **Tests:** unit (Vitest), manual check of one reset on a development branch
+  - [x] First, check whether Neon Auth sends the reset email itself or returns a token for the app to send. Log the choice as an AD.
+  - [x] Creating a user emits E1. The email holds the link only, never a password (FR-NTF-03).
+  - [x] `/login` has a "Forgot password" action. It shows the same message for a known and an unknown address.
+- **Tests:** unit (Vitest), manual check of one reset on a development branch (not done: AD-A-034, for the human)
 
 ### P2-E04-T10 — Notification preferences panel (Track B, `agent-b`)
 - **Goal:** The user menu opens a panel that turns the optional events on and off.

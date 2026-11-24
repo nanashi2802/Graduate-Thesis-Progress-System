@@ -442,9 +442,31 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Risk:** low. The date can be up to about 5 months late for a term 1 start. No action depends on it. The Coordinator must confirm the rule with the Registrar (R7).
 - **Undo:** delete `src/server/domain/residency.ts` and its uses in `tracker.ts`, `overview.ts` and the two dashboards.
 
+### AD-B-028 — E3 is emitted when the committee is appointed or a member declines; C5 has no source yet
+- **Task:** P2-E04-T08
+- **Options:** emit E3 on every committee write; emit E3 only on the FR-NTF-01 triggers. Emit C5 from a document comment feature, or log that none exists.
+- **Decision and reason:** E3 only in `markAppointed` and in `recordSeatAnswer` with a decline (FR-NTF-01: "Committee appointed, or a member declines"). A proposal or an acceptance sends nothing. The link is `/student/dashboard` (S1, shows the committee). The Coordinator recipients get the same link. `documents.ts` has no comment feature, so no code emits C5. Add the emit when a document comment function exists.
+- **Risk:** low. The Coordinator link opens a page the Coordinator may not see. The emit runs after the commit and never throws (INV-30).
+- **Undo:** remove `emitCommitteeChanged` and its two calls in `committees.ts`.
+
 ### AD-A-032 — Email tables: one migration, a 30 s limit for the Milestone 3 flow test
 - **Task:** P2-E04-T03
 - **Options:** put the append-only triggers in a second migration; put them in 0010 with the tables. Keep the 5 s test limit; raise it for the flow test.
 - **Decision and reason:** Migration 0010 holds the tables and the `email_log` triggers, so the table never exists without them. `notification_preference` has a DB check for INV-29. The Milestone 3 flow test took 7 s on a loaded machine and hit the 5 s limit, so it now has a 30 s limit. No assertion changed.
 - **Risk:** low.
 - **Undo:** revert the commits with AD-A-032. Migration 0010 only adds two tables and one type.
+
+### AD-A-033 — Where each Track A event is emitted, and what has no source yet
+- **Task:** P2-E04-T07
+- **Options:** emit inside `transitionMilestone` always; emit after the outer commit only.
+- **Decision and reason:** Each data function calls `emitSafely` after its own commit (INV-30). C6 follows FR-NTF-01: Gate 1a (`transitionMilestone` to ADVISER_ENDORSED), Gate 1b (`endorseGate1b`, when the last endorsement completes) and Gate 2 (`transitionMilestone` to FINAL_APPROVED). A Return, CLOSED, CERTIFIED and CLEARED send no C6. A3 is a Return of a date request (DATE_PROPOSED). A1 and A2 come from `proposeDefenseDate` and `confirmDefenseDate`. A6 fires when the last expected sheet is verified (BR-11). B4 fires when items are added and when one is linked. B7 ("commit waiting too long for review") is not emitted here: it needs the daily job and the AS-05 threshold. A5 (substitute) has no source yet: no code writes `defense_substitute` (like C5 in AD-B-028). E2 (access open) is requested from `agent-b` in the pull request text.
+- **Risk:** low. A5, B7 and E2 stay unsent until their sources exist. No test covers the nested-transaction guard, because no nested caller reaches a status that emits, so the guard is removed.
+- **Undo:** revert the commits with AD-A-033. The change only adds calls after commits.
+
+### AD-A-034 — Neon Auth sends the reset email itself; E1 adds a sign-in notice
+- **Task:** P2-E04-T09
+- **Options:** Neon Auth sends the set-password and reset email (`requestPasswordReset`); or the app asks for a token and sends the email itself.
+- **Decision and reason:** The first. The SDK method `requestPasswordReset({ email, redirectTo })` returns no token, so the app cannot send the link. A new account calls it after the commit, then emits E1 through Resend (link to `/login`, no password, FR-NTF-03). `/login/reset` takes the token and calls `resetPassword`. The "Forgot password" action shows one message for a known and an unknown address.
+- **Risk:** medium. I could not run one real reset on a development branch in this run (no live Neon Auth session). The human must check one reset, and that the Neon Auth email sender is on. A failing link or E1 never undoes the account (INV-30).
+- **Undo:** revert the commits with AD-A-034.
+- **Gap (agent-r review of #71):** the E1 notice "your password was reset" is not built. `setNewPassword` runs with no signed-in actor, so it cannot call `notifyEvent`. Open for a later task.
