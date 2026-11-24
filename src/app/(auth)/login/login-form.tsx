@@ -46,7 +46,7 @@ export function LoginForm() {
       <details className="text-sm">
         <summary className="cursor-pointer">Forgot password</summary>
         <form action={resetAction} className="mt-2 flex flex-col gap-2">
-          <input name="email" type="email" autoComplete="email" required aria-label="Email address" className="rounded-md border px-3 py-2" />
+          <input name="email" type="email" autoComplete="email" required aria-label="Reset link email" className="rounded-md border px-3 py-2" />
           <Button type="submit" variant="outline" disabled={resetPending}>
             Send reset link
           </Button>
