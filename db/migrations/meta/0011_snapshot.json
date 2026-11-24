@@ -1,0 +1,3979 @@
+{
+  "id": "494983d9-828f-4dba-b88a-f076a2617015",
+  "prevId": "6f738c94-52ee-4492-8608-ffb77c2f3ae1",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "app.app_user": {
+      "name": "app_user",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "full_name": {
+          "name": "full_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "user_role",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "app_user_auth_user_id_unique": {
+          "name": "app_user_auth_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "auth_user_id"
+          ]
+        },
+        "app_user_email_unique": {
+          "name": "app_user_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "app_user_email_lower": {
+          "name": "app_user_email_lower",
+          "value": "\"app\".\"app_user\".\"email\" = lower(\"app\".\"app_user\".\"email\")"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.milestone_instance": {
+      "name": "milestone_instance",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "thesis_instance_id": {
+          "name": "thesis_instance_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "template_version_id": {
+          "name": "template_version_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "milestone_code": {
+          "name": "milestone_code",
+          "type": "milestone_code",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "milestone_status",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'DRAFT'"
+        },
+        "return_reason": {
+          "name": "return_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "target_date": {
+          "name": "target_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_gathering_approved_at": {
+          "name": "data_gathering_approved_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "opened_at": {
+          "name": "opened_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "milestone_instance_thesis_instance_id_thesis_instance_id_fk": {
+          "name": "milestone_instance_thesis_instance_id_thesis_instance_id_fk",
+          "tableFrom": "milestone_instance",
+          "tableTo": "thesis_instance",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "thesis_instance_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "milestone_instance_template_version_id_template_version_id_fk": {
+          "name": "milestone_instance_template_version_id_template_version_id_fk",
+          "tableFrom": "milestone_instance",
+          "tableTo": "template_version",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "template_version_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "milestone_instance_code": {
+          "name": "milestone_instance_code",
+          "nullsNotDistinct": false,
+          "columns": [
+            "thesis_instance_id",
+            "milestone_code"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "milestone_instance_return_reason": {
+          "name": "milestone_instance_return_reason",
+          "value": "\"app\".\"milestone_instance\".\"status\" <> 'RETURNED' or length(trim(coalesce(\"app\".\"milestone_instance\".\"return_reason\", ''))) > 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.milestone_template": {
+      "name": "milestone_template",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "code": {
+          "name": "code",
+          "type": "milestone_code",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "milestone_template_code_unique": {
+          "name": "milestone_template_code_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "code"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.rubric_indicator": {
+      "name": "rubric_indicator",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "template_version_id": {
+          "name": "template_version_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "weight_pct": {
+          "name": "weight_pct",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "rubric_indicator_template_version_id_template_version_id_fk": {
+          "name": "rubric_indicator_template_version_id_template_version_id_fk",
+          "tableFrom": "rubric_indicator",
+          "tableTo": "template_version",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "template_version_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "rubric_indicator_code": {
+          "name": "rubric_indicator_code",
+          "nullsNotDistinct": false,
+          "columns": [
+            "template_version_id",
+            "code"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "rubric_indicator_weight": {
+          "name": "rubric_indicator_weight",
+          "value": "\"app\".\"rubric_indicator\".\"weight_pct\" > 0 and \"app\".\"rubric_indicator\".\"weight_pct\" <= 100"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.template_required_item": {
+      "name": "template_required_item",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "template_version_id": {
+          "name": "template_version_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "form_code": {
+          "name": "form_code",
+          "type": "form_code",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "paper_signers": {
+          "name": "paper_signers",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "uploader_role": {
+          "name": "uploader_role",
+          "type": "user_role",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "needed_for_date_confirmation": {
+          "name": "needed_for_date_confirmation",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "template_required_item_template_version_id_template_version_id_fk": {
+          "name": "template_required_item_template_version_id_template_version_id_fk",
+          "tableFrom": "template_required_item",
+          "tableTo": "template_version",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "template_version_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.template_version": {
+      "name": "template_version",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "milestone_template_id": {
+          "name": "milestone_template_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "version_no": {
+          "name": "version_no",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "min_notice_days": {
+          "name": "min_notice_days",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 7
+        },
+        "printed_copies_due_days": {
+          "name": "printed_copies_due_days",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 7
+        },
+        "panel_size_masters": {
+          "name": "panel_size_masters",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "panel_size_doctoral": {
+          "name": "panel_size_doctoral",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "printed_copies_masters": {
+          "name": "printed_copies_masters",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "printed_copies_doctoral": {
+          "name": "printed_copies_doctoral",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reviewer_wait_days": {
+          "name": "reviewer_wait_days",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "change_note": {
+          "name": "change_note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_by_user_id": {
+          "name": "created_by_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "template_version_milestone_template_id_milestone_template_id_fk": {
+          "name": "template_version_milestone_template_id_milestone_template_id_fk",
+          "tableFrom": "template_version",
+          "tableTo": "milestone_template",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "milestone_template_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "template_version_created_by_user_id_app_user_id_fk": {
+          "name": "template_version_created_by_user_id_app_user_id_fk",
+          "tableFrom": "template_version",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "created_by_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "template_version_no": {
+          "name": "template_version_no",
+          "nullsNotDistinct": false,
+          "columns": [
+            "milestone_template_id",
+            "version_no"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "template_version_days": {
+          "name": "template_version_days",
+          "value": "\"app\".\"template_version\".\"min_notice_days\" >= 0 and \"app\".\"template_version\".\"printed_copies_due_days\" >= 0"
+        },
+        "template_version_sizes": {
+          "name": "template_version_sizes",
+          "value": "\"app\".\"template_version\".\"panel_size_masters\" > 0 and \"app\".\"template_version\".\"panel_size_doctoral\" > 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.thesis_instance": {
+      "name": "thesis_instance",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "student_user_id": {
+          "name": "student_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "adviser_user_id": {
+          "name": "adviser_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "degree_level": {
+          "name": "degree_level",
+          "type": "degree_level",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "program_start_term": {
+          "name": "program_start_term",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "comprehensive_exam_date": {
+          "name": "comprehensive_exam_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "writing1_course": {
+          "name": "writing1_course",
+          "type": "writing1_course",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_by_user_id": {
+          "name": "created_by_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "thesis_instance_student_user_id_app_user_id_fk": {
+          "name": "thesis_instance_student_user_id_app_user_id_fk",
+          "tableFrom": "thesis_instance",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "student_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "thesis_instance_adviser_user_id_app_user_id_fk": {
+          "name": "thesis_instance_adviser_user_id_app_user_id_fk",
+          "tableFrom": "thesis_instance",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "adviser_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "thesis_instance_created_by_user_id_app_user_id_fk": {
+          "name": "thesis_instance_created_by_user_id_app_user_id_fk",
+          "tableFrom": "thesis_instance",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "created_by_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "thesis_instance_student_user_id_unique": {
+          "name": "thesis_instance_student_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "student_user_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.critique_thread": {
+      "name": "critique_thread",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "commit_id": {
+          "name": "commit_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "author_user_id": {
+          "name": "author_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "author_role": {
+          "name": "author_role",
+          "type": "user_role",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "context": {
+          "name": "context",
+          "type": "comment_context",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "state": {
+          "name": "state",
+          "type": "thread_state",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'OPEN'"
+        },
+        "resolved_at": {
+          "name": "resolved_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "critique_thread_commit_id_manuscript_commit_id_fk": {
+          "name": "critique_thread_commit_id_manuscript_commit_id_fk",
+          "tableFrom": "critique_thread",
+          "tableTo": "manuscript_commit",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "commit_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "critique_thread_author_user_id_app_user_id_fk": {
+          "name": "critique_thread_author_user_id_app_user_id_fk",
+          "tableFrom": "critique_thread",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "author_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "critique_thread_resolved_at": {
+          "name": "critique_thread_resolved_at",
+          "value": "(\"app\".\"critique_thread\".\"state\" = 'RESOLVED') = (\"app\".\"critique_thread\".\"resolved_at\" is not null)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.document_comment": {
+      "name": "document_comment",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "author_user_id": {
+          "name": "author_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "document_file_id": {
+          "name": "document_file_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "commit_id": {
+          "name": "commit_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "state": {
+          "name": "state",
+          "type": "thread_state",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'OPEN'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "document_comment_author_user_id_app_user_id_fk": {
+          "name": "document_comment_author_user_id_app_user_id_fk",
+          "tableFrom": "document_comment",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "author_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "document_comment_document_file_id_document_file_id_fk": {
+          "name": "document_comment_document_file_id_document_file_id_fk",
+          "tableFrom": "document_comment",
+          "tableTo": "document_file",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "document_file_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "document_comment_commit_id_manuscript_commit_id_fk": {
+          "name": "document_comment_commit_id_manuscript_commit_id_fk",
+          "tableFrom": "document_comment",
+          "tableTo": "manuscript_commit",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "commit_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "document_comment_one_target": {
+          "name": "document_comment_one_target",
+          "value": "num_nonnulls(\"app\".\"document_comment\".\"document_file_id\", \"app\".\"document_comment\".\"commit_id\") = 1"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.manuscript_commit": {
+      "name": "manuscript_commit",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "submission_pr_id": {
+          "name": "submission_pr_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ordinal": {
+          "name": "ordinal",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "file_key": {
+          "name": "file_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sha256": {
+          "name": "sha256",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "size_bytes": {
+          "name": "size_bytes",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "change_note": {
+          "name": "change_note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "uploaded_by_user_id": {
+          "name": "uploaded_by_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "uploaded_at": {
+          "name": "uploaded_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "manuscript_commit_submission_pr_id_submission_pr_id_fk": {
+          "name": "manuscript_commit_submission_pr_id_submission_pr_id_fk",
+          "tableFrom": "manuscript_commit",
+          "tableTo": "submission_pr",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "submission_pr_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "manuscript_commit_uploaded_by_user_id_app_user_id_fk": {
+          "name": "manuscript_commit_uploaded_by_user_id_app_user_id_fk",
+          "tableFrom": "manuscript_commit",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "uploaded_by_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "manuscript_commit_file_key_unique": {
+          "name": "manuscript_commit_file_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "file_key"
+          ]
+        },
+        "manuscript_commit_ordinal": {
+          "name": "manuscript_commit_ordinal",
+          "nullsNotDistinct": false,
+          "columns": [
+            "submission_pr_id",
+            "ordinal"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "manuscript_commit_ordinal_positive": {
+          "name": "manuscript_commit_ordinal_positive",
+          "value": "\"app\".\"manuscript_commit\".\"ordinal\" > 0"
+        },
+        "manuscript_commit_sha256": {
+          "name": "manuscript_commit_sha256",
+          "value": "\"app\".\"manuscript_commit\".\"sha256\" ~ '^[0-9a-f]{64}$'"
+        },
+        "manuscript_commit_size": {
+          "name": "manuscript_commit_size",
+          "value": "\"app\".\"manuscript_commit\".\"size_bytes\" > 0 and \"app\".\"manuscript_commit\".\"size_bytes\" <= 52428800"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.submission_pr": {
+      "name": "submission_pr",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "milestone_instance_id": {
+          "name": "milestone_instance_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ready_commit_id": {
+          "name": "ready_commit_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "locked_at": {
+          "name": "locked_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "submission_pr_milestone_instance_id_milestone_instance_id_fk": {
+          "name": "submission_pr_milestone_instance_id_milestone_instance_id_fk",
+          "tableFrom": "submission_pr",
+          "tableTo": "milestone_instance",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "milestone_instance_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "submission_pr_ready_commit_id_manuscript_commit_id_fk": {
+          "name": "submission_pr_ready_commit_id_manuscript_commit_id_fk",
+          "tableFrom": "submission_pr",
+          "tableTo": "manuscript_commit",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "ready_commit_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "submission_pr_milestone_instance_id_unique": {
+          "name": "submission_pr_milestone_instance_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "milestone_instance_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.thread_address_tag": {
+      "name": "thread_address_tag",
+      "schema": "app",
+      "columns": {
+        "commit_id": {
+          "name": "commit_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "critique_thread_id": {
+          "name": "critique_thread_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "thread_address_tag_commit_id_manuscript_commit_id_fk": {
+          "name": "thread_address_tag_commit_id_manuscript_commit_id_fk",
+          "tableFrom": "thread_address_tag",
+          "tableTo": "manuscript_commit",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "commit_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "thread_address_tag_critique_thread_id_critique_thread_id_fk": {
+          "name": "thread_address_tag_critique_thread_id_critique_thread_id_fk",
+          "tableFrom": "thread_address_tag",
+          "tableTo": "critique_thread",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "critique_thread_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "thread_address_tag_commit_id_critique_thread_id_pk": {
+          "name": "thread_address_tag_commit_id_critique_thread_id_pk",
+          "columns": [
+            "commit_id",
+            "critique_thread_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.thread_reply": {
+      "name": "thread_reply",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "critique_thread_id": {
+          "name": "critique_thread_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "author_user_id": {
+          "name": "author_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ordinal": {
+          "name": "ordinal",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "thread_reply_critique_thread_id_critique_thread_id_fk": {
+          "name": "thread_reply_critique_thread_id_critique_thread_id_fk",
+          "tableFrom": "thread_reply",
+          "tableTo": "critique_thread",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "critique_thread_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "thread_reply_author_user_id_app_user_id_fk": {
+          "name": "thread_reply_author_user_id_app_user_id_fk",
+          "tableFrom": "thread_reply",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "author_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "thread_reply_ordinal": {
+          "name": "thread_reply_ordinal",
+          "nullsNotDistinct": false,
+          "columns": [
+            "critique_thread_id",
+            "ordinal"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.booking": {
+      "name": "booking",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "slot_id": {
+          "name": "slot_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "thesis_instance_id": {
+          "name": "thesis_instance_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "agenda": {
+          "name": "agenda",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "booking_status",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "requested_at": {
+          "name": "requested_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "decided_at": {
+          "name": "decided_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "booking_slot_id_slot_id_fk": {
+          "name": "booking_slot_id_slot_id_fk",
+          "tableFrom": "booking",
+          "tableTo": "slot",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "slot_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "booking_thesis_instance_id_thesis_instance_id_fk": {
+          "name": "booking_thesis_instance_id_thesis_instance_id_fk",
+          "tableFrom": "booking",
+          "tableTo": "thesis_instance",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "thesis_instance_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.booking_thread_link": {
+      "name": "booking_thread_link",
+      "schema": "app",
+      "columns": {
+        "booking_id": {
+          "name": "booking_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "critique_thread_id": {
+          "name": "critique_thread_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "booking_thread_link_booking_id_booking_id_fk": {
+          "name": "booking_thread_link_booking_id_booking_id_fk",
+          "tableFrom": "booking_thread_link",
+          "tableTo": "booking",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "booking_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "booking_thread_link_critique_thread_id_critique_thread_id_fk": {
+          "name": "booking_thread_link_critique_thread_id_critique_thread_id_fk",
+          "tableFrom": "booking_thread_link",
+          "tableTo": "critique_thread",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "critique_thread_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "booking_thread_link_booking_id_critique_thread_id_pk": {
+          "name": "booking_thread_link_booking_id_critique_thread_id_pk",
+          "columns": [
+            "booking_id",
+            "critique_thread_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.consultation_log_entry": {
+      "name": "consultation_log_entry",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "milestone_instance_id": {
+          "name": "milestone_instance_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "booking_id": {
+          "name": "booking_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "held_at": {
+          "name": "held_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "place_or_platform": {
+          "name": "place_or_platform",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "topic": {
+          "name": "topic",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "recommendations": {
+          "name": "recommendations",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "confirmed_at": {
+          "name": "confirmed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "consultation_log_entry_milestone_instance_id_milestone_instance_id_fk": {
+          "name": "consultation_log_entry_milestone_instance_id_milestone_instance_id_fk",
+          "tableFrom": "consultation_log_entry",
+          "tableTo": "milestone_instance",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "milestone_instance_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "consultation_log_entry_booking_id_booking_id_fk": {
+          "name": "consultation_log_entry_booking_id_booking_id_fk",
+          "tableFrom": "consultation_log_entry",
+          "tableTo": "booking",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "booking_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "consultation_log_entry_booking_id_unique": {
+          "name": "consultation_log_entry_booking_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "booking_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.slot": {
+      "name": "slot",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "owner_user_id": {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slot_type": {
+          "name": "slot_type",
+          "type": "slot_type",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mode": {
+          "name": "mode",
+          "type": "slot_mode",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "meeting_link": {
+          "name": "meeting_link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "starts_at": {
+          "name": "starts_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ends_at": {
+          "name": "ends_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recurrence_rule": {
+          "name": "recurrence_rule",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "slot_status",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'available'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "slot_owner_user_id_app_user_id_fk": {
+          "name": "slot_owner_user_id_app_user_id_fk",
+          "tableFrom": "slot",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "owner_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "slot_time_order": {
+          "name": "slot_time_order",
+          "value": "\"app\".\"slot\".\"ends_at\" > \"app\".\"slot\".\"starts_at\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.committee": {
+      "name": "committee",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "thesis_instance_id": {
+          "name": "thesis_instance_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "committee_kind",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "appointment_document_id": {
+          "name": "appointment_document_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "appointed_at": {
+          "name": "appointed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "committee_thesis_instance_id_thesis_instance_id_fk": {
+          "name": "committee_thesis_instance_id_thesis_instance_id_fk",
+          "tableFrom": "committee",
+          "tableTo": "thesis_instance",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "thesis_instance_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "committee_appointment_document_id_document_record_id_fk": {
+          "name": "committee_appointment_document_id_document_record_id_fk",
+          "tableFrom": "committee",
+          "tableTo": "document_record",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "appointment_document_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "committee_kind_per_thesis": {
+          "name": "committee_kind_per_thesis",
+          "nullsNotDistinct": false,
+          "columns": [
+            "thesis_instance_id",
+            "kind"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.committee_member": {
+      "name": "committee_member",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "committee_id": {
+          "name": "committee_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "member_user_id": {
+          "name": "member_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "designation": {
+          "name": "designation",
+          "type": "designation",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'none'"
+        },
+        "status": {
+          "name": "status",
+          "type": "member_status",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'proposed'"
+        },
+        "nda_document_id": {
+          "name": "nda_document_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "appointed_at": {
+          "name": "appointed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "committee_member_committee_id_committee_id_fk": {
+          "name": "committee_member_committee_id_committee_id_fk",
+          "tableFrom": "committee_member",
+          "tableTo": "committee",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "committee_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "committee_member_member_user_id_app_user_id_fk": {
+          "name": "committee_member_member_user_id_app_user_id_fk",
+          "tableFrom": "committee_member",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "member_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "committee_member_nda_document_id_document_record_id_fk": {
+          "name": "committee_member_nda_document_id_document_record_id_fk",
+          "tableFrom": "committee_member",
+          "tableTo": "document_record",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "nda_document_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.defense_substitute": {
+      "name": "defense_substitute",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "defense_attempt_id": {
+          "name": "defense_attempt_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "absent_member_id": {
+          "name": "absent_member_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "substitute_user_id": {
+          "name": "substitute_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nda_document_id": {
+          "name": "nda_document_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "defense_substitute_defense_attempt_id_defense_attempt_id_fk": {
+          "name": "defense_substitute_defense_attempt_id_defense_attempt_id_fk",
+          "tableFrom": "defense_substitute",
+          "tableTo": "defense_attempt",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "defense_attempt_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "defense_substitute_absent_member_id_committee_member_id_fk": {
+          "name": "defense_substitute_absent_member_id_committee_member_id_fk",
+          "tableFrom": "defense_substitute",
+          "tableTo": "committee_member",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "absent_member_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "defense_substitute_substitute_user_id_app_user_id_fk": {
+          "name": "defense_substitute_substitute_user_id_app_user_id_fk",
+          "tableFrom": "defense_substitute",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "substitute_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "defense_substitute_nda_document_id_document_record_id_fk": {
+          "name": "defense_substitute_nda_document_id_document_record_id_fk",
+          "tableFrom": "defense_substitute",
+          "tableTo": "document_record",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "nda_document_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.document_event": {
+      "name": "document_event",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "document_event_id_seq",
+            "schema": "app",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "9223372036854775807",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "document_record_id": {
+          "name": "document_record_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "from_state": {
+          "name": "from_state",
+          "type": "document_state",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "to_state": {
+          "name": "to_state",
+          "type": "document_state",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reason": {
+          "name": "reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "actor_user_id": {
+          "name": "actor_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "document_event_document_record_id_document_record_id_fk": {
+          "name": "document_event_document_record_id_document_record_id_fk",
+          "tableFrom": "document_event",
+          "tableTo": "document_record",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "document_record_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "document_event_actor_user_id_app_user_id_fk": {
+          "name": "document_event_actor_user_id_app_user_id_fk",
+          "tableFrom": "document_event",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "actor_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "document_event_reason": {
+          "name": "document_event_reason",
+          "value": "\"app\".\"document_event\".\"to_state\" not in ('returned', 'mismatch') or length(trim(coalesce(\"app\".\"document_event\".\"reason\", ''))) > 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.document_file": {
+      "name": "document_file",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "document_record_id": {
+          "name": "document_record_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "version_no": {
+          "name": "version_no",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "file_key": {
+          "name": "file_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sha256": {
+          "name": "sha256",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "size_bytes": {
+          "name": "size_bytes",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mime_type": {
+          "name": "mime_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "uploaded_by_user_id": {
+          "name": "uploaded_by_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "uploaded_at": {
+          "name": "uploaded_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "document_file_document_record_id_document_record_id_fk": {
+          "name": "document_file_document_record_id_document_record_id_fk",
+          "tableFrom": "document_file",
+          "tableTo": "document_record",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "document_record_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "document_file_uploaded_by_user_id_app_user_id_fk": {
+          "name": "document_file_uploaded_by_user_id_app_user_id_fk",
+          "tableFrom": "document_file",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "uploaded_by_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "document_file_file_key_unique": {
+          "name": "document_file_file_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "file_key"
+          ]
+        },
+        "document_file_version": {
+          "name": "document_file_version",
+          "nullsNotDistinct": false,
+          "columns": [
+            "document_record_id",
+            "version_no"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "document_file_sha256": {
+          "name": "document_file_sha256",
+          "value": "\"app\".\"document_file\".\"sha256\" ~ '^[0-9a-f]{64}$'"
+        },
+        "document_file_size": {
+          "name": "document_file_size",
+          "value": "\"app\".\"document_file\".\"size_bytes\" > 0 and \"app\".\"document_file\".\"size_bytes\" <= 52428800"
+        },
+        "document_file_mime": {
+          "name": "document_file_mime",
+          "value": "\"app\".\"document_file\".\"mime_type\" in ('application/pdf', 'image/jpeg', 'image/png')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.document_record": {
+      "name": "document_record",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "milestone_instance_id": {
+          "name": "milestone_instance_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "template_required_item_id": {
+          "name": "template_required_item_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "form_code": {
+          "name": "form_code",
+          "type": "form_code",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subject_user_id": {
+          "name": "subject_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "linked_commit_id": {
+          "name": "linked_commit_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "state": {
+          "name": "state",
+          "type": "document_state",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'not_started'"
+        }
+      },
+      "indexes": {
+        "document_record_one_signed": {
+          "name": "document_record_one_signed",
+          "columns": [
+            {
+              "expression": "milestone_instance_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "form_code",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"app\".\"document_record\".\"form_code\" in ('CERTIFICATION', 'SIGNED_FINAL_MANUSCRIPT')",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "document_record_milestone_instance_id_milestone_instance_id_fk": {
+          "name": "document_record_milestone_instance_id_milestone_instance_id_fk",
+          "tableFrom": "document_record",
+          "tableTo": "milestone_instance",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "milestone_instance_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "document_record_template_required_item_id_template_required_item_id_fk": {
+          "name": "document_record_template_required_item_id_template_required_item_id_fk",
+          "tableFrom": "document_record",
+          "tableTo": "template_required_item",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "template_required_item_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "document_record_subject_user_id_app_user_id_fk": {
+          "name": "document_record_subject_user_id_app_user_id_fk",
+          "tableFrom": "document_record",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "subject_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "document_record_linked_commit_id_manuscript_commit_id_fk": {
+          "name": "document_record_linked_commit_id_manuscript_commit_id_fk",
+          "tableFrom": "document_record",
+          "tableTo": "manuscript_commit",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "linked_commit_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "document_record_signed_commit": {
+          "name": "document_record_signed_commit",
+          "value": "\"app\".\"document_record\".\"form_code\" not in ('CERTIFICATION', 'SIGNED_FINAL_MANUSCRIPT') or \"app\".\"document_record\".\"linked_commit_id\" is not null"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.printed_copy_receipt": {
+      "name": "printed_copy_receipt",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "defense_attempt_id": {
+          "name": "defense_attempt_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "copy_count": {
+          "name": "copy_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "received_at": {
+          "name": "received_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "match_result": {
+          "name": "match_result",
+          "type": "match_result",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "printed_copy_receipt_defense_attempt_id_defense_attempt_id_fk": {
+          "name": "printed_copy_receipt_defense_attempt_id_defense_attempt_id_fk",
+          "tableFrom": "printed_copy_receipt",
+          "tableTo": "defense_attempt",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "defense_attempt_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "printed_copy_receipt_defense_attempt_id_unique": {
+          "name": "printed_copy_receipt_defense_attempt_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "defense_attempt_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "printed_copy_receipt_count": {
+          "name": "printed_copy_receipt_count",
+          "value": "\"app\".\"printed_copy_receipt\".\"copy_count\" > 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.defense_attempt": {
+      "name": "defense_attempt",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "milestone_instance_id": {
+          "name": "milestone_instance_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "attempt_no": {
+          "name": "attempt_no",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "proposed_date": {
+          "name": "proposed_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "scheduled_start_at": {
+          "name": "scheduled_start_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "room_or_link": {
+          "name": "room_or_link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "defense_status",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'proposed'"
+        },
+        "verdict": {
+          "name": "verdict",
+          "type": "verdict",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verdict_by_user_id": {
+          "name": "verdict_by_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verdict_at": {
+          "name": "verdict_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "closed_at": {
+          "name": "closed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "defense_attempt_milestone_instance_id_milestone_instance_id_fk": {
+          "name": "defense_attempt_milestone_instance_id_milestone_instance_id_fk",
+          "tableFrom": "defense_attempt",
+          "tableTo": "milestone_instance",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "milestone_instance_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "defense_attempt_verdict_by_user_id_app_user_id_fk": {
+          "name": "defense_attempt_verdict_by_user_id_app_user_id_fk",
+          "tableFrom": "defense_attempt",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "verdict_by_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "defense_attempt_no": {
+          "name": "defense_attempt_no",
+          "nullsNotDistinct": false,
+          "columns": [
+            "milestone_instance_id",
+            "attempt_no"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "defense_attempt_no_positive": {
+          "name": "defense_attempt_no_positive",
+          "value": "\"app\".\"defense_attempt\".\"attempt_no\" > 0"
+        },
+        "defense_attempt_verdict_set": {
+          "name": "defense_attempt_verdict_set",
+          "value": "(\"app\".\"defense_attempt\".\"verdict\" is null) = (\"app\".\"defense_attempt\".\"verdict_by_user_id\" is null) and (\"app\".\"defense_attempt\".\"verdict\" is null) = (\"app\".\"defense_attempt\".\"verdict_at\" is null)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.evaluation_comment": {
+      "name": "evaluation_comment",
+      "schema": "app",
+      "columns": {
+        "evaluation_entry_id": {
+          "name": "evaluation_entry_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "section": {
+          "name": "section",
+          "type": "tdw10_section",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "evaluation_comment_evaluation_entry_id_evaluation_entry_id_fk": {
+          "name": "evaluation_comment_evaluation_entry_id_evaluation_entry_id_fk",
+          "tableFrom": "evaluation_comment",
+          "tableTo": "evaluation_entry",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "evaluation_entry_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "evaluation_comment_evaluation_entry_id_section_pk": {
+          "name": "evaluation_comment_evaluation_entry_id_section_pk",
+          "columns": [
+            "evaluation_entry_id",
+            "section"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.evaluation_entry": {
+      "name": "evaluation_entry",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "defense_attempt_id": {
+          "name": "defense_attempt_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "member_user_id": {
+          "name": "member_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "form": {
+          "name": "form",
+          "type": "evaluation_form",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "action_taken": {
+          "name": "action_taken",
+          "type": "verdict",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sheet_file_key": {
+          "name": "sheet_file_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sheet_match": {
+          "name": "sheet_match",
+          "type": "match_result",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "verified_at": {
+          "name": "verified_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "evaluation_entry_defense_attempt_id_defense_attempt_id_fk": {
+          "name": "evaluation_entry_defense_attempt_id_defense_attempt_id_fk",
+          "tableFrom": "evaluation_entry",
+          "tableTo": "defense_attempt",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "defense_attempt_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "evaluation_entry_member_user_id_app_user_id_fk": {
+          "name": "evaluation_entry_member_user_id_app_user_id_fk",
+          "tableFrom": "evaluation_entry",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "member_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "evaluation_entry_sheet_file_key_unique": {
+          "name": "evaluation_entry_sheet_file_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "sheet_file_key"
+          ]
+        },
+        "evaluation_entry_member": {
+          "name": "evaluation_entry_member",
+          "nullsNotDistinct": false,
+          "columns": [
+            "defense_attempt_id",
+            "member_user_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.evaluation_score": {
+      "name": "evaluation_score",
+      "schema": "app",
+      "columns": {
+        "evaluation_entry_id": {
+          "name": "evaluation_entry_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rubric_indicator_id": {
+          "name": "rubric_indicator_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "score": {
+          "name": "score",
+          "type": "numeric(6, 2)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "evaluation_score_evaluation_entry_id_evaluation_entry_id_fk": {
+          "name": "evaluation_score_evaluation_entry_id_evaluation_entry_id_fk",
+          "tableFrom": "evaluation_score",
+          "tableTo": "evaluation_entry",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "evaluation_entry_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "evaluation_score_rubric_indicator_id_rubric_indicator_id_fk": {
+          "name": "evaluation_score_rubric_indicator_id_rubric_indicator_id_fk",
+          "tableFrom": "evaluation_score",
+          "tableTo": "rubric_indicator",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "rubric_indicator_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "evaluation_score_evaluation_entry_id_rubric_indicator_id_pk": {
+          "name": "evaluation_score_evaluation_entry_id_rubric_indicator_id_pk",
+          "columns": [
+            "evaluation_entry_id",
+            "rubric_indicator_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "evaluation_score_not_negative": {
+          "name": "evaluation_score_not_negative",
+          "value": "\"app\".\"evaluation_score\".\"score\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.minutes": {
+      "name": "minutes",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "defense_attempt_id": {
+          "name": "defense_attempt_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "issued_at": {
+          "name": "issued_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "issued_by_user_id": {
+          "name": "issued_by_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "minutes_defense_attempt_id_defense_attempt_id_fk": {
+          "name": "minutes_defense_attempt_id_defense_attempt_id_fk",
+          "tableFrom": "minutes",
+          "tableTo": "defense_attempt",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "defense_attempt_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "minutes_issued_by_user_id_app_user_id_fk": {
+          "name": "minutes_issued_by_user_id_app_user_id_fk",
+          "tableFrom": "minutes",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "issued_by_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "minutes_defense_attempt_id_unique": {
+          "name": "minutes_defense_attempt_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "defense_attempt_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.revision_acceptance": {
+      "name": "revision_acceptance",
+      "schema": "app",
+      "columns": {
+        "revision_item_id": {
+          "name": "revision_item_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "member_user_id": {
+          "name": "member_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accepted_at": {
+          "name": "accepted_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "revision_acceptance_revision_item_id_revision_item_id_fk": {
+          "name": "revision_acceptance_revision_item_id_revision_item_id_fk",
+          "tableFrom": "revision_acceptance",
+          "tableTo": "revision_item",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "revision_item_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "revision_acceptance_member_user_id_app_user_id_fk": {
+          "name": "revision_acceptance_member_user_id_app_user_id_fk",
+          "tableFrom": "revision_acceptance",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "member_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "revision_acceptance_revision_item_id_member_user_id_pk": {
+          "name": "revision_acceptance_revision_item_id_member_user_id_pk",
+          "columns": [
+            "revision_item_id",
+            "member_user_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.revision_item": {
+      "name": "revision_item",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "defense_attempt_id": {
+          "name": "defense_attempt_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ordinal": {
+          "name": "ordinal",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "linked_commit_id": {
+          "name": "linked_commit_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "revision_item_defense_attempt_id_defense_attempt_id_fk": {
+          "name": "revision_item_defense_attempt_id_defense_attempt_id_fk",
+          "tableFrom": "revision_item",
+          "tableTo": "defense_attempt",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "defense_attempt_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "revision_item_linked_commit_id_manuscript_commit_id_fk": {
+          "name": "revision_item_linked_commit_id_manuscript_commit_id_fk",
+          "tableFrom": "revision_item",
+          "tableTo": "manuscript_commit",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "linked_commit_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "revision_item_ordinal": {
+          "name": "revision_item_ordinal",
+          "nullsNotDistinct": false,
+          "columns": [
+            "defense_attempt_id",
+            "ordinal"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.audit_record": {
+      "name": "audit_record",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "audit_record_id_seq",
+            "schema": "app",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "9223372036854775807",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "actor_user_id": {
+          "name": "actor_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "actor_role": {
+          "name": "actor_role",
+          "type": "user_role",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "action": {
+          "name": "action",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_table": {
+          "name": "target_table",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_id": {
+          "name": "target_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "detail": {
+          "name": "detail",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "audit_record_actor_user_id_app_user_id_fk": {
+          "name": "audit_record_actor_user_id_app_user_id_fk",
+          "tableFrom": "audit_record",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "actor_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.email_log": {
+      "name": "email_log",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "email_log_id_seq",
+            "schema": "app",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "9223372036854775807",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "notification_id": {
+          "name": "notification_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "recipient_user_id": {
+          "name": "recipient_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "event_code": {
+          "name": "event_code",
+          "type": "event_code",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email_template_version": {
+          "name": "email_template_version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "result": {
+          "name": "result",
+          "type": "email_result",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "error": {
+          "name": "error",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "email_log_notification_id_notification_id_fk": {
+          "name": "email_log_notification_id_notification_id_fk",
+          "tableFrom": "email_log",
+          "tableTo": "notification",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "notification_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "email_log_recipient_user_id_app_user_id_fk": {
+          "name": "email_log_recipient_user_id_app_user_id_fk",
+          "tableFrom": "email_log",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "recipient_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.gate_action": {
+      "name": "gate_action",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "gate_action_id_seq",
+            "schema": "app",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "9223372036854775807",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "milestone_instance_id": {
+          "name": "milestone_instance_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gate": {
+          "name": "gate",
+          "type": "gate_kind",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "result": {
+          "name": "result",
+          "type": "gate_result",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "actor_user_id": {
+          "name": "actor_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "actor_role": {
+          "name": "actor_role",
+          "type": "user_role",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "commit_id": {
+          "name": "commit_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reason": {
+          "name": "reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "gate_action_milestone_instance_id_milestone_instance_id_fk": {
+          "name": "gate_action_milestone_instance_id_milestone_instance_id_fk",
+          "tableFrom": "gate_action",
+          "tableTo": "milestone_instance",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "milestone_instance_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "gate_action_actor_user_id_app_user_id_fk": {
+          "name": "gate_action_actor_user_id_app_user_id_fk",
+          "tableFrom": "gate_action",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "actor_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "gate_action_commit_id_manuscript_commit_id_fk": {
+          "name": "gate_action_commit_id_manuscript_commit_id_fk",
+          "tableFrom": "gate_action",
+          "tableTo": "manuscript_commit",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "commit_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "gate_action_return_reason": {
+          "name": "gate_action_return_reason",
+          "value": "\"app\".\"gate_action\".\"result\" <> 'returned' or length(trim(coalesce(\"app\".\"gate_action\".\"reason\", ''))) > 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.notification": {
+      "name": "notification",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "recipient_user_id": {
+          "name": "recipient_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "event_code": {
+          "name": "event_code",
+          "type": "event_code",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_table": {
+          "name": "target_table",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "target_id": {
+          "name": "target_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "read_at": {
+          "name": "read_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "notification_recipient_user_id_app_user_id_fk": {
+          "name": "notification_recipient_user_id_app_user_id_fk",
+          "tableFrom": "notification",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "recipient_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.notification_preference": {
+      "name": "notification_preference",
+      "schema": "app",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "event_code": {
+          "name": "event_code",
+          "type": "event_code",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "enabled": {
+          "name": "enabled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "notification_preference_user_id_app_user_id_fk": {
+          "name": "notification_preference_user_id_app_user_id_fk",
+          "tableFrom": "notification_preference",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "notification_preference_user_id_event_code_pk": {
+          "name": "notification_preference_user_id_event_code_pk",
+          "columns": [
+            "user_id",
+            "event_code"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "notification_preference_optional": {
+          "name": "notification_preference_optional",
+          "value": "\"app\".\"notification_preference\".\"event_code\" in ('A4','B1','B2','B4','B6','B7','C2','C3','C4','C5')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.outside_status_event": {
+      "name": "outside_status_event",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "outside_status_event_id_seq",
+            "schema": "app",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "9223372036854775807",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "milestone_instance_id": {
+          "name": "milestone_instance_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "outside_kind",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "outside_value",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "set_by_user_id": {
+          "name": "set_by_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "outside_status_event_milestone_instance_id_milestone_instance_id_fk": {
+          "name": "outside_status_event_milestone_instance_id_milestone_instance_id_fk",
+          "tableFrom": "outside_status_event",
+          "tableTo": "milestone_instance",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "milestone_instance_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "outside_status_event_set_by_user_id_app_user_id_fk": {
+          "name": "outside_status_event_set_by_user_id_app_user_id_fk",
+          "tableFrom": "outside_status_event",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "set_by_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "outside_status_event_pair": {
+          "name": "outside_status_event_pair",
+          "value": "(kind::text, value::text) in (('ethics','NOT_SUBMITTED'), ('ethics','UNDER_REVIEW'), ('ethics','CHANGES_REQUIRED'), ('ethics','APPROVED'), ('ipmo','NOT_SUBMITTED'), ('ipmo','UNDER_CHECK'), ('ipmo','FAILED'), ('ipmo','PASSED'), ('rpo','NOT_SUBMITTED'), ('rpo','UNDER_EDITING'), ('rpo','DONE'), ('copyright','NOT_APPLIED'), ('copyright','APPLIED'), ('copyright','REGISTERED'))"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.clearance_item": {
+      "name": "clearance_item",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "milestone_instance_id": {
+          "name": "milestone_instance_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "clearance_kind",
+          "typeSchema": "app",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "evidence_document_id": {
+          "name": "evidence_document_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verified_at": {
+          "name": "verified_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "verified_by_user_id": {
+          "name": "verified_by_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "clearance_item_one_kind": {
+          "name": "clearance_item_one_kind",
+          "columns": [
+            {
+              "expression": "milestone_instance_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "kind",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "clearance_item_milestone_instance_id_milestone_instance_id_fk": {
+          "name": "clearance_item_milestone_instance_id_milestone_instance_id_fk",
+          "tableFrom": "clearance_item",
+          "tableTo": "milestone_instance",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "milestone_instance_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "clearance_item_evidence_document_id_document_record_id_fk": {
+          "name": "clearance_item_evidence_document_id_document_record_id_fk",
+          "tableFrom": "clearance_item",
+          "tableTo": "document_record",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "evidence_document_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "clearance_item_verified_by_user_id_app_user_id_fk": {
+          "name": "clearance_item_verified_by_user_id_app_user_id_fk",
+          "tableFrom": "clearance_item",
+          "tableTo": "app_user",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "verified_by_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.sign_in_failure": {
+      "name": "sign_in_failure",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "bucket": {
+          "name": "bucket",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "sign_in_failure_bucket_created_idx": {
+          "name": "sign_in_failure_bucket_created_idx",
+          "columns": [
+            {
+              "expression": "bucket",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "app.booking_status": {
+      "name": "booking_status",
+      "schema": "app",
+      "values": [
+        "pending",
+        "confirmed",
+        "declined"
+      ]
+    },
+    "app.clearance_kind": {
+      "name": "clearance_kind",
+      "schema": "app",
+      "values": [
+        "ipmo",
+        "rpo",
+        "gate_2",
+        "copyright",
+        "final_copy",
+        "conference_cert",
+        "journal_pub"
+      ]
+    },
+    "app.comment_context": {
+      "name": "comment_context",
+      "schema": "app",
+      "values": [
+        "iteration",
+        "committee_review",
+        "defense_day"
+      ]
+    },
+    "app.committee_kind": {
+      "name": "committee_kind",
+      "schema": "app",
+      "values": [
+        "evaluation_committee",
+        "final_panel"
+      ]
+    },
+    "app.defense_status": {
+      "name": "defense_status",
+      "schema": "app",
+      "values": [
+        "proposed",
+        "scheduled",
+        "held",
+        "closed"
+      ]
+    },
+    "app.degree_level": {
+      "name": "degree_level",
+      "schema": "app",
+      "values": [
+        "masters",
+        "doctoral"
+      ]
+    },
+    "app.designation": {
+      "name": "designation",
+      "schema": "app",
+      "values": [
+        "none",
+        "lead_panel_member",
+        "panel_chair"
+      ]
+    },
+    "app.document_state": {
+      "name": "document_state",
+      "schema": "app",
+      "values": [
+        "not_started",
+        "prepared",
+        "scan_uploaded",
+        "locked_as_submitted",
+        "physical_received",
+        "verified",
+        "mismatch",
+        "returned"
+      ]
+    },
+    "app.email_result": {
+      "name": "email_result",
+      "schema": "app",
+      "values": [
+        "sent",
+        "failed"
+      ]
+    },
+    "app.evaluation_form": {
+      "name": "evaluation_form",
+      "schema": "app",
+      "values": [
+        "TDW_08",
+        "TDW_10",
+        "TDW_13"
+      ]
+    },
+    "app.event_code": {
+      "name": "event_code",
+      "schema": "app",
+      "values": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "B1",
+        "B2",
+        "B3",
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "E1",
+        "E2",
+        "E3",
+        "F1",
+        "F2"
+      ]
+    },
+    "app.form_code": {
+      "name": "form_code",
+      "schema": "app",
+      "values": [
+        "TDW_03",
+        "TDW_04",
+        "TDW_05",
+        "TDW_06",
+        "TDW_07",
+        "TDW_08",
+        "TDW_09",
+        "TDW_10",
+        "TDW_11",
+        "TDW_12",
+        "TDW_13",
+        "OR",
+        "ETHICS_CERT",
+        "CERTIFICATION",
+        "SIGNED_FINAL_MANUSCRIPT",
+        "MINUTES",
+        "FINAL_COPY",
+        "CONFERENCE_CERT",
+        "JOURNAL_PUB",
+        "SUPPORTING"
+      ]
+    },
+    "app.gate_kind": {
+      "name": "gate_kind",
+      "schema": "app",
+      "values": [
+        "gate_1a",
+        "gate_1b",
+        "certification",
+        "gate_2",
+        "date_confirmation",
+        "stage_close",
+        "clearance_close",
+        "data_gathering"
+      ]
+    },
+    "app.gate_result": {
+      "name": "gate_result",
+      "schema": "app",
+      "values": [
+        "endorsed",
+        "returned",
+        "accepted",
+        "approved",
+        "recorded"
+      ]
+    },
+    "app.match_result": {
+      "name": "match_result",
+      "schema": "app",
+      "values": [
+        "pending",
+        "matched",
+        "mismatch"
+      ]
+    },
+    "app.member_status": {
+      "name": "member_status",
+      "schema": "app",
+      "values": [
+        "proposed",
+        "accepted",
+        "declined"
+      ]
+    },
+    "app.milestone_code": {
+      "name": "milestone_code",
+      "schema": "app",
+      "values": [
+        "proposal",
+        "pre_final",
+        "final"
+      ]
+    },
+    "app.milestone_status": {
+      "name": "milestone_status",
+      "schema": "app",
+      "values": [
+        "DRAFT",
+        "READY",
+        "ADVISER_ENDORSED",
+        "COMMITTEE_APPOINTED",
+        "COMMITTEE_ENDORSED",
+        "DATE_PROPOSED",
+        "DEFENSE_SCHEDULED",
+        "DEFENSE_HELD",
+        "CLOSED",
+        "RETURNED",
+        "CERTIFIED",
+        "FINAL_APPROVED",
+        "CLEARED"
+      ]
+    },
+    "app.outside_kind": {
+      "name": "outside_kind",
+      "schema": "app",
+      "values": [
+        "ethics",
+        "ipmo",
+        "rpo",
+        "copyright"
+      ]
+    },
+    "app.outside_value": {
+      "name": "outside_value",
+      "schema": "app",
+      "values": [
+        "NOT_SUBMITTED",
+        "UNDER_REVIEW",
+        "CHANGES_REQUIRED",
+        "APPROVED",
+        "UNDER_CHECK",
+        "FAILED",
+        "PASSED",
+        "UNDER_EDITING",
+        "DONE",
+        "NOT_APPLIED",
+        "APPLIED",
+        "REGISTERED"
+      ]
+    },
+    "app.slot_mode": {
+      "name": "slot_mode",
+      "schema": "app",
+      "values": [
+        "in_person",
+        "online"
+      ]
+    },
+    "app.slot_status": {
+      "name": "slot_status",
+      "schema": "app",
+      "values": [
+        "available",
+        "pending",
+        "confirmed"
+      ]
+    },
+    "app.slot_type": {
+      "name": "slot_type",
+      "schema": "app",
+      "values": [
+        "consultation",
+        "defense"
+      ]
+    },
+    "app.tdw10_section": {
+      "name": "tdw10_section",
+      "schema": "app",
+      "values": [
+        "title_prelims",
+        "chapter_1",
+        "chapter_2",
+        "chapter_3",
+        "chapter_4",
+        "chapter_5",
+        "references_appendices",
+        "remarks",
+        "general_observations"
+      ]
+    },
+    "app.thread_state": {
+      "name": "thread_state",
+      "schema": "app",
+      "values": [
+        "OPEN",
+        "RESOLVED"
+      ]
+    },
+    "app.user_role": {
+      "name": "user_role",
+      "schema": "app",
+      "values": [
+        "student",
+        "adviser",
+        "panel_member",
+        "coordinator"
+      ]
+    },
+    "app.verdict": {
+      "name": "verdict",
+      "schema": "app",
+      "values": [
+        "approved",
+        "approved_with_revisions",
+        "disapproved"
+      ]
+    },
+    "app.writing1_course": {
+      "name": "writing1_course",
+      "schema": "app",
+      "values": [
+        "RSH_641",
+        "RSH_741"
+      ]
+    }
+  },
+  "schemas": {
+    "app": "app"
+  },
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

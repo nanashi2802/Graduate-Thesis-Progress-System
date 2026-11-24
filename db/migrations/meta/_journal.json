@@ -78,6 +78,13 @@
       "when": 1795421096871,
       "tag": "0010_email_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1795563119638,
+      "tag": "0011_sign_in_failure",
+      "breakpoints": true
     }
   ]
 }
