@@ -1370,6 +1370,7 @@ The human picks from this list. Each item already has an FR.
 | Audit viewer and CSV reports | FR-RPT-02, FR-RPT-03 |
 | Template versioning and email wording | FR-TPL-04, FR-NTF-10 |
 | Search and saved filters | FR-RPT-04 |
+| Threads waiting in the review queues (the days-waiting part is built) | FR-REV-09 (AD-A-037) |
 
 ---
 
