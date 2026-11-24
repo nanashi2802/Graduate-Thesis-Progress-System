@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
-import { ArrowUp, Check, Layers, MessageSquare, MessagesSquare, Pin, Tag, type LucideIcon } from "lucide-react";
+import { ChevronRight, Layers, MessageSquare, MessagesSquare, Pin, Tag, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FixTagScene, ReplyScene } from "./scene-motion";
 
 /*
  * Versions features: four equal cards in the order of one revision loop (upload, feedback,
@@ -16,11 +17,10 @@ const chip = "rounded-full px-2.5 py-1 text-xs font-medium";
 
 /** scene: the length of the scene keyframes in seconds. The turn passes on at PLAY of it,
  * before the keyframes fade out for a loop. */
-type Feature = { name: string; line: string; icon: LucideIcon; seconds: number; scene: ReactNode };
+type Feature = { name: string; line: string; icon: LucideIcon; seconds: number; scene: ReactNode | ((active: boolean) => ReactNode) };
 
 const PLAY = 0.88;
 
-const at = (d: number) => ({ "--d": `${d}s` }) as CSSProperties;
 
 const FEATURES: Feature[] = [
   {
@@ -29,18 +29,28 @@ const FEATURES: Feature[] = [
     line: "Track every upload.",
     icon: Layers,
     scene: (
-      <div className="w-full space-y-3">
-        <ol className="flex flex-wrap items-center gap-1.5">
-          <li className={cn(chip, "fb-ver bg-white text-neutral-600 shadow-[0_0_0_1px_rgb(30_22_23/0.08)]")} style={at(0)}>
-            v1
+      <div className="w-full space-y-5">
+        {/* Breadcrumb: v3 joins it when the upload lands, v1 and v2 dim, v3 takes the focus. */}
+        <ol className="flex items-center gap-1">
+          <li className={cn(chip, "fb-ver bg-neutral-100 text-neutral-400")}>v1</li>
+          <ChevronRight aria-hidden="true" strokeWidth={2} className="fb-sep size-3 text-neutral-400" />
+          <li className={cn(chip, "fb-ver bg-neutral-100 text-neutral-400")}>v2</li>
+          <ChevronRight aria-hidden="true" strokeWidth={2} className="fb-sep size-3 text-neutral-400" />
+          <li className={cn(chip, "fb-ver-new relative overflow-hidden bg-maroon-600 text-white ring-2 ring-gold-400 ring-offset-1")}>
+            v3
           </li>
-          <li className={cn(chip, "fb-ver bg-white text-neutral-600 shadow-[0_0_0_1px_rgb(30_22_23/0.08)]")} style={at(0.25)}>
-            v2
-          </li>
-          <li className={cn(chip, "fb-ver-new relative overflow-hidden bg-maroon-600 text-white")}>v3 · current</li>
         </ol>
-        <div className="flex items-center gap-2 text-[11px] text-neutral-500">
-          <ArrowUp aria-hidden="true" strokeWidth={2} className="fb-up size-3.5 shrink-0 text-maroon-600" />
+        <div className="flex items-center gap-3 text-[11px] text-neutral-500">
+          {/* A small solid folder. The file leaves it and flies up to the breadcrumb. */}
+          <span className="relative z-10 block h-9 w-12 shrink-0">
+            <span className="absolute inset-x-0 top-1 bottom-0 rounded-md bg-maroon-600" />
+            <span className="absolute top-0 left-0 h-2 w-5 rounded-t-md bg-maroon-600" />
+            <span className="fb-file absolute top-1.5 left-2.5 h-7 w-8 rounded-[5px] bg-white p-1 shadow-[0_0_0_1px_rgb(30_22_23/0.14)]">
+              <span className="block h-0.5 w-full rounded-full bg-maroon-200" />
+              <span className="mt-1 block h-0.5 w-3/4 rounded-full bg-neutral-200" />
+            </span>
+            <span className="fb-fold-front absolute inset-x-0 top-3 bottom-0 origin-bottom rounded-md bg-gradient-to-b from-white to-neutral-100 shadow-[0_0_0_1px_rgb(30_22_23/0.12)]" />
+          </span>
           <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-neutral-200">
             <span className="fb-bar block h-full rounded-full bg-gradient-to-r from-maroon-600 to-gold-400" />
           </span>
@@ -68,45 +78,14 @@ const FEATURES: Feature[] = [
     seconds: 3.6,
     line: "Link each fix to a comment.",
     icon: Tag,
-    scene: (
-      <div className="flex w-full items-center gap-1.5 text-xs">
-        <span className={cn(chip, "fb-fix shrink-0 bg-maroon-50 text-maroon-700")}>Fix #3</span>
-        <svg aria-hidden="true" viewBox="0 0 60 8" className="h-2 min-w-5 flex-1 overflow-visible text-maroon-600">
-          <line x1="0" y1="4" x2="54" y2="4" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 3" className="fb-link" />
-          <path d="M53 1 L58 4 L53 7" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-        <span className={cn(chip, "fb-target relative shrink-0 bg-green-100 text-neutral-700")}>
-          Comment 12
-          <span className="fb-check absolute -top-2 -right-2 flex size-4 items-center justify-center rounded-full bg-green-600 text-white">
-            <Check strokeWidth={3} className="size-2.5" />
-          </span>
-        </span>
-      </div>
-    ),
+    scene: (active) => <FixTagScene active={active} />,
   },
   {
     name: "Threaded replies",
     seconds: 4.8,
     line: "Clear discussions.",
     icon: MessagesSquare,
-    scene: (
-      <div className="w-full space-y-2 text-xs">
-        <p className="fb-msg w-fit origin-bottom-left rounded-xl rounded-bl-sm bg-white px-3 py-2 text-neutral-700 shadow-[0_0_0_1px_rgb(30_22_23/0.08)]">
-          <span className="font-semibold">Adviser:</span> Add the 2024 data.
-        </p>
-        {/* The typing bubble and the reply share one grid cell, so the reply can wrap. */}
-        <div className="ml-6 grid justify-items-start [&>*]:col-start-1 [&>*]:row-start-1">
-          <p className="fb-typing flex h-8 items-center gap-1 rounded-xl bg-maroon-50 px-3">
-            <span className="fb-dot size-1.5 rounded-full bg-maroon-600" style={at(0)} />
-            <span className="fb-dot size-1.5 rounded-full bg-maroon-600" style={at(0.15)} />
-            <span className="fb-dot size-1.5 rounded-full bg-maroon-600" style={at(0.3)} />
-          </p>
-          <p className="fb-reply origin-bottom-left rounded-xl rounded-bl-sm bg-maroon-50 px-3 py-2 text-maroon-900">
-            <span className="font-semibold">Student:</span> Added in v3, p. 22.
-          </p>
-        </div>
-      </div>
-    ),
+    scene: (active) => <ReplyScene active={active} />,
   },
 ];
 
@@ -148,9 +127,9 @@ export function FeatureCards({ className }: { className?: string }) {
           >
             <div
               aria-hidden="true"
-              className="flex min-h-32 items-center rounded-xl border border-neutral-100 bg-neutral-50 px-4 py-5"
+              className="flex min-h-36 flex-1 items-center rounded-xl border border-neutral-100 bg-neutral-50 px-4 py-4"
             >
-              {f.scene}
+              {typeof f.scene === "function" ? f.scene(on) : f.scene}
             </div>
             <div className="mt-4 flex items-start gap-3 px-1">
               <span className="fb-icon flex size-9 shrink-0 items-center justify-center rounded-lg bg-maroon-50 text-maroon-600">
