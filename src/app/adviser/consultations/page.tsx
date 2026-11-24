@@ -3,13 +3,13 @@ import { ActionForm, areaClass, Field, inputClass } from "@/app/_components/acti
 import { MODE, pst, pstRange } from "@/app/_lib/format";
 import { confirmLogAction, draftLogAction } from "@/app/_lib/schedule-actions";
 import { EmptyState } from "@/components/empty-state";
-import { getSessionState } from "@/server/auth/session";
+import { getRoleState } from "@/server/auth/session";
 import { listBookings, listLogEntries } from "@/server/data/consultations";
 import { getDb } from "@/server/data/db";
 import { readableMilestones } from "@/server/data/documents";
 
 export default async function Page() {
-  const state = await getSessionState();
+  const state = await getRoleState("adviser");
   if (state.status !== "ok") return null; // The portal layout already blocks this case.
   const ctx = { db: getDb(), actor: state.actor };
   const bookings = (await listBookings(ctx)).filter((b) => b.booking.status === "confirmed");

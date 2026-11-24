@@ -3,7 +3,7 @@
 import { AccessDenied } from "@/app/_components/access-denied";
 import { pst } from "@/app/_lib/format";
 import { EmptyState } from "@/components/empty-state";
-import { getSessionState } from "@/server/auth/session";
+import { getRoleState } from "@/server/auth/session";
 import { AccessDeniedError } from "@/server/data/access";
 import { InputProblem } from "@/server/data/coordinator";
 import { getDb } from "@/server/data/db";
@@ -18,7 +18,7 @@ const NEXT = {
 
 export default async function Page({ params }: PageProps<"/student/defense/[defenseId]">) {
   const { defenseId } = await params;
-  const state = await getSessionState();
+  const state = await getRoleState("student");
   if (state.status !== "ok") return null; // The portal layout already blocks this case.
   const ctx = { db: getDb(), actor: state.actor };
   let milestoneId: string;

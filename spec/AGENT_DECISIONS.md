@@ -477,3 +477,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Risk:** medium. I could not run one real reset on a development branch in this run (no live Neon Auth session). The human must check one reset, and that the Neon Auth email sender is on. A failing link or E1 never undoes the account (INV-30).
 - **Undo:** revert the commits with AD-A-034.
 - **Gap (agent-r review of #71):** the E1 notice "your password was reset" is not built. `setNewPassword` runs with no signed-in actor, so it cannot call `notifyEvent`. Open for a later task.
+
+### AD-A-035 — A page checks its role before any data call
+- **Task:** P3-E07-T08 (issue #58)
+- **Options:** one shared catch for `AccessDeniedError`; or a role helper that each page calls first.
+- **Decision and reason:** The helper. A render error is logged by Next even when caught by a boundary. `getRoleState(role)` returns a non-ok state for another role. A shared component gets a `portal` prop from its page. Coordinator pages call `pageContext()`. The layout `RoleGate` still shows Access Denied. The data layer still refuses on its own (NFR-01). Server actions keep their own checks.
+- **Risk:** low. A new page that skips the helper still shows Access Denied and the data layer still refuses. It only logs the error again.
+- **Undo:** revert the commits with AD-A-035.

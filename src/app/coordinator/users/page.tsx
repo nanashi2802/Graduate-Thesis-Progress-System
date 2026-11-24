@@ -1,11 +1,13 @@
 // `/coordinator/users` (C9): users, roles and email addresses (FR-ACC-05, FR-ACC-06, BR-03).
 import { listUsers } from "@/server/data/users";
-import { sessionContext } from "../_lib/action";
+import { pageContext } from "../_lib/action";
 import { PageHeader, Section } from "../_lib/page-header";
 import { AddUserForm, EditUserForm, ROLE_LABEL } from "./user-forms";
 
 export default async function Page() {
-  const users = await listUsers(await sessionContext());
+  const ctx = await pageContext();
+  if (!ctx) return null; // The portal layout shows Access Denied.
+  const users = await listUsers(ctx);
   return (
     <main className="mx-auto flex max-w-[1200px] flex-col gap-12 px-4 py-8 sm:px-8">
       <PageHeader
