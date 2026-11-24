@@ -469,3 +469,11 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** A reminder writes a `notification` row (target `thesis_instance`) and is skipped when one exists for the same user, event, thesis and PST day. This also stops a second in-app row for a user who turned the event off. A digest writes one `email_log` row for each `notification` row it covers, so "no `email_log` row" finds the unsent rows. Nothing emits B7 (AD-A-033, AS-05 threshold), so the digest code handles it but no row exists yet. A failed reminder or digest is not retried (INV-30).
 - **Risk:** low. A turned-off digest row stays unlogged and is read again each run. Turning the event back on sends the old rows.
 - **Undo:** revert the commits with AD-B-029. `export` of `defaultMailPort` in `recipients.ts` is the only edit outside new files (file owned by nobody).
+
+### AD-A-034 — Neon Auth sends the reset email itself; E1 adds a sign-in notice
+- **Task:** P2-E04-T09
+- **Options:** Neon Auth sends the set-password and reset email (`requestPasswordReset`); or the app asks for a token and sends the email itself.
+- **Decision and reason:** The first. The SDK method `requestPasswordReset({ email, redirectTo })` returns no token, so the app cannot send the link. A new account calls it after the commit, then emits E1 through Resend (link to `/login`, no password, FR-NTF-03). `/login/reset` takes the token and calls `resetPassword`. The "Forgot password" action shows one message for a known and an unknown address.
+- **Risk:** medium. I could not run one real reset on a development branch in this run (no live Neon Auth session). The human must check one reset, and that the Neon Auth email sender is on. A failing link or E1 never undoes the account (INV-30).
+- **Undo:** revert the commits with AD-A-034.
+- **Gap (agent-r review of #71):** the E1 notice "your password was reset" is not built. `setNewPassword` runs with no signed-in actor, so it cannot call `notifyEvent`. Open for a later task.
