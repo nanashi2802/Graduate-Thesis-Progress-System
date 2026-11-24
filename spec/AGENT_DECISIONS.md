@@ -462,3 +462,11 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** Each data function calls `emitSafely` after its own commit (INV-30). C6 follows FR-NTF-01: Gate 1a (`transitionMilestone` to ADVISER_ENDORSED), Gate 1b (`endorseGate1b`, when the last endorsement completes) and Gate 2 (`transitionMilestone` to FINAL_APPROVED). A Return, CLOSED, CERTIFIED and CLEARED send no C6. A3 is a Return of a date request (DATE_PROPOSED). A1 and A2 come from `proposeDefenseDate` and `confirmDefenseDate`. A6 fires when the last expected sheet is verified (BR-11). B4 fires when items are added and when one is linked. B7 ("commit waiting too long for review") is not emitted here: it needs the daily job and the AS-05 threshold. A5 (substitute) has no source yet: no code writes `defense_substitute` (like C5 in AD-B-028). E2 (access open) is requested from `agent-b` in the pull request text.
 - **Risk:** low. A5, B7 and E2 stay unsent until their sources exist. No test covers the nested-transaction guard, because no nested caller reaches a status that emits, so the guard is removed.
 - **Undo:** revert the commits with AD-A-033. The change only adds calls after commits.
+
+### AD-A-034 — Neon Auth sends the reset email itself; E1 adds a sign-in notice
+- **Task:** P2-E04-T09
+- **Options:** Neon Auth sends the set-password and reset email (`requestPasswordReset`); or the app asks for a token and sends the email itself.
+- **Decision and reason:** The first. The SDK method `requestPasswordReset({ email, redirectTo })` returns no token, so the app cannot send the link. A new account calls it after the commit, then emits E1 through Resend (link to `/login`, no password, FR-NTF-03). `/login/reset` takes the token and calls `resetPassword`. The "Forgot password" action shows one message for a known and an unknown address.
+- **Risk:** medium. I could not run one real reset on a development branch in this run (no live Neon Auth session). The human must check one reset, and that the Neon Auth email sender is on. A failing link or E1 never undoes the account (INV-30).
+- **Undo:** revert the commits with AD-A-034.
+- **Gap (agent-r review of #71):** the E1 notice "your password was reset" is not built. `setNewPassword` runs with no signed-in actor, so it cannot call `notifyEvent`. Open for a later task.

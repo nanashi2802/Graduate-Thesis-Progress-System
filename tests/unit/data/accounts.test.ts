@@ -98,3 +98,35 @@ describe("resolveActor", () => {
     expect(actor?.isActive).toBe(false);
   });
 });
+
+describe("createAccount E1 (FR-ACC-08, FR-NTF-03, INV-30)", () => {
+  it("sends the set-password link, emails E1 with a link only, and survives a failing port", async () => {
+    const sendSetLink = vi.fn(async () => {});
+    const sent: { to: string; text: string }[] = [];
+    const sendMail = async (to: string, msg: { subject: string; text: string }) => {
+      sent.push({ to, text: msg.subject + msg.text });
+      return "id";
+    };
+    await createAccount(
+      { db, actor: coordinator },
+      { fullName: "Fake Adviser", email: "adv@example.test", role: "adviser" },
+      fakeAuth,
+      "secret-pass-123",
+      { sendSetLink, sendMail },
+    );
+    expect(sendSetLink).toHaveBeenCalledWith("adv@example.test");
+    expect(sent).toHaveLength(1);
+    expect(sent[0]!.to).toBe("adv@example.test");
+    expect(sent[0]!.text).not.toContain("secret-pass-123");
+    expect(sent[0]!.text).toContain("/login");
+
+    const row2 = await createAccount(
+      { db, actor: coordinator },
+      { fullName: "Fake Two", email: "two@example.test", role: "adviser" },
+      fakeAuth,
+      undefined,
+      { sendSetLink: async () => { throw new Error("down"); }, sendMail: async () => { throw new Error("down"); } },
+    );
+    expect(row2.id).toBeTruthy();
+  });
+});
