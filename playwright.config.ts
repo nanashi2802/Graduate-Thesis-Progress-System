@@ -1,6 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const PORT = 3000;
+const PORT = Number(process.env.E2E_PORT ?? 3000);
 
 // Local runs read .env.local (for the sign-in test). CI has no such file.
 try {
@@ -23,7 +23,7 @@ export default defineConfig({
     { name: "portals", testMatch: /portals\.spec\.ts/, dependencies: ["setup"], use: { ...devices["Desktop Chrome"] } },
   ],
   webServer: {
-    command: "pnpm build && pnpm start",
+    command: `pnpm build && pnpm start -p ${PORT}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
