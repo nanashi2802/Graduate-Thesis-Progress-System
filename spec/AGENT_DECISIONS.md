@@ -506,3 +506,17 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** Move it. `queues.ts` and `overview.ts` already give the A1, P1 and C1 queues with `daysWaiting` for Ready commits. Only the count of threads waiting is missing, and it needs the review screens. It is a Should, so it does not block Phase 3. `spec/BUILD_PLAN.md` §6 lists it.
 - **Risk:** low. The queues work. The human must check that the missing count is acceptable.
 - **Undo:** revert the commits with AD-A-037.
+
+### AD-B-030 — Track B box stays open as blocked
+- **Task:** P1-E07-T03 end-to-end step (agent-r note on #77)
+- **Options:** build it now; or log it as blocked so the phase can end.
+- **Decision and reason:** Blocked. The end-to-end step needs a signed-in local run with `DEV_SEED_PASSWORD`, which no agent has (§13.5). P1-E12-T03 is not blocked: see AD-B-031.
+- **Risk:** low. Only a manual sign-in run is open.
+- **Undo:** none needed. Revert the commit with AD-B-030 to reopen the box.
+
+### AD-B-031 — Audit test for each action kind (P1-E12-T03), split by kind
+- **Task:** P1-E12-T03 (agent-r findings on #77)
+- **Options:** edit the existing Track A tests; or write a new Track B file that calls the data functions.
+- **Decision and reason:** The second, because the Track A test files belong to `agent-a` (§13.1). `tests/unit/data/audit-kinds.test.ts` covers 18 kinds with the helper `expectAudit` (`tests/support/audit.ts`): it counts the records before and after the call, and checks actor, role, time and target. The box stays open. Not yet covered: `gate_1b.endorse`, `gate_2.approve`, `thread.resolve`, `committee_member.propose`, `.accept`, `.decline`, `document.*`, `printed.*`, `sheet.*`, `milestone.status`, `dossier.export`, `user.update`, `template.version`, and the Track A flow kinds.
+- **Risk:** medium. A removed `recordAudit` call in an uncovered function passes CI (INV-08, FR-RPT-01, NFR-03).
+- **Undo:** revert the commit with AD-B-031.

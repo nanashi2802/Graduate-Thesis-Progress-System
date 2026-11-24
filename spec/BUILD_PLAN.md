@@ -558,7 +558,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Depends on:** T02
 - **Done when:**
   - [x] Each disabled action shows its reason (BR-18). The C4 reasons come from `decideDocumentChange`, the rule the action runs.
-  - [ ] An end-to-end step uploads a TDW 07 scan, and the Coordinator verifies it. It waits for the Playwright setup (P1-E13).
+  - [ ] An end-to-end step uploads a TDW 07 scan, and the Coordinator verifies it. Blocked: it needs a local run with `DEV_SEED_PASSWORD` that no agent has (AD-B-030).
 
 ### 3.4a P1-E11 Dashboards (Track B, `agent-b`)
 
@@ -581,7 +581,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Depends on:** T01, P1-E09, P1-E10
 - **Done when:**
   - [x] A test shows each region for a Student. The function reads only the signed-in Student's thesis, and any other role is refused (NFR-01).
-  - [ ] The printed copies status is in S1 (`printedCopyStatus`). The residency date is in S1 (P2-E04-T05). (Closed by later work.) The residency date waits for R7. The printed copies status waits for `printedCopyStatus` (`agent-a`, P1-E09-T05).
+  - [x] The printed copies status (`printedCopyStatus`) and the residency date (P2-E04-T05) are in S1 (`tracker.ts`).
 
 ### P1-E11-T03 — Queues for the Adviser, Panel Member and Coordinator (A1, P1, C1)
 - **Goal:** Data functions return the action queue and the roster (A1), the assignments (P1), and the KPI strip, grouped queue and Student table (C1). Each count opens its queue.
@@ -601,7 +601,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Done when:**
   - [x] S1 (Docket as the next-action card, checklist, outside chips, defense card, key dates), A1 (action queue with inline TDW 03 scan upload and data gathering approval, advisee roster), P1 (assignments with the access reason) and C1 (KPI strip that opens its queue, grouped queue, Student table) are built. Each blocked item shows its reason.
   - [ ] A Playwright step opens each dashboard and finds the next-action card or the queue. It waits for a local run with `DEV_SEED_PASSWORD` (`portals.spec.ts` already opens each home and finds the `Dashboard` heading).
-  - [ ] The P1 action links to the Defense Day page (P4) after `agent-a` merges #30. The S1 residency indicator waits for R7.
+  - [ ] The P1 action links to the Defense Day page (P4) after `agent-a` merges #30. The S1 residency indicator is in `tracker.ts`. R7 adds only the screen chip.
 
 ### 3.5 P1-E12 Audit records and in-app notifications (Track B, `agent-b`)
 
@@ -625,7 +625,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Done when:**
   - [x] A failed email leaves the `notification` row and reports the failure (INV-30).
   - [x] A user lists, counts and marks read only their own rows.
-  - [ ] The failure is an `email_log` row. It waits for the `email_log` table in P2-E04.
+  - [x] The failure is an `email_log` row (`notifications.ts` inserts it; P2-E04-T03, T04).
 
 ### P1-E12-T04 — App shell and notification center panel
 - **Goal:** Each portal has the app shell (navigation, top bar, user menu) and the notification center with read and unread states.
@@ -634,13 +634,13 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Depends on:** P1-E12-T02
 - **Done when:**
   - [x] Each portal shows the shell. The sidebar lists the routes that exist and marks the active one. The panel shows the unread count, the 10 newest rows, Mark read and Mark all read, and times in PST.
-  - [ ] Wiring: each event calls `notifyEvent` after it commits, from the checked data function. It waits for the recipient resolver and for the event list that `agent-a` agrees.
+  - [x] Wiring: each event calls `emitEvent` (`recipients.ts`) after it commits, from the checked data function (P2-E04-T07, T08).
 
 ### P1-E12-T03 — Audit records for each event (FR-RPT-01)
 - **Goal:** Each event in FR-RPT-01 writes one `audit_record` through the P1-E02 insert.
 - **Covers:** FR-RPT-01, NFR-03, INV-08
 - **Depends on:** P1-E02
-- **Done when:** `[ ]` A test for each event kind shows its audit record with actor, role, time and target.
+- **Done when:** `[ ]` A test for each event kind shows its audit record with actor, role, time and target. 18 kinds are covered in `tests/unit/data/audit-kinds.test.ts`. The other kinds are named in AD-B-031.
 
 ### 3.6 P1-E01 Schema from the ERD (Track A, `agent-a`, done 22 Nov 2026)
 
