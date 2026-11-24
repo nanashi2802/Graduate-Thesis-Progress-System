@@ -16,7 +16,6 @@ import {
 } from "@/server/data/templates";
 import { makeThesisChain } from "../../support/fixtures";
 import { makeTestDb } from "../../support/test-db";
-import { expectAuditKinds } from "../../support/audit";
 
 let db: Db;
 let c: Awaited<ReturnType<typeof makeThesisChain>>;
@@ -111,7 +110,6 @@ describe("setTargetDate (FR-TPL-05)", () => {
     [m] = await db.select().from(s.milestoneInstance).where(eq(s.milestoneInstance.id, c.milestone.id));
     expect(m!.targetDate).toBeNull();
     expect(await db.select().from(s.auditRecord)).toHaveLength(2);
-    await expectAuditKinds(db, ["milestone.target_date"]);
   });
 
   it("refuses a bad date and a non-Coordinator", async () => {

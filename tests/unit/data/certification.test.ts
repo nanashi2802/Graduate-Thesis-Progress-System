@@ -3,7 +3,6 @@ import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { AccessDeniedError, type Actor, type DataContext } from "@/server/data/access";
 import { approveDataGathering, dataGatheringApproved } from "@/server/data/certification";
-import { expectAuditKinds } from "../../support/audit";
 import type { Db } from "@/server/data/db";
 import { transitionMilestone } from "@/server/data/milestones";
 import * as s from "@/server/data/schema";
@@ -90,7 +89,6 @@ describe("approveDataGathering (FR-WFL-11)", () => {
     await expect(approveDataGathering(as(other), t.milestone.id)).rejects.toBeInstanceOf(AccessDeniedError);
     expect(await dataGatheringApproved(as(t.student), t.milestone.id)).toBe(false);
     await approveDataGathering(as(t.adviser), t.milestone.id);
-    await expectAuditKinds(db, ["data_gathering.approve", "milestone.open"]);
     expect(await dataGatheringApproved(as(t.student), t.milestone.id)).toBe(true);
     await expect(approveDataGathering(as(t.adviser), t.milestone.id)).rejects.toThrow(/already/);
     const rows = await db.select().from(s.gateAction).where(eq(s.gateAction.milestoneInstanceId, t.milestone.id));

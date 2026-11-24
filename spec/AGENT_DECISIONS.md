@@ -492,16 +492,16 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Risk:** low. CI uses port 3000 as before.
 - **Undo:** revert the commits with AD-A-036.
 
-### AD-B-030 — Two Track B boxes stay open as blocked
+### AD-B-030 — Track B box stays open as blocked
 - **Task:** P1-E07-T03 end-to-end step (agent-r note on #77)
-- **Options:** build both now; or log them as blocked so the phase can end.
-- **Decision and reason:** Blocked. The end-to-end step needs a signed-in local run with `DEV_SEED_PASSWORD`, which no agent has (�13.5). P1-E12-T03 is not blocked: see AD-B-031.
+- **Options:** build it now; or log it as blocked so the phase can end.
+- **Decision and reason:** Blocked. The end-to-end step needs a signed-in local run with `DEV_SEED_PASSWORD`, which no agent has (§13.5). P1-E12-T03 is not blocked: see AD-B-031.
 - **Risk:** low. Only a manual sign-in run is open.
-- **Undo:** none needed. Revert the commit with AD-B-030 to reopen the boxes.
+- **Undo:** none needed. Revert the commit with AD-B-030 to reopen the box.
 
-### AD-B-031 � Audit test for each action kind (P1-E12-T03)
-- **Task:** P1-E12-T03 (agent-r finding on #77, which rejected the "blocked" status in AD-B-030)
-- **Options:** one new table test that calls all data functions; or add `expectAuditKinds` to the existing tests that already call each function.
-- **Decision and reason:** The second. Existing tests already set up each function. The helper `tests/support/audit.ts` checks actor, role, time and target. It edits no Track A file.
-- **Risk:** low. All 37 action kinds now have a test that reads the record (INV-08, FR-RPT-01).
+### AD-B-031 — Audit test for each action kind (P1-E12-T03), split by kind
+- **Task:** P1-E12-T03 (agent-r findings on #77)
+- **Options:** edit the existing Track A tests; or write a new Track B file that calls the data functions.
+- **Decision and reason:** The second, because the Track A test files belong to `agent-a` (§13.1). `tests/unit/data/audit-kinds.test.ts` covers 18 kinds with the helper `expectAudit` (`tests/support/audit.ts`): it counts the records before and after the call, and checks actor, role, time and target. The box stays open. Not yet covered: `gate_1b.endorse`, `gate_2.approve`, `thread.resolve`, `committee_member.propose`, `.accept`, `.decline`, `document.*`, `printed.*`, `sheet.*`, `milestone.status`, `dossier.export`, `user.update`, `template.version`, and the Track A flow kinds.
+- **Risk:** medium. A removed `recordAudit` call in an uncovered function passes CI (INV-08, FR-RPT-01, NFR-03).
 - **Undo:** revert the commit with AD-B-031.

@@ -14,7 +14,6 @@ import {
 import { currentOutsideStatuses, readOutsideStatuses, setOutsideStatus } from "@/server/data/outside";
 import * as s from "@/server/data/schema";
 import { makeThesisChain, makeUser } from "../../support/fixtures";
-import { expectAuditKinds } from "../../support/audit";
 import { makeTestDb } from "../../support/test-db";
 
 let db: Db;
@@ -128,7 +127,6 @@ describe("transitionMilestone (ERD §7.1)", () => {
     expect(m.returnReason).toBe("Fix chapter 2.");
     const [row] = await db.select().from(s.gateAction).where(eq(s.gateAction.milestoneInstanceId, t.milestone.id));
     expect(row).toMatchObject({ gate: "gate_1a", result: "returned", reason: "Fix chapter 2." });
-    await expectAuditKinds(db, ["milestone.return"]);
   });
 
   it("limits a Coordinator Return to compliance or eligibility (INV-19)", async () => {

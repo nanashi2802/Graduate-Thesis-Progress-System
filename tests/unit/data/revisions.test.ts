@@ -7,7 +7,6 @@ import { transitionMilestone } from "@/server/data/milestones";
 import { acceptRevision, addRevisionItems, linkRevisionToCommit, listRevisionItems } from "@/server/data/revisions";
 import * as s from "@/server/data/schema";
 import { makeThesisChain, makeUser } from "../../support/fixtures";
-import { expectAuditKinds } from "../../support/audit";
 import { makeTestDb } from "../../support/test-db";
 
 let db: Db;
@@ -98,7 +97,6 @@ describe("link, accept and the Certification (FR-REV-13, FR-WFL-06, INV-21)", ()
     // Not every member accepted yet.
     await expect(transitionMilestone(as(w.coordinator), w.milestone.id, "CERTIFIED")).rejects.toMatchObject({ code: "revisions_not_accepted" });
     await acceptRevision(as(w.chair), itemId);
-    await expectAuditKinds(db, ["revision.add", "revision.link", "revision.accept"]);
     // Past this point the guard asks for the Certification document, so the revisions guard passed.
     await expect(transitionMilestone(as(w.coordinator), w.milestone.id, "CERTIFIED")).rejects.toMatchObject({ code: "certification_missing" });
     // An accepted item no longer changes.
