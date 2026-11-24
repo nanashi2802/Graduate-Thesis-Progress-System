@@ -347,8 +347,10 @@ function TechWord({
   );
 }
 
+/** The journey card plays first; keep in step with `--hb-intro` in landing.css, in ms. */
+const INTRO_MS = 2000;
 /** How long the stroke draw on load runs before the first sweep starts, in ms. */
-const BUILD_MS = 2600;
+const BUILD_MS = INTRO_MS + 2600;
 
 /** "Your thesis. One clear path." The title draws itself on load (hero-stroke.tsx). Then the
  * sweep moves between "thesis" and "path" in turn. */

@@ -35,6 +35,15 @@
     #fdfbfb;
 }
 
+/* Thesis Journey ground: a faint red glass tint. The Aero Shards canvas draws over it, and
+   it stays as the whole background where WebGPU is missing (journey-shards.tsx). */
+.landing-shards-bg {
+  background:
+    radial-gradient(55% 70% at 85% 30%, rgb(200 16 46 / 0.06), transparent 70%),
+    radial-gradient(45% 60% at 10% 90%, rgb(217 138 143 / 0.08), transparent 70%),
+    #ffffff;
+}
+
 /* Dotted grid behind the journey diagram. */
 .landing-grid {
   background-image: radial-gradient(rgb(30 22 23 / 0.09) 1px, transparent 1px);
@@ -100,11 +109,72 @@
   outline-offset: 3px;
 }
 
-/* One entrance on load: the hero screen rises into place. */
+/* Hero journey on load (HeroJourney in mockups.tsx). The card rises, the track fills from the
+   Proposal to clearance in three eased steps, and each milestone checks off as the fill reaches
+   it. The last one sends out a gold ring, then the status row and the gold note come in. The
+   hero text starts after it (`--hb-intro`). Without motion, all shows at rest, all complete. */
+:root:has(.hero-build) {
+  /* The hero journey card plays first; the hero text builds after it. Keep in step with
+     INTRO_MS in tech-title.tsx. */
+  --hb-intro: 2s;
+}
+.hero-journey {
+  --hj-line: 0.55s;
+  --hj-step: 0.4s;
+}
+.hj-ring {
+  opacity: 0;
+}
 @media (prefers-reduced-motion: no-preference) {
-  .landing-rise {
-    animation: landing-rise 900ms cubic-bezier(0.16, 1, 0.3, 1) 150ms both;
+  .hero-journey {
+    animation: landing-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
+  .hj-fill {
+    animation: hj-fill calc(var(--hj-step) * 3) linear var(--hj-line) both;
+  }
+  .hj-done {
+    animation: hj-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) calc(var(--hj-line) + var(--n) * var(--hj-step) - 0.05s) both;
+  }
+  .hj-ring {
+    animation: hj-ring 0.9s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--hj-line) + 3 * var(--hj-step) + 0.1s) forwards;
+  }
+  .hj-status {
+    animation: hb-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--hj-line) + 3 * var(--hj-step) + 0.2s) both;
+  }
+  .hj-note {
+    animation: hj-note 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) calc(var(--hb-intro) + 0.8s) both;
+  }
+}
+/* Two columns: the card plays in the middle of the hero, then slides right into its column
+   while the hero text builds. The card is 28rem wide and sits at the right edge of the 72rem
+   container (2rem side padding), so this offset puts its centre on the container centre. */
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .hj-stage {
+    animation: hj-slide 0.9s cubic-bezier(0.65, 0, 0.35, 1) var(--hb-intro) both;
+  }
+}
+@keyframes hj-slide {
+  from { translate: calc(14rem - (min(100vw, 72rem) - 4rem) / 2) 0; }
+  to { translate: 0 0; }
+}
+@keyframes hj-fill {
+  0% { transform: scaleX(0); animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+  33.333% { transform: scaleX(0.33333); animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+  66.667% { transform: scaleX(0.66667); animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+  100% { transform: scaleX(1); }
+}
+@keyframes hj-pop {
+  from { opacity: 0; transform: scale(0.4); }
+  60% { opacity: 1; transform: scale(1.12); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes hj-ring {
+  from { opacity: 0.9; transform: scale(1); }
+  to { opacity: 0; transform: scale(1.9); }
+}
+@keyframes hj-note {
+  from { opacity: 0; transform: translateY(8px) rotate(-4deg) scale(0.9); }
+  to { opacity: 1; transform: none; }
 }
 /* Anchor links glide to their section. */
 @media (prefers-reduced-motion: no-preference) {
@@ -511,9 +581,9 @@
    step times are custom properties on .hero-build. Without motion, all shows at rest. */
 .hero-build {
   --hb-draw: 1.2s;
-  --hb-fill: calc(var(--hb-draw) + 0.15s);
-  --hb-copy: 1.7s;
-  --hb-cta: 2s;
+  --hb-fill: calc(var(--hb-intro) + var(--hb-draw) + 0.15s);
+  --hb-copy: calc(var(--hb-intro) + 1.7s);
+  --hb-cta: calc(var(--hb-intro) + 2s);
 }
 .hero-stroke-svg {
   position: absolute;
@@ -543,14 +613,14 @@
   .hero-stroke-svg tspan {
     stroke-dasharray: 900;
     stroke-dashoffset: 900;
-    animation: sw-draw var(--hb-draw) cubic-bezier(0.33, 1, 0.68, 1) calc(var(--i) * 35ms) forwards;
+    animation: sw-draw var(--hb-draw) cubic-bezier(0.33, 1, 0.68, 1) calc(var(--hb-intro, 0s) + var(--i) * 35ms) forwards;
   }
   .hero-build .hero-fill {
     clip-path: inset(-25% 100% -25% 0);
     animation: sw-wipe 0.7s cubic-bezier(0.65, 0, 0.35, 1) calc(var(--hb-fill) + var(--w, 0) * 90ms) forwards;
   }
   .hero-build .hero-eyebrow {
-    animation: hb-rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+    animation: hb-rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--hb-intro) + 0.1s) both;
   }
   .hero-build .hero-copy {
     animation: hb-rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) var(--hb-copy) both;
@@ -751,6 +821,7 @@
   .fb-card[data-active="true"] .fb-ver { animation: fb-ver 3.6s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
   .fb-card[data-active="true"] .fb-ver-new { animation: fb-ver-new 3.6s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
   .fb-card[data-active="true"] .fb-ver-new::after { animation: fb-glint 3.6s ease-in-out backwards; }
+  .fb-card[data-active="true"] .fb-sep { animation: fb-sep 3.6s ease-out backwards; }
   .fb-bar { transform-origin: left; }
   .fb-card[data-active="true"] .fb-bar { animation: fb-bar 3.6s cubic-bezier(0.65, 0, 0.35, 1) backwards; }
   .fb-card[data-active="true"] .fb-file { animation: fb-file 3.6s cubic-bezier(0.45, 0, 0.25, 1) backwards; }
@@ -773,11 +844,13 @@
 }
 @keyframes fb-hop { 40% { transform: translateY(-6px) rotate(-8deg); } 70% { transform: translateY(1px) rotate(4deg); } }
 
+/* v1 and v2 hold the "current" look until the upload lands, then dim. */
 @keyframes fb-ver {
   0%, 56% { background-color: #fff; color: var(--color-neutral-800); box-shadow: 0 0 0 1px rgb(30 22 23 / 0.16); transform: none; }
   66% { transform: scale(0.92); }
   74%, 100% { background-color: var(--color-neutral-100); color: var(--color-neutral-400); box-shadow: 0 0 0 1px rgb(30 22 23 / 0); transform: none; }
 }
+/* v3 is not there until the file arrives, then it lands focused. */
 @keyframes fb-ver-new {
   0%, 56% { opacity: 0; transform: translateY(-10px) scale(0.5) rotate(-6deg); }
   66% { opacity: 1; transform: scale(1.14); }
@@ -799,6 +872,7 @@
   63%, 82% { transform: translate(0, 0) rotate(0); opacity: 0; }
   92%, 100% { transform: translate(0, 0) rotate(0); opacity: 1; }
 }
+@keyframes fb-fold-front { 0%, 8% { transform: none; } 22%, 40% { transform: perspective(60px) rotateX(-14deg); } 58%, 100% { transform: none; } }
 
 @keyframes fb-pin {
   0% { opacity: 0; transform: translateY(-28px) rotate(-30deg); }
@@ -822,7 +896,6 @@
   100% { opacity: 0; transform: translateX(-10px); }
 }
 @keyframes fb-march { to { stroke-dashoffset: -6; } }
-  .fb-card[data-active="true"] .fb-sep { animation: fb-sep 3.6s ease-out backwards; }
 @keyframes fb-target {
   0%, 38% { background-color: var(--color-neutral-100); }
   46%, 100% { background-color: var(--color-green-100); }
@@ -835,13 +908,10 @@
 }
 @keyframes fb-reply {
   0%, 46% { opacity: 0; transform: scale(0.3) rotate(-4deg); }
-/* v1 and v2 hold the "current" look until the upload lands, then dim. */
   56%, 90% { opacity: 1; transform: none; }
   97%, 100% { opacity: 0; transform: scale(0.9); }
 }
 
-/* v3 is not there until the file arrives, then it lands focused. */
-@keyframes fb-fold-front { 0%, 8% { transform: none; } 22%, 40% { transform: perspective(60px) rotateX(-14deg); } 58%, 100% { transform: none; } }
 /* ---- Status mark (status-mark.tsx): idle dashed ring, progress arc, check ------------------ */
 .sm { display: inline-flex; align-items: center; gap: 0.4em; vertical-align: middle; line-height: 1; }
 .sm-svg { flex: none; overflow: visible; }
