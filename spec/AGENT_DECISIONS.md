@@ -491,3 +491,17 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** `E2E_PORT` (default 3000) sets the port in `playwright.config.ts`. Another workspace of the owner ran a server on 3000, and `reuseExistingServer` tested that app. The reset input on `/login` was renamed "Reset link email", because `getByLabel("Email address")` matched two inputs. The browser boxes with no flow spec in Track A epics now say "not built", not "blocked". The Track B boxes (P1-E11-T04, P1-E13-T02, P2-E02-T02) stay as they are. PR #76 asks agent-b to update them.
 - **Risk:** low. CI uses port 3000 as before.
 - **Undo:** revert the commits with AD-A-036.
+
+### AD-B-030 — Track B box stays open as blocked
+- **Task:** P1-E07-T03 end-to-end step (agent-r note on #77)
+- **Options:** build it now; or log it as blocked so the phase can end.
+- **Decision and reason:** Blocked. The end-to-end step needs a signed-in local run with `DEV_SEED_PASSWORD`, which no agent has (§13.5). P1-E12-T03 is not blocked: see AD-B-031.
+- **Risk:** low. Only a manual sign-in run is open.
+- **Undo:** none needed. Revert the commit with AD-B-030 to reopen the box.
+
+### AD-B-031 — Audit test for each action kind (P1-E12-T03), split by kind
+- **Task:** P1-E12-T03 (agent-r findings on #77)
+- **Options:** edit the existing Track A tests; or write a new Track B file that calls the data functions.
+- **Decision and reason:** The second, because the Track A test files belong to `agent-a` (§13.1). `tests/unit/data/audit-kinds.test.ts` covers 18 kinds with the helper `expectAudit` (`tests/support/audit.ts`): it counts the records before and after the call, and checks actor, role, time and target. The box stays open. Not yet covered: `gate_1b.endorse`, `gate_2.approve`, `thread.resolve`, `committee_member.propose`, `.accept`, `.decline`, `document.*`, `printed.*`, `sheet.*`, `milestone.status`, `dossier.export`, `user.update`, `template.version`, and the Track A flow kinds.
+- **Risk:** medium. A removed `recordAudit` call in an uncovered function passes CI (INV-08, FR-RPT-01, NFR-03).
+- **Undo:** revert the commit with AD-B-031.
