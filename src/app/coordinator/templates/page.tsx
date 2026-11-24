@@ -2,7 +2,7 @@
 import { EmptyState } from "@/components/empty-state";
 import { listStudents } from "@/server/data/students";
 import { listTemplates } from "@/server/data/templates";
-import { sessionContext } from "../_lib/action";
+import { pageContext } from "../_lib/action";
 import { PageHeader, Section, td, th } from "../_lib/page-header";
 import { TargetDateForm, TemplateForm } from "./template-forms";
 
@@ -15,7 +15,8 @@ const UPLOADER: Record<string, string> = {
 const MILESTONE: Record<string, string> = { proposal: "Proposal", pre_final: "Pre-Final", final: "Final" };
 
 export default async function Page() {
-  const ctx = await sessionContext();
+  const ctx = await pageContext();
+  if (!ctx) return null; // The portal layout shows Access Denied.
   const [templates, students] = await Promise.all([listTemplates(ctx), listStudents(ctx)]);
   const open = students.flatMap((s) =>
     s.milestones

@@ -4,7 +4,7 @@ import { ActionForm, areaClass, Field, inputClass } from "@/app/_components/acti
 import { MODE, pst, pstRange, SLOT_STATUS } from "@/app/_lib/format";
 import { proposeDateAction, requestBookingAction, topicAction } from "@/app/_lib/schedule-actions";
 import { EmptyState } from "@/components/empty-state";
-import { getSessionState } from "@/server/auth/session";
+import { getRoleState } from "@/server/auth/session";
 import { AccessDeniedError } from "@/server/data/access";
 import { commonDefenseWindows, listBookings, listLogEntries, listSlots } from "@/server/data/consultations";
 import { getDb } from "@/server/data/db";
@@ -13,7 +13,7 @@ import { readableMilestones } from "@/server/data/documents";
 import { listThreads } from "@/server/data/manuscript";
 
 export default async function Page() {
-  const state = await getSessionState();
+  const state = await getRoleState("student");
   if (state.status !== "ok") return null; // The portal layout already blocks this case.
   const ctx = { db: getDb(), actor: state.actor };
   const milestone = (await readableMilestones(ctx)).at(-1);

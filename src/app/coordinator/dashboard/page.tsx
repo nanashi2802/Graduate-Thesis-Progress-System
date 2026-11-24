@@ -8,7 +8,7 @@ import { EmptyState } from "@/components/empty-state";
 import { MilestoneStatusPill } from "@/components/status";
 import { coordinatorOverview, QUEUE_LABEL, type QueueItem, type QueueKind } from "@/server/data/overview";
 import type { MilestoneCode } from "@/server/domain/milestone";
-import { sessionContext } from "../_lib/action";
+import { pageContext } from "../_lib/action";
 
 // Where each queue item opens (SITEMAP C3 to C6). C7 (clearance) is not built yet: those items show a reason, not a link (BR-18).
 function hrefOf(q: QueueItem): string | null {
@@ -29,7 +29,9 @@ function hrefOf(q: QueueItem): string | null {
 }
 
 export default async function Page() {
-  const o = await coordinatorOverview(await sessionContext());
+  const ctx = await pageContext();
+  if (!ctx) return null; // The portal layout shows Access Denied.
+  const o = await coordinatorOverview(ctx);
   const flagged = o.students.filter((s) => s.pacingFlag);
   const groups = o.kpis.filter((k) => k.count > 0);
 

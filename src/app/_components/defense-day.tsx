@@ -1,5 +1,6 @@
 // The Defense Day page for the Adviser (A5) and the Panel Member (P4): the own evaluation sheet, the verdict and the
 // held step (FR-DEF-05 to FR-DEF-07, BR-10, BR-17, BR-18, INV-14, INV-15). The sheet opens at the scheduled start.
+import type { UserRole } from "@/server/data/schema";
 import Link from "next/link";
 import { ActionForm, areaClass, Field, inputClass } from "@/app/_components/action-form";
 import { ScoreSheet } from "@/app/_components/score-sheet";
@@ -9,7 +10,7 @@ import { AccessDenied } from "@/app/_components/access-denied";
 import { FlagBanner } from "@/components/banners";
 import { EmptyState } from "@/components/empty-state";
 import { MilestoneStatusPill } from "@/components/status";
-import { getSessionState } from "@/server/auth/session";
+import { getRoleState } from "@/server/auth/session";
 import { AccessDeniedError } from "@/server/data/access";
 import { InputProblem } from "@/server/data/coordinator";
 import { getDb } from "@/server/data/db";
@@ -28,8 +29,8 @@ const TDW10_BOXES: [string, string][] = [
   ["remarks", "Remarks"],
 ];
 
-export async function DefenseDay({ attemptId }: { attemptId: string }) {
-  const state = await getSessionState();
+export async function DefenseDay({ portal, attemptId }: { portal: UserRole; attemptId: string }) {
+  const state = await getRoleState(portal);
   if (state.status !== "ok") return null; // The portal layout already blocks this case.
   const ctx = { db: getDb(), actor: state.actor };
   let page: Awaited<ReturnType<typeof defensePage>>;

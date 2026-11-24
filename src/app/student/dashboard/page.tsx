@@ -9,7 +9,7 @@ import { Docket } from "@/components/docket";
 import { MilestoneStepper, type StepperStageIndex } from "@/components/milestone-stepper";
 import { MilestoneStatusPill, OutsideChip } from "@/components/status";
 import { buttonVariants } from "@/components/ui/button";
-import { getSessionState } from "@/server/auth/session";
+import { getRoleState } from "@/server/auth/session";
 import { getDb } from "@/server/data/db";
 import { submissionFor } from "@/server/data/manuscript";
 import { studentTracker } from "@/server/data/tracker";
@@ -36,7 +36,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 export default async function Page() {
-  const state = await getSessionState();
+  const state = await getRoleState("student");
   if (state.status !== "ok") return null; // The portal layout already blocks this case.
   const ctx = { db: getDb(), actor: state.actor };
   const t = await studentTracker(ctx);

@@ -6,14 +6,15 @@ import { EmptyState } from "@/components/empty-state";
 import { clearanceView } from "@/server/data/clearance";
 import { checkTransition } from "@/server/data/milestones";
 import { listStudents } from "@/server/data/students";
-import { sessionContext } from "../_lib/action";
+import { pageContext } from "../_lib/action";
 import { PageHeader, Section } from "../_lib/page-header";
 import { CloseForm, VerifyForm } from "./forms";
 
 const link = "text-sm font-medium text-primary underline-offset-4 hover:underline";
 
 export default async function Page({ searchParams }: PageProps<"/coordinator/clearance">) {
-  const ctx = await sessionContext();
+  const ctx = await pageContext();
+  if (!ctx) return null; // The portal layout shows Access Denied.
   const students = (await listStudents(ctx)).filter((s) => s.milestones.some((m) => m.code === "final"));
   const param = (await searchParams).thesis;
   const student = students.find((s) => s.thesisId === (Array.isArray(param) ? param[0] : param));

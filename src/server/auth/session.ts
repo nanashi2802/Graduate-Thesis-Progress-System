@@ -45,6 +45,14 @@ export async function checkRole(role: UserRole): Promise<RoleCheck> {
   return roleDecision(state, role);
 }
 
+// For a page under a portal: the actor when the role matches, else a non-ok state, so the page
+// makes no data call after the gate refused the user (issue #58). The data layer still checks (NFR-01).
+export async function getRoleState(role: UserRole): Promise<SessionState> {
+  const state = await getSessionState();
+  if (state.status !== "ok") return state;
+  return roleDecision(state, role).ok ? state : { status: "no_account" };
+}
+
 export function roleDecision(state: Exclude<SessionState, { status: "signed_out" }>, role: UserRole): RoleCheck {
   if (state.status === "no_account") {
     return { ok: false, reason: "This sign-in has no account. Ask the Coordinator to make your account." };

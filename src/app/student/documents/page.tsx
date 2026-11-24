@@ -3,7 +3,7 @@
 import { ActionButton } from "@/components/action-button";
 import { EmptyState } from "@/components/empty-state";
 import { DocumentStamp } from "@/components/status";
-import { getSessionState } from "@/server/auth/session";
+import { getRoleState } from "@/server/auth/session";
 import { getDb } from "@/server/data/db";
 import { deliverables, readableMilestones } from "@/server/data/documents";
 import { canUploadScan, type DocumentState } from "@/server/domain/documents";
@@ -19,7 +19,7 @@ function lockedReason(state: DocumentState | undefined): string {
 const SIGNERS = (s: string | null) => (s ? `Signed by ${s}.` : "");
 
 export default async function Page() {
-  const state = await getSessionState();
+  const state = await getRoleState("student");
   if (state.status !== "ok") return null; // The portal layout already blocks this case.
   const ctx = { db: getDb(), actor: state.actor };
   const milestone = (await readableMilestones(ctx)).at(-1);

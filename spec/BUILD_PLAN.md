@@ -1339,9 +1339,9 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** one shared fix (a role helper the pages call first, or one shared catch). For a page that `agent-b` owns, add a "Request for agent-b" to the pull request (§13.1).
 - **Depends on:** none
 - **Done when:**
-  - [ ] Opening another role's portal, and opening a portal signed out, shows Access Denied with its reason and logs no `AccessDeniedError`.
-  - [ ] The data layer still refuses on its own (NFR-01). No access check is removed.
-  - [ ] The pull request text says `Fixes #58`.
+  - [x] Opening another role (pages call `getRoleState` or `pageContext` first; the e2e log check runs in P3-E07-T02)'s portal, and opening a portal signed out, shows Access Denied with its reason and logs no `AccessDeniedError`.
+  - [x] The data layer still refuses on its own (NFR-01). No access check is removed.
+  - [x] The pull request text says `Fixes #58`.
 - **Tests:** end-to-end (Playwright portals spec), server log check
 
 ### P3-E07-T03 — FR coverage check (Track A, `agent-a`, last task)

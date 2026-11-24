@@ -7,14 +7,14 @@ import { DashSection, MILESTONE_LABEL, linkClass, td, th } from "@/app/_componen
 import { pst } from "@/app/_lib/format";
 import { EmptyState } from "@/components/empty-state";
 import { MilestoneStatusPill } from "@/components/status";
-import { getSessionState } from "@/server/auth/session";
+import { getRoleState } from "@/server/auth/session";
 import { getDb } from "@/server/data/db";
 import { panelDashboard } from "@/server/data/queues";
 
 const DESIGNATION: Record<string, string> = { none: "Panel Member", lead_panel_member: "Lead Panel Member", panel_chair: "Panel Chair" };
 
 export default async function Page() {
-  const state = await getSessionState();
+  const state = await getRoleState("panel_member");
   if (state.status !== "ok") return null; // The portal layout already blocks this case.
   const { assignments } = await panelDashboard({ db: getDb(), actor: state.actor });
   const due = assignments.filter((a) => a.actionRequired !== null);
