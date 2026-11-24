@@ -1,0 +1,468 @@
+<title>Reviewer Screen Mockups</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* Layout: two app mockups (A2 reviewer workspace, P4 Defense Day on a tablet) with state switches. Tokens follow DESIGN.md §3 and §11. */
+:root {
+  --ground: #FAF8F8; --surface: #FFFFFF; --sunken: #F4F1F1; --hairline: #E7E1E1; --strong: #D3CBCB;
+  --ink: #1E1617; --secondary: #4A3F41; --muted: #6E6264; --input: #8C8082;
+  --maroon: #800000; --maroon-50: #FBF3F3;
+  --active: #1F4E8C; --active-bg: #E7EEF8; --active-bd: #BCD0EC;
+  --pending: #8F4A06; --pending-bg: #FCEEDD; --pending-bd: #F1CFA6;
+  --done: #1B6B45; --done-bg: #E5F3EA; --done-bd: #B7DDC5;
+  --returned: #B3261E; --returned-bg: #FCE9E7; --returned-bd: #F2BDB8;
+  --locked: #4A3F41; --locked-bg: #EFEBEB; --locked-bd: #D3CBCB;
+  --neutral: #5B5052; --neutral-bg: #F4F1F1; --neutral-bd: #E7E1E1;
+  --page: #FFFFFF; --viewer: #EDE8E8; --page-bg: #EFEAEA; --scrim: rgb(30 22 23 / .45);
+  --serif: "Source Serif 4", Georgia, serif;
+  --sans: "IBM Plex Sans", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --ground: #1A1415; --surface: #221B1C; --sunken: #2A2223; --hairline: #3A3032; --strong: #4E4245;
+  --ink: #F3EEEE; --secondary: #D6CCCD; --muted: #B3A7A9; --input: #8C8082;
+  --maroon: #E49B9B; --maroon-50: #33201F;
+  --active: #9DBFEA; --active-bg: #1B2A3D; --active-bd: #2E4767;
+  --pending: #F2BC80; --pending-bg: #35240F; --pending-bd: #5A3D1A;
+  --done: #8FD3AE; --done-bg: #17301F; --done-bd: #2B5038;
+  --returned: #F4A79F; --returned-bg: #3A1A17; --returned-bd: #63302A;
+  --locked: #D6CCCD; --locked-bg: #2E2627; --locked-bd: #4E4245;
+  --neutral: #C9BEC0; --neutral-bg: #2A2223; --neutral-bd: #3A3032;
+  --page: #FBF9F9; --viewer: #2A2223; --page-bg: #120E0F; --scrim: rgb(0 0 0 / .6);
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --ground: #1A1415; --surface: #221B1C; --sunken: #2A2223; --hairline: #3A3032; --strong: #4E4245;
+  --ink: #F3EEEE; --secondary: #D6CCCD; --muted: #B3A7A9; --input: #8C8082;
+  --maroon: #E49B9B; --maroon-50: #33201F;
+  --active: #9DBFEA; --active-bg: #1B2A3D; --active-bd: #2E4767;
+  --pending: #F2BC80; --pending-bg: #35240F; --pending-bd: #5A3D1A;
+  --done: #8FD3AE; --done-bg: #17301F; --done-bd: #2B5038;
+  --returned: #F4A79F; --returned-bg: #3A1A17; --returned-bd: #63302A;
+  --locked: #D6CCCD; --locked-bg: #2E2627; --locked-bd: #4E4245;
+  --neutral: #C9BEC0; --neutral-bg: #2A2223; --neutral-bd: #3A3032;
+  --page: #FBF9F9; --viewer: #2A2223; --page-bg: #120E0F; --scrim: rgb(0 0 0 / .6);
+  color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--page-bg); color: var(--ink); font: 400 14px/1.5 var(--sans); }
+.wrap { max-width: 1320px; margin: 0 auto; padding-block: 32px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 48px; }
+.intro { display: grid; gap: 8px; max-width: 780px; }
+.intro h1 { font: 600 30px/1.2 var(--serif); margin: 0; text-wrap: balance; }
+.intro p { margin: 0; color: var(--secondary); font-size: 15px; text-wrap: pretty; }
+.eyebrow { font: 500 12px/1 var(--mono); color: var(--muted); letter-spacing: .04em; }
+.mock { display: grid; gap: 12px; }
+.mock-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.mock-head h2 { font: 600 22px/1.3 var(--serif); margin: 0; }
+.mock-head p { margin: 4px 0 0; color: var(--muted); font-size: 14px; max-width: 72ch; }
+.toggles { display: flex; flex-wrap: wrap; gap: 8px; }
+.seg { display: inline-flex; border: 1px solid var(--strong); border-radius: 6px; overflow: hidden; background: var(--surface); }
+.seg button { font: 500 13px/1 var(--sans); padding: 9px 12px; border: 0; background: transparent; color: var(--secondary); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--strong); }
+.seg button[aria-pressed="true"] { background: var(--maroon-50); color: var(--maroon); }
+.seg button:focus-visible { outline: 2px solid var(--maroon); outline-offset: -2px; }
+.frame { border: 1px solid var(--strong); border-radius: 8px; overflow: hidden; background: var(--ground); box-shadow: 0 8px 24px rgb(30 22 23 / .10); }
+.frame-scroll { overflow-x: auto; }
+.app { min-width: 1100px; display: grid; grid-template-rows: 3px 56px 1fr; position: relative; }
+.app .rule { background: #800000; }
+.topbar { display: flex; align-items: center; gap: 16px; padding: 0 20px; background: var(--surface); border-bottom: 1px solid var(--hairline); }
+.wordmark { font: 600 16px/1 var(--serif); white-space: nowrap; }
+.crumbs { color: var(--muted); font-size: 13px; }
+.crumbs b { color: var(--ink); font-weight: 500; }
+.topbar .right { margin-left: auto; display: flex; gap: 14px; align-items: center; color: var(--secondary); font-size: 13px; }
+.body { display: grid; grid-template-columns: 220px 1fr; min-height: 620px; }
+.side { background: var(--sunken); border-right: 1px solid var(--hairline); padding-block: 16px; }
+.nav a { display: flex; align-items: center; justify-content: space-between; height: 38px; padding: 0 16px; border-left: 3px solid transparent; color: var(--ink); text-decoration: none; font-size: 14px; }
+.nav a.on { border-left-color: #800000; color: var(--maroon); font-weight: 500; background: var(--surface); }
+.nav a.lock { color: var(--muted); }
+.pill { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; font-size: 12.5px; font-weight: 500; border: 1px solid; white-space: nowrap; }
+.pill.neutral { color: var(--neutral); background: var(--neutral-bg); border-color: var(--neutral-bd); }
+.pill.active { color: var(--active); background: var(--active-bg); border-color: var(--active-bd); }
+.pill.pending { color: var(--pending); background: var(--pending-bg); border-color: var(--pending-bd); }
+.pill.done { color: var(--done); background: var(--done-bg); border-color: var(--done-bd); }
+.pill.locked { color: var(--locked); background: var(--locked-bg); border-color: var(--locked-bd); }
+.ico { width: 14px; height: 14px; flex: none; }
+.mono { font-family: var(--mono); font-size: 12.5px; }
+.muted { color: var(--muted); }
+.btn { font: 500 14px/1 var(--sans); height: 36px; padding: 0 14px; border-radius: 4px; border: 1px solid var(--input); background: var(--surface); color: var(--ink); display: inline-flex; align-items: center; gap: 8px; cursor: pointer; white-space: nowrap; text-decoration: none; }
+.btn.primary { background: #800000; border-color: #800000; color: #fff; }
+.btn.ret { color: var(--returned); border-color: var(--returned-bd); }
+.btn.text { border-color: transparent; background: transparent; color: var(--maroon); padding: 0 6px; }
+.btn[aria-disabled="true"] { background: var(--sunken); color: var(--muted); border-color: var(--hairline); cursor: not-allowed; }
+.btn.big { height: 48px; font-size: 15px; padding: 0 20px; }
+.btn:focus-visible { outline: 2px solid var(--maroon); outline-offset: 2px; }
+.reason { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+
+/* identity + merge box */
+.ws { display: grid; grid-template-rows: auto auto 1fr; min-height: 620px; }
+.identity { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; padding: 14px 20px 10px; }
+.identity h1 { font: 600 21px/1.25 var(--serif); margin: 0; }
+.identity .meta { color: var(--muted); font-size: 13px; }
+.deg { font: 500 11px/1 var(--mono); padding: 4px 6px; border: 1px solid var(--strong); border-radius: 3px; color: var(--secondary); }
+.mergebox { margin: 0 20px; display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center; padding: 14px 16px; background: var(--surface); border: 1px solid var(--hairline); border-radius: 6px; }
+.mergebox .msg { display: grid; gap: 6px; }
+.mergebox .row1 { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 14px; }
+.checks { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; }
+.checks span { display: inline-flex; align-items: center; gap: 6px; }
+.checks .ok { color: var(--done); }
+.checks .no { color: var(--pending); }
+.mergebox .act { display: grid; justify-items: end; gap: 6px; }
+.mergebox .act .btns { display: flex; gap: 8px; }
+.split { display: grid; grid-template-columns: 1fr 390px; margin: 12px 20px 20px; border: 1px solid var(--hairline); border-radius: 6px; overflow: hidden; min-height: 460px; }
+.viewer { background: var(--viewer); display: grid; grid-template-rows: auto 1fr; }
+.viewer-bar { display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: var(--surface); border-bottom: 1px solid var(--hairline); font-size: 13px; }
+.commit-sel { display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 10px; border: 1px solid var(--input); border-radius: 4px; background: var(--surface); color: var(--ink); font: inherit; }
+.viewer-bar .pager { margin-left: auto; color: var(--muted); font-family: var(--mono); font-size: 12px; }
+.pagewrap { padding: 20px; display: flex; justify-content: center; overflow: hidden; }
+.paper { width: 420px; background: var(--page); color: #1E1617; box-shadow: 0 2px 10px rgb(0 0 0 / .12); padding: 40px 44px; font: 400 11.5px/1.7 var(--serif); }
+.paper h4 { font: 600 13px/1.3 var(--serif); text-align: center; margin: 0 0 4px; }
+.paper h5 { font: 600 12px/1.3 var(--serif); margin: 14px 0 6px; }
+.paper p { margin: 0 0 8px; text-align: justify; }
+.feed { background: var(--surface); border-left: 1px solid var(--hairline); display: grid; grid-template-rows: auto 1fr auto; min-width: 0; }
+.tabs { display: flex; gap: 2px; padding: 0 12px; border-bottom: 1px solid var(--hairline); }
+.tabs button { font: 500 13px/1 var(--sans); padding: 12px 10px; border: 0; background: none; color: var(--muted); border-bottom: 2px solid transparent; display: inline-flex; gap: 6px; align-items: center; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: #800000; }
+.tabs .count { font: 500 11px/1 var(--mono); padding: 3px 6px; border-radius: 999px; background: var(--sunken); color: var(--secondary); }
+.threads { padding: 12px; display: grid; gap: 10px; align-content: start; }
+.thread { border: 1px solid var(--hairline); border-radius: 6px; padding: 12px; display: grid; gap: 8px; }
+.thread.mine { border-color: var(--pending-bd); }
+.th-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12.5px; }
+.th-head .who { font-weight: 600; font-size: 13px; }
+.th-head a { color: var(--maroon); font-family: var(--mono); font-size: 12px; }
+.thread p { margin: 0; font-size: 13.5px; }
+.thread .reply { border-left: 2px solid var(--hairline); padding-left: 10px; font-size: 13px; color: var(--secondary); }
+.th-foot { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+.composer { border-top: 1px solid var(--hairline); padding: 12px; display: grid; gap: 8px; }
+.composer textarea { font: inherit; min-height: 64px; padding: 8px 10px; border: 1px solid var(--input); border-radius: 4px; resize: vertical; background: var(--surface); color: var(--ink); }
+.composer .row { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
+.composer label { font-size: 12.5px; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; }
+.composer input { width: 64px; height: 30px; font: 500 12.5px var(--mono); padding: 0 8px; border: 1px solid var(--input); border-radius: 4px; background: var(--surface); color: var(--ink); }
+
+/* dialog */
+.scrim { position: absolute; inset: 0; background: var(--scrim); display: grid; place-items: center; z-index: 5; }
+.dialog { width: 520px; background: var(--surface); border-radius: 6px; box-shadow: 0 8px 24px rgb(30 22 23 / .25); padding: 22px 24px; display: grid; gap: 14px; }
+.dialog h3 { font: 600 18px/1.3 var(--serif); margin: 0; }
+.dialog p { margin: 0; color: var(--secondary); }
+.dialog ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; color: var(--secondary); }
+.dialog .field { display: grid; gap: 6px; }
+.dialog label { font-size: 13px; font-weight: 500; }
+.dialog textarea { font: inherit; min-height: 90px; padding: 8px 10px; border: 1px solid var(--input); border-radius: 4px; background: var(--surface); color: var(--ink); }
+.dialog .hint { font-size: 12px; color: var(--muted); }
+.dialog .foot { display: flex; justify-content: flex-end; gap: 8px; align-items: center; }
+
+/* Defense Day (tablet) */
+.tablet { width: 880px; max-width: none; margin: 24px auto; background: var(--ground); border: 10px solid #2E2426; border-radius: 26px; overflow: hidden; }
+.dd { display: grid; grid-template-rows: 3px auto auto 1fr; min-height: 760px; }
+.dd .rule { background: #800000; }
+.ddhead { padding: 16px 24px 12px; background: var(--surface); border-bottom: 1px solid var(--hairline); display: grid; gap: 6px; }
+.ddhead .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.ddhead h1 { font: 600 20px/1.25 var(--serif); margin: 0; }
+.ddhead .meta { color: var(--muted); font-size: 13.5px; }
+.ddtabs { display: flex; gap: 4px; padding: 0 24px; background: var(--surface); border-bottom: 1px solid var(--hairline); }
+.ddtabs button { font: 500 15px/1 var(--sans); min-height: 48px; padding: 0 16px; border: 0; background: none; color: var(--muted); border-bottom: 3px solid transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+.ddtabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: #800000; }
+.ddbody { padding: 20px 24px 28px; display: grid; gap: 18px; align-content: start; }
+.rub { width: 100%; border-collapse: collapse; }
+.rub th { text-align: left; font: 600 11.5px/1 var(--sans); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); padding: 8px 6px; border-bottom: 1px solid var(--strong); }
+.rub td { padding: 10px 6px; border-bottom: 1px solid var(--hairline); vertical-align: middle; font-size: 14.5px; }
+.rub td.code { font: 500 12.5px/1 var(--mono); color: var(--muted); width: 40px; }
+.rub td.w { font: 500 13px/1 var(--mono); color: var(--secondary); width: 70px; text-align: right; }
+.rub tr.group td { font-weight: 600; background: var(--sunken); font-size: 13px; }
+.num { display: inline-flex; align-items: center; border: 1px solid var(--input); border-radius: 4px; overflow: hidden; background: var(--surface); }
+.num button { width: 44px; height: 46px; border: 0; background: var(--sunken); color: var(--ink); font: 500 20px/1 var(--sans); cursor: pointer; }
+.num input { width: 64px; height: 46px; border: 0; text-align: center; font: 500 18px/1 var(--mono); font-variant-numeric: tabular-nums; background: var(--surface); color: var(--ink); }
+.num .of { padding: 0 10px; color: var(--muted); font: 500 13px/1 var(--mono); }
+.total { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 16px; background: var(--surface); border: 1px solid var(--hairline); border-radius: 6px; }
+.total .lbl { font-weight: 600; }
+.total .val { font: 600 26px/1 var(--mono); font-variant-numeric: tabular-nums; color: var(--ink); }
+.total .note { font-size: 12.5px; color: var(--muted); }
+.radio { display: flex; gap: 8px; flex-wrap: wrap; }
+.radio label { min-height: 48px; padding: 0 16px; border: 1px solid var(--input); border-radius: 6px; display: inline-flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; background: var(--surface); }
+.radio input { width: 18px; height: 18px; accent-color: #800000; }
+.radio label.on { border-color: #800000; background: var(--maroon-50); }
+.fieldlg { display: grid; gap: 6px; }
+.fieldlg label { font-weight: 600; }
+.fieldlg textarea { font: inherit; font-size: 15px; min-height: 90px; padding: 10px 12px; border: 1px solid var(--input); border-radius: 4px; background: var(--surface); color: var(--ink); }
+.savebar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-top: 6px; }
+.flag { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 6px; background: var(--pending-bg); border: 1px solid var(--pending-bd); color: var(--pending); font-size: 14px; }
+.flag b { color: inherit; }
+.members { width: 100%; border-collapse: collapse; }
+.members th { text-align: left; font: 600 11.5px/1 var(--sans); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); padding: 8px 6px; border-bottom: 1px solid var(--strong); }
+.members td { padding: 12px 6px; border-bottom: 1px solid var(--hairline); font-size: 14.5px; }
+.members td.sc { font: 500 15px/1 var(--mono); font-variant-numeric: tabular-nums; }
+.paperline { font-size: 13px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.callouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+.callout { background: var(--surface); border: 1px solid var(--hairline); border-radius: 6px; padding: 12px 14px; display: grid; gap: 4px; font-size: 13.5px; color: var(--secondary); }
+.callout b { color: var(--ink); font-weight: 600; }
+.callout .n { font: 500 11px/1 var(--mono); color: var(--maroon); }
+[hidden] { display: none !important; }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+  <symbol id="i-dot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3" fill="currentColor"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.01"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-paper" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></symbol>
+</svg>
+
+<div class="wrap">
+  <header class="intro">
+    <span class="eyebrow">Round 13 · the two new patterns · Guided Ledger draft</span>
+    <h1>A2 Reviewer workspace and P4 Defense Day</h1>
+    <p>The reviewer workspace is S2 seen from the other side: the same viewer and comments, plus a gate box with its checks, and Return. P2 (Panel Member) uses the same pattern. Defense Day is drawn on a tablet, where Panel Members use it. A5 (Adviser) uses the same pattern without the Verdict tab. All names and text are fake.</p>
+  </header>
+
+  <!-- ===================== A2 ===================== -->
+  <section class="mock" id="a2">
+    <div class="mock-head">
+      <div><h2>A2 · Adviser review and gates</h2><p>Primer pattern. The gate box lists each condition with a check. The gate button turns on only when every check passes; otherwise it shows the reason (BR-18).</p></div>
+      <div class="seg" role="group" aria-label="A2 state">
+        <button type="button" data-a2="blocked" aria-pressed="true">Blocked by my comments</button>
+        <button type="button" data-a2="ready" aria-pressed="false">Ready to endorse</button>
+        <button type="button" data-a2="return" aria-pressed="false">Return dialog</button>
+      </div>
+    </div>
+    <div class="frame"><div class="frame-scroll"><div class="app" id="a2app">
+      <div class="rule"></div>
+      <div class="topbar">
+        <span class="wordmark">PUP CpE Thesis Progress</span>
+        <span class="crumbs">Advisees <span>/</span> Ana Reyes <span>/</span> <b>Proposal</b></span>
+        <span class="right"><svg class="ico"><use href="#i-bell"/></svg> Dr. L. Bautista (fake)</span>
+      </div>
+      <div class="body">
+        <nav class="side" aria-label="Adviser">
+          <div class="nav">
+            <a href="#a2" class="on">Advisees</a>
+            <a href="#a2">Consultations</a>
+            <a href="#a2">Availability</a>
+            <a href="#a2" class="lock">Defense Day <svg class="ico"><use href="#i-lock"/></svg></a>
+            <a href="#a2" class="lock">Submission <svg class="ico"><use href="#i-lock"/></svg></a>
+          </div>
+        </nav>
+        <main class="ws">
+          <div class="identity">
+            <h1>Low-cost acoustic termite detection with an ESP32 sensor node</h1>
+            <span class="deg">MASTER'S</span>
+            <span class="meta">Ana Reyes · Step 1 of 4 · Proposal</span>
+          </div>
+          <div class="mergebox" aria-label="Gate 1a">
+            <div class="msg">
+              <div class="row1"><span class="pill active"><svg class="ico"><use href="#i-dot"/></svg>Ready for review</span><b>Gate 1a · Endorse for committee review</b><span class="muted">v3 marked Ready 2 days ago</span></div>
+              <div class="checks" id="a2checks">
+                <span class="ok"><svg class="ico"><use href="#i-check"/></svg>A commit is marked Ready</span>
+                <span class="no" id="a2c2"><svg class="ico"><use href="#i-x"/></svg>You have 1 open comment</span>
+              </div>
+            </div>
+            <div class="act">
+              <div class="btns">
+                <button class="btn ret" type="button" id="a2ret"><svg class="ico"><use href="#i-undo"/></svg>Return</button>
+                <button class="btn primary" type="button" id="a2gate" aria-disabled="true" aria-describedby="a2why">Endorse (Gate 1a)</button>
+              </div>
+              <span class="reason" id="a2why"><svg class="ico"><use href="#i-lock"/></svg>You have open threads. Resolve them first.</span>
+            </div>
+          </div>
+          <div class="split">
+            <div class="viewer">
+              <div class="viewer-bar">
+                <span class="commit-sel"><span class="mono"><b>v3</b></span><span class="mono muted">a1b2c3d</span><span class="pill active" style="height:20px;font-size:11.5px"><svg class="ico"><use href="#i-dot"/></svg>Ready</span><svg class="ico"><use href="#i-down"/></svg></span>
+                <span class="muted" style="font-size:12.5px">Change note: "Rewrote 1.3; added sampling plan."</span>
+                <span class="pager">p. 14 / 62</span>
+              </div>
+              <div class="pagewrap">
+                <div class="paper">
+                  <h4>CHAPTER 1</h4>
+                  <h5>1.3 Statement of the Problem</h5>
+                  <p>Subterranean termites cause structural damage to wooden houses before any sign is visible. This study aims to detect termite activity within two weeks of onset using acoustic emission, against visual inspection as the baseline.</p>
+                  <p>1. What acoustic features separate termite feeding from background noise in timber?</p>
+                  <p>2. How accurate is a low-cost sensor node compared with a commercial detector?</p>
+                  <h5>1.4 Scope and Delimitation</h5>
+                  <p>The study covers three species common in Metro Manila and tests the node on pine and narra samples under laboratory conditions.</p>
+                </div>
+              </div>
+            </div>
+            <aside class="feed" aria-label="Comments">
+              <div class="tabs" role="tablist">
+                <button role="tab" aria-selected="true" type="button">Open <span class="count" id="a2open">1</span></button>
+                <button role="tab" aria-selected="false" type="button">Resolved <span class="count">6</span></button>
+                <button role="tab" aria-selected="false" type="button">All</button>
+              </div>
+              <div class="threads">
+                <div class="thread mine" id="a2thread">
+                  <div class="th-head"><span class="who">You</span><span class="muted">Adviser</span><a href="#a2">p. 14</a><span class="pill pending" style="height:20px;font-size:11.5px"><svg class="ico"><use href="#i-clock"/></svg>Open</span></div>
+                  <p>Name the three species and cite the survey that shows they are the most common.</p>
+                  <div class="reply"><b>Ana Reyes:</b> Named in 1.4 of v3, with the 2024 DOST survey.</div>
+                  <div class="th-foot"><button class="btn text" type="button">Reply</button><button class="btn" type="button" id="a2resolve">Resolve</button></div>
+                </div>
+                <div class="thread" style="padding:9px 12px;color:var(--muted)" id="a2none" hidden><svg class="ico" style="color:var(--done);vertical-align:-2px"><use href="#i-check"/></svg> No open comments. All 7 are resolved.</div>
+              </div>
+              <div class="composer">
+                <textarea aria-label="New comment" placeholder="Write a comment on v3"></textarea>
+                <div class="row"><label for="pg">Page <input id="pg" placeholder="opt."></label><button class="btn" type="button">Comment</button></div>
+              </div>
+            </aside>
+          </div>
+        </main>
+      </div>
+      <div class="scrim" id="a2dialog" hidden>
+        <div class="dialog" role="dialog" aria-labelledby="rt">
+          <h3 id="rt">Return the manuscript to Ana Reyes</h3>
+          <p>The milestone goes back to Draft. Ana sees your reason and uploads a new commit.</p>
+          <div class="field">
+            <label for="why">Reason <span class="muted" style="font-weight:400">(required)</span></label>
+            <textarea id="why" placeholder="What must change before you can endorse?"></textarea>
+            <span class="hint">The Student sees this reason.</span>
+          </div>
+          <div class="foot">
+            <span class="reason" id="retwhy"><svg class="ico"><use href="#i-lock"/></svg>Write a reason first.</span>
+            <button class="btn" type="button" id="a2cancel">Cancel</button>
+            <button class="btn ret" type="button" id="a2retgo" aria-disabled="true"><svg class="ico"><use href="#i-undo"/></svg>Return with this reason</button>
+          </div>
+        </div>
+      </div>
+    </div></div></div>
+    <div class="callouts">
+      <div class="callout"><span class="n">1 · GATE BOX</span><b>Checks, then one button</b>Each condition shows pass or fail. Endorse turns on when all pass. Return is always available and never solid red (P6).</div>
+      <div class="callout"><span class="n">2 · YOUR COMMENTS</span><b>Yours stand out</b>Your own open comments have an amber edge, because they block your gate. Only you can resolve them (BR-05).</div>
+      <div class="callout"><span class="n">3 · COMPOSER</span><b>Optional page</b>A comment can name a page. The Student clicks it to jump there (ADR-009, amended).</div>
+      <div class="callout"><span class="n">4 · RETURN DIALOG</span><b>A reason is required</b>The confirm button stays off, with its reason, until the field has text.</div>
+    </div>
+  </section>
+
+  <!-- ===================== P4 ===================== -->
+  <section class="mock" id="p4">
+    <div class="mock-head">
+      <div><h2>P4 · Defense Day, on a tablet</h2><p>One column, 880 px, 48 px targets. My evaluation follows TDW 08 row for row. The total is a number only: no grade and no grade equivalent (BR-15). The Verdict tab is for the Lead Panel Member or Panel Chair only.</p></div>
+      <div class="toggles">
+        <div class="seg" role="group" aria-label="P4 tab">
+          <button type="button" data-p4="eval" aria-pressed="true">My evaluation</button>
+          <button type="button" data-p4="verdict" aria-pressed="false">Verdict (Lead)</button>
+        </div>
+      </div>
+    </div>
+    <div class="frame"><div class="frame-scroll">
+      <div class="tablet"><div class="dd">
+        <div class="rule"></div>
+        <div class="ddhead">
+          <div class="top"><span class="pill active"><svg class="ico"><use href="#i-dot"/></svg>Defense in progress</span><span class="mono muted">Thu 28 Jan 2027 · 09:00 PHT · Room 412</span></div>
+          <h1>Low-cost acoustic termite detection with an ESP32 sensor node</h1>
+          <div class="meta">Ana Reyes · Master's · Proposal Defense · You: Panel Member, <b>Lead Panel Member</b></div>
+        </div>
+        <div class="ddtabs" role="tablist">
+          <button role="tab" type="button" data-p4="eval" aria-selected="true">My evaluation</button>
+          <button role="tab" type="button" data-p4="verdict" aria-selected="false">Verdict</button>
+        </div>
+        <div class="ddbody" id="p4eval">
+          <table class="rub">
+            <thead><tr><th></th><th>Indicator (TDW 08)</th><th style="text-align:right">Weight</th><th style="text-align:right">Score</th></tr></thead>
+            <tbody>
+              <tr class="group"><td colspan="4">Manuscript · 60%</td></tr>
+              <tr><td class="code">M1</td><td>Contribution to the field</td><td class="w">10</td><td style="text-align:right"><span class="num"><button type="button" aria-label="Minus">−</button><input value="9" aria-label="Score M1" inputmode="numeric"><span class="of">/10</span><button type="button" aria-label="Plus">+</button></span></td></tr>
+              <tr><td class="code">M2</td><td>Substance and content</td><td class="w">20</td><td style="text-align:right"><span class="num"><button type="button" aria-label="Minus">−</button><input value="18" aria-label="Score M2" inputmode="numeric"><span class="of">/20</span><button type="button" aria-label="Plus">+</button></span></td></tr>
+              <tr><td class="code">M3</td><td>Methodology</td><td class="w">20</td><td style="text-align:right"><span class="num"><button type="button" aria-label="Minus">−</button><input value="17" aria-label="Score M3" inputmode="numeric"><span class="of">/20</span><button type="button" aria-label="Plus">+</button></span></td></tr>
+              <tr><td class="code">M4</td><td>Form and writing style</td><td class="w">10</td><td style="text-align:right"><span class="num"><button type="button" aria-label="Minus">−</button><input value="9" aria-label="Score M4" inputmode="numeric"><span class="of">/10</span><button type="button" aria-label="Plus">+</button></span></td></tr>
+              <tr class="group"><td colspan="4">Oral defense · 40%</td></tr>
+              <tr><td class="code">O1</td><td>Organization</td><td class="w">10</td><td style="text-align:right"><span class="num"><button type="button" aria-label="Minus">−</button><input value="9" aria-label="Score O1" inputmode="numeric"><span class="of">/10</span><button type="button" aria-label="Plus">+</button></span></td></tr>
+              <tr><td class="code">O2</td><td>Delivery and oral articulation</td><td class="w">10</td><td style="text-align:right"><span class="num"><button type="button" aria-label="Minus">−</button><input value="8" aria-label="Score O2" inputmode="numeric"><span class="of">/10</span><button type="button" aria-label="Plus">+</button></span></td></tr>
+              <tr><td class="code">O3</td><td>Mastery of the topic</td><td class="w">20</td><td style="text-align:right"><span class="num"><button type="button" aria-label="Minus">−</button><input value="18" aria-label="Score O3" inputmode="numeric"><span class="of">/20</span><button type="button" aria-label="Plus">+</button></span></td></tr>
+            </tbody>
+          </table>
+          <div class="total"><div><span class="lbl">Total</span><div class="note">Added up by the system. No grade is shown.</div></div><span class="val">88 <span class="muted" style="font-size:15px">/ 100</span></span></div>
+          <div class="fieldlg"><label>Action taken</label>
+            <div class="radio">
+              <label><input type="radio" name="at"> Approved</label>
+              <label class="on"><input type="radio" name="at" checked> Approved with revisions</label>
+              <label><input type="radio" name="at"> Disapproved</label>
+            </div>
+          </div>
+          <div class="fieldlg"><label for="cm">Comments and suggestions</label><textarea id="cm">Add a field test outside the laboratory. Report false positives from wind and rain.</textarea></div>
+          <div class="savebar">
+            <span class="paperline"><svg class="ico"><use href="#i-paper"/></svg>Sign the paper sheet. The paper is the record.</span>
+            <button class="btn primary big" type="button">Save my evaluation</button>
+          </div>
+        </div>
+        <div class="ddbody" id="p4verdict" hidden>
+          <div class="flag" role="status"><svg class="ico" style="width:18px;height:18px;margin-top:1px"><use href="#i-alert"/></svg><div><b>One member's action taken differs.</b> Dr. P. Cruz chose "Approved". You can still record the verdict. The Coordinator sees this note.</div></div>
+          <table class="members">
+            <thead><tr><th>Member</th><th>Role</th><th style="text-align:right">Total</th><th>Action taken</th><th>Sheet</th></tr></thead>
+            <tbody>
+              <tr><td>Dr. L. Bautista</td><td>Adviser</td><td class="sc" style="text-align:right">90</td><td>Approved with revisions</td><td><span class="pill done"><svg class="ico"><use href="#i-check"/></svg>Saved</span></td></tr>
+              <tr><td>You</td><td>Lead Panel Member</td><td class="sc" style="text-align:right">88</td><td>Approved with revisions</td><td><span class="pill done"><svg class="ico"><use href="#i-check"/></svg>Saved</span></td></tr>
+              <tr><td>Dr. P. Cruz</td><td>Panel Member</td><td class="sc" style="text-align:right">92</td><td>Approved</td><td><span class="pill done"><svg class="ico"><use href="#i-check"/></svg>Saved</span></td></tr>
+            </tbody>
+          </table>
+          <div class="fieldlg"><label>Collective verdict</label>
+            <div class="radio">
+              <label><input type="radio" name="v"> Approved</label>
+              <label class="on"><input type="radio" name="v" checked> Approved with revisions</label>
+              <label><input type="radio" name="v"> Disapproved</label>
+            </div>
+          </div>
+          <div class="savebar">
+            <span class="paperline"><svg class="ico"><use href="#i-paper"/></svg>The Coordinator verifies the paper sheets, then issues the Minutes.</span>
+            <button class="btn primary big" type="button">Record the verdict</button>
+          </div>
+        </div>
+      </div></div>
+    </div></div>
+    <div class="callouts">
+      <div class="callout"><span class="n">1 · RUBRIC</span><b>TDW 08, row for row</b>Each indicator with its weight and a 48 px stepper. Scores are ink, never colored (P7).</div>
+      <div class="callout"><span class="n">2 · TOTAL</span><b>A number, nothing more</b>The system adds up the total. No grade, no "Very Good" (BR-15).</div>
+      <div class="callout"><span class="n">3 · VERDICT</span><b>Lead or Chair only</b>Every member's total and action taken, then the collective verdict. A difference is a flag; it never blocks (BR-17).</div>
+      <div class="callout"><span class="n">4 · PAPER</span><b>Intent, then paper</b>Each save reminds the member that the signed sheet is the record (BR-01).</div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  function press(attr, k) { document.querySelectorAll("[" + attr + "]").forEach(function (b) {
+    var on = b.getAttribute(attr) === k;
+    if (b.getAttribute("role") === "tab") b.setAttribute("aria-selected", String(on)); else b.setAttribute("aria-pressed", String(on)); }); }
+  var gate = document.getElementById("a2gate"), why = document.getElementById("a2why");
+  function setA2(k) {
+    var cleared = k !== "blocked";
+    document.getElementById("a2thread").hidden = cleared;
+    document.getElementById("a2none").hidden = !cleared;
+    document.getElementById("a2open").textContent = cleared ? "0" : "1";
+    var c2 = document.getElementById("a2c2");
+    c2.className = cleared ? "ok" : "no";
+    c2.innerHTML = cleared ? '<svg class="ico"><use href="#i-check"/></svg>Your comments are all resolved' : '<svg class="ico"><use href="#i-x"/></svg>You have 1 open comment';
+    gate.setAttribute("aria-disabled", String(!cleared));
+    why.hidden = cleared;
+    document.getElementById("a2dialog").hidden = k !== "return";
+    press("data-a2", k);
+  }
+  document.querySelectorAll("[data-a2]").forEach(function (b) { b.addEventListener("click", function () { setA2(b.getAttribute("data-a2")); }); });
+  document.getElementById("a2ret").addEventListener("click", function () { setA2("return"); });
+  document.getElementById("a2cancel").addEventListener("click", function () { setA2("ready"); });
+  document.getElementById("a2resolve").addEventListener("click", function () { setA2("ready"); });
+  var why2 = document.getElementById("why"), go = document.getElementById("a2retgo"), rw = document.getElementById("retwhy");
+  why2.addEventListener("input", function () { var ok = why2.value.trim() !== ""; go.setAttribute("aria-disabled", String(!ok)); rw.hidden = ok; });
+
+  function setP4(k) {
+    document.getElementById("p4eval").hidden = k !== "eval";
+    document.getElementById("p4verdict").hidden = k !== "verdict";
+    press("data-p4", k);
+  }
+  document.querySelectorAll("[data-p4]").forEach(function (b) { b.addEventListener("click", function () { setP4(b.getAttribute("data-p4")); }); });
+  document.querySelectorAll(".radio").forEach(function (g) { g.addEventListener("change", function () {
+    g.querySelectorAll("label").forEach(function (l) { l.classList.toggle("on", l.querySelector("input").checked); }); }); });
+  document.querySelectorAll(".num").forEach(function (n) {
+    var inp = n.querySelector("input"), max = parseInt(n.querySelector(".of").textContent.replace("/", ""), 10);
+    var bs = n.querySelectorAll("button");
+    function total() { var t = 0; document.querySelectorAll(".num input").forEach(function (i) { t += parseInt(i.value, 10) || 0; });
+      document.querySelector(".total .val").firstChild.nodeValue = t + " "; }
+    bs[0].addEventListener("click", function () { inp.value = Math.max(0, (parseInt(inp.value, 10) || 0) - 1); total(); });
+    bs[1].addEventListener("click", function () { inp.value = Math.min(max, (parseInt(inp.value, 10) || 0) + 1); total(); });
+    inp.addEventListener("input", total);
+  });
+})();
+</script>

@@ -25,3 +25,7 @@ tests/e2e/.auth/
 .claude/agent-runs/
 .claude/agents.stop
 .claude/agent-runner.lock/
+
+# Python caches from the ui-ux-pro-max skill scripts
+__pycache__/
+*.pyc
