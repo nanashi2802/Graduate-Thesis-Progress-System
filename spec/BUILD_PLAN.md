@@ -746,7 +746,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `playwright.config.ts` (projects `setup`, `chromium`, `portals`), `tests/e2e/auth.setup.ts`, `tests/e2e/roles.ts`, `tests/e2e/portals.spec.ts`, `.gitignore` (`tests/e2e/.auth/`)
 - **Done when:**
   - [x] A Playwright setup project saves one session for each role, and a test opens each portal home and sees Access Denied on another portal. Without `DEV_SEED_PASSWORD` and `NEON_AUTH_BASE_URL` both skip, as `sign-in.spec.ts` does.
-  - [x] A local run passes (19 tests, 24 Nov 2026, AD-A-036).
+  - [ ] A local run passes. `agent-b` has no `DEV_SEED_PASSWORD` in `.env.local`, so the run is not verified yet. Run `pnpm db:seed-dev`, set the password, then `pnpm test:e2e`.
 
 ### P1-E13-T03 — Milestone 1 flow test (Track A lead, AD-A-025)
 - **Goal:** One fake Student goes from account creation to CERTIFIED with every role.
@@ -1113,7 +1113,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Depends on:** T01, P1-E09
 - **Done when:**
   - [x] A Pre-Final test encodes TDW 10 sheets (Adviser and member, comments only), and the Coordinator verifies them (`tests/unit/data/defense-prefinal.test.ts`). The TDW 09 scan already runs through the generic document flow and the FR-DOC-08 checklist.
-  - [ ] The Playwright step is not built. The sign-in works now (AD-A-036). Add a flow spec in Phase 4.
+  - [ ] The Playwright step waits for P2-E05.
 
 ### 4.3 P2-E01 and P2-E03 (Track A, `agent-a`)
 
@@ -1284,7 +1284,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Depends on:** `DEV_SEED_PASSWORD` in the worktree `.env.local` (the owner sets it)
 - **Done when:**
   - [x] `pnpm test:e2e` passes locally (19 tests). The tests do not expect an empty Student: the demo seed links `student@example.test` to a thesis.
-  - [x] The blocked browser boxes in P1-E11-T04, P1-E13-T02, P2-E02-T02, P2-E05-T01, P3-E06-T01 and P3-E07-T08 are checked or have a new reason. P3-E07-T08 adds the log check: no `AccessDeniedError` in the server log.
+  - [ ] The blocked browser boxes in P1-E11-T04, P1-E13-T02, P2-E02-T02, P2-E05-T01, P3-E06-T01 and P3-E07-T08 are checked or have a new reason. P3-E07-T08 adds the log check: no `AccessDeniedError` in the server log. Waits for the "Request for agent-b" in PR #76 (P1-E11-T04, P1-E13-T02, P2-E02-T02 are Track B boxes).
 - **Tests:** end-to-end (Playwright)
 
 ### P3-E07-T04 — Finish the Google sign-in (Track A, `agent-a`, issue #53, P0)

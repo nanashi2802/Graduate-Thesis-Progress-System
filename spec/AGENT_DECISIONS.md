@@ -488,6 +488,6 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 ### AD-A-036 — Browser runs: a port variable and a distinct reset label
 - **Task:** P3-E07-T02
 - **Options:** stop the process on port 3000; or let the e2e port change.
-- **Decision and reason:** `E2E_PORT` (default 3000) sets the port in `playwright.config.ts`. Another workspace of the owner ran a server on 3000, and `reuseExistingServer` tested that app. The reset input on `/login` was renamed "Reset link email", because `getByLabel("Email address")` matched two inputs. The two browser boxes with no spec (flow tests of P1-E11-T04, P2-E02-T02, P2-E05-T01, P3-E06-T01) now say "not built", not "blocked".
+- **Decision and reason:** `E2E_PORT` (default 3000) sets the port in `playwright.config.ts`. Another workspace of the owner ran a server on 3000, and `reuseExistingServer` tested that app. The reset input on `/login` was renamed "Reset link email", because `getByLabel("Email address")` matched two inputs. The browser boxes with no flow spec in Track A epics now say "not built", not "blocked". The Track B boxes (P1-E11-T04, P1-E13-T02, P2-E02-T02) stay as they are. PR #76 asks agent-b to update them.
 - **Risk:** low. CI uses port 3000 as before.
 - **Undo:** revert the commits with AD-A-036.
