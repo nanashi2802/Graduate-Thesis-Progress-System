@@ -463,6 +463,13 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Risk:** low. A5, B7 and E2 stay unsent until their sources exist. No test covers the nested-transaction guard, because no nested caller reaches a status that emits, so the guard is removed.
 - **Undo:** revert the commits with AD-A-033. The change only adds calls after commits.
 
+### AD-B-029 — Daily job: dedupe by `notification` row, digests logged for each row, B7 not sent
+- **Task:** P2-E04-T06
+- **Options:** dedupe reminders by `email_log`; dedupe by a `notification` row for the thesis and PST day. Log one `email_log` row for each digest; log one for each group.
+- **Decision and reason:** A reminder writes a `notification` row (target `thesis_instance`) and is skipped when one exists for the same user, event, thesis and PST day. This also stops a second in-app row for a user who turned the event off. A digest writes one `email_log` row for each `notification` row it covers, so "no `email_log` row" finds the unsent rows. Nothing emits B7 (AD-A-033, AS-05 threshold), so the digest code handles it but no row exists yet. A failed reminder or digest is not retried (INV-30).
+- **Risk:** low. A turned-off digest row stays unlogged and is read again each run. Turning the event back on sends the old rows.
+- **Undo:** revert the commits with AD-B-029. `export` of `defaultMailPort` in `recipients.ts` is the only edit outside new files (file owned by nobody).
+
 ### AD-A-034 — Neon Auth sends the reset email itself; E1 adds a sign-in notice
 - **Task:** P2-E04-T09
 - **Options:** Neon Auth sends the set-password and reset email (`requestPasswordReset`); or the app asks for a token and sends the email itself.

@@ -123,6 +123,9 @@ describe("runDailyJob", () => {
   });
 });
 
+vi.mock("@/server/data/db", () => ({ getDb: () => ({}) }));
+vi.mock("@/server/data/daily", () => ({ runDailyNotifications: async () => ({ reminders: 0, digests: 0 }) }));
+
 describe("GET /api/cron/daily", () => {
   afterEach(() => vi.unstubAllEnvs());
   it("returns 401 without the cron secret", async () => {
