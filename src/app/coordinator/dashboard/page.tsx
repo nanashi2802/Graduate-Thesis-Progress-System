@@ -8,7 +8,7 @@ import { EmptyState } from "@/components/empty-state";
 import { MilestoneStatusPill } from "@/components/status";
 import { coordinatorOverview, QUEUE_LABEL, type QueueItem, type QueueKind } from "@/server/data/overview";
 import type { MilestoneCode } from "@/server/domain/milestone";
-import { sessionContext } from "../_lib/action";
+import { pageContext } from "../_lib/action";
 
 // Where each queue item opens (SITEMAP C3 to C6). C7 (clearance) is not built yet: those items show a reason, not a link (BR-18).
 function hrefOf(q: QueueItem): string | null {
@@ -29,7 +29,9 @@ function hrefOf(q: QueueItem): string | null {
 }
 
 export default async function Page() {
-  const o = await coordinatorOverview(await sessionContext());
+  const ctx = await pageContext();
+  if (!ctx) return null; // The portal layout shows Access Denied.
+  const o = await coordinatorOverview(ctx);
   const flagged = o.students.filter((s) => s.pacingFlag);
   const groups = o.kpis.filter((k) => k.count > 0);
 
@@ -121,6 +123,7 @@ export default async function Page() {
                   <th className={th}>Milestone</th>
                   <th className={th}>Status</th>
                   <th className={th}>Target date</th>
+                  <th className={th}>Residency end</th>
                 </tr>
               </thead>
               <tbody>
@@ -135,6 +138,10 @@ export default async function Page() {
                     <td className={td}>
                       {s.targetDate ?? "Not set"}
                       {s.pacingFlag ? <span className="ml-2 text-xs font-medium text-muted-foreground">Past the target date</span> : null}
+                    </td>
+                    <td className={td}>
+                      {s.residency?.endDate ?? "Not set"}
+                      {s.residency?.warning ? <span className="ml-2 text-xs font-medium text-muted-foreground">Near or past the end date</span> : null}
                     </td>
                   </tr>
                 ))}

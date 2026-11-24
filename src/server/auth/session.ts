@@ -21,8 +21,10 @@ export async function getSessionState(): Promise<SessionState> {
   return stateFor(user);
 }
 
-async function stateFor(user: { id: string; email: string }): Promise<SessionState> {
-  const actor = await resolveActor(getDb(), { authUserId: user.id, email: user.email });
+async function stateFor(user: { id: string; email: string; emailVerified?: boolean }): Promise<SessionState> {
+  const actor = await resolveActor(getDb(), { authUserId: user.id, email: user.email,
+    emailVerified: user.emailVerified === true,
+  });
   return actor ? { status: "ok", actor } : { status: "no_account" };
 }
 
@@ -43,6 +45,14 @@ export async function checkRole(role: UserRole): Promise<RoleCheck> {
   return roleDecision(state, role);
 }
 
+// For a page under a portal: the actor when the role matches, else a non-ok state, so the page
+// makes no data call after the gate refused the user (issue #58). The data layer still checks (NFR-01).
+export async function getRoleState(role: UserRole): Promise<SessionState> {
+  const state = await getSessionState();
+  if (state.status !== "ok") return state;
+  return roleDecision(state, role).ok ? state : { status: "no_account" };
+}
+
 export function roleDecision(state: Exclude<SessionState, { status: "signed_out" }>, role: UserRole): RoleCheck {
   if (state.status === "no_account") {
     return { ok: false, reason: "This sign-in has no account. Ask the Coordinator to make your account." };
@@ -59,7 +69,7 @@ export function roleDecision(state: Exclude<SessionState, { status: "signed_out"
 // Where a new sign-in goes (D-23). A sign-in with no app account, or a deactivated one,
 // is signed out at once, so it keeps no session. A server action passes the user from the
 // sign-in result, because the new session cookie is not readable in the same request.
-export async function afterSignInPath(user?: { id: string; email: string }): Promise<string> {
+export async function afterSignInPath(user?: { id: string; email: string; emailVerified?: boolean }): Promise<string> {
   const state = user ? await stateFor(user) : await getSessionState();
   if (state.status === "signed_out") return "/login";
   if (state.status === "no_account" || !state.actor.isActive) {

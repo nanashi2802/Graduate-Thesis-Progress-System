@@ -125,3 +125,12 @@ describe("listRevisionItems (BR-11)", () => {
     await expect(listRevisionItems(as(stranger), w.attempt.id)).rejects.toBeInstanceOf(AccessDeniedError);
   });
 });
+
+describe("event B4", () => {
+  it("tells the Student and the members of new items, not the Coordinator", async () => {
+    const w = await held();
+    await addRevisionItems(as(w.coordinator), w.attempt.id, ["Add limits."]);
+    const rows = (await db.select().from(s.notification)).filter((n) => n.eventCode === "B4" && n.targetId === w.attempt.id);
+    expect(rows.map((n) => n.recipientUserId).sort()).toEqual([w.student.id, w.lead.id, w.chair.id].sort());
+  });
+});

@@ -1,0 +1,464 @@
+<title>Adviser Screen Mockups</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* Layout: two app mockups (A1, A3) in browser-like frames, state switches above each. Tokens follow DESIGN.md §3 and §11. */
+:root {
+  --ground: #FAF8F8; --surface: #FFFFFF; --sunken: #F4F1F1; --hairline: #E7E1E1; --strong: #D3CBCB;
+  --ink: #1E1617; --secondary: #4A3F41; --muted: #6E6264; --input: #8C8082;
+  --maroon: #800000; --maroon-50: #FBF3F3; --gold: #F4C430;
+  --active: #1F4E8C; --active-bg: #E7EEF8; --active-bd: #BCD0EC;
+  --pending: #8F4A06; --pending-bg: #FCEEDD; --pending-bd: #F1CFA6;
+  --done: #1B6B45; --done-bg: #E5F3EA; --done-bd: #B7DDC5;
+  --locked: #4A3F41; --locked-bg: #EFEBEB; --locked-bd: #D3CBCB;
+  --neutral: #5B5052; --neutral-bg: #F4F1F1; --neutral-bd: #E7E1E1;
+  --achieved: #3D0505;
+  --page-bg: #EFEAEA;
+  --serif: "Source Serif 4", Georgia, serif;
+  --sans: "IBM Plex Sans", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --ground: #1A1415; --surface: #221B1C; --sunken: #2A2223; --hairline: #3A3032; --strong: #4E4245;
+  --ink: #F3EEEE; --secondary: #D6CCCD; --muted: #B3A7A9; --input: #8C8082;
+  --maroon: #E49B9B; --maroon-50: #33201F;
+  --active: #9DBFEA; --active-bg: #1B2A3D; --active-bd: #2E4767;
+  --pending: #F2BC80; --pending-bg: #35240F; --pending-bd: #5A3D1A;
+  --done: #8FD3AE; --done-bg: #17301F; --done-bd: #2B5038;
+  --locked: #D6CCCD; --locked-bg: #2E2627; --locked-bd: #4E4245;
+  --neutral: #C9BEC0; --neutral-bg: #2A2223; --neutral-bd: #3A3032;
+  --page-bg: #120E0F; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --ground: #1A1415; --surface: #221B1C; --sunken: #2A2223; --hairline: #3A3032; --strong: #4E4245;
+  --ink: #F3EEEE; --secondary: #D6CCCD; --muted: #B3A7A9; --input: #8C8082;
+  --maroon: #E49B9B; --maroon-50: #33201F;
+  --active: #9DBFEA; --active-bg: #1B2A3D; --active-bd: #2E4767;
+  --pending: #F2BC80; --pending-bg: #35240F; --pending-bd: #5A3D1A;
+  --done: #8FD3AE; --done-bg: #17301F; --done-bd: #2B5038;
+  --locked: #D6CCCD; --locked-bg: #2E2627; --locked-bd: #4E4245;
+  --neutral: #C9BEC0; --neutral-bg: #2A2223; --neutral-bd: #3A3032;
+  --page-bg: #120E0F; color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--page-bg); color: var(--ink); font: 400 14px/1.5 var(--sans); }
+.wrap { max-width: 1320px; margin: 0 auto; padding-block: 32px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 48px; }
+.intro { display: grid; gap: 8px; max-width: 780px; }
+.intro h1 { font: 600 30px/1.2 var(--serif); margin: 0; text-wrap: balance; }
+.intro p { margin: 0; color: var(--secondary); font-size: 15px; text-wrap: pretty; }
+.eyebrow { font: 500 12px/1 var(--mono); color: var(--muted); letter-spacing: .04em; }
+.mock { display: grid; gap: 12px; }
+.mock-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.mock-head h2 { font: 600 22px/1.3 var(--serif); margin: 0; }
+.mock-head p { margin: 4px 0 0; color: var(--muted); font-size: 14px; max-width: 72ch; }
+.seg { display: inline-flex; border: 1px solid var(--strong); border-radius: 6px; overflow: hidden; background: var(--surface); }
+.seg button { font: 500 13px/1 var(--sans); padding: 9px 12px; border: 0; background: transparent; color: var(--secondary); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--strong); }
+.seg button[aria-pressed="true"] { background: var(--maroon-50); color: var(--maroon); }
+.seg button:focus-visible { outline: 2px solid var(--maroon); outline-offset: -2px; }
+.frame { border: 1px solid var(--strong); border-radius: 8px; overflow: hidden; background: var(--ground); box-shadow: 0 8px 24px rgb(30 22 23 / .10); }
+.frame-scroll { overflow-x: auto; }
+.app { min-width: 1100px; display: grid; grid-template-rows: 3px 56px 1fr; }
+.app .rule { background: #800000; }
+.topbar { display: flex; align-items: center; gap: 16px; padding: 0 20px; background: var(--surface); border-bottom: 1px solid var(--hairline); }
+.wordmark { font: 600 16px/1 var(--serif); white-space: nowrap; }
+.crumbs { color: var(--muted); font-size: 13px; }
+.crumbs b { color: var(--ink); font-weight: 500; }
+.topbar .right { margin-left: auto; display: flex; gap: 14px; align-items: center; color: var(--secondary); font-size: 13px; }
+.body { display: grid; grid-template-columns: 220px 1fr; min-height: 600px; }
+.side { background: var(--sunken); border-right: 1px solid var(--hairline); padding-block: 16px; }
+.nav a { display: flex; align-items: center; justify-content: space-between; gap: 8px; height: 38px; padding: 0 16px; border-left: 3px solid transparent; color: var(--ink); text-decoration: none; font-size: 14px; }
+.nav a.on { border-left-color: #800000; color: var(--maroon); font-weight: 500; background: var(--surface); }
+.nav a.lock { color: var(--muted); }
+.nav .count { font: 500 11px/1 var(--mono); padding: 3px 6px; border-radius: 999px; background: #800000; color: #fff; }
+main.page { padding: 24px 32px 32px; display: grid; gap: 28px; align-content: start; max-width: 1080px; }
+.page-title { display: grid; gap: 4px; }
+.page-title h1 { font: 600 26px/1.2 var(--serif); margin: 0; }
+.page-title p { margin: 0; color: var(--muted); }
+.sec { display: grid; gap: 12px; }
+.sec + .sec { padding-top: 24px; border-top: 1px solid var(--hairline); }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.sec-head h2 { font: 600 18px/1.3 var(--sans); margin: 0; display: flex; gap: 8px; align-items: baseline; }
+.sec-head .n { font: 500 13px/1 var(--mono); color: var(--muted); }
+.pill { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; font-size: 12.5px; font-weight: 500; border: 1px solid; white-space: nowrap; }
+.pill.neutral { color: var(--neutral); background: var(--neutral-bg); border-color: var(--neutral-bd); }
+.pill.active { color: var(--active); background: var(--active-bg); border-color: var(--active-bd); }
+.pill.pending { color: var(--pending); background: var(--pending-bg); border-color: var(--pending-bd); }
+.pill.done { color: var(--done); background: var(--done-bg); border-color: var(--done-bd); }
+.pill.locked { color: var(--locked); background: var(--locked-bg); border-color: var(--locked-bd); }
+.pill.achieved { color: #3D0505; background: #F4C430; border-color: #D9A600; }
+.ico { width: 14px; height: 14px; flex: none; }
+.mono { font-family: var(--mono); font-size: 12.5px; }
+.muted { color: var(--muted); }
+.btn { font: 500 14px/1 var(--sans); height: 34px; padding: 0 14px; border-radius: 4px; border: 1px solid var(--input); background: var(--surface); color: var(--ink); display: inline-flex; align-items: center; gap: 8px; cursor: pointer; white-space: nowrap; text-decoration: none; }
+.btn.primary { background: #800000; border-color: #800000; color: #fff; }
+.btn.text { border-color: transparent; background: transparent; color: var(--maroon); padding: 0 6px; }
+.btn:focus-visible { outline: 2px solid var(--maroon); outline-offset: 2px; }
+.reason { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+
+/* Queue */
+.queue { border: 1px solid var(--hairline); border-radius: 6px; background: var(--surface); }
+.qrow { display: grid; grid-template-columns: 210px 1fr 110px 150px; align-items: center; gap: 16px; padding: 12px 16px; }
+.qrow + .qrow { border-top: 1px solid var(--hairline); }
+.qrow .stu { font-weight: 500; }
+.qrow .stu small { display: block; color: var(--muted); font-weight: 400; font-size: 12.5px; }
+.qrow .what { display: grid; gap: 2px; }
+.qrow .what small { color: var(--muted); font-size: 12.5px; }
+.qrow .age { font: 500 12.5px/1 var(--mono); color: var(--secondary); }
+.qrow .age.late { color: var(--pending); }
+.qrow .go { justify-self: end; }
+.gate { font: 500 11.5px/1 var(--mono); padding: 3px 6px; border-radius: 3px; background: var(--sunken); color: var(--secondary); margin-right: 6px; }
+.empty { border: 1px dashed var(--strong); border-radius: 6px; padding: 16px 18px; display: grid; gap: 6px; background: var(--surface); }
+.empty b { font-weight: 600; }
+.empty p { margin: 0; color: var(--secondary); }
+
+/* Advisee rows */
+.adv { display: grid; }
+.arow { display: grid; grid-template-columns: minmax(220px, 1.3fr) minmax(300px, 1.6fr) 120px 170px; gap: 18px; align-items: center; padding: 14px 0; border-top: 1px solid var(--hairline); }
+.arow:last-child { border-bottom: 1px solid var(--hairline); }
+.arow .who b { display: block; font-weight: 600; }
+.arow .who .title { font: 400 14px/1.35 var(--serif); color: var(--secondary); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.arow .who .deg { font: 500 10.5px/1 var(--mono); padding: 3px 5px; border: 1px solid var(--strong); border-radius: 3px; color: var(--secondary); margin-left: 6px; vertical-align: 2px; }
+.stepper { display: grid; gap: 6px; }
+.track { display: flex; align-items: center; }
+.node { width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; flex: none; }
+.node.done { background: #F4C430; color: #800000; }
+.node.cur { background: #F4C430; box-shadow: 0 0 0 2px #800000 inset; }
+.node.fut { border: 1.5px solid var(--strong); background: var(--surface); }
+.line { height: 1.5px; flex: 1; min-width: 16px; background: var(--strong); }
+.line.on { background: #800000; }
+.labels { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted); }
+.labels .cur { color: var(--ink); font-weight: 600; }
+.stat { display: grid; gap: 6px; justify-items: start; }
+.facts { display: grid; gap: 3px; font-size: 13px; }
+.facts .k { color: var(--muted); }
+.facts .v { font-family: var(--mono); font-size: 12.5px; }
+.facts a { color: var(--maroon); }
+
+/* A3 */
+.picker { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: 500 13.5px/1 var(--sans); padding: 9px 12px; border-radius: 999px; border: 1px solid var(--strong); background: var(--surface); color: var(--ink); cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+.chip[aria-pressed="true"] { border-color: #800000; background: var(--maroon-50); color: var(--maroon); }
+.chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--pending); }
+.identity { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+.identity h2 { font: 600 20px/1.3 var(--serif); margin: 0; }
+.identity .meta { color: var(--muted); font-size: 13px; }
+.identity .deg { font: 500 11px/1 var(--mono); padding: 4px 6px; border: 1px solid var(--strong); border-radius: 3px; color: var(--secondary); }
+.phase { display: flex; gap: 4px; border-bottom: 1px solid var(--hairline); }
+.phase button { font: 500 14px/1 var(--sans); padding: 11px 12px; border: 0; background: none; color: var(--muted); border-bottom: 2px solid transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.phase button[aria-selected="true"] { color: var(--ink); border-bottom-color: #800000; }
+.cols { display: grid; grid-template-columns: 1fr 330px; gap: 28px; align-items: start; }
+table.log { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.log th { text-align: left; font: 600 11.5px/1 var(--sans); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); padding: 10px 10px; border-bottom: 1px solid var(--strong); }
+.log td { padding: 11px 10px; border-bottom: 1px solid var(--hairline); vertical-align: top; }
+.log td.n { font: 500 12px/1.4 var(--mono); color: var(--muted); width: 28px; }
+.log td.when { font: 500 12.5px/1.4 var(--mono); white-space: nowrap; }
+.log td.act { text-align: right; white-space: nowrap; }
+.log tr.wait td { background: var(--maroon-50); }
+.card { background: var(--surface); border: 1px solid var(--hairline); border-radius: 6px; padding: 18px 20px; display: grid; gap: 12px; }
+.card h3 { font: 600 16px/1.3 var(--sans); margin: 0; }
+.stamp { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--strong); border-radius: 2px; padding: 5px 8px; background: var(--surface); font-size: 13px; }
+.stamp .code { font: 500 12.5px/1 var(--mono); padding-right: 8px; border-right: 1px solid var(--hairline); }
+.card p { margin: 0; color: var(--secondary); font-size: 13.5px; }
+.field { display: grid; gap: 6px; }
+.field label { font-size: 13px; font-weight: 500; }
+.field textarea { font: inherit; min-height: 76px; padding: 8px 10px; border: 1px solid var(--input); border-radius: 4px; resize: vertical; background: var(--surface); color: var(--ink); }
+.field .hint { font-size: 12px; color: var(--muted); }
+.callouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+.callout { background: var(--surface); border: 1px solid var(--hairline); border-radius: 6px; padding: 12px 14px; display: grid; gap: 4px; font-size: 13.5px; color: var(--secondary); }
+.callout b { color: var(--ink); font-weight: 600; }
+.callout .n { font: 500 11px/1 var(--mono); color: var(--maroon); }
+[hidden] { display: none !important; }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+  <symbol id="i-dash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="3 3"><circle cx="12" cy="12" r="9"/></symbol>
+  <symbol id="i-dot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3" fill="currentColor"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></symbol>
+  <symbol id="i-tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 12 4 4 8-9"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></symbol>
+  <symbol id="i-dl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></symbol>
+  <symbol id="i-badge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.4 1.8 3-.2.9 2.9 2.5 1.7-1 2.8 1 2.8-2.5 1.7-.9 2.9-3-.2L12 21l-2.4-1.8-3 .2-.9-2.9L3.2 14.8l1-2.8-1-2.8 2.5-1.7.9-2.9 3 .2z"/><path d="m9 12 2 2 4-4"/></symbol>
+</svg>
+
+<div class="wrap">
+  <header class="intro">
+    <span class="eyebrow">Round 11 · Q1 and Q2 · Guided Ledger draft</span>
+    <h1>A1 Adviser dashboard and A3 Consultations</h1>
+    <p>Drawn for an Adviser with one to a few advisees, the range the TDW 04 cap allows. Switch between one advisee, several advisees and the first day. All names and text are fake.</p>
+  </header>
+
+  <!-- ===================== A1 ===================== -->
+  <section class="mock" id="a1">
+    <div class="mock-head">
+      <div><h2>A1 · Advisees and action queue</h2><p>The queue comes first, oldest request on top. Below it, one short row for each advisee with the full stepper, the status, open comments and the next consultation.</p></div>
+      <div class="seg" role="group" aria-label="A1 state">
+        <button type="button" data-a1="many" aria-pressed="true">4 advisees</button>
+        <button type="button" data-a1="one" aria-pressed="false">1 advisee</button>
+        <button type="button" data-a1="first" aria-pressed="false">First day</button>
+      </div>
+    </div>
+    <div class="frame"><div class="frame-scroll"><div class="app">
+      <div class="rule"></div>
+      <div class="topbar">
+        <span class="wordmark">PUP CpE Thesis Progress</span>
+        <span class="crumbs"><b>Advisees</b></span>
+        <span class="right"><svg class="ico"><use href="#i-bell"/></svg> Dr. L. Bautista (fake)</span>
+      </div>
+      <div class="body">
+        <nav class="side" aria-label="Adviser">
+          <div class="nav">
+            <a href="#a1" class="on">Advisees <span class="count" id="navcount">3</span></a>
+            <a href="#a1">Consultations</a>
+            <a href="#a1">Availability</a>
+            <a href="#a1" class="lock">Defense Day <svg class="ico"><use href="#i-lock"/></svg></a>
+            <a href="#a1" class="lock">Submission <svg class="ico"><use href="#i-lock"/></svg></a>
+          </div>
+        </nav>
+        <main class="page">
+          <div class="page-title">
+            <h1>Advisees</h1>
+            <p id="a1sub">3 requests wait for you. The oldest comes first.</p>
+          </div>
+
+          <section class="sec" aria-label="Action queue">
+            <div class="sec-head"><h2>Waiting for you <span class="n" id="qcount">3</span></h2></div>
+            <div class="queue" id="queue">
+              <div class="qrow" data-many>
+                <div class="stu">Carlo Mendoza<small>Pre-Final</small></div>
+                <div class="what"><span><span class="gate">GATE 1A</span>Endorse v5 for committee review</span><small>Marked Ready on Tue 5 Jan. You have 1 open comment to resolve first.</small></div>
+                <div class="age late">5 days</div>
+                <div class="go"><a class="btn primary" href="#a1">Review v5</a></div>
+              </div>
+              <div class="qrow">
+                <div class="stu">Ana Reyes<small>Proposal</small></div>
+                <div class="what"><span>Confirm the 8 Jan consultation on TDW 03</span><small>Online, 45 min. Topics: sampling plan, aim of the study.</small></div>
+                <div class="age">2 days</div>
+                <div class="go"><a class="btn" href="#a3">Open the log</a></div>
+              </div>
+              <div class="qrow" data-many>
+                <div class="stu">Bea Santos<small>Proposal · Certified</small></div>
+                <div class="what"><span>Approve the start of data gathering</span><small>The proposal is Certified. Data gathering waits for your approval.</small></div>
+                <div class="age">1 day</div>
+                <div class="go"><a class="btn" href="#a1">Approve</a></div>
+              </div>
+            </div>
+            <div class="empty" id="qempty" hidden>
+              <b>Nothing waits for you.</b>
+              <p>When an advisee marks a commit Ready, books a consultation or needs an approval, the request appears here with the days it has waited.</p>
+            </div>
+          </section>
+
+          <section class="sec" aria-label="Advisees">
+            <div class="sec-head"><h2>Your advisees <span class="n" id="acount">4</span></h2><span class="muted" style="font-size:12.5px">Flags are information only. They never block.</span></div>
+            <div class="adv" id="adv">
+              <div class="arow">
+                <div class="who"><b>Ana Reyes <span class="deg">MASTER'S</span></b><span class="title">Low-cost acoustic termite detection with an ESP32 sensor node</span></div>
+                <div class="stepper" aria-label="Step 1 of 4: Proposal">
+                  <div class="track"><span class="node cur"></span><span class="line"></span><span class="node fut"></span><span class="line"></span><span class="node fut"></span><span class="line"></span><span class="node fut"></span></div>
+                  <div class="labels"><span class="cur">Proposal</span><span>Pre-Final</span><span>Final</span><span>Clearance</span></div>
+                </div>
+                <div class="stat"><span class="pill neutral"><svg class="ico"><use href="#i-dash"/></svg>Draft</span></div>
+                <div class="facts"><span><span class="k">Open comments</span> <a href="#a1">2</a></span><span class="k">Next consultation</span><span class="v">Tue 12 Jan, 09:00</span></div>
+              </div>
+              <div class="arow" data-many>
+                <div class="who"><b>Carlo Mendoza <span class="deg">MASTER'S</span></b><span class="title">Edge inference for jeepney passenger counting on a microcontroller</span></div>
+                <div class="stepper" aria-label="Step 2 of 4: Pre-Final">
+                  <div class="track"><span class="node done"><svg class="ico" style="width:10px;height:10px"><use href="#i-tick"/></svg></span><span class="line on"></span><span class="node cur"></span><span class="line"></span><span class="node fut"></span><span class="line"></span><span class="node fut"></span></div>
+                  <div class="labels"><span>Proposal</span><span class="cur">Pre-Final</span><span>Final</span><span>Clearance</span></div>
+                </div>
+                <div class="stat"><span class="pill active"><svg class="ico"><use href="#i-dot"/></svg>Ready for review</span></div>
+                <div class="facts"><span><span class="k">Open comments</span> <a href="#a1">1</a></span><span class="k">Next consultation</span><span class="muted">None booked</span></div>
+              </div>
+              <div class="arow" data-many>
+                <div class="who"><b>Bea Santos <span class="deg">DOCTORAL</span></b><span class="title">A federated learning framework for flood sensor networks in Marikina</span></div>
+                <div class="stepper" aria-label="Step 1 of 4: Proposal, certified">
+                  <div class="track"><span class="node cur"></span><span class="line"></span><span class="node fut"></span><span class="line"></span><span class="node fut"></span><span class="line"></span><span class="node fut"></span></div>
+                  <div class="labels"><span class="cur">Proposal</span><span>Pre-Final</span><span>Final</span><span>Clearance</span></div>
+                </div>
+                <div class="stat"><span class="pill achieved"><svg class="ico"><use href="#i-badge"/></svg>Certified</span></div>
+                <div class="facts"><span><span class="k">Open comments</span> 0</span><span class="k">Next consultation</span><span class="v">Fri 15 Jan, 13:00</span></div>
+              </div>
+              <div class="arow" data-many>
+                <div class="who"><b>Dino Aquino <span class="deg">MASTER'S</span></b><span class="title">Power-aware scheduling for solar irrigation controllers</span></div>
+                <div class="stepper" aria-label="Step 3 of 4: Final, defense scheduled">
+                  <div class="track"><span class="node done"><svg class="ico" style="width:10px;height:10px"><use href="#i-tick"/></svg></span><span class="line on"></span><span class="node done"><svg class="ico" style="width:10px;height:10px"><use href="#i-tick"/></svg></span><span class="line on"></span><span class="node cur"></span><span class="line"></span><span class="node fut"></span></div>
+                  <div class="labels"><span>Proposal</span><span>Pre-Final</span><span class="cur">Final</span><span>Clearance</span></div>
+                </div>
+                <div class="stat"><span class="pill active"><svg class="ico"><use href="#i-dot"/></svg>Defense scheduled</span></div>
+                <div class="facts"><span><span class="k">Defense</span> <span class="v">Thu 28 Jan, 09:00</span></span><span class="k">Next consultation</span><span class="muted">None booked</span></div>
+              </div>
+            </div>
+            <div class="empty" id="aempty" hidden>
+              <b>No advisees yet.</b>
+              <p>The Coordinator assigns Students to you after their Adviser appointment (TDW 04). Each one appears here with their step and the next action.</p>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div></div></div>
+    <div class="callouts">
+      <div class="callout"><span class="n">1 · QUEUE</span><b>One row, one action</b>Student, the request in plain words, days waiting, one button. Gate actions show their gate tag. Late items turn amber, never red.</div>
+      <div class="callout"><span class="n">2 · ADVISEES</span><b>Full stepper, no expand</b>With a small cap, every row can show the whole path. Gold marks what is done or certified.</div>
+      <div class="callout"><span class="n">3 · FACTS</span><b>Two facts, not ten</b>Open comments and the next consultation. Once a defense is set, it replaces the open-comments line.</div>
+      <div class="callout"><span class="n">4 · FIRST DAY</span><b>Empty regions teach</b>Each empty region says what will appear, and from where.</div>
+    </div>
+  </section>
+
+  <!-- ===================== A3 ===================== -->
+  <section class="mock" id="a3">
+    <div class="mock-head">
+      <div><h2>A3 · Consultations (TDW 03 log)</h2><p>Pick an advisee, then see that Student's TDW 03 log for the current phase. Confirm each entry. Download TDW 03, sign it on paper and upload the scan before the defense date is confirmed.</p></div>
+      <div class="seg" role="group" aria-label="A3 state">
+        <button type="button" data-a3="many" aria-pressed="true">Several advisees</button>
+        <button type="button" data-a3="one" aria-pressed="false">1 advisee</button>
+        <button type="button" data-a3="first" aria-pressed="false">No entries yet</button>
+      </div>
+    </div>
+    <div class="frame"><div class="frame-scroll"><div class="app">
+      <div class="rule"></div>
+      <div class="topbar">
+        <span class="wordmark">PUP CpE Thesis Progress</span>
+        <span class="crumbs">Consultations <span>/</span> <b>Ana Reyes</b></span>
+        <span class="right"><svg class="ico"><use href="#i-bell"/></svg> Dr. L. Bautista (fake)</span>
+      </div>
+      <div class="body">
+        <nav class="side" aria-label="Adviser">
+          <div class="nav">
+            <a href="#a1">Advisees</a>
+            <a href="#a3" class="on">Consultations</a>
+            <a href="#a3">Availability</a>
+            <a href="#a3" class="lock">Defense Day <svg class="ico"><use href="#i-lock"/></svg></a>
+            <a href="#a3" class="lock">Submission <svg class="ico"><use href="#i-lock"/></svg></a>
+          </div>
+        </nav>
+        <main class="page">
+          <div class="page-title">
+            <h1>Consultations</h1>
+            <p>Each consultation you confirm becomes a row on the Student's TDW 03.</p>
+          </div>
+
+          <div class="picker" id="picker" role="group" aria-label="Choose an advisee">
+            <button type="button" class="chip" data-view="all" aria-pressed="true">All advisees</button>
+            <button type="button" class="chip" data-view="one" aria-pressed="false">Ana Reyes <span class="dot" title="1 entry waits for you"></span></button>
+            <button type="button" class="chip" data-view="one" aria-pressed="false">Carlo Mendoza <span class="dot" title="1 entry waits for you"></span></button>
+            <button type="button" class="chip" data-view="one" aria-pressed="false">Bea Santos</button>
+            <button type="button" class="chip" data-view="one" aria-pressed="false">Dino Aquino</button>
+          </div>
+
+          <section id="overview" class="sec" aria-label="All advisees">
+            <div class="sec-head"><h2>Consultations by advisee <span class="n">4</span></h2><span class="muted" style="font-size:12.5px">Current phase only · the scan is needed before the defense date is confirmed</span></div>
+            <table class="log">
+              <thead><tr><th>Student</th><th>Phase</th><th>Logged</th><th>Last · next</th><th>Signed TDW 03</th><th style="text-align:right">Action</th></tr></thead>
+              <tbody>
+                <tr class="wait"><td><b>Ana Reyes</b><br><span class="muted" style="font-size:12.5px">Master's</span></td><td>Proposal</td><td class="when">3 <span class="muted">· 1 to confirm</span></td><td class="when">Fri 8 Jan<br><span class="muted">Tue 12 Jan, 09:00</span></td><td><span class="stamp"><span class="code">TDW 03</span><svg class="ico"><use href="#i-dash"/></svg> Not uploaded</span></td><td class="act"><button class="btn primary" type="button" data-open>Confirm entry</button></td></tr>
+                <tr class="wait"><td><b>Carlo Mendoza</b><br><span class="muted" style="font-size:12.5px">Master's</span></td><td>Pre-Final</td><td class="when">5 <span class="muted">· 1 to confirm</span></td><td class="when">Mon 4 Jan<br><span class="muted">None booked</span></td><td><span class="stamp"><span class="code">TDW 03</span><svg class="ico"><use href="#i-dash"/></svg> Not uploaded</span></td><td class="act"><button class="btn primary" type="button" data-open>Confirm entry</button></td></tr>
+                <tr><td><b>Bea Santos</b><br><span class="muted" style="font-size:12.5px">Doctoral</span></td><td>Proposal</td><td class="when">6</td><td class="when">Wed 6 Jan<br><span class="muted">Fri 15 Jan, 13:00</span></td><td><span class="stamp"><span class="code">TDW 03</span><svg class="ico" style="color:var(--done)"><use href="#i-check"/></svg> Verified</span></td><td class="act"><button class="btn text" type="button" data-open>Open log</button></td></tr>
+                <tr><td><b>Dino Aquino</b><br><span class="muted" style="font-size:12.5px">Master's</span></td><td>Final</td><td class="when">4</td><td class="when">Thu 17 Dec<br><span class="muted">None booked</span></td><td><span class="stamp"><span class="code">TDW 03</span><svg class="ico" style="color:var(--pending)"><use href="#i-clock"/></svg> Scan uploaded</span></td><td class="act"><button class="btn text" type="button" data-open>Open log</button></td></tr>
+              </tbody>
+            </table>
+          </section>
+
+          <div id="single" style="display:grid;gap:28px" hidden>
+          <div class="identity">
+            <h2>Low-cost acoustic termite detection with an ESP32 sensor node</h2>
+            <span class="deg">MASTER'S</span>
+            <span class="meta">Ana Reyes · Proposal</span>
+          </div>
+
+          <div class="phase" role="tablist" aria-label="Phase">
+            <button role="tab" type="button" aria-selected="true">Proposal</button>
+            <button role="tab" type="button" aria-selected="false" disabled style="cursor:not-allowed"><svg class="ico"><use href="#i-lock"/></svg>Pre-Final</button>
+            <button role="tab" type="button" aria-selected="false" disabled style="cursor:not-allowed"><svg class="ico"><use href="#i-lock"/></svg>Final</button>
+          </div>
+
+          <div class="cols">
+            <div style="display:grid;gap:14px">
+              <div id="logwrap">
+                <table class="log">
+                  <thead><tr><th>#</th><th>Date and time</th><th>Place or platform</th><th>Topics</th><th style="text-align:right">Status</th></tr></thead>
+                  <tbody>
+                    <tr><td class="n">1</td><td class="when">Mon 7 Dec 2026<br>10:00</td><td>Room 412, CpE Bldg</td><td>Concept paper to proposal; scope of the study.</td><td class="act"><span class="pill done"><svg class="ico"><use href="#i-check"/></svg>Confirmed</span></td></tr>
+                    <tr><td class="n">2</td><td class="when">Mon 21 Dec 2026<br>14:00</td><td>Online</td><td>Review of related literature; gaps.</td><td class="act"><span class="pill done"><svg class="ico"><use href="#i-check"/></svg>Confirmed</span></td></tr>
+                    <tr class="wait"><td class="n">3</td><td class="when">Fri 8 Jan 2027<br>09:00</td><td>Online</td><td>Sampling plan; aim of the study.</td><td class="act"><button class="btn primary" type="button">Confirm entry</button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="empty" id="logempty" hidden>
+                <b>No consultations logged for Proposal yet.</b>
+                <p>When Ana books one of your slots and the meeting happens, confirm it here. Each confirmed meeting becomes a row on TDW 03.</p>
+                <div><a class="btn text" href="#a3" style="padding:0">Publish a slot in Availability</a></div>
+              </div>
+              <div class="field">
+                <label for="rec">Recommendations for this phase</label>
+                <textarea id="rec">Tighten 1.3 to one measurable aim. Name the three species with a source.</textarea>
+                <span class="hint">Printed on TDW 03 under the log. The Student sees it.</span>
+              </div>
+            </div>
+
+            <aside class="card" aria-label="Signed TDW 03">
+              <span class="stamp"><span class="code">TDW 03</span><svg class="ico"><use href="#i-dash"/></svg> Not uploaded</span>
+              <h3>Consultation and Monitoring Form</h3>
+              <p>Download the form, sign each row on paper, then upload the scan. The Coordinator needs it before confirming the defense date.</p>
+              <div style="display:grid;gap:8px;justify-items:start">
+                <a class="btn" href="#a3"><svg class="ico"><use href="#i-dl"/></svg>Download TDW 03</a>
+                <button class="btn primary" type="button"><svg class="ico"><use href="#i-up"/></svg>Upload signed scan</button>
+                <span class="reason"><svg class="ico"><use href="#i-lock"/></svg>The scan locks on upload. A replacement needs a Return.</span>
+              </div>
+            </aside>
+          </div>
+          </div>
+        </main>
+      </div>
+    </div></div></div>
+    <div class="callouts">
+      <div class="callout"><span class="n">1 · PICKER</span><b>"All advisees" first</b>The overview shows every advisee's phase, entries to confirm, last and next meeting, and TDW 03 state. Click a row or a name chip to open that Student's log. With one advisee, the picker and overview disappear.</div>
+      <div class="callout"><span class="n">2 · PHASE TABS</span><b>Current phase only</b>Later phases are locked. Earlier phases open read-only.</div>
+      <div class="callout"><span class="n">3 · LOG</span><b>The paper's rows</b>The columns match TDW 03: date and time, place or platform, topics, and your confirmation.</div>
+      <div class="callout"><span class="n">4 · FORM CARD</span><b>One card, one form</b>Download, sign on paper, upload. The stamp shows the document state.</div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  function press(attr, k) { document.querySelectorAll("[" + attr + "]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute(attr) === k)); }); }
+  function setA1(k) {
+    var many = k === "many", first = k === "first";
+    document.querySelectorAll("#queue [data-many], #adv [data-many]").forEach(function (r) { r.hidden = !many; });
+    document.getElementById("queue").hidden = first;
+    document.getElementById("qempty").hidden = !first;
+    document.getElementById("adv").hidden = first;
+    document.getElementById("aempty").hidden = !first;
+    var q = first ? 0 : many ? 3 : 1, a = first ? 0 : many ? 4 : 1;
+    document.getElementById("qcount").textContent = q;
+    document.getElementById("acount").textContent = a;
+    var nc = document.getElementById("navcount"); nc.textContent = q; nc.hidden = q === 0;
+    document.getElementById("a1sub").textContent = first ? "Your advisees and their requests appear here." : q === 1 ? "1 request waits for you." : q + " requests wait for you. The oldest comes first.";
+    press("data-a1", k);
+  }
+  document.querySelectorAll("[data-a1]").forEach(function (b) { b.addEventListener("click", function () { setA1(b.getAttribute("data-a1")); }); });
+  var chips = document.querySelectorAll("#picker .chip");
+  function showView(all, chip) {
+    document.getElementById("overview").hidden = !all;
+    document.getElementById("single").hidden = all;
+    chips.forEach(function (x) { x.setAttribute("aria-pressed", String(x === chip)); });
+  }
+  function setA3(k) {
+    var one = k === "one";
+    document.getElementById("picker").hidden = one;
+    document.getElementById("logwrap").hidden = k === "first";
+    document.getElementById("logempty").hidden = k !== "first";
+    if (one || k === "first") showView(false, chips[1]); else showView(true, chips[0]);
+    press("data-a3", k);
+  }
+  document.querySelectorAll("[data-a3]").forEach(function (b) { b.addEventListener("click", function () { setA3(b.getAttribute("data-a3")); }); });
+  chips.forEach(function (c) { c.addEventListener("click", function () { showView(c.getAttribute("data-view") === "all", c); }); });
+  document.querySelectorAll("#overview [data-open]").forEach(function (b, i) { b.addEventListener("click", function () { showView(false, chips[i + 1]); }); });
+})();
+</script>

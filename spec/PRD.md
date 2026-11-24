@@ -8,14 +8,14 @@
 | Item | Value |
 | :---- | :---- |
 | Product | PUP CpE Thesis Progress Monitoring System |
-| Version | 2.2 draft |
-| Date | 22 Nov 2026 |
+| Version | 2.3 draft |
+| Date | 24 Nov 2026 |
 | Owner | Nanashi |
 | Program | PUP Graduate Computer Engineering (Master's and Doctoral) |
 | Status | Draft for owner review |
 | Replaces | `PUP_CpE_Thesis_Progress_System_PRD_v1.3.md` (now in `docs/stale/`). No product rule changed. |
 | Companion files | `USERFLOW.md` (flows), `SITEMAP.md` (routes and screens), `DFD.md` (data flows), `ERD.md` (data model). All in `spec/`. |
-| Governing sources | Unified Thesis Process v1.1 (process rules), Functional Requirements v1.1 (system behavior), Operational Flow, DFD and Sitemap v3.1 (DFD) |
+| Governing sources | Unified Thesis Process v1.2 (process rules), Functional Requirements v1.2 (system behavior), Operational Flow, DFD and Sitemap v3.1 (DFD) |
 
 **Rule for this file:** The PRD states goals, scope, constraints and decisions. The Functional Requirements hold the detail (FR, BR, NFR and AS IDs). If this file and the Functional Requirements disagree on system behavior, the Functional Requirements win. If they disagree on a process rule, the Unified Thesis Process wins.
 
@@ -306,7 +306,7 @@ The free tier gives pilot scale: a few cohorts, not the whole program.
 | ID | Decision | Notes |
 | :---- | :---- | :---- |
 | D-01 | Two-layer approval. Paper is the record. | No e-signature |
-| D-02 | Stage 0 is outside the system. The Coordinator creates the account after eligibility. | |
+| D-02 | Stage 0 is outside the system. The Coordinator creates the account after eligibility. | Amended by D-25 (optional copies only) |
 | D-03 | One role per account. | Restores ADR-001 |
 | D-04 | The panel role is "Panel Member". Designations: Lead Panel Member, Panel Chair. | Old term dropped |
 | D-05 | Only the Coordinator closes a stage. | |
@@ -328,6 +328,11 @@ The free tier gives pilot scale: a few cohorts, not the whole program.
 | D-21 | RETURNED goes back to DRAFT. The Student sees the written reason. | Owner, 22 Nov 2026 (FR-WFL-02) |
 | D-22 | Release phases 0 to 4 in Section 8 are approved. Work starts with Phase 0. | Owner, 22 Nov 2026. Build plan: `spec/BUILD_PLAN.md` |
 | D-23 | Sign-in also accepts Google, in addition to email and password. Only accounts that the Coordinator made can sign in. Google sign-in never makes an account (FR-ACC-04, FR-ACC-05, BR-03). | Owner, 22 Nov 2026. Changes FR-ACC-01. `[CONFIRM]` FR-ACC-01 new wording in Functional Requirements v1.2. P0-E03 tests the account block. The shared Neon Google key is for development only. The pilot needs an own Google OAuth client. |
+| D-24 | The Coordinator sets the working thesis title at account creation. The Student edits it until Gate 1b. Then it locks with the manuscript. | Owner, 24 Nov 2026 (CP-01). FR-ACC-04, FR-ACC-09. |
+| D-25 | The Student may upload a copy of the advising forms (TDW 01, 04, 02). Optional, write-once, never verified, never blocking. | Owner, 24 Nov 2026 (CP-02). FR-DOC-12. Amends D-02. |
+| D-26 | A Critique Thread may carry an optional page number. A click moves the viewer to that page. No pin, no highlight, no PDF coordinates. | Owner, 24 Nov 2026 (CP-03). Amends ADR-009 (threads stay PR-level). FR-REV-04. Text highlight stays a later item. |
+| D-27 | An advisee-limit parameter in C8, Off by default. When on, it raises a flag only. | Owner, 24 Nov 2026 (CP-04). FR-TRK-06. The number is `[CONFIRM]`. |
+| D-28 | The Coordinator has two decisions on a document: Verify or Return. Verify means the signed paper matches the scan and is final. The states Physical received and Mismatch are removed. A paper difference is a Return with a reason. | Owner, 24 Nov 2026 (CP-05). FR-DOC-02, FR-DOC-06, FR-DOC-07, BR-12. Needs a migration of `document_state`. |
 
 ## 14. Open items
 
@@ -356,8 +361,8 @@ The free tier gives pilot scale: a few cohorts, not the whole program.
 | `spec/DFD.md` | Data flows, stores and trust boundaries |
 | `spec/ERD.md` | Data model, invariants and state machines |
 | `spec/BUILD_PLAN.md` | Phases, epics and tasks for the build |
-| `docs/PUP_CpE_Thesis_Progress_System_Unified_Thesis_Process_v1.1.md` | Source of truth for process rules |
-| `docs/PUP_CpE_Thesis_Progress_System_Functional_Requirements_v1.1.md` | Source of truth for system behavior (FR, BR, NFR, AS) |
+| `docs/PUP_CpE_Thesis_Progress_System_Unified_Thesis_Process_v1.2.md` | Source of truth for process rules (v1.1 kept as history) |
+| `docs/PUP_CpE_Thesis_Progress_System_Functional_Requirements_v1.2.md` | Source of truth for system behavior (FR, BR, NFR, AS) (v1.1 kept as history) |
 | `docs/PUP_CpE_Thesis_Progress_System_Operational_Flow_DFD_Sitemap_v3.1.md` | Operational flow and the first DFD |
 | `AGENTS.md` | Rules for AI coding agents |
 | `DESIGN.md` (repository root) | Design system |
@@ -371,3 +376,4 @@ The free tier gives pilot scale: a few cohorts, not the whole program.
 | 2.0 draft | 22 Nov 2026 | One PRD file. Adds the companion files `USERFLOW.md` and `SITEMAP.md`. Adds BR-05, BR-08, BR-18, BR-19 and BR-20 to the key rules. Shortens the capacity table. Removes the self-review and the template notes (kept in v1.3). Adds D-21 (RETURNED goes back to DRAFT). |
 | 2.1 draft | 22 Nov 2026 | Source check against the Guidelines and TDW forms: BR-21 (`[CONFIRM]`), Q8 (retention), G24 and G25. No product rule invented. |
 | 2.2 draft | 22 Nov 2026 | Section 8 approved (D-22). Adds `BUILD_PLAN.md` to the document map. |
+| 2.3 draft | 24 Nov 2026 | Design-session decisions D-24 to D-28. Governing sources move to Unified Thesis Process v1.2 and Functional Requirements v1.2. |

@@ -2,5 +2,5 @@
 import { AvailabilityPage } from "@/app/_components/availability-page";
 
 export default function Page() {
-  return <AvailabilityPage withConsultations={false} />;
+  return <AvailabilityPage portal="panel_member" withConsultations={false} />;
 }

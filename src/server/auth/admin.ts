@@ -2,6 +2,7 @@
 // It runs with the signed-in Coordinator's session. That user has the Neon Auth role `admin`.
 import "server-only";
 import type { CreateAuthUser } from "@/server/data/accounts";
+import { appLink } from "@/server/notify/link";
 import { getAuth } from "./neon-auth";
 
 type AdminApi = {
@@ -19,3 +20,9 @@ export const neonCreateAuthUser: CreateAuthUser = async ({ name, email, password
   if (error || !id) throw new Error(`Neon Auth did not make the user: ${error?.message ?? "no user id"}`);
   return { authUserId: id };
 };
+
+// Neon Auth sends the set-password email itself and returns no token (AD-A-034).
+export async function neonSendSetLink(email: string): Promise<void> {
+  const { error } = await getAuth().requestPasswordReset({ email, redirectTo: appLink("/login/reset") });
+  if (error) throw new Error("Neon Auth did not send the link.");
+}

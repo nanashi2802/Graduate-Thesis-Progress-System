@@ -1,9 +1,10 @@
 # ERD — PUP CpE Thesis Progress Monitoring System
 
 **Compliance standard:** Simplified Technical English (ASD-STE100) at about 80%
-**Version:** 1.1 draft · 22 Nov 2026 · `[CONFIRM]` first ERD, for owner review
+**Version:** 1.2 draft · 24 Nov 2026 · `[CONFIRM]` first ERD, for owner review
+**Change in 1.2:** Follows Functional Requirements v1.2 (PRD D-24 to D-28). `document_state` loses `physical_received` and `mismatch` (FR-DOC-02). `critique_thread.page` added (FR-REV-04). `form_code` adds `TDW_01`, `TDW_02`, `TDW_04`, and `document_record.optional` marks the advising forms (FR-DOC-12). `template_version.advisee_limit` added (FR-TRK-06). The title is editable until Gate 1b (FR-ACC-09).
 **Change in 1.1:** Checked against the Guidelines and TDW forms (`docs/reference/`). `GATE_2_SHEET` is now `SIGNED_FINAL_MANUSCRIPT` (C.23). `document_record.linked_commit_id` added (B.17, C.23). Access end added (BR-21, TDW 05 item 11). ERD-Q1 to Q3 resolved or sent to the Graduate School.
-**Derived from:** Functional Requirements v1.1 (§2 business rules, §4 FRs, §6.3 candidate entities), `DFD.md` (stores D1 to D13), `PRD.md` §11 (Neon Postgres, design rules)
+**Derived from:** Functional Requirements v1.2 (§2 business rules, §4 FRs, §6.3 candidate entities), `DFD.md` (stores D1 to D13), `PRD.md` §11 (Neon Postgres, design rules)
 **Rule for this file:** This is the logical data model. It adds no process rule. It decides table shape only. If it disagrees with the Functional Requirements, the Functional Requirements win. Correct this file.
 **Companion files:** `DFD.md`, `USERFLOW.md`, `SITEMAP.md`
 
@@ -58,8 +59,8 @@
 | `member_status` | `proposed`, `accepted`, `declined` | FR-CMT-03 |
 | `gate_kind` | `gate_1a`, `gate_1b`, `certification`, `gate_2`, `date_confirmation`, `stage_close`, `clearance_close`, `data_gathering` | FR-WFL-03 to 11 |
 | `gate_result` | `endorsed`, `returned`, `accepted`, `approved`, `recorded` | FR-WFL-14 |
-| `document_state` | `not_started`, `prepared`, `scan_uploaded`, `locked_as_submitted`, `physical_received`, `verified`, `mismatch`, `returned` | FR-DOC-02 |
-| `form_code` | `TDW_03` to `TDW_13`, `OR`, `ETHICS_CERT`, `CERTIFICATION`, `SIGNED_FINAL_MANUSCRIPT`, `MINUTES`, `FINAL_COPY`, `CONFERENCE_CERT`, `JOURNAL_PUB`, `SUPPORTING` | Unified App. A, Guidelines B.16, C.23, C.25 |
+| `document_state` | `not_started`, `prepared`, `scan_uploaded`, `locked_as_submitted`, `verified`, `returned` | FR-DOC-02 |
+| `form_code` | `TDW_01` to `TDW_13`, `OR`, `ETHICS_CERT`, `CERTIFICATION`, `SIGNED_FINAL_MANUSCRIPT`, `MINUTES`, `FINAL_COPY`, `CONFERENCE_CERT`, `JOURNAL_PUB`, `SUPPORTING` | Unified App. A, Guidelines B.16, C.23, C.25 |
 | `outside_kind` | `ethics`, `ipmo`, `rpo`, `copyright` | BR-14 |
 | `outside_value` | Ethics: `NOT_SUBMITTED`, `UNDER_REVIEW`, `CHANGES_REQUIRED`, `APPROVED`. IPMO: `NOT_SUBMITTED`, `UNDER_CHECK`, `FAILED`, `PASSED`. RPO: `NOT_SUBMITTED`, `UNDER_EDITING`, `DONE`. Copyright: `NOT_APPLIED`, `APPLIED`, `REGISTERED`. | FR-WFL-10 |
 | `slot_type` | `consultation`, `defense` | FR-SCH-01, 07 |
@@ -139,7 +140,7 @@ erDiagram
         uuid id PK
         uuid student_user_id FK,UK "one thesis per Student (BR-04)"
         uuid adviser_user_id FK "role must be adviser (FR-ACC-07)"
-        text title
+        text title "set at account creation; Student edits until Gate 1b (FR-ACC-09)"
         degree_level degree_level "sets committee size and copy counts"
         text program_start_term "residency warning source (FR-WFL-12)"
         date comprehensive_exam_date
@@ -180,6 +181,7 @@ erDiagram
         int printed_copies_masters
         int printed_copies_doctoral
         int reviewer_wait_days "nullable (AS-05)"
+        int advisee_limit "nullable: null means Off; flag only (FR-TRK-06, BR-17)"
         text change_note
         uuid created_by_user_id FK
         timestamptz created_at
@@ -231,6 +233,7 @@ erDiagram
         uuid author_user_id FK "only the author resolves (BR-05)"
         user_role author_role
         comment_context context
+        int page "nullable; within the commit page count (FR-REV-04)"
         text body
         thread_state state
         timestamptz resolved_at
@@ -312,6 +315,7 @@ erDiagram
         form_code form_code
         uuid subject_user_id FK "nullable, the member for an NDA or a sheet"
         uuid linked_commit_id FK "CERTIFICATION and SIGNED_FINAL_MANUSCRIPT: the commit signed (B.17, C.23)"
+        bool optional "advising forms TDW 01, 02, 04: never verified, never blocking (FR-DOC-12)"
         document_state state
     }
     document_file {
@@ -330,7 +334,7 @@ erDiagram
         uuid document_record_id FK
         document_state from_state
         document_state to_state
-        text reason "required when to_state is returned or mismatch"
+        text reason "required when to_state is returned"
         uuid actor_user_id FK
         timestamptz created_at
     }
@@ -569,7 +573,7 @@ erDiagram
 | INV-13 | `scheduled_start_at` is set only when the FR-DOC-08 checklist is complete. | `defense_attempt` | DL | FR-DEF-03 |
 | INV-14 | An `evaluation_entry` is created or changed only after `scheduled_start_at` and before `verified_at`. | `evaluation_entry` | DL | BR-10, FR-DEF-06 |
 | INV-15 | `verdict` is set only on or after the defense date, by the Lead Panel Member (M1, M2) or the Panel Chair (M3). | `defense_attempt` | DL | FR-DEF-07 |
-| INV-16 | `closed_at` is set only when every `evaluation_entry` is verified with `sheet_match = matched`, `minutes.issued_at` is set, and no document of the milestone is in `mismatch`. | `defense_attempt` | DL | BR-12, FR-DEF-10 |
+| INV-16 | `closed_at` is set only when every `evaluation_entry` is verified with `sheet_match = matched`, `minutes.issued_at` is set, and no document of the milestone is in `returned`. | `defense_attempt` | DL | BR-12, FR-DEF-10 |
 | INV-17 | Only a Coordinator sets `CLOSED`, `CERTIFIED`, `FINAL_APPROVED` or `CLEARED`. | `milestone_instance` | DL | BR-02 |
 | INV-18 | `RETURNED` needs a reason. The status then goes back to `DRAFT`. `return_reason` stays visible to the Student. | `milestone_instance`, `gate_action` | DB check + DL | BR-13, FR-WFL-02 |
 | INV-19 | A `gate_action` with `result = returned` has a non-empty `reason`. A Coordinator Return is for compliance or eligibility only. | `gate_action`, `document_event` | DB check + DL | BR-13 |
@@ -618,7 +622,7 @@ Each change writes one `gate_action` or `audit_record` row.
 
 | Table.column | Allowed changes | Source |
 | :---- | :---- | :---- |
-| `document_record.state` | `not_started` → `prepared` → `scan_uploaded` → `locked_as_submitted` → `physical_received` → `verified`. Any of the last three → `mismatch` → (corrected file) `locked_as_submitted`. Any → `returned` → `scan_uploaded`. | FR-DOC-02, BR-12 |
+| `document_record.state` | `not_started` → `prepared` → `scan_uploaded` → `locked_as_submitted` → `verified`. `scan_uploaded` or `locked_as_submitted` → `returned` (with a reason) → `scan_uploaded` (corrected scan). `verified` is final (BR-19). An `optional` record goes only to `scan_uploaded`. | FR-DOC-02, FR-DOC-12, BR-12 |
 | `critique_thread.state` | `OPEN` → `RESOLVED` by the author only | BR-05 |
 | `slot.status` | `available` → `pending` (request) → `confirmed`, or → `available` (declined) | FR-SCH-02 |
 | `committee_member.status` | `proposed` → `accepted` or `declined`. A declined seat needs a new row. | FR-CMT-03 |

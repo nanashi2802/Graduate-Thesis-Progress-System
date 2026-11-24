@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { ClearanceList } from "@/app/_components/clearance-list";
 import { EmptyState } from "@/components/empty-state";
-import { getSessionState } from "@/server/auth/session";
+import { getRoleState } from "@/server/auth/session";
 import { clearanceView } from "@/server/data/clearance";
 import { getDb } from "@/server/data/db";
 import { readableMilestones } from "@/server/data/documents";
 
 export default async function Page() {
-  const state = await getSessionState();
+  const state = await getRoleState("student");
   if (state.status !== "ok") return null;
   const ctx = { db: getDb(), actor: state.actor };
   const final = (await readableMilestones(ctx)).find((m) => m.code === "final");

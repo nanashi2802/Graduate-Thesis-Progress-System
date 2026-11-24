@@ -1,7 +1,7 @@
 # SITEMAP — PUP CpE Thesis Progress Monitoring System
 
 **Compliance standard:** Simplified Technical English (ASD-STE100) at about 80%
-**Version:** 1.1 draft · 23 Nov 2026 · Change log: 23 Nov 2026, the owner added the public landing page `/` (route 31).
+**Version:** 1.1 draft · 24 Nov 2026 · Change log: 23 Nov 2026, the owner added the public landing page `/`. 24 Nov 2026, design session: Thesis process route, locked sidebar items, design pointer.
 **Derived from:** Unified Thesis Process v1.1 (Parts 3 and 4), Operational Flow, DFD and Sitemap v3.1 (Part 4), Functional Requirements v1.1
 **Rule for this file:** This file holds no new rule. If it disagrees with the Functional Requirements, the Functional Requirements win. Correct this file.
 **Companion files:** `PRD.md`, `USERFLOW.md`, `DFD.md`, `ERD.md`
@@ -13,8 +13,8 @@
 | Item | Value |
 | :---- | :---- |
 | Portals | 4: `/student`, `/adviser`, `/panel`, `/coordinator` |
-| Routes | 31: 2 public, 7 Student, 6 Adviser, 5 Panel Member, 11 Coordinator |
-| Screens | Landing page, Sign in, 25 role screens (S1 to S6, A1 to A5, P1 to P4, C1 to C10), and 1 shared submission view (SV) on 4 routes |
+| Routes | 32: 2 public, 8 Student, 6 Adviser, 5 Panel Member, 11 Coordinator |
+| Screens | Landing page, Sign in, 26 role screens (S1 to S6, PROCESS, A1 to A5, P1 to P4, C1 to C10), and 1 shared submission view (SV) on 4 routes |
 | Page-frame panels | 3, with no route: notification center, preferences, search |
 
 ## 2. Global access rules
@@ -33,13 +33,14 @@
 | 10 | The meeting link of an online consultation shows only to the Adviser and the booked Student. | FR-SCH-03 |
 | 11 | Every disabled action shows its reason. | BR-18 |
 
-## 3. Route table (31 routes)
+## 3. Route table (32 routes)
 
 | Route | Role | Screen | ID | Main FRs |
 | :---- | :---- | :---- | :---- | :---- |
 | `/` | Public | Landing page: what ThesIsko is, and the way in (Sign in). No sign-up. | — | ACC-01, ACC-04 |
 | `/login` | Public | Sign in | — | ACC-01, ACC-08 |
 | `/student/dashboard` | Student | Thesis tracker | S1 | TRK-01, TRK-05, WFL-12 |
+| `/student/process` | Student | Thesis process (whole path and forms) | PROCESS | TRK-01, DOC-01 |
 | `/student/pr/[prId]` | Student | Manuscript workspace | S2 | REV-01 to REV-08, REV-14 |
 | `/student/documents` | Student | Deliverables and uploads | S3 | DOC-01 to DOC-05, DOC-09, DOC-11 |
 | `/student/schedule` | Student | Consultations and defense calendar | S4 | SCH-02 to SCH-04, SCH-08, DEF-01 |
@@ -80,6 +81,7 @@ flowchart LR
     L --> C["/coordinator"]
 
     S --> S1["dashboard (S1)"]
+    S --> SP["process (PROCESS)"]
     S --> S2["pr/[prId] (S2)"]
     S --> S3["documents (S3)"]
     S --> S4["schedule (S4)"]
@@ -117,16 +119,17 @@ flowchart LR
 
 | Role | Landing route | Sidebar items (in order) |
 | :---- | :---- | :---- |
-| Student | `/student/dashboard` | Thesis Tracker, Manuscript, Documents, Schedule, Defense Results, Clearance, Submission |
+| Student | `/student/dashboard` | Dashboard, Thesis process, Manuscript, Documents, Schedule, Defense results, Clearance, Submission |
 | Adviser | `/adviser/dashboard` | Advisees, Review Queue, Consultations, Availability, Defense Day, Submission |
 | Panel Member | `/panel/dashboard` | Assignments, Manuscript, Availability, Defense Day, Submission |
 | Coordinator | `/coordinator/dashboard` | Overview, Students, Committees, Documents, Schedule, Defense, Clearance, Templates, Users, Audit, Submission |
 
-**When a sidebar item shows:**
-- Clearance (Student) shows from Milestone 3.
-- Defense Results (Student) shows after the Coordinator verifies the sheets.
-- Submission shows after Gate 1b.
-- Defense Day (Adviser, Panel Member) opens at the scheduled start. Before that, it shows the date and a countdown.
+**Every sidebar item always shows.** An item that is not open yet shows a lock glyph and its reason in a tooltip (DESIGN.md §5.1):
+- Clearance (Student) opens at Milestone 3. Reason: "Opens at Milestone 3."
+- Defense results (Student) opens after the Coordinator verifies the sheets. Reason: "Opens after the Coordinator verifies the sheets."
+- Submission opens at Gate 1b. Reason: "Opens at Gate 1b."
+- Defense Day (Adviser, Panel Member) opens at the scheduled start. Before that, the page shows the date. Reason: "Opens at the scheduled start."
+- Manuscript (Panel Member) opens when the appointment form and the member's NDA are recorded (BR-08).
 
 ## 6. Shared layout
 
@@ -137,14 +140,14 @@ flowchart LR
 | Next-action card | One sentence that names the next step and who acts. One primary button. |
 | Readiness checklist | Each required item with a state chip, and the reason if it blocks. |
 | Status pill | The milestone status. Same colors on every screen. |
-| Document chip | The document state: Not started, Prepared, Scan uploaded, Locked as submitted, Physical received, Verified, Mismatch, Returned. |
+| Document chip | The document state: Not started, Prepared, Scan uploaded, Locked as submitted, Verified, Returned (FR-DOC-02). |
 | Outside-status chip | Ethics, IPMO, RPO or copyright status. Read only except for the Coordinator. |
 | Manuscript workspace | Split screen. Left: PDF viewer with commit selector. Right: thread feed. Bottom: role actions. |
 | Return dialog | A required reason. The receiver sees it. |
 | Gate dialog | Names the gate, lists what it unlocks, asks for confirmation. |
 | Blocked-action note | Every disabled button shows why. |
 
-**Visual guidance:** Unified Thesis Process v1.1, Section 1.7. Every screen answers three questions: where am I, what blocks me, what can I do now.
+**Visual guidance:** `DESIGN.md` v0.2 (Guided Ledger) and one spec for each screen in `design/screens/`. Every record screen answers three questions: where am I, what blocks me, what can I do now.
 
 ## 7. Screen inventory
 
@@ -152,9 +155,10 @@ flowchart LR
 
 | ID | Purpose | Regions | Key rules |
 | :---- | :---- | :---- | :---- |
-| S1 | Show where the thesis stands and the next step | Identity card, milestone stepper, next-action card, readiness checklist, outside-status chips, defense card, key dates panel | The residency indicator is a warning only (BR-17). The defense card shows after date confirmation. |
+| S1 | Show where the thesis stands and the next step | Identity line, Docket (stepper, status, blocker, one action, form link), key dates (holds the defense details), this-milestone task list, Adviser with total open comments and next consultation | The residency indicator is a warning only (BR-17). An outside status shows only as the Docket blocker, when it blocks. |
+| PROCESS | Show the whole process and its forms | Step-by-step of Proposal, Pre-Final, Final, Clearance, with "You are here", gates and forms with Download form | Student only. Stage 0 is not a step. Only the Student's degree level. |
 | S2 | Write, upload versions, answer comments | Header with commit selector and Mark Ready, PDF viewer, thread feed (All, Open, Resolved), upload bar, change note and Addressed tag, comment-response export, lock banner | The Student replies but cannot resolve (BR-05). An upload clears Ready and marks older open threads Outdated. Uploads are blocked after Gate 1b (BR-07). |
-| S3 | Show deliverables and collect uploads | Deliverables table, prefilled form download, form pack, scan and OR upload, read-only rows (Minutes, sheets, Certification), forms guide tab, History tab | A scan locks on upload. A replacement needs a Return (BR-19). |
+| S3 | Show deliverables and collect uploads | Current-milestone task list (Download form, Upload scan), read-only rows (Minutes, sheets, Certification), completed milestones (collapsed), Advising forms · optional (FR-DOC-12), History tab | A scan locks on upload. A replacement needs a Return (BR-19). |
 | S4 | Book consultations and choose the defense date | Consultation tab (slots, agenda, linked threads, meeting link), defense date tab (calendar), Propose date | The defense date tab is locked until Gate 1b. Dates under 7 days after Gate 1b are greyed out with the reason (BR-09). |
 | S5 | Show results after verification | Verdict banner, member results, Minutes, attempt history, next steps | Shows after verification (BR-11). No grade equivalent (BR-15). |
 | S6 | Track clearance | Status list (IPMO, RPO, Gate 2, copyright), final copy receipt, evidence uploads, exit checklist | The Coordinator verifies each item. |
@@ -185,7 +189,7 @@ flowchart LR
 | C1 | Overview | KPI strip, grouped action queue, Student table, key dates, pacing flags, CSV exports | Each count opens its queue. |
 | C2 | Accounts | Create-account form, Student list | Create an account only after eligibility. The system creates the Thesis Instance and Milestone 1. |
 | C3 | Committees | Appointment board, member status, paper (TDW 06 or 11, NDAs), substitute | The Adviser pool and the Panel Member pool are separate. A declined seat needs a replacement. |
-| C4 | Compliance | Compliance checklist, scan viewer, outside-status setters, forms guide tab, Return dialog | A Return reason is compliance or eligibility only (BR-13). |
+| C4 | Compliance | Scan list, scan viewer, record with Verify and Return (inline reason), outside-office tab | A Return reason is compliance or eligibility only (BR-13). Verify or Return only (FR-DOC-06, FR-DOC-07). |
 | C5 | Schedule | Date requests, printed copies | Confirm is blocked until the checklist is complete (FR-DOC-08). Late copies show a warning. |
 | C6 | Defense | Entry tracker, sheets, verdict, Minutes, revision items, Close, Certification | Close needs every sheet verified and the Minutes issued. |
 | C7 | Clearance | Outside-status selectors, Gate 2 tracker, evidence, Close | CLEARED needs every item verified. |

@@ -4,7 +4,7 @@ import { AccessDeniedError, type DataContext } from "@/server/data/access";
 import { DuplicateEmailError } from "@/server/data/accounts";
 import { InputProblem } from "@/server/data/coordinator";
 import { getDb } from "@/server/data/db";
-import { getSessionState } from "@/server/auth/session";
+import { getRoleState, getSessionState } from "@/server/auth/session";
 
 export type FormState = { ok?: string; error?: string };
 
@@ -13,6 +13,13 @@ export async function sessionContext(): Promise<DataContext> {
   const state = await getSessionState();
   if (state.status !== "ok") throw new AccessDeniedError("sign in first");
   return { db: getDb(), actor: state.actor };
+}
+
+// For a page: the context for an active Coordinator, else null, so a refused user makes no data call (issue #58).
+// The data layer still checks the role (NFR-01).
+export async function pageContext(): Promise<DataContext | null> {
+  const state = await getRoleState("coordinator");
+  return state.status === "ok" ? { db: getDb(), actor: state.actor } : null;
 }
 
 // Runs a write and turns a known refusal into a message for the form.

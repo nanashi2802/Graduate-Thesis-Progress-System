@@ -3,5 +3,5 @@ import { DefenseDay } from "@/app/_components/defense-day";
 
 export default async function Page({ params }: PageProps<"/panel/defense/[defenseId]">) {
   const { defenseId } = await params;
-  return <DefenseDay attemptId={defenseId} />;
+  return <DefenseDay portal="panel_member" attemptId={defenseId} />;
 }

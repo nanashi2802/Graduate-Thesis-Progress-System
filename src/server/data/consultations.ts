@@ -5,6 +5,8 @@ import { and, asc, desc, eq, gt, inArray, lt, ne } from "drizzle-orm";
 import { committeeKindFor } from "@/server/domain/committee";
 import { AccessDeniedError, requireActive, type DataContext } from "./access";
 import { recordAudit } from "./audit";
+import { appLink } from "@/server/notify/link";
+import { emitSafely } from "./recipients";
 import { InputProblem } from "./coordinator";
 import { commonFree, expandWeekly, slotProblem, type Interval, type SlotInput } from "./schedule-rules";
 import {
@@ -179,7 +181,7 @@ export async function requestBooking(
 ): Promise<{ bookingId: string }> {
   const thesis = await studentThesis(ctx);
   const threadIds = [...new Set(input.threadIds ?? [])];
-  return ctx.db.transaction(async (tx) => {
+  const made = await ctx.db.transaction(async (tx) => {
     const [s] = await tx.select().from(slot).where(eq(slot.id, input.slotId));
     if (!s || s.slotType !== "consultation" || s.ownerUserId !== thesis.adviserUserId) {
       throw new InputProblem("This slot is not one of your Adviser's consultation slots.");
@@ -201,6 +203,9 @@ export async function requestBooking(
     await recordAudit({ db: tx, actor: ctx.actor }, { action: "booking.request", targetTable: "booking", targetId: b!.id });
     return { bookingId: b!.id };
   });
+  // F1 (FR-NTF-01): after the commit. The email holds no agenda (FR-NTF-03).
+  await emitSafely(ctx, "F1", { thesisId: thesis.id }, { link: appLink("/login"), targetTable: "booking", targetId: made.bookingId });
+  return made;
 }
 
 // FR-SCH-04: the Student changes the agenda and the linked threads until the slot starts.
@@ -266,6 +271,7 @@ export async function listBookings(ctx: DataContext): Promise<BookingView[]> {
 export async function decideBooking(ctx: DataContext, bookingId: string, decision: "confirm" | "decline"): Promise<void> {
   requireActive(ctx.actor);
   if (ctx.actor.role !== "adviser") throw new AccessDeniedError("only the Adviser decides a request");
+  let thesisId = "";
   await ctx.db.transaction(async (tx) => {
     const [row] = await tx
       .select({ b: booking, s: slot })
@@ -281,7 +287,9 @@ export async function decideBooking(ctx: DataContext, bookingId: string, decisio
       .where(eq(booking.id, bookingId));
     await tx.update(slot).set({ status: confirm ? "confirmed" : "available" }).where(eq(slot.id, row.s.id));
     await recordAudit({ db: tx, actor: ctx.actor }, { action: `booking.${decision}`, targetTable: "booking", targetId: bookingId });
+    thesisId = row.b.thesisInstanceId;
   });
+  await emitSafely(ctx, "F2", { thesisId }, { link: appLink("/login"), targetTable: "booking", targetId: bookingId });
 }
 
 // ---- Consultation log (TDW 03 rows, BR-16) ----

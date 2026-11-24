@@ -8,6 +8,8 @@ import { resultsVisible } from "@/server/domain/evaluation";
 import { AccessDeniedError, requireActive, type DataContext } from "./access";
 import { recordAudit } from "./audit";
 import { InputProblem, requireCoordinator } from "./coordinator";
+import { appLink } from "@/server/notify/link";
+import { emitSafely } from "./recipients";
 import { expectedEvaluatorsFor, loadMilestoneContext, type MilestoneContext } from "./milestone-facts";
 import {
   defenseAttempt,
@@ -47,7 +49,7 @@ export async function addRevisionItems(ctx: DataContext, attemptId: string, bodi
   if (texts.length === 0) throw new InputProblem("Enter at least one revision item.");
   if (attempt.status !== "held" && attempt.status !== "closed") throw new InputProblem("Revision items follow a held defense.");
   if (attempt.verdict !== "approved_with_revisions") throw new InputProblem("Revision items are for the verdict Approved with Revisions.");
-  return ctx.db.transaction(async (tx) => {
+  const added = await ctx.db.transaction(async (tx) => {
     const [last] = await tx.select({ n: max(revisionItem.ordinal) }).from(revisionItem).where(eq(revisionItem.defenseAttemptId, attemptId));
     const start = last?.n ?? 0;
     if (start + texts.length > MAX_ITEMS) throw new InputProblem(`A defense has ${MAX_ITEMS} revision items at most.`);
@@ -55,6 +57,9 @@ export async function addRevisionItems(ctx: DataContext, attemptId: string, bodi
     await recordAudit({ db: tx, actor: ctx.actor }, { action: "revision.add", targetTable: "defense_attempt", targetId: attemptId, detail: { count: texts.length } });
     return { count: texts.length };
   });
+  // B4 (FR-NTF-01): after the commit. Never throws (INV-30).
+  await emitSafely(ctx, "B4", { thesisId: mctx.thesis.id, milestone: mctx.code }, { link: appLink("/login"), targetTable: "defense_attempt", targetId: attemptId });
+  return added;
 }
 
 async function loadItem(ctx: DataContext, itemId: string) {
@@ -82,6 +87,7 @@ export async function linkRevisionToCommit(ctx: DataContext, itemId: string, com
     await tx.update(revisionItem).set({ linkedCommitId: commitId }).where(eq(revisionItem.id, item.id));
     await recordAudit({ db: tx, actor: ctx.actor }, { action: "revision.link", targetTable: "revision_item", targetId: item.id });
   });
+  await emitSafely(ctx, "B4", { thesisId: mctx.thesis.id, milestone: mctx.code }, { link: appLink("/login"), targetTable: "revision_item", targetId: item.id });
 }
 
 // The Adviser and each accepted Panel Member of the committee accept items (the `endorsers` of the milestone facts).
