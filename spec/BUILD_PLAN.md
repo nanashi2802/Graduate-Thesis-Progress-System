@@ -1042,10 +1042,10 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/notify/daily.ts`, a data function for the job, tests
 - **Depends on:** P2-E04-T04, P2-E04-T05
 - **Done when:**
-  - [ ] Reminders go out on their day only. A second run on the same day sends nothing new (check `email_log`).
-  - [ ] Digests group the digest `notification` rows that have no `email_log` row yet. Student Defense Day thread items wait until the defense closes (BR-20).
-  - [ ] A user with an optional event turned off gets no email for it. The in-app row still exists.
-  - [ ] The Phase 0 test email (AD-B-004) still works through `NOTIFY_TEST_TO`.
+  - [x] Reminders go out on their day only. A second run on the same day sends nothing new (check `email_log`).
+  - [x] Digests group the digest `notification` rows that have no `email_log` row yet. Student Defense Day thread items wait until the defense closes (BR-20).
+  - [x] A user with an optional event turned off gets no email for it. The in-app row still exists.
+  - [x] The Phase 0 test email (AD-B-004) still works through `NOTIFY_TEST_TO`.
 - **Tests:** unit (Vitest with PGlite, fake email port, fixed clock)
 
 ### P2-E04-T07 — Emit events from the Track A data functions (Track A, `agent-a`)
