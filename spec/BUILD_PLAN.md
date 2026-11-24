@@ -1350,9 +1350,9 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `spec/AGENT_DECISIONS.md` (the phase summary)
 - **Depends on:** every other task in the §8 gap closure track
 - **Done when:**
-  - [ ] This command lists each FR ID that no commit, source file or test cites:
+  - [x] This command lists each FR ID that no commit, source file or test cites:
     `f=docs/PUP_CpE_Thesis_Progress_System_Functional_Requirements_v1.1.md; comm -23 <(grep -oE '\bFR-[A-Z]+-[0-9]+\b' $f | sort -u) <( (git log --format=%B origin/dev; grep -rhoE 'FR-[A-Z]+-[0-9]+' src tests) | grep -oE '\bFR-[A-Z]+-[0-9]+\b' | sort -u)`
-  - [ ] Each listed Must or Should FR is built, or it is Phase 4 (§6), deferred (`AGENTS.md` §9) or a role alias row (FR-ADM, FR-ADV, FR-PAN, FR-STU, FR-SYS). The phase summary lists each one with its reason.
+  - [x] Each listed Must or Should FR is built, or it is Phase 4 (§6), deferred (`AGENTS.md` §9) or a role alias row (FR-ADM, FR-ADV, FR-PAN, FR-STU, FR-SYS). The phase summary lists each one with its reason.
 - **Tests:** the command above
 
 ---
@@ -1370,6 +1370,7 @@ The human picks from this list. Each item already has an FR.
 | Audit viewer and CSV reports | FR-RPT-02, FR-RPT-03 |
 | Template versioning and email wording | FR-TPL-04, FR-NTF-10 |
 | Search and saved filters | FR-RPT-04 |
+| Threads waiting in the review queues (the days-waiting part is built) | FR-REV-09 (AD-A-037) |
 
 ---
 

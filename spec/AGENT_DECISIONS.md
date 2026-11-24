@@ -7,6 +7,14 @@
 
 (`agent-a` adds one summary at the end of each phase, newest first: the decisions made, the risky ones, and what the human must check.)
 
+### FR coverage check (P3-E07-T03, 24 Nov 2026)
+The command found 35 FR IDs that no commit, source file or test cites by ID.
+- **Role alias rows (no work):** FR-ADM-01 to 04, FR-ADV-01 to 03, FR-PAN-01 to 04, FR-STU-01 to 05, FR-SYS-01 to 04.
+- **Built under other IDs (Must):** FR-CMT-05 (NDA and form open the manuscript, `scope.ts` `canReadManuscript`, INV-24, INV-33, BR-08), FR-DEF-02 (endorsement form: only partly built. The code sets the Prepared state, `documents.ts`. The prefilled PDF waits for the form pack, FR-DOC-05, Phase 4), FR-REV-06 (only the author resolves a thread, `manuscript.ts`, BR-05), FR-SCH-03 (meeting link after Confirmed, `consultations.ts`), FR-WFL-14 and FR-RPT-01 (gate record and append-only audit insert, FR-SYS-04, INV-08). The commits cite BR or INV IDs, not these FR IDs.
+- **Phase 4 (§6):** FR-REV-09 (AD-A-037), FR-DOC-09, FR-NTF-10, FR-REV-14, FR-RPT-02, FR-RPT-03, FR-RPT-04.
+- **Deferred (§9):** FR-AIA-01 (AI features) and FR-REV-10 (the paused pre-check).
+- **Human must check:** the Must rows above are traced by file, not by FR ID. Confirm FR-SCH-03 and FR-CMT-05 in the browser. FR-REV-09 and FR-DEF-02 are only partly built (see AD-A-037 and the FR-DEF-02 note).
+
 ### Phase 3 (Track A, 23 Nov 2026)
 - **Made:** AD-A-028 (Defense Day window), AD-A-029 and AD-A-030 (clearance), AD-A-031 (Gate 1b rule for a new Final Panel member). The Milestone 3 flow test runs from the open of Milestone 3 to CLEARED.
 - **Risky:** AD-A-029 (copyright must be REGISTERED before CLEARED, a Student with APPLIED copyright is blocked; confirm with the Coordinator).
@@ -491,6 +499,13 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** `E2E_PORT` (default 3000) sets the port in `playwright.config.ts`. Another workspace of the owner ran a server on 3000, and `reuseExistingServer` tested that app. The reset input on `/login` was renamed "Reset link email", because `getByLabel("Email address")` matched two inputs. The browser boxes with no flow spec in Track A epics now say "not built", not "blocked". The Track B boxes (P1-E11-T04, P1-E13-T02, P2-E02-T02) stay as they are. PR #76 asks agent-b to update them.
 - **Risk:** low. CI uses port 3000 as before.
 - **Undo:** revert the commits with AD-A-036.
+
+### AD-A-037 — FR-REV-09 moves to Phase 4
+- **Task:** P3-E07-T03
+- **Options:** build the "threads waiting" part now; or move FR-REV-09 (Should) to Phase 4.
+- **Decision and reason:** Move it. `queues.ts` and `overview.ts` already give the A1, P1 and C1 queues with `daysWaiting` for Ready commits. Only the count of threads waiting is missing, and it needs the review screens. It is a Should, so it does not block Phase 3. `spec/BUILD_PLAN.md` §6 lists it.
+- **Risk:** low. The queues work. The human must check that the missing count is acceptable.
+- **Undo:** revert the commits with AD-A-037.
 
 ### AD-B-030 — Track B box stays open as blocked
 - **Task:** P1-E07-T03 end-to-end step (agent-r note on #77)
