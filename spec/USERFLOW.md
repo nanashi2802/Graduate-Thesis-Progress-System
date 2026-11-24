@@ -226,7 +226,7 @@ sequenceDiagram
     Mem->>Sys: Encode own sheet (A5, P4). Sign paper.
     Lead->>Sys: Record collective verdict on or after the date
     Sys-->>Lead: Warning if an Action Taken differs
-    Coo->>Sys: Upload each sheet scan. Mark match or mismatch (C6)
+    Coo->>Sys: Upload each sheet scan. Verify it or Return it with a reason (C6)
     Coo->>Sys: Issue Minutes. Close defense.
     Sys->>Sys: Unlock manuscript
     Sys-->>Stu: A6 results available (no verdict in email)
@@ -254,7 +254,7 @@ Steps 5 to 8 can happen in any order.
 | :---- | :---- | :---- |
 | Return at a gate or a check | The item goes back with a written reason. The author sees it and fixes it. | BR-13, FR-WFL-05 |
 | Disapproved verdict | The defense stays open. The cycle restarts at step 2. A new attempt starts. History is kept. | FR-WFL-09 |
-| Paper mismatch | The defense goes on. The stage cannot close until the author corrects the file and the Coordinator verifies it. | BR-12 |
+| Returned document (paper differs) | The defense goes on. The stage cannot close until the author uploads a corrected scan and the Coordinator verifies it. | BR-12 |
 | Member declines the appointment | The seat needs a replacement. The Coordinator proposes another Panel Member. | FR-CMT-03 |
 | Absent member | The Coordinator records a substitute before the defense. The substitute signs an NDA, gets read access and completes the absent member's sheet. | FR-CMT-06 |
 | IPMO FAILED | The Student resubmits. Gate 1a (Milestone 2) or Gate 2 stays blocked. | FR-WFL-03, FR-WFL-07 |
