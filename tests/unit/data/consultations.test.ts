@@ -20,6 +20,7 @@ import type { Db } from "@/server/data/db";
 import { commonFree, expandWeekly, slotProblem } from "@/server/data/schedule-rules";
 import * as s from "@/server/data/schema";
 import { makeThesisChain, makeUser } from "../../support/fixtures";
+import { expectAuditKinds } from "../../support/audit";
 import { makeTestDb } from "../../support/test-db";
 
 let db: Db;
@@ -102,6 +103,7 @@ describe("publishSlots and listSlots (FR-SCH-01, INV-28)", () => {
     const free = await publishSlots(as(t.adviser), slotIn(3), NOW);
     await expect(withdrawSlot(as(t.student), free.slotIds[0]!)).rejects.toThrow();
     await withdrawSlot(as(t.adviser), free.slotIds[0]!);
+    await expectAuditKinds(db, ["slot.publish", "slot.withdraw", "booking.request"]);
   });
 });
 
@@ -192,6 +194,7 @@ describe("consultation log (FR-SCH-05, FR-SCH-06, BR-16)", () => {
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ topic: "Methods", recommendations: "Add a chapter.", placeOrPlatform: "In person" });
     expect(rows[0]!.confirmedAt).not.toBeNull();
+    await expectAuditKinds(db, ["log.draft", "log.topic", "log.confirm"]);
     // A confirmed entry does not change.
     await expect(setLogTopic(as(t.student), entryId, "Other")).rejects.toThrow(/cannot change/);
     await expect(confirmLogEntry(as(t.adviser), entryId, null)).rejects.toThrow(/already/);

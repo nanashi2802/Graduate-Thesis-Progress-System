@@ -159,5 +159,20 @@ describe("Milestone 3: Final Defense and clearance with every role", () => {
     expect((await clearanceView(as(student), mid)).rows.every((r) => r.done)).toBe(true);
     await transitionMilestone(as(coordinator), mid, "CLEARED");
     expect(await status()).toBe("CLEARED");
+
+    // INV-08, FR-RPT-01: each action kind of this flow wrote an audit record with actor, role, time and target.
+    const audit = await db.select().from(s.auditRecord);
+    for (const row of audit) {
+      expect(row.actorUserId).toBeTruthy();
+      expect(row.actorRole).toBeTruthy();
+      expect(row.createdAt).toBeInstanceOf(Date);
+      expect(row.targetTable).toBeTruthy();
+    }
+    const kinds = new Set(audit.map((a) => a.action));
+    for (const k of [
+      "clearance.verify", "committee.appoint", "committee.link_appointment_form", "committee_member.link_nda",
+      "defense.verdict", "document.upload_scan", "manuscript.commit", "manuscript.ready", "student.create",
+      "minutes.issue", "outside.set", "printed.receive", "sheet.save", "sheet.scan", "thread.post", "thread.reply",
+    ]) expect(kinds, k).toContain(k);
   }, 30_000);
 });

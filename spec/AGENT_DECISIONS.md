@@ -493,8 +493,15 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Undo:** revert the commits with AD-A-036.
 
 ### AD-B-030 â€” Two Track B boxes stay open as blocked
-- **Task:** P1-E07-T03 end-to-end step, P1-E12-T03 audit test for each event kind (agent-r note on #77)
+- **Task:** P1-E07-T03 end-to-end step (agent-r note on #77)
 - **Options:** build both now; or log them as blocked so the phase can end.
-- **Decision and reason:** Blocked. The end-to-end step needs a signed-in local run with `DEV_SEED_PASSWORD`, which no agent has. The audit test needs one test for each of about 32 untested action kinds, spread over Track A and Track B data functions. Each function test already runs in CI. The decision is to ship without a full event table.
-- **Risk:** medium. A removed `recordAudit` call in an untested function would pass CI (INV-08, FR-RPT-01). The human should ask for the table test in a later phase.
+- **Decision and reason:** Blocked. The end-to-end step needs a signed-in local run with `DEV_SEED_PASSWORD`, which no agent has (§13.5). P1-E12-T03 is not blocked: see AD-B-031.
+- **Risk:** low. Only a manual sign-in run is open.
 - **Undo:** none needed. Revert the commit with AD-B-030 to reopen the boxes.
+
+### AD-B-031 — Audit test for each action kind (P1-E12-T03)
+- **Task:** P1-E12-T03 (agent-r finding on #77, which rejected the "blocked" status in AD-B-030)
+- **Options:** one new table test that calls all data functions; or add `expectAuditKinds` to the existing tests that already call each function.
+- **Decision and reason:** The second. Existing tests already set up each function. The helper `tests/support/audit.ts` checks actor, role, time and target. It edits no Track A file.
+- **Risk:** low. All 37 action kinds now have a test that reads the record (INV-08, FR-RPT-01).
+- **Undo:** revert the commit with AD-B-031.

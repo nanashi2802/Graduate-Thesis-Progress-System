@@ -640,7 +640,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Goal:** Each event in FR-RPT-01 writes one `audit_record` through the P1-E02 insert.
 - **Covers:** FR-RPT-01, NFR-03, INV-08
 - **Depends on:** P1-E02
-- **Done when:** `[ ]` A test for each event kind shows its audit record with actor, role, time and target. Partly done: 13 of about 45 action kinds have a test that reads the record. Blocked as one task: it needs a test for each remaining data function (AD-B-030).
+- **Done when:** `[x]` A test for each event kind shows its audit record with actor, role, time and target. `tests/support/audit.ts` (`expectAuditKinds`) is used in the data tests and in `tests/unit/flow/milestone3.test.ts` for all 37 action kinds (AD-B-031).
 
 ### 3.6 P1-E01 Schema from the ERD (Track A, `agent-a`, done 22 Nov 2026)
 
