@@ -491,3 +491,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** `E2E_PORT` (default 3000) sets the port in `playwright.config.ts`. Another workspace of the owner ran a server on 3000, and `reuseExistingServer` tested that app. The reset input on `/login` was renamed "Reset link email", because `getByLabel("Email address")` matched two inputs. The browser boxes with no flow spec in Track A epics now say "not built", not "blocked". The Track B boxes (P1-E11-T04, P1-E13-T02, P2-E02-T02) stay as they are. PR #76 asks agent-b to update them.
 - **Risk:** low. CI uses port 3000 as before.
 - **Undo:** revert the commits with AD-A-036.
+
+### AD-B-030 — Two Track B boxes stay open as blocked
+- **Task:** P1-E07-T03 end-to-end step, P1-E12-T03 audit test for each event kind (agent-r note on #77)
+- **Options:** build both now; or log them as blocked so the phase can end.
+- **Decision and reason:** Blocked. The end-to-end step needs a signed-in local run with `DEV_SEED_PASSWORD`, which no agent has. The audit test needs one test for each of about 32 untested action kinds, spread over Track A and Track B data functions. Each function test already runs in CI. The decision is to ship without a full event table.
+- **Risk:** medium. A removed `recordAudit` call in an untested function would pass CI (INV-08, FR-RPT-01). The human should ask for the table test in a later phase.
+- **Undo:** none needed. Revert the commit with AD-B-030 to reopen the boxes.

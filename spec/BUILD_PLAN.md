@@ -558,7 +558,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Depends on:** T02
 - **Done when:**
   - [x] Each disabled action shows its reason (BR-18). The C4 reasons come from `decideDocumentChange`, the rule the action runs.
-  - [ ] An end-to-end step uploads a TDW 07 scan, and the Coordinator verifies it. It waits for the Playwright setup (P1-E13).
+  - [ ] An end-to-end step uploads a TDW 07 scan, and the Coordinator verifies it. Blocked: it needs a local run with `DEV_SEED_PASSWORD` that no agent has (AD-B-030).
 
 ### 3.4a P1-E11 Dashboards (Track B, `agent-b`)
 
@@ -601,7 +601,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Done when:**
   - [x] S1 (Docket as the next-action card, checklist, outside chips, defense card, key dates), A1 (action queue with inline TDW 03 scan upload and data gathering approval, advisee roster), P1 (assignments with the access reason) and C1 (KPI strip that opens its queue, grouped queue, Student table) are built. Each blocked item shows its reason.
   - [ ] A Playwright step opens each dashboard and finds the next-action card or the queue. It waits for a local run with `DEV_SEED_PASSWORD` (`portals.spec.ts` already opens each home and finds the `Dashboard` heading).
-  - [ ] The P1 action links to the Defense Day page (P4) after `agent-a` merges #30. The S1 residency indicator waits for R7.
+  - [ ] The P1 action links to the Defense Day page (P4) after `agent-a` merges #30. The S1 residency indicator is in `tracker.ts`. R7 adds only the screen chip.
 
 ### 3.5 P1-E12 Audit records and in-app notifications (Track B, `agent-b`)
 
@@ -640,7 +640,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Goal:** Each event in FR-RPT-01 writes one `audit_record` through the P1-E02 insert.
 - **Covers:** FR-RPT-01, NFR-03, INV-08
 - **Depends on:** P1-E02
-- **Done when:** `[ ]` A test for each event kind shows its audit record with actor, role, time and target.
+- **Done when:** `[ ]` A test for each event kind shows its audit record with actor, role, time and target. Partly done: 13 of about 45 action kinds have a test that reads the record. Blocked as one task: it needs a test for each remaining data function (AD-B-030).
 
 ### 3.6 P1-E01 Schema from the ERD (Track A, `agent-a`, done 22 Nov 2026)
 
