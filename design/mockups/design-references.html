@@ -1,0 +1,275 @@
+<title>Thesis Progress Design References</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<style>
+/* Layout: one reading column; each candidate is a ruled section with a screenshot strip and a fit table. Tokens from the project's DESIGN.md. */
+:root {
+  --ground: #FAF8F8; --surface: #FFFFFF; --sunken: #F4F1F1; --hairline: #E7E1E1;
+  --ink: #1E1617; --muted: #6E6264; --secondary: #4A3F41;
+  --maroon: #800000; --maroon-tint: #FBF3F3; --gold: #F4C430;
+  --done: #1B6B45; --done-bg: #E5F3EA; --pending: #8F4A06; --pending-bg: #FCEEDD;
+  --shot-bg: #FFFFFF;
+  --serif: "Source Serif 4", Georgia, serif;
+  --sans: "IBM Plex Sans", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --ground: #171213; --surface: #211A1B; --sunken: #2A2223; --hairline: #3A3032;
+  --ink: #F3EEEE; --muted: #B3A7A9; --secondary: #D6CCCD;
+  --maroon: #E89A9A; --maroon-tint: #2E1C1D; --gold: #F4C430;
+  --done: #8FD3AE; --done-bg: #17301F; --pending: #F2BC80; --pending-bg: #35240F;
+  --shot-bg: #FFFFFF; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --ground: #171213; --surface: #211A1B; --sunken: #2A2223; --hairline: #3A3032;
+  --ink: #F3EEEE; --muted: #B3A7A9; --secondary: #D6CCCD;
+  --maroon: #E89A9A; --maroon-tint: #2E1C1D; --gold: #F4C430;
+  --done: #8FD3AE; --done-bg: #17301F; --pending: #F2BC80; --pending-bg: #35240F;
+  --shot-bg: #FFFFFF; color-scheme: dark }
+
+body { background: var(--ground); color: var(--ink); font: 400 16px/1.55 var(--sans); }
+.wrap { max-width: 980px; margin: 0 auto; padding-block: 40px 80px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.rule { height: 3px; background: var(--maroon); }
+header { display: grid; gap: 12px; padding-bottom: 32px; border-bottom: 1px solid var(--hairline); }
+.eyebrow { font: 500 13px/1 var(--mono); color: var(--muted); letter-spacing: .04em; }
+h1 { font: 600 36px/1.2 var(--serif); margin: 0; text-wrap: balance; }
+h2 { font: 600 28px/1.25 var(--serif); margin: 0; text-wrap: balance; }
+h3 { font: 600 16px/1.4 var(--sans); margin: 0; }
+p { margin: 0; max-width: 72ch; text-wrap: pretty; }
+.lede { color: var(--secondary); font-size: 18px; }
+a { color: var(--maroon); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--maroon); outline-offset: 2px; }
+
+.needs { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-top: 8px; }
+.need { background: var(--surface); border: 1px solid var(--hairline); border-radius: 6px; padding: 14px 16px; display: grid; gap: 4px; }
+.need b { font-weight: 600; }
+.need span { color: var(--muted); font-size: 14px; }
+
+section.cand { display: grid; gap: 20px; padding-block: 48px; border-bottom: 1px solid var(--hairline); }
+.cand-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; }
+.tag { font: 500 12px/1 var(--mono); padding: 5px 8px; border-radius: 999px; border: 1px solid var(--hairline); color: var(--secondary); background: var(--sunken); }
+.tag.lead { background: var(--maroon-tint); color: var(--maroon); border-color: transparent; }
+
+.shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+figure { margin: 0; display: grid; gap: 8px; min-width: 0; }
+figure .frame { background: var(--shot-bg); border: 1px solid var(--hairline); border-radius: 6px; overflow: hidden; display: flex; align-items: flex-start; justify-content: center; max-height: 340px; }
+figure img { display: block; width: 100%; height: auto; object-fit: cover; object-position: top; }
+figcaption { font-size: 14px; color: var(--muted); }
+figcaption b { color: var(--ink); font-weight: 500; }
+
+.fit { width: 100%; border-collapse: collapse; font-size: 15px; }
+.tablewrap { overflow-x: auto; }
+.fit th, .fit td { text-align: left; vertical-align: top; padding: 10px 12px; border-top: 1px solid var(--hairline); }
+.fit th { font-weight: 600; width: 34%; color: var(--secondary); }
+.pros-cons { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.pros-cons div { display: grid; gap: 6px; }
+.pros-cons ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.good { color: var(--done); font-weight: 600; font-size: 14px; }
+.bad { color: var(--pending); font-weight: 600; font-size: 14px; }
+
+.matrix-sec { padding-block: 48px; display: grid; gap: 16px; }
+.matrix { border-collapse: collapse; width: 100%; min-width: 720px; font-size: 14px; background: var(--surface); }
+.matrix th, .matrix td { border: 1px solid var(--hairline); padding: 10px; text-align: left; vertical-align: top; }
+.matrix thead th { background: var(--sunken); font-weight: 600; }
+.matrix td.y { color: var(--done); }
+.matrix td.p { color: var(--pending); }
+.mono { font-family: var(--mono); font-size: 13px; }
+.combo { background: var(--surface); border: 1px solid var(--hairline); border-radius: 6px; padding: 20px; display: grid; gap: 10px; }
+.combo ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+footer { color: var(--muted); font-size: 14px; padding-top: 24px; display: grid; gap: 6px; }
+</style>
+
+<div class="rule"></div>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">DESIGN.md v0.2 · Round 3 input · 23 Nov 2026</span>
+    <h1>Which system should the Thesis Progress app borrow from?</h1>
+    <p class="lede">Seven candidates, judged against what this app must do. Each one shows the real component, what it would shape in our screens, and where it falls short. Brand, color and type stay ours in every option.</p>
+    <div class="needs" aria-label="What the reference must cover">
+      <div class="need"><b>A long process</b><span>3 milestones and clearance, gates, months of waiting</span></div>
+      <div class="need"><b>Paper forms</b><span>13 TDW forms, scans, verified against paper</span></div>
+      <div class="need"><b>Guided first day</b><span>Empty regions teach the next step</span></div>
+      <div class="need"><b>Dense queues</b><span>The Coordinator works tables every day</span></div>
+      <div class="need"><b>Manuscript review</b><span>Commits, threads, Submission PR</span></div>
+    </div>
+  </header>
+
+  <section class="cand" id="own">
+    <div class="cand-head"><h2>Proposed: our own principle set, "Guided Ledger"</h2><span class="tag lead">New in v2</span></div>
+    <p>We don't borrow one system whole. We write our own 12 principles and take each one from where it is proven: the government process systems, the modern product tools, the Refactoring UI skills in the repository, and the ui-ux-pro-max skill. The table names the source of each one, so every principle can be checked.</p>
+    <div class="tablewrap"><table class="fit">
+      <tr><th>1. One job for each screen</th><td>Each screen opens with the Docket: where am I, what blocks me, what can I do now. One primary action. <span class="mono">GOV.UK "one thing per page" · establish-visual-hierarchy</span></td></tr>
+      <tr><th>2. Show only what is relevant</th><td>Your degree level, your current milestone, your role. Nothing else. <span class="mono">Linear "My issues" · P11</span></td></tr>
+      <tr><th>3. Always show the whole path</th><td>A compact stepper on every record screen. The full path lives on the Thesis process screen. <span class="mono">GOV.UK step by step · USWDS step indicator</span></td></tr>
+      <tr><th>4. Empty regions teach</th><td>Say what will appear, when, and the first step. Use one of four types: blank slate, informational, educational, guide. <span class="mono">Vercel Geist empty-state framework · design-empty-states</span></td></tr>
+      <tr><th>5. Details on demand</th><td>Each list row shows at most 3 facts. More opens on expand. <span class="mono">Primer progressive disclosure · ui-ux-pro-max "overwhelm upfront"</span></td></tr>
+      <tr><th>6. Space first, rules second, cards last</th><td>Group with spacing. Separate with a hairline. At most 3 cards on a screen. <span class="mono">eliminate-visual-clutter · group-related-elements</span></td></tr>
+      <tr><th>7. Two densities</th><td>Comfortable for Students and Advisers. Compact for Coordinator tables, with filters and keyboard use. <span class="mono">Linear · IBM Carbon data table</span></td></tr>
+      <tr><th>8. Maroon is action, gold is earned</th><td>Maroon only on the one thing you can do. Gold only on what is achieved. <span class="mono">DESIGN.md §1.1</span></td></tr>
+      <tr><th>9. Paper is the record</th><td>Forms show as stamps with the TDW number. The UI says "recorded" and "verified", never "signed". <span class="mono">BR-01 · ui-ux-pro-max "document workflow" profile</span></td></tr>
+      <tr><th>10. Every blocked action explains</th><td>A disabled action shows its reason next to it. <span class="mono">BR-18 · Stripe Apps "communicating state"</span></td></tr>
+      <tr><th>11. Plain words</th><td>STE at about 80%. No enum names, codes or jargon in the UI. <span class="mono">GOV.UK content design · AGENTS.md §5</span></td></tr>
+      <tr><th>12. Accessible by default</th><td>WCAG 2.2 AA, 44 px targets on tablets, a visible focus ring, reduced motion. <span class="mono">ui-ux-pro-max priority 1 and 2 · better-accessibility</span></td></tr>
+    </table></div>
+  </section>
+
+  <section class="cand" id="uupm">
+    <div class="cand-head"><h2>What ui-ux-pro-max recommends</h2><span class="tag">Skill output, checked</span></div>
+    <p>I ran the skill's design-system search for our product type, with generic terms only and no project data. Its closest product profile is <b>Document Workflow</b>: "Accessible &amp; Ethical + Minimalism &amp; Swiss Style", a "Document Pipeline Dashboard", and a palette of trust color, green for done, amber for pending and neutral grey. That matches our tones almost exactly.</p>
+    <div class="pros-cons">
+      <div><span class="good">We take</span><ul><li>Swiss Modernism 2.0: a strict grid, rational spacing, clear hierarchy</li><li>Its 141 UX rules as a review checklist: empty states, progressive disclosure, focus, touch targets</li><li>Its pre-delivery checklist on every screen</li></ul></div>
+      <div><span class="bad">We reject</span><ul><li>Its palette (navy and blue) and fonts (EB Garamond): our brand is fixed by the owner</li><li>Its page pattern ("Portfolio Grid"), which is for landing pages, not apps</li></ul></div>
+    </div>
+    <p><a href="https://github.com/nextlevelbuilder/ui-ux-pro-max-skill">ui-ux-pro-max-skill on GitHub</a> (MIT)</p>
+  </section>
+
+  <section class="cand" id="modern">
+    <div class="cand-head"><h2>Modern product references</h2><span class="tag lead">New in v2</span></div>
+    <p>These are current tools that people admire for calm, dense, fast interfaces. They are not process systems, so they shape how screens <em>feel</em>, not what the process screens contain.</p>
+    <div class="shots">
+      <figure><div class="frame"><img src="refs/linear_home.png" alt="Linear app: sidebar with Inbox, My issues, Reviews; an issue with activity and properties"></div>
+        <figcaption><b>Linear.</b> Inbox, "My issues", Reviews; one record with its activity and a properties column. A model for the Adviser queue and the Coordinator triage.</figcaption></figure>
+      <figure><div class="frame"><img src="refs/geist_empty.png" alt="Vercel Geist empty state framework: blank slate, informational, educational, guide"></div>
+        <figcaption><b>Vercel Geist.</b> An empty-state framework with four types. A direct source for "empty regions teach".</figcaption></figure>
+      <figure><div class="frame"><img src="refs/stripe_apps.png" alt="Stripe Apps design patterns: onboarding flow, communicating state, empty state, lists"></div>
+        <figcaption><b>Stripe Apps patterns.</b> Onboarding flow, communicating state, empty state, lists: short, tested rules for a calm dashboard.</figcaption></figure>
+    </div>
+    <div class="tablewrap"><table class="fit">
+      <tr><th>Linear</th><td>Calm density, status icons, keyboard first, one record with activity and properties. <a href="https://linear.app/method">Linear Method</a></td></tr>
+      <tr><th>Vercel Geist</th><td>A modern design system with strong empty, loading and status states. <a href="https://vercel.com/geist/empty-state">Empty state</a></td></tr>
+      <tr><th>Stripe Apps</th><td>Patterns for onboarding, state and empty screens inside a dashboard. <a href="https://docs.stripe.com/stripe-apps/patterns">Design patterns</a></td></tr>
+      <tr><th>GitHub Primer (current)</th><td>Progressive disclosure, timeline and the pull request merge box. <a href="https://primer.style/product/ui-patterns/progressive-disclosure/">Progressive disclosure</a></td></tr>
+    </table></div>
+  </section>
+
+  <section class="cand" id="govuk">
+    <div class="cand-head"><h2>GOV.UK Design System</h2><span class="tag lead">Strongest fit for the process</span><span class="tag">UK Government</span></div>
+    <p>Built for citizens who move through a long process run by an office, with paper and proof behind it. That is the Student's situation. Its patterns were tested with millions of users who have no training, and its writing rules match our STE rule.</p>
+    <div class="shots">
+      <figure><div class="frame"><img src="refs/govuk_stepbystep.png" alt="GOV.UK step by step navigation: numbered steps with Show toggles"></div>
+        <figcaption><b>Step-by-step navigation.</b> Our <em>Thesis process</em> screen: Proposal, Pre-Final, Final, Clearance, each with a dropdown of forms.</figcaption></figure>
+      <figure><div class="frame"><img src="refs/govuk_tasklist.png" alt="GOV.UK task list: rows with a status tag on the right"></div>
+        <figcaption><b>Task list.</b> Our Documents list and the "Milestone at a glance" card: each form with one status.</figcaption></figure>
+      <figure><div class="frame"><img src="refs/govuk_summarycard.png" alt="GOV.UK summary cards: titled cards with label and value rows"></div>
+        <figcaption><b>Summary card.</b> Our Identity card and Key dates card: a titled card with label and value rows.</figcaption></figure>
+    </div>
+    <div class="pros-cons">
+      <div><span class="good">Fits</span><ul><li>Process screen, documents and first-day states, almost one to one</li><li>Strict on one thing per page and plain words</li><li>Rules on empty states and "what happens next"</li></ul></div>
+      <div><span class="bad">Falls short</span><ul><li>Few patterns for dense staff tables</li><li>No review or comment patterns</li><li>Plain look; our brand must carry the warmth</li></ul></div>
+    </div>
+    <p><a href="https://design-system.service.gov.uk/patterns/complete-multiple-tasks/">Complete multiple tasks</a> · <a href="https://design-system.service.gov.uk/components/task-list/">Task list</a> · <a href="https://design-system.service.gov.uk/components/summary-list/">Summary card</a> · <a href="https://www.gov.uk/learn-to-drive-a-car">Step by step, live example</a></p>
+  </section>
+
+  <section class="cand" id="nhs">
+    <div class="cand-head"><h2>NHS.UK Design System</h2><span class="tag">Variant of GOV.UK</span><span class="tag">UK Health</span></div>
+    <p>Takes GOV.UK and adds more card types and a warmer feel for a service that people return to for months. Useful as a second source when a GOV.UK pattern feels too bare.</p>
+    <div class="shots">
+      <figure><div class="frame"><img src="refs/nhs_tasklist.png" alt="NHS task list example"></div>
+        <figcaption><b>Task list (NHS).</b> Same idea as GOV.UK, with colored status tags.</figcaption></figure>
+    </div>
+    <div class="pros-cons">
+      <div><span class="good">Fits</span><ul><li>Card variants for repeat visits</li><li>Same principles as GOV.UK</li></ul></div>
+      <div><span class="bad">Falls short</span><ul><li>Adds little that GOV.UK lacks for us</li></ul></div>
+    </div>
+    <p><a href="https://service-manual.nhs.uk/design-system/components/task-list">Task list</a> · <a href="https://service-manual.nhs.uk/design-system/patterns/complete-multiple-tasks">Complete multiple tasks</a></p>
+  </section>
+
+  <section class="cand" id="uswds">
+    <div class="cand-head"><h2>U.S. Web Design System</h2><span class="tag">US Government</span></div>
+    <p>Close to GOV.UK in purpose. Its two process components are cleaner than ours today and map straight onto the milestone stepper and the process screen.</p>
+    <div class="shots">
+      <figure><div class="frame"><img src="refs/uswds_step.png" alt="USWDS step indicator with segments and '3 of 5' counter"></div>
+        <figcaption><b>Step indicator.</b> A milestone stepper with "Step 2 of 4" and a label. Clear on a phone.</figcaption></figure>
+      <figure><div class="frame"><img src="refs/uswds_process.png" alt="USWDS process list page"></div>
+        <figcaption><b>Process list.</b> Numbered steps with text under each. Simpler than GOV.UK step by step.</figcaption></figure>
+    </div>
+    <div class="pros-cons">
+      <div><span class="good">Fits</span><ul><li>Stepper and process list</li><li>Strong accessibility test records</li></ul></div>
+      <div><span class="bad">Falls short</span><ul><li>Less depth than GOV.UK in process guidance</li><li>Generic look</li></ul></div>
+    </div>
+    <p><a href="https://designsystem.digital.gov/components/step-indicator/">Step indicator</a> · <a href="https://designsystem.digital.gov/components/process-list/">Process list</a></p>
+  </section>
+
+  <section class="cand" id="carbon">
+    <div class="cand-head"><h2>IBM Carbon</h2><span class="tag lead">Strongest fit for staff tables</span><span class="tag">Already our typeface</span></div>
+    <p>IBM's system for enterprise tools. It is built on IBM Plex, which DESIGN.md already uses, so its tables and progress parts match our type with no change. Best for the Coordinator, who works queues all day.</p>
+    <div class="shots">
+      <figure><div class="frame"><img src="refs/carbon_table.png" alt="Carbon data table in IBM Plex"></div>
+        <figcaption><b>Data table.</b> The Coordinator's queues and the student list: 5 row heights, sorting, batch actions.</figcaption></figure>
+      <figure><div class="frame"><img src="refs/carbon_progress.png" alt="Carbon progress indicator with complete, current, not started and error states"></div>
+        <figcaption><b>Progress indicator.</b> States for complete, current, not started and error, each with an icon.</figcaption></figure>
+    </div>
+    <div class="pros-cons">
+      <div><span class="good">Fits</span><ul><li>Dense tables, filters, batch actions</li><li>Same type family as ours</li></ul></div>
+      <div><span class="bad">Falls short</span><ul><li>Cold and corporate for Students</li><li>Little guidance on processes for the public</li></ul></div>
+    </div>
+    <p><a href="https://carbondesignsystem.com/components/data-table/usage/">Data table</a> · <a href="https://carbondesignsystem.com/components/progress-indicator/usage/">Progress indicator</a></p>
+  </section>
+
+  <section class="cand" id="primer">
+    <div class="cand-head"><h2>GitHub Primer</h2><span class="tag lead">Strongest fit for review</span><span class="tag">GitHub</span></div>
+    <p>We already use GitHub words: Commit, Submission PR, resolve a thread. Primer is the source of those screens: the pull request timeline, review threads, the commit list and the merge box with its checks.</p>
+    <div class="tablewrap"><table class="fit">
+      <tr><th>Timeline</th><td>The history of a manuscript: commits, Ready, endorsements, Return with reason</td></tr>
+      <tr><th>Review threads</th><td>Critique Threads: open, reply, resolved by the reviewer only (BR-05)</td></tr>
+      <tr><th>Merge box with checks</th><td>The gate box: what is done, what blocks, the one action (Gate 1a, 1b, 2)</td></tr>
+    </table></div>
+    <div class="pros-cons">
+      <div><span class="good">Fits</span><ul><li>Manuscript workspace, almost one to one</li><li>Users with CpE training know it</li></ul></div>
+      <div><span class="bad">Falls short</span><ul><li>Developer look; wrong for dashboards and forms</li></ul></div>
+    </div>
+    <p><a href="https://primer.style/product/components/timeline/">Timeline</a> · <a href="https://primer.style/product/">Primer product UI</a></p>
+  </section>
+
+  <section class="cand" id="ojs">
+    <div class="cand-head"><h2>Open Journal Systems (PKP)</h2><span class="tag">Domain analog</span><span class="tag">Academic publishing</span></div>
+    <p>Not a design system: a product. It runs a manuscript through Submission, Review, Copyediting and Production, with rounds of revision and a discussion in each stage. It is the closest real system to our review flow.</p>
+    <div class="pros-cons">
+      <div><span class="good">Fits</span><ul><li>Stage tabs inside one submission</li><li>Filters by stage and by overdue</li><li>Review rounds and revisions</li></ul></div>
+      <div><span class="bad">Falls short</span><ul><li>Dated, busy interface: a model of the flow, not of the look</li></ul></div>
+    </div>
+    <p><a href="https://docs.pkp.sfu.ca/learning-ojs/3.3/en/editorial-workflow">OJS editorial workflow guide</a></p>
+  </section>
+
+  <section class="cand" id="instui">
+    <div class="cand-head"><h2>Instructure UI (Canvas LMS)</h2><span class="tag">Familiar to students</span></div>
+    <p>The system behind Canvas, which many students use every week. Its learner dashboard shows what is due and what comes next.</p>
+    <div class="pros-cons">
+      <div><span class="good">Fits</span><ul><li>Students know the look</li><li>"To do" and "due soon" lists</li></ul></div>
+      <div><span class="bad">Falls short</span><ul><li>Built around courses and grades; we show no grades (BR-15)</li><li>Weak on long, gated processes</li></ul></div>
+    </div>
+    <p><a href="https://developerdocs.instructure.com/services/instui">Instructure UI</a></p>
+  </section>
+
+  <section class="matrix-sec" id="matrix">
+    <h2>Fit by screen</h2>
+    <p>Where each candidate helps. A dash means it gives little for that screen.</p>
+    <div class="tablewrap"><table class="matrix">
+      <thead><tr><th>Screen</th><th>GOV.UK</th><th>USWDS</th><th>Carbon</th><th>Primer</th><th>OJS</th></tr></thead>
+      <tbody>
+        <tr><td>Thesis process (Student)</td><td class="y">Step by step</td><td class="y">Process list</td><td>–</td><td>–</td><td>–</td></tr>
+        <tr><td>Student dashboard</td><td class="y">Task list, summary card</td><td class="y">Step indicator</td><td>–</td><td>–</td><td>–</td></tr>
+        <tr><td>Documents</td><td class="y">Task list</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
+        <tr><td>Manuscript workspace</td><td>–</td><td>–</td><td>–</td><td class="y">Timeline, threads, merge box</td><td class="p">Stage tabs</td></tr>
+        <tr><td>Coordinator queues</td><td class="p">Basic table</td><td>–</td><td class="y">Data table</td><td>–</td><td class="p">Stage filters</td></tr>
+        <tr><td>Adviser and Panel dashboards</td><td class="y">Summary card</td><td>–</td><td class="p">Data table</td><td>–</td><td>–</td></tr>
+        <tr><td>Defense Day (tablet)</td><td class="y">Large form inputs</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
+        <tr><td>Empty and first-day states</td><td class="y">"What happens next"</td><td>–</td><td>–</td><td class="p">Blank slates</td><td>–</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <div class="combo">
+    <h3>Two ways to combine them</h3>
+    <ol>
+      <li><b>One backbone, two specialists.</b> GOV.UK sets the principles and every Student-facing pattern. Carbon shapes the Coordinator tables. Primer shapes the manuscript workspace. Each source owns named screens, so they never mix on one page.</li>
+      <li><b>One source only.</b> GOV.UK for everything, and we design our own table and review patterns. Simpler to explain; more design work for the Coordinator and the workspace.</li>
+    </ol>
+  </div>
+
+  <footer>
+    <span>Screenshots taken 23 Nov 2026 from the public documentation of each system. The GOV.UK crown and other marks are theirs; we take patterns, never brand.</span>
+    <span>Not shown: Material and Atlassian. Both are general product systems with no process patterns, so they fit this app least.</span>
+  </footer>
+</div>

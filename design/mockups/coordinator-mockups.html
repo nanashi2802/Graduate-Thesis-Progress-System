@@ -1,0 +1,597 @@
+<title>Coordinator Screen Mockups</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* Layout: two compact Coordinator mockups (C1, C4) plus the domain icon sheet. v2: equal-width row actions, roomier cells, less text on working surfaces ("teach at the edges"). Tokens follow DESIGN.md §3 and §11. */
+:root {
+  --ground: #FAF8F8; --surface: #FFFFFF; --sunken: #F4F1F1; --hairline: #E7E1E1; --strong: #D3CBCB;
+  --ink: #1E1617; --secondary: #4A3F41; --muted: #6E6264; --input: #8C8082;
+  --maroon: #800000; --maroon-50: #FBF3F3; --maroon-100: #F5E1E1;
+  --active: #1F4E8C; --active-bg: #E7EEF8; --active-bd: #BCD0EC;
+  --pending: #8F4A06; --pending-bg: #FCEEDD; --pending-bd: #F1CFA6;
+  --done: #1B6B45; --done-bg: #E5F3EA; --done-bd: #B7DDC5;
+  --returned: #B3261E; --returned-bd: #F2BDB8;
+  --neutral: #5B5052; --neutral-bg: #F4F1F1; --neutral-bd: #E7E1E1;
+  --scan: #F7F5F0; --viewer: #EDE8E8; --page-bg: #EFEAEA;
+  --serif: "Source Serif 4", Georgia, serif;
+  --sans: "IBM Plex Sans", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --ground: #1A1415; --surface: #221B1C; --sunken: #2A2223; --hairline: #3A3032; --strong: #4E4245;
+  --ink: #F3EEEE; --secondary: #D6CCCD; --muted: #B3A7A9; --input: #8C8082;
+  --maroon: #E49B9B; --maroon-50: #33201F; --maroon-100: #4A2A29;
+  --active: #9DBFEA; --active-bg: #1B2A3D; --active-bd: #2E4767;
+  --pending: #F2BC80; --pending-bg: #35240F; --pending-bd: #5A3D1A;
+  --done: #8FD3AE; --done-bg: #17301F; --done-bd: #2B5038;
+  --returned: #F4A79F; --returned-bd: #63302A;
+  --neutral: #C9BEC0; --neutral-bg: #2A2223; --neutral-bd: #3A3032;
+  --scan: #F3F0EA; --viewer: #2A2223; --page-bg: #120E0F; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --ground: #1A1415; --surface: #221B1C; --sunken: #2A2223; --hairline: #3A3032; --strong: #4E4245;
+  --ink: #F3EEEE; --secondary: #D6CCCD; --muted: #B3A7A9; --input: #8C8082;
+  --maroon: #E49B9B; --maroon-50: #33201F; --maroon-100: #4A2A29;
+  --active: #9DBFEA; --active-bg: #1B2A3D; --active-bd: #2E4767;
+  --pending: #F2BC80; --pending-bg: #35240F; --pending-bd: #5A3D1A;
+  --done: #8FD3AE; --done-bg: #17301F; --done-bd: #2B5038;
+  --returned: #F4A79F; --returned-bd: #63302A;
+  --neutral: #C9BEC0; --neutral-bg: #2A2223; --neutral-bd: #3A3032;
+  --scan: #F3F0EA; --viewer: #2A2223; --page-bg: #120E0F; color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--page-bg); color: var(--ink); font: 400 14px/1.5 var(--sans); }
+.wrap { max-width: 1360px; margin: 0 auto; padding-block: 32px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 48px; }
+.intro { display: grid; gap: 8px; max-width: 820px; }
+.intro h1 { font: 600 30px/1.2 var(--serif); margin: 0; text-wrap: balance; }
+.intro p { margin: 0; color: var(--secondary); font-size: 15px; text-wrap: pretty; }
+.eyebrow { font: 500 12px/1 var(--mono); color: var(--muted); letter-spacing: .04em; }
+.mock { display: grid; gap: 12px; }
+.mock-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.mock-head h2 { font: 600 22px/1.3 var(--serif); margin: 0; }
+.mock-head p { margin: 4px 0 0; color: var(--muted); font-size: 14px; max-width: 74ch; }
+.seg { display: inline-flex; border: 1px solid var(--strong); border-radius: 6px; overflow: hidden; background: var(--surface); }
+.seg button { font: 500 13px/1 var(--sans); padding: 9px 12px; border: 0; background: transparent; color: var(--secondary); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--strong); }
+.seg button[aria-pressed="true"] { background: var(--maroon-50); color: var(--maroon); }
+.seg button:focus-visible { outline: 2px solid var(--maroon); outline-offset: -2px; }
+.frame { border: 1px solid var(--strong); border-radius: 8px; overflow: hidden; background: var(--ground); box-shadow: 0 8px 24px rgb(30 22 23 / .10); }
+.frame-scroll { overflow-x: auto; }
+.app { min-width: 1180px; display: grid; grid-template-rows: 3px 52px 1fr; }
+.app .rule { background: #800000; }
+.topbar { display: flex; align-items: center; gap: 16px; padding: 0 20px; background: var(--surface); border-bottom: 1px solid var(--hairline); }
+.wordmark { font: 600 16px/1 var(--serif); white-space: nowrap; }
+.crumbs { color: var(--muted); font-size: 13px; }
+.crumbs b { color: var(--ink); font-weight: 500; }
+.search { margin-left: 16px; display: flex; align-items: center; gap: 8px; height: 32px; width: 300px; padding: 0 10px; border: 1px solid var(--strong); border-radius: 4px; color: var(--muted); font-size: 13px; background: var(--ground); }
+.search kbd { margin-left: auto; font: 500 11px/1 var(--mono); padding: 3px 5px; border: 1px solid var(--strong); border-radius: 3px; }
+.topbar .right { margin-left: auto; display: flex; gap: 14px; align-items: center; color: var(--secondary); font-size: 13px; }
+.body { display: grid; grid-template-columns: 210px 1fr; min-height: 640px; }
+.side { background: var(--sunken); border-right: 1px solid var(--hairline); padding-block: 12px; }
+.nav a { display: grid; grid-template-columns: 18px 1fr auto; align-items: center; gap: 10px; height: 36px; padding: 0 14px 0 13px; border-left: 3px solid transparent; color: var(--ink); text-decoration: none; font-size: 13.5px; }
+.nav a .gi { width: 18px; height: 18px; color: var(--secondary); }
+.nav a.on { border-left-color: #800000; color: var(--maroon); font-weight: 500; background: var(--surface); }
+.nav a.on .gi { color: var(--maroon); }
+.nav .count { font: 500 11px/1 var(--mono); color: var(--secondary); }
+
+/* Domain glyphs: 24-grid, 1.5 stroke, a light tonal fill marks the "object" part. */
+.gi { width: 18px; height: 18px; flex: none; }
+.gi .tone { fill: currentColor; opacity: .16; stroke: none; }
+.ico { width: 14px; height: 14px; flex: none; }
+.mono { font-family: var(--mono); font-size: 12.5px; }
+.muted { color: var(--muted); }
+.pill { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 8px; border-radius: 999px; font-size: 12px; font-weight: 500; border: 1px solid; white-space: nowrap; }
+.pill.active { color: var(--active); background: var(--active-bg); border-color: var(--active-bd); }
+.pill.pending { color: var(--pending); background: var(--pending-bg); border-color: var(--pending-bd); }
+.pill.achieved { color: #3D0505; background: #F4C430; border-color: #D9A600; }
+.chipo { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 999px; font-size: 12px; border: 1px dashed var(--strong); color: var(--secondary); white-space: nowrap; }
+.stamp { display: inline-flex; align-items: center; height: 22px; border: 1px solid var(--strong); border-radius: 2px; background: var(--surface); font: 500 12px/1 var(--mono); padding: 0 7px; white-space: nowrap; }
+
+.btn { font: 500 13.5px/1 var(--sans); height: 32px; padding: 0 12px; border-radius: 4px; border: 1px solid var(--input); background: var(--surface); color: var(--ink); display: inline-flex; align-items: center; justify-content: center; gap: 7px; cursor: pointer; white-space: nowrap; text-decoration: none; }
+.btn.primary { background: #800000; border-color: #800000; color: #fff; }
+.btn.ret { color: var(--returned); border-color: var(--returned-bd); }
+.btn.text { border-color: transparent; background: transparent; color: var(--maroon); padding: 0 4px; }
+.btn[aria-disabled="true"] { background: var(--sunken); color: var(--muted); border-color: var(--hairline); cursor: not-allowed; }
+.btn.row-act { width: 132px; }          /* every row action is the same size */
+.btn.wide { width: 100%; }
+.btn:focus-visible { outline: 2px solid var(--maroon); outline-offset: 2px; }
+.reason { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+
+main.page { padding: 22px 28px 28px; display: grid; gap: 24px; align-content: start; }
+.page-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.page-title h1 { font: 600 24px/1.2 var(--serif); margin: 0; }
+
+/* KPI strip */
+.kpis { display: grid; grid-template-columns: repeat(6, 1fr); background: var(--surface); border: 1px solid var(--hairline); border-radius: 6px; }
+.kpi { padding: 14px 16px 12px; display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto; column-gap: 8px; row-gap: 8px; text-decoration: none; color: inherit; border-left: 1px solid var(--hairline); cursor: pointer; min-width: 0; }
+.kpi:first-child { border-left: 0; }
+.kpi:hover { background: var(--sunken); }
+.kpi.sel { background: var(--maroon-50); box-shadow: inset 0 -2px 0 #800000; }
+.kpi .gi { width: 30px; height: 30px; color: var(--muted); grid-row: 1; grid-column: 2; align-self: start; }
+.kpi.sel .gi { color: var(--maroon); }
+.kpi .num { grid-row: 1; grid-column: 1; font: 600 36px/1 var(--mono); font-variant-numeric: tabular-nums; letter-spacing: -.02em; display: flex; align-items: baseline; }
+.kpi .num small { font: 500 13px/1 var(--mono); color: var(--muted); margin-left: 8px; letter-spacing: 0; }
+.kpi .lbl { grid-row: 2; grid-column: 1 / 3; }
+.kpi .num small.late { color: var(--pending); }
+.kpi .lbl { font-size: 13px; color: var(--secondary); }
+.kpi.zero .num { color: var(--muted); font-weight: 500; }
+
+/* Queue table: roomy cells, fixed columns, equal action buttons */
+.sec { display: grid; gap: 12px; }
+.sec-head { display: flex; align-items: center; gap: 10px; }
+.sec-head h2 { font: 600 16px/1.3 var(--sans); margin: 0; }
+.filter { display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border: 1px solid var(--strong); border-radius: 999px; font-size: 12.5px; color: var(--secondary); background: var(--surface); }
+.filter.on { border-color: #800000; color: var(--maroon); background: var(--maroon-50); }
+.sec-head .sp { margin-left: auto; display: flex; gap: 8px; }
+.tbl { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface); border: 1px solid var(--hairline); border-radius: 6px; table-layout: fixed; }
+.tbl th { text-align: left; font: 600 11px/1 var(--sans); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 12px 16px; background: var(--sunken); border-bottom: 1px solid var(--strong); white-space: nowrap; }
+.tbl th:first-child { border-top-left-radius: 6px; } .tbl th:last-child { border-top-right-radius: 6px; }
+.tbl td { padding: 0 16px; height: 48px; border-bottom: 1px solid var(--hairline); font-size: 13.5px; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl tr.grp td { height: 38px; background: var(--ground); font-weight: 600; font-size: 13px; color: var(--secondary); }
+.tbl tr.grp td .in { display: inline-flex; align-items: center; gap: 8px; }
+.tbl tr.grp .gi { width: 16px; height: 16px; }
+.tbl tr.grp .n { font: 500 12px/1 var(--mono); color: var(--muted); }
+.tbl tr.row:hover td { background: var(--sunken); }
+.tbl td.age { font: 500 12.5px/1 var(--mono); }
+.tbl td.age.late { color: var(--pending); }
+.tbl td.act { text-align: right; padding-right: 12px; overflow: visible; }
+.tbl td .stu { font-weight: 500; }
+.tbl td .sub { color: var(--muted); font-size: 12.5px; }
+.flagi { color: var(--pending); display: inline-flex; align-items: center; gap: 6px; }
+.flagi .gi { width: 16px; height: 16px; }
+
+.cols2 { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
+.setup { background: var(--surface); border: 1px solid var(--hairline); border-radius: 6px; padding: 16px 18px; display: grid; gap: 8px; }
+.setup h3 { font: 600 16px/1.3 var(--sans); margin: 0 0 4px; }
+.setup ol { list-style: none; margin: 0; padding: 0; }
+.setup li { display: grid; grid-template-columns: 22px 1fr 132px; gap: 14px; align-items: center; min-height: 52px; border-top: 1px solid var(--hairline); }
+.setup li .t { font-weight: 500; }
+.setup li .t small { display: block; font-weight: 400; color: var(--muted); font-size: 12.5px; }
+.empty { border: 1px dashed var(--strong); border-radius: 6px; padding: 14px 16px; display: grid; gap: 4px; background: var(--surface); }
+.empty b { font-weight: 600; }
+.empty p { margin: 0; color: var(--secondary); font-size: 13.5px; }
+
+/* C4 */
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--hairline); }
+.tabs button { font: 500 14px/1 var(--sans); padding: 11px 12px; border: 0; background: none; color: var(--muted); border-bottom: 2px solid transparent; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: #800000; }
+.tabs .count { font: 500 11px/1 var(--mono); padding: 3px 6px; border-radius: 999px; background: var(--sunken); color: var(--secondary); }
+.c4 { display: grid; grid-template-columns: 300px 1fr 300px; border: 1px solid var(--hairline); border-radius: 6px; overflow: hidden; background: var(--surface); min-height: 540px; }
+.qlist { border-right: 1px solid var(--hairline); }
+.qi { display: grid; grid-template-columns: 1fr auto; row-gap: 6px; padding: 14px 16px; border-bottom: 1px solid var(--hairline); cursor: pointer; }
+.qi:hover { background: var(--sunken); }
+.qi.sel { background: var(--maroon-50); box-shadow: inset 3px 0 0 #800000; }
+.qi .stu { font-weight: 500; }
+.qi .age { font: 500 12px/1 var(--mono); color: var(--secondary); align-self: center; }
+.qi .age.late { color: var(--pending); }
+.qi .meta { grid-column: 1 / -1; display: flex; gap: 10px; align-items: center; font-size: 12.5px; color: var(--muted); }
+.scanview { background: var(--viewer); display: grid; grid-template-rows: 40px 1fr; }
+.scanbar { display: flex; align-items: center; justify-content: space-between; padding: 0 14px; background: var(--surface); border-bottom: 1px solid var(--hairline); }
+.scanbar .name { font: 500 12.5px/1 var(--mono); color: var(--secondary); }
+.scanbar .tools { display: flex; gap: 4px; align-items: center; color: var(--muted); font: 500 12px/1 var(--mono); }
+.scanbar .tools button { width: 28px; height: 28px; border: 1px solid var(--hairline); border-radius: 4px; background: var(--surface); color: var(--secondary); cursor: pointer; font: 500 14px/1 var(--sans); }
+.scanwrap { padding: 22px; display: flex; justify-content: center; }
+.scan { width: 360px; background: var(--scan); color: #2A2223; box-shadow: 0 2px 10px rgb(0 0 0 / .15); padding: 26px 30px; font: 400 10.5px/1.6 var(--serif); transform: rotate(-.6deg); }
+.scan .hdr { text-align: center; font-size: 9.5px; letter-spacing: .03em; }
+.scan h4 { text-align: center; font: 600 11.5px/1.3 var(--serif); margin: 10px 0 12px; }
+.scan .ln { display: flex; gap: 6px; margin: 4px 0; }
+.scan .ln span:last-child { flex: 1; border-bottom: 1px solid #8C8082; font-family: "Segoe Script", "Bradley Hand", cursive; font-size: 11px; color: #1F3A8C; padding-left: 4px; }
+.scan .sig { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 14px; margin-top: 20px; }
+.scan .sig div { border-top: 1px solid #8C8082; padding-top: 2px; text-align: center; font-size: 9px; position: relative; }
+.scan .sig div i { position: absolute; top: -16px; left: 0; right: 0; font-family: "Segoe Script", "Bradley Hand", cursive; font-style: normal; font-size: 12px; color: #1F3A8C; }
+.scan .sig div.blank i { display: none; }
+.record { padding: 18px 18px; display: grid; gap: 18px; align-content: start; border-left: 1px solid var(--hairline); }
+.rec-head { display: grid; gap: 6px; }
+.rec-head .top { display: flex; align-items: center; gap: 8px; }
+.rec-head h3 { font: 600 15px/1.3 var(--sans); margin: 0; }
+.rec-head .who { font-size: 13px; color: var(--muted); }
+.life { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
+.life span { height: 4px; border-radius: 2px; background: var(--hairline); }
+.life span.on { background: var(--active); }
+.life span.done { background: var(--done, #2E6B3F); }
+.life span.back { background: #B3261E; }
+.retbox { display: grid; gap: 8px; }
+.retbox label { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.retbox textarea { font: inherit; font-size: 13.5px; padding: 8px 10px; border: 1px solid var(--input); border-radius: 4px; background: var(--surface); color: var(--ink); resize: vertical; min-height: 76px; }
+.retbox textarea:focus { outline: 2px solid #800000; outline-offset: 1px; }
+.outcome { display: grid; gap: 4px; padding: 12px; border-radius: 6px; border: 1px solid var(--hairline); background: var(--sunken); font-size: 13.5px; }
+.outcome .t { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.outcome .t .gi { width: 18px; height: 18px; }
+.outcome .m { color: var(--muted); font: 12.5px/1.4 var(--mono); }
+.outcome q { color: var(--secondary); }
+.outcome.ok .t { color: var(--done, #2E6B3F); }
+.outcome.back .t { color: #B3261E; }
+.defpick { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.defopt { background: var(--surface); border: 1px solid var(--hairline); border-radius: 6px; padding: 12px 14px; display: grid; grid-template-columns: 32px 1fr; gap: 2px 12px; align-items: center; cursor: pointer; text-align: left; font: inherit; color: inherit; min-width: 220px; }
+.defopt .gi { width: 32px; height: 32px; grid-row: 1 / 3; color: var(--ink); }
+.defopt b { font-size: 13px; }
+.defopt span { font-size: 12px; color: var(--muted); }
+.defopt[aria-pressed="true"] { border-color: #800000; box-shadow: inset 0 0 0 1px #800000; background: var(--maroon-50); }
+.life-lbl { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: -10px; }
+.life-lbl b { color: var(--ink); font-weight: 500; }
+.cmp { display: grid; gap: 4px; }
+.cmp-h { display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.cmp-h .help { width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--strong); display: grid; place-items: center; font: 600 11px/1 var(--sans); color: var(--secondary); cursor: help; text-transform: none; letter-spacing: 0; }
+.cmp label { display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: center; min-height: 34px; font-size: 13.5px; border-bottom: 1px solid var(--hairline); }
+.cmp label:last-child { border-bottom: 0; }
+.cmp input { width: 16px; height: 16px; accent-color: #800000; margin: 0; }
+.acts { display: grid; gap: 8px; }
+.acts .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.flag { display: flex; gap: 8px; align-items: center; padding: 10px 12px; border-radius: 6px; background: var(--pending-bg); border: 1px solid var(--pending-bd); color: var(--pending); font-size: 13px; }
+.flag .gi { width: 16px; height: 16px; }
+.more { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--hairline); padding-top: 12px; }
+.more h4 { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.more dl { display: grid; grid-template-columns: 76px 1fr; gap: 4px 10px; margin: 8px 0 0; }
+.more dd { margin: 0; font-family: var(--mono); color: var(--secondary); }
+select.out { font: inherit; font-size: 13px; height: 30px; padding: 0 6px; border: 1px solid var(--input); border-radius: 4px; background: var(--surface); color: var(--ink); width: 150px; }
+
+/* Icon sheet */
+.sheet { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.glyph { background: var(--surface); border: 1px solid var(--hairline); border-radius: 6px; padding: 14px; display: grid; gap: 8px; justify-items: start; }
+.glyph .gi { width: 28px; height: 28px; color: var(--ink); }
+.glyph b { font-weight: 600; font-size: 13px; }
+.glyph span { font-size: 12px; color: var(--muted); }
+.callouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.callout { background: var(--surface); border: 1px solid var(--hairline); border-radius: 6px; padding: 12px 14px; display: grid; gap: 4px; font-size: 13.5px; color: var(--secondary); }
+.callout b { color: var(--ink); font-weight: 600; }
+.callout .n { font: 500 11px/1 var(--mono); color: var(--maroon); }
+[hidden] { display: none !important; }
+</style>
+
+<!-- Domain glyph set. 24 grid, stroke 1.5, round joins, one tonal fill for the object. No shape from the PUP logo (no star, seal, laurel or torch). -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="g-overview" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect class="tone" x="3" y="4" width="8" height="7" rx="1"/><rect x="3" y="4" width="8" height="7" rx="1"/><path d="M14 5h7M14 9h5M3 15h18M3 19h12"/></symbol>
+    <symbol id="g-student" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path class="tone" d="M5 20v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1z"/><circle cx="12" cy="8" r="3.5"/><path d="M5 20v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1"/></symbol>
+    <symbol id="g-seat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path class="tone" d="M7 11h10v3H7z"/><path d="M8 4h8v7H8zM6 11h12v3H6zM7 14v6M17 14v6M7 17h10"/></symbol>
+    <symbol id="g-scan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path class="tone" d="M6 3h8l4 4v8H6z"/><path d="M14 3H6v12M14 3l4 4v4M14 3v4h4"/><path d="M3 18h18M8 9h4M8 12h3"/><path d="M5 21h14"/></symbol>
+    <symbol id="g-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect class="tone" x="3" y="5" width="18" height="5"/><rect x="3" y="5" width="18" height="16" rx="1.5"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="m9 15.5 2 2 4-4"/></symbol>
+    <symbol id="g-def-a" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect class="tone" x="3" y="3" width="18" height="12" rx="1"/><rect x="3" y="3" width="18" height="12" rx="1"/><path d="m7 11 3-3 2.5 2.5L17 6"/><path d="M12 15v3M8 21l4-3 4 3"/></symbol>
+    <symbol id="g-def-b" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect class="tone" x="2" y="11" width="20" height="4" rx="1"/><circle cx="6" cy="6.5" r="2"/><circle cx="12" cy="5.5" r="2"/><circle cx="18" cy="6.5" r="2"/><rect x="2" y="11" width="20" height="4" rx="1"/><path d="M5 15v6M19 15v6"/></symbol>
+    <symbol id="g-def-c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path class="tone" d="M7 11h10l-1.5 10h-7z"/><path d="M5 11h14M7 11l1.5 10h7L17 11"/><path d="M14 11V7.5a2 2 0 0 0-2-2h-1"/><rect x="8" y="3" width="3" height="5" rx="1.5"/><path d="M10 15h4"/></symbol>
+    <symbol id="g-clear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path class="tone" d="M7 6h12v14H7z"/><path d="M5 4h12v14H5z"/><path d="M7 6v14h12V6"/><path d="m8 11 2 2 4-4"/></symbol>
+    <symbol id="g-template" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect class="tone" x="5" y="3" width="14" height="5"/><rect x="5" y="3" width="14" height="18" rx="1"/><path d="M5 8h14M8 12h8M8 15h8M8 18h5"/></symbol>
+    <symbol id="g-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle class="tone" cx="9" cy="8" r="3"/><circle cx="9" cy="8" r="3"/><path d="M3 19a6 6 0 0 1 12 0M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5"/></symbol>
+    <symbol id="g-audit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path class="tone" d="M5 3h10v18H5z"/><path d="M5 3h10v18H5zM8 7h4M8 10h4M8 13h2"/><circle cx="16" cy="15" r="3"/><path d="m18.2 17.2 2.8 2.8"/></symbol>
+    <symbol id="g-commit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle class="tone" cx="12" cy="12" r="3.5"/><circle cx="12" cy="12" r="3.5"/><path d="M3 12h5.5M15.5 12H21"/></symbol>
+    <symbol id="g-gate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path class="tone" d="M7 8h10v12H7z"/><path d="M4 20V6M20 20V6M4 8h16M7 8v12M17 8v12M12 8v12"/></symbol>
+    <symbol id="g-verify" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path class="tone" d="M9 7h11v14H9z"/><path d="M4 3h11v4M4 3v14h5"/><path d="M9 7h11v14H9z"/><path d="m12 14 2 2 4-4"/></symbol>
+    <symbol id="g-received" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path class="tone" d="M3 14h5l1.5 2h5L16 14h5v6H3z"/><path d="M3 14h5l1.5 2h5L16 14h5v6H3zM3 14l3-9h12l3 9"/><path d="M12 4v7M9.5 8.5 12 11l2.5-2.5"/></symbol>
+    <symbol id="g-mismatch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path class="tone" d="M6 4h12l-3 5 3 5H6z"/><path d="M6 21V4h12l-3 5 3 5H6"/></symbol>
+    <symbol id="g-return" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path class="tone" d="M4 14h16v6H4z"/><path d="M4 14h16v6H4zM14 4H9a4 4 0 0 0 0 8h6"/><path d="m12 9 3 3-3 3"/></symbol>
+    <symbol id="g-export" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path class="tone" d="M5 12h14v8H5z"/><path d="M5 12v8h14v-8M12 3v11M8 7l4-4 4 4"/></symbol>
+    <symbol id="g-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.4-4.4"/></symbol>
+    <symbol id="g-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path class="tone" d="M6 9a6 6 0 0 1 12 0c0 6 2.5 8 2.5 8h-17S6 15 6 9"/><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 8 2.5 8h-17S6 15 6 9M10 20.5a2.2 2.2 0 0 0 4 0"/></symbol>
+    <symbol id="g-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle class="tone" cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="g-todo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="3 3"><circle cx="12" cy="12" r="9"/></symbol>
+    <symbol id="g-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect class="tone" x="5" y="11" width="14" height="10" rx="2"/><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <header class="intro">
+    <span class="eyebrow">Round 16 · v3 · Coordinator · Guided Ledger draft</span>
+    <h1>C1 Overview and C4 Documents, revised</h1>
+    <p>Changes: the C1 counts are larger and their icons sit in the top-right corner. C4 has two actions only, Verify and Return, and a Return needs a short reason. The Defense icon has three options to pick from.</p>
+  </header>
+
+  <section class="mock" id="icons">
+    <div class="mock-head"><div><h2>Domain icon set</h2><p>One stroke weight (1.5), round joins, and a light tone fill on the object. Each glyph names a thesis concept, not a generic shape.</p></div></div>
+    <div class="sheet">
+      <div class="glyph"><svg class="gi"><use href="#g-scan"/></svg><b>Check a scan</b><span>A page on the scanner bed</span></div>
+      <div class="glyph"><svg class="gi"><use href="#g-verify"/></svg><b>Verify</b><span>Scan over paper, ticked</span></div>
+      <div class="glyph"><svg class="gi"><use href="#g-mismatch"/></svg><b>Flag</b><span>A pennant, not an alarm</span></div>
+      <div class="glyph"><svg class="gi"><use href="#g-return"/></svg><b>Return</b><span>Back to the sender's tray</span></div>
+      <div class="glyph"><svg class="gi"><use href="#g-seat"/></svg><b>Committee seat</b><span>A chair to fill</span></div>
+      <div class="glyph"><svg class="gi"><use href="#g-calendar"/></svg><b>Defense date</b><span>A confirmed day</span></div>
+      <div class="glyph"><svg class="gi"><use data-def href="#g-def-a"/></svg><b>Defense</b><span id="defdesc">The presentation screen</span></div>
+      <div class="glyph"><svg class="gi"><use href="#g-gate"/></svg><b>Gate</b><span>Gate 1a, 1b, 2</span></div>
+      <div class="glyph"><svg class="gi"><use href="#g-commit"/></svg><b>Commit</b><span>A version on the line</span></div>
+      <div class="glyph"><svg class="gi"><use href="#g-clear"/></svg><b>Clearance</b><span>The stack, checked</span></div>
+      <div class="glyph"><svg class="gi"><use href="#g-template"/></svg><b>Template</b><span>A blank form</span></div>
+    </div>
+    <div class="mock-head" style="margin-top:20px"><div><h2>Defense icon · pick one</h2><p>The pick changes the icon on every screen below.</p></div></div>
+    <div class="defpick" role="group" aria-label="Defense icon">
+      <button type="button" class="defopt" data-defopt="g-def-a" aria-pressed="true"><svg class="gi"><use href="#g-def-a"/></svg><b>A · Presentation screen</b><span>The Student presents. Recommended.</span></button>
+      <button type="button" class="defopt" data-defopt="g-def-b" aria-pressed="false"><svg class="gi"><use href="#g-def-b"/></svg><b>B · Panel table</b><span>Three Panel Members at a table</span></button>
+      <button type="button" class="defopt" data-defopt="g-def-c" aria-pressed="false"><svg class="gi"><use href="#g-def-c"/></svg><b>C · Podium and microphone</b><span>The old lectern, made clearer</span></button>
+    </div>
+  </section>
+
+  <!-- ===================== C1 ===================== -->
+  <section class="mock" id="c1">
+    <div class="mock-head">
+      <div><h2>C1 · Overview</h2><p>Counts with an icon and the oldest age; a grouped queue with fixed columns and equal buttons; the student table.</p></div>
+      <div class="seg" role="group" aria-label="C1 state">
+        <button type="button" data-c1="busy" aria-pressed="true">A busy week</button>
+        <button type="button" data-c1="first" aria-pressed="false">First day</button>
+      </div>
+    </div>
+    <div class="frame"><div class="frame-scroll"><div class="app">
+      <div class="rule"></div>
+      <div class="topbar">
+        <span class="wordmark">PUP CpE Thesis Progress</span>
+        <span class="search"><svg class="ico"><use href="#g-search"/></svg>Find a Student or form<kbd>/</kbd></span>
+        <span class="right"><svg class="gi"><use href="#g-bell"/></svg> M. Villanueva (fake)</span>
+      </div>
+      <div class="body">
+        <nav class="side" aria-label="Coordinator">
+          <div class="nav">
+            <a href="#c1" class="on"><svg class="gi"><use href="#g-overview"/></svg>Overview <span class="count" data-busy>9</span></a>
+            <a href="#c1"><svg class="gi"><use href="#g-student"/></svg>Students <span></span></a>
+            <a href="#c1"><svg class="gi"><use href="#g-seat"/></svg>Committees <span class="count" data-busy>1</span></a>
+            <a href="#c4"><svg class="gi"><use href="#g-scan"/></svg>Documents <span class="count" data-busy>4</span></a>
+            <a href="#c1"><svg class="gi"><use href="#g-calendar"/></svg>Schedule <span class="count" data-busy>2</span></a>
+            <a href="#c1"><svg class="gi"><use data-def href="#g-def-a"/></svg>Defense <span class="count" data-busy>1</span></a>
+            <a href="#c1"><svg class="gi"><use href="#g-clear"/></svg>Clearance <span class="count" data-busy>1</span></a>
+            <a href="#c1"><svg class="gi"><use href="#g-template"/></svg>Templates <span></span></a>
+            <a href="#c1"><svg class="gi"><use href="#g-users"/></svg>Users <span></span></a>
+            <a href="#c1"><svg class="gi"><use href="#g-audit"/></svg>Audit <span></span></a>
+          </div>
+        </nav>
+        <main class="page">
+          <div class="page-title">
+            <h1>Overview</h1>
+            <a class="btn" href="#c1" data-busy><svg class="gi" style="width:16px;height:16px"><use href="#g-export"/></svg>Export CSV</a>
+          </div>
+
+          <div id="c1busy" style="display:grid;gap:28px">
+            <div class="kpis" role="group" aria-label="Queues">
+              <a class="kpi sel" href="#c1"><svg class="gi"><use href="#g-overview"/></svg><span class="num">9<small class="late">6d</small></span><span class="lbl">All waiting</span></a>
+              <a class="kpi" href="#c1"><svg class="gi"><use href="#g-scan"/></svg><span class="num">4<small class="late">6d</small></span><span class="lbl">Check scans</span></a>
+              <a class="kpi" href="#c1"><svg class="gi"><use href="#g-calendar"/></svg><span class="num">2<small>3d</small></span><span class="lbl">Confirm dates</span></a>
+              <a class="kpi" href="#c1"><svg class="gi"><use href="#g-seat"/></svg><span class="num">1<small>2d</small></span><span class="lbl">Appoint committees</span></a>
+              <a class="kpi" href="#c1"><svg class="gi"><use data-def href="#g-def-a"/></svg><span class="num">1<small>1d</small></span><span class="lbl">Close defenses</span></a>
+              <a class="kpi" href="#c1"><svg class="gi"><use href="#g-clear"/></svg><span class="num">1<small>4d</small></span><span class="lbl">Check clearance</span></a>
+            </div>
+
+            <section class="sec">
+              <div class="sec-head"><h2>Waiting for you</h2><span class="filter on">All</span><span class="filter">Master's</span><span class="filter">Doctoral</span></div>
+              <table class="tbl">
+                <colgroup><col style="width:18%"><col style="width:96px"><col><col style="width:110px"><col style="width:92px"><col style="width:156px"></colgroup>
+                <thead><tr><th>Student</th><th>Form</th><th>Request</th><th>Milestone</th><th>Waiting</th><th style="text-align:right">Action</th></tr></thead>
+                <tbody>
+                  <tr class="grp"><td colspan="6"><span class="in"><svg class="gi"><use href="#g-scan"/></svg>Check scans <span class="n">4</span></span></td></tr>
+                  <tr class="row"><td class="stu">Dino Aquino</td><td><span class="stamp">TDW 12</span></td><td>Final Defense Endorsement</td><td>Final</td><td class="age late">6 days</td><td class="act"><a class="btn row-act" href="#c4">Check scan</a></td></tr>
+                  <tr class="row"><td class="stu">Bea Santos</td><td><span class="stamp">TDW 07</span></td><td>Proposal Defense Endorsement</td><td>Proposal</td><td class="age">3 days</td><td class="act"><a class="btn row-act" href="#c4">Check scan</a></td></tr>
+                  <tr class="row"><td class="stu">Carlo Mendoza</td><td><span class="stamp">OR</span></td><td>Official receipt</td><td>Pre-Final</td><td class="age">2 days</td><td class="act"><a class="btn row-act" href="#c4">Check scan</a></td></tr>
+                  <tr class="row"><td class="stu">Ana Reyes</td><td><span class="stamp">TDW 03</span></td><td>Consultation log</td><td>Proposal</td><td class="age">1 day</td><td class="act"><a class="btn row-act" href="#c4">Check scan</a></td></tr>
+                  <tr class="grp"><td colspan="6"><span class="in"><svg class="gi"><use href="#g-calendar"/></svg>Confirm dates <span class="n">2</span></span></td></tr>
+                  <tr class="row"><td class="stu">Bea Santos</td><td><span class="stamp">TDW 07</span></td><td>Thu 4 Feb 2027</td><td>Proposal</td><td class="age">3 days</td><td class="act"><a class="btn row-act" href="#c1">Confirm date</a></td></tr>
+                  <tr class="row"><td class="stu">Eli Navarro</td><td><span class="stamp">TDW 09</span></td><td><span class="flagi" title="TDW 09 is not verified yet. The flag never blocks."><svg class="gi"><use href="#g-mismatch"/></svg>Mon 1 Feb 2027</span></td><td>Pre-Final</td><td class="age">1 day</td><td class="act"><a class="btn row-act" href="#c1">Confirm date</a></td></tr>
+                  <tr class="grp"><td colspan="6"><span class="in"><svg class="gi"><use href="#g-seat"/></svg>Appoint committees <span class="n">1</span></span></td></tr>
+                  <tr class="row"><td class="stu">Ana Reyes</td><td><span class="stamp">TDW 06</span></td><td>Committee and NDAs</td><td>Proposal</td><td class="age">2 days</td><td class="act"><a class="btn row-act" href="#c1">Appoint</a></td></tr>
+                  <tr class="grp"><td colspan="6"><span class="in"><svg class="gi"><use data-def href="#g-def-a"/></svg>Close defenses <span class="n">1</span> · <svg class="gi"><use href="#g-clear"/></svg>Check clearance <span class="n">1</span></span></td></tr>
+                  <tr class="row"><td class="stu">Fe Robles</td><td><span class="stamp">TDW 10</span></td><td>3 sheets to verify</td><td>Pre-Final</td><td class="age">1 day</td><td class="act"><a class="btn row-act" href="#c1">Open defense</a></td></tr>
+                  <tr class="row"><td class="stu">Gio Tan</td><td><span class="chipo">RPO</span></td><td>Evidence uploaded</td><td>Clearance</td><td class="age">4 days</td><td class="act"><a class="btn row-act" href="#c1">Check item</a></td></tr>
+                </tbody>
+              </table>
+            </section>
+
+            <section class="sec">
+              <div class="sec-head"><h2>Students</h2><span class="filter on">Active</span><span class="filter">Milestone</span><span class="filter">Status</span><span class="filter">Flags</span><span class="sp"><a class="btn row-act" href="#c1">Add a Student</a></span></div>
+              <table class="tbl">
+                <colgroup><col style="width:32%"><col style="width:16%"><col style="width:12%"><col style="width:18%"><col style="width:10%"><col></colgroup>
+                <thead><tr><th>Student</th><th>Adviser</th><th>Milestone</th><th>Status</th><th>Target</th><th>Flags</th></tr></thead>
+                <tbody>
+                  <tr class="row"><td title="Low-cost acoustic termite detection with an ESP32 sensor node"><span class="stu">Ana Reyes</span> <span class="sub">· Low-cost acoustic termite detection…</span></td><td>L. Bautista</td><td>Proposal</td><td><span class="pill active">Adviser endorsed</span></td><td class="mono">Jun 2027</td><td></td></tr>
+                  <tr class="row"><td title="A federated learning framework for flood sensor networks"><span class="stu">Bea Santos</span> <span class="sub">· A federated learning framework…</span></td><td>L. Bautista</td><td>Proposal</td><td><span class="pill pending">Date proposed</span></td><td class="mono">Dec 2027</td><td><span class="flagi" title="Residency 5.1 years. Information only."><svg class="gi"><use href="#g-mismatch"/></svg>Residency</span></td></tr>
+                  <tr class="row"><td title="Power-aware scheduling for solar irrigation controllers"><span class="stu">Dino Aquino</span> <span class="sub">· Power-aware scheduling…</span></td><td>L. Bautista</td><td>Final</td><td><span class="pill active">Defense scheduled</span></td><td class="mono">Mar 2027</td><td></td></tr>
+                  <tr class="row"><td title="Vision-based pothole mapping on low-power hardware"><span class="stu">Gio Tan</span> <span class="sub">· Vision-based pothole mapping…</span></td><td>R. Lim</td><td>Clearance</td><td><span class="pill achieved">Final approved</span></td><td class="mono">Feb 2027</td><td></td></tr>
+                </tbody>
+              </table>
+            </section>
+          </div>
+
+          <div id="c1first" class="cols2" hidden>
+            <div class="setup">
+              <h3>Set up the program</h3>
+              <ol>
+                <li><svg class="gi" style="color:var(--done)"><use href="#g-done"/></svg><div class="t">TDW forms and templates<small>Ready. Replace a form when a new version comes.</small></div><a class="btn row-act" href="#c1">Review</a></li>
+                <li><svg class="gi" style="color:var(--muted)"><use href="#g-todo"/></svg><div class="t">Faculty accounts<small>Advisers and Panel Members</small></div><a class="btn primary row-act" href="#c1">Add faculty</a></li>
+                <li><svg class="gi" style="color:var(--muted)"><use href="#g-todo"/></svg><div class="t">Student accounts<small>After eligibility</small></div><a class="btn row-act" href="#c1">Add a Student</a></li>
+                <li><svg class="gi" style="color:var(--muted)"><use href="#g-todo"/></svg><div class="t">Parameters<small>Sizes, copies, target dates</small></div><a class="btn row-act" href="#c1">Open</a></li>
+              </ol>
+            </div>
+            <div class="empty"><b>No requests yet.</b><p>Requests appear here when Students upload scans, propose dates or reach a gate.</p></div>
+          </div>
+        </main>
+      </div>
+    </div></div></div>
+    <div class="callouts">
+      <div class="callout"><span class="n">BUTTONS</span><b>One size for every row action</b>132 px wide, 32 px tall, centered labels of one or two words. Primary maroon is kept for the single next step on the first-day list.</div>
+      <div class="callout"><span class="n">CELLS</span><b>Fixed columns, 16 px padding, 48 px rows</b>The form number has its own column, so the request text reads as one short phrase.</div>
+      <div class="callout"><span class="n">LESS TEXT</span><b>Details move to hover</b>Flag reasons and full titles sit in the tooltip, not in the row.</div>
+    </div>
+  </section>
+
+  <!-- ===================== C4 ===================== -->
+  <section class="mock" id="c4">
+    <div class="mock-head">
+      <div><h2>C4 · Documents</h2><p>List, scan, record. The Coordinator looks at the scan and the paper, then picks one of two actions: Verify or Return.</p></div>
+      <div class="seg" role="group" aria-label="C4 state">
+        <button type="button" data-c4="check" aria-pressed="true">Checking a scan</button>
+        <button type="button" data-c4="return" aria-pressed="false">Writing a Return</button>
+        <button type="button" data-c4="returned" aria-pressed="false">Returned</button>
+        <button type="button" data-c4="verified" aria-pressed="false">Verified</button>
+        <button type="button" data-c4="outside" aria-pressed="false">Outside offices</button>
+      </div>
+    </div>
+    <div class="frame"><div class="frame-scroll"><div class="app">
+      <div class="rule"></div>
+      <div class="topbar">
+        <span class="wordmark">PUP CpE Thesis Progress</span>
+        <span class="search"><svg class="ico"><use href="#g-search"/></svg>Find a Student or form<kbd>/</kbd></span>
+        <span class="right"><svg class="gi"><use href="#g-bell"/></svg> M. Villanueva (fake)</span>
+      </div>
+      <div class="body">
+        <nav class="side" aria-label="Coordinator">
+          <div class="nav">
+            <a href="#c1"><svg class="gi"><use href="#g-overview"/></svg>Overview <span class="count">9</span></a>
+            <a href="#c4"><svg class="gi"><use href="#g-student"/></svg>Students <span></span></a>
+            <a href="#c4"><svg class="gi"><use href="#g-seat"/></svg>Committees <span class="count">1</span></a>
+            <a href="#c4" class="on"><svg class="gi"><use href="#g-scan"/></svg>Documents <span class="count">4</span></a>
+            <a href="#c4"><svg class="gi"><use href="#g-calendar"/></svg>Schedule <span class="count">2</span></a>
+            <a href="#c4"><svg class="gi"><use data-def href="#g-def-a"/></svg>Defense <span class="count">1</span></a>
+            <a href="#c4"><svg class="gi"><use href="#g-clear"/></svg>Clearance <span class="count">1</span></a>
+            <a href="#c4"><svg class="gi"><use href="#g-template"/></svg>Templates <span></span></a>
+            <a href="#c4"><svg class="gi"><use href="#g-users"/></svg>Users <span></span></a>
+            <a href="#c4"><svg class="gi"><use href="#g-audit"/></svg>Audit <span></span></a>
+          </div>
+        </nav>
+        <main class="page" style="gap:16px">
+          <div class="page-title"><h1>Documents</h1></div>
+          <div class="tabs" role="tablist">
+            <button role="tab" type="button" data-c4tab="scans" aria-selected="true">Scans to check <span class="count">4</span></button>
+            <button role="tab" type="button" data-c4tab="outside" aria-selected="false">Outside offices</button>
+            <button role="tab" type="button" aria-selected="false">All documents</button>
+          </div>
+
+          <div class="c4" id="c4scans">
+            <div class="qlist">
+              <div class="qi sel"><span class="stu">Dino Aquino</span><span class="age late">6d</span><div class="meta"><span class="stamp">TDW 12</span>Final</div></div>
+              <div class="qi"><span class="stu">Bea Santos</span><span class="age">3d</span><div class="meta"><span class="stamp">TDW 07</span>Proposal</div></div>
+              <div class="qi"><span class="stu">Carlo Mendoza</span><span class="age">2d</span><div class="meta"><span class="stamp">OR</span>Pre-Final</div></div>
+              <div class="qi"><span class="stu">Ana Reyes</span><span class="age">1d</span><div class="meta"><span class="stamp">TDW 03</span>Proposal</div></div>
+            </div>
+            <div class="scanview">
+              <div class="scanbar"><span class="name">TDW12_Aquino.pdf</span><span class="tools"><button type="button" aria-label="Zoom out">−</button><span style="padding:0 6px">100%</span><button type="button" aria-label="Zoom in">+</button></span></div>
+              <div class="scanwrap">
+                <div class="scan" aria-label="Scanned TDW 12 (fake)">
+                  <div class="hdr">REPUBLIC OF THE PHILIPPINES<br>POLYTECHNIC UNIVERSITY OF THE PHILIPPINES</div>
+                  <h4>THESIS / DISSERTATION FINAL DEFENSE ENDORSEMENT FORM</h4>
+                  <div class="ln"><span>Name of Candidate:</span><span>Dino Aquino</span></div>
+                  <div class="ln"><span>Program:</span><span>MS Computer Engineering</span></div>
+                  <div class="ln"><span>Date of Defense:</span><span>Thursday, 28 January 2027</span></div>
+                  <div class="ln"><span>Title:</span><span>Power-aware scheduling for solar irrigation</span></div>
+                  <div class="sig">
+                    <div><i>L. Bautista</i>Adviser</div>
+                    <div><i>P. Cruz</i>Panel Member</div>
+                    <div><i>A. Garcia</i>Panel Member</div>
+                    <div><i>J. Ramos</i>Panel Member</div>
+                    <div><i>R. Domingo</i>Program Chair</div>
+                    <div class="blank" id="deansig"><i>E. Flores</i>Dean</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="record">
+              <div class="rec-head">
+                <div class="top"><span class="stamp">TDW 12</span><h3>Final Defense Endorsement</h3></div>
+                <span class="who">Dino Aquino · Final</span>
+              </div>
+              <div>
+                <div class="life" aria-hidden="true"><span class="on"></span><span id="lf2"></span></div>
+                <div class="life-lbl" style="margin-top:6px"><b id="lifenow">Scan uploaded</b><span id="lifenext">Next: Verify or Return</span></div>
+              </div>
+              <div class="acts" id="acts">
+                <button class="btn primary wide" type="button" id="verify" title="Verify confirms the signed paper matches this scan. It locks the document."><svg class="gi" style="width:16px;height:16px"><use href="#g-verify"/></svg>Verify</button>
+                <button class="btn ret wide" type="button" id="retbtn"><svg class="gi" style="width:16px;height:16px"><use href="#g-return"/></svg>Return</button>
+              </div>
+              <div class="retbox" id="retbox" hidden>
+                <label for="why">Reason for return</label>
+                <textarea id="why" rows="3" placeholder="Example: The Dean's signature is missing."></textarea>
+                <div class="acts" style="grid-template-columns:1fr 1fr">
+                  <button class="btn" type="button" id="retcancel">Cancel</button>
+                  <button class="btn ret" type="button" id="retsend" aria-disabled="true" aria-describedby="rwhy">Send return</button>
+                </div>
+                <span class="reason" id="rwhy"><svg class="ico"><use href="#g-lock"/></svg>Write a reason first</span>
+              </div>
+              <div class="outcome back" id="rdone" hidden>
+                <span class="t"><svg class="gi"><use href="#g-return"/></svg>Returned to Dino Aquino</span>
+                <q id="rquote">The Dean's signature is missing.</q>
+                <span class="m">Tue 12 Jan, 10:02</span>
+              </div>
+              <div class="outcome ok" id="vdone" hidden>
+                <span class="t"><svg class="gi"><use href="#g-done"/></svg>Verified</span>
+                <span class="m">Tue 12 Jan, 10:02 · locked</span>
+              </div>
+              <div class="more"><h4>File details</h4>
+                <dl><dt>Uploaded</dt><dd>Sat 9 Jan, 21:14</dd><dt>By</dt><dd>Dino Aquino</dd><dt>SHA-256</dt><dd>9f2c…a71e</dd></dl>
+              </div>
+            </div>
+          </div>
+
+          <div id="c4outside" hidden>
+            <table class="tbl">
+              <colgroup><col style="width:22%"><col style="width:14%"><col><col><col><col></colgroup>
+              <thead><tr><th>Student</th><th>Milestone</th><th>Ethics</th><th>IPMO</th><th>RPO</th><th>Copyright</th></tr></thead>
+              <tbody>
+                <tr class="row"><td class="stu">Ana Reyes</td><td>Proposal</td><td><select class="out" aria-label="Ethics, Ana Reyes"><option>Under review</option><option>Approved</option><option>Changes required</option></select></td><td></td><td></td><td></td></tr>
+                <tr class="row"><td class="stu">Carlo Mendoza</td><td>Pre-Final</td><td><span class="chipo">Approved</span></td><td><select class="out" aria-label="IPMO, Carlo Mendoza"><option>Under review</option><option>Passed</option><option>Failed</option></select></td><td></td><td></td></tr>
+                <tr class="row"><td class="stu">Gio Tan</td><td>Clearance</td><td><span class="chipo">Approved</span></td><td><span class="chipo">Passed</span></td><td><select class="out" aria-label="RPO, Gio Tan"><option>Applied</option><option>Done</option></select></td><td><select class="out" aria-label="Copyright, Gio Tan"><option>Not applied</option><option>Applied</option><option>Registered</option></select></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </main>
+      </div>
+    </div></div></div>
+    <div class="callouts">
+      <div class="callout"><span class="n">SCAN BAR</span><b>Name and zoom only</b>Upload time, uploader and hash sit in "File details" under the actions, always shown.</div>
+      <div class="callout"><span class="n">RECORD</span><b>Two actions, no checklist</b>The Coordinator decides if the paper is final. Verify locks it. Return sends it back with a reason.</div>
+      <div class="callout"><span class="n">RETURN</span><b>One short reason</b>The reason is the only field. The Student sees it on S3, word for word. No separate flag.</div>
+      <div class="callout"><span class="n">OUTSIDE OFFICES</span><b>Blank means not yet</b>Later offices are empty cells instead of the word "Later" in every row.</div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  function press(attr, k) { document.querySelectorAll("[" + attr + "]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute(attr) === k)); }); }
+  function setC1(k) {
+    var first = k === "first";
+    document.getElementById("c1busy").hidden = first;
+    document.getElementById("c1first").hidden = !first;
+    document.querySelectorAll("#c1 [data-busy]").forEach(function (e) { e.hidden = first; });
+    press("data-c1", k);
+  }
+  document.querySelectorAll("[data-c1]").forEach(function (b) { b.addEventListener("click", function () { setC1(b.getAttribute("data-c1")); }); });
+  document.querySelectorAll(".kpi").forEach(function (k) { k.addEventListener("click", function (e) { e.preventDefault();
+    document.querySelectorAll(".kpi").forEach(function (x) { x.classList.remove("sel"); }); k.classList.add("sel"); }); });
+
+  function setTab(t) {
+    document.getElementById("c4scans").hidden = t !== "scans";
+    document.getElementById("c4outside").hidden = t !== "outside";
+    document.querySelectorAll("[data-c4tab]").forEach(function (b) { b.setAttribute("aria-selected", String(b.getAttribute("data-c4tab") === t)); });
+  }
+  document.querySelectorAll("[data-c4tab]").forEach(function (b) { b.addEventListener("click", function () { setTab(b.getAttribute("data-c4tab")); }); });
+  var why = document.getElementById("why"), send = document.getElementById("retsend"), rwhy = document.getElementById("rwhy");
+  function syncSend() { var ok = why.value.trim().length > 0; send.setAttribute("aria-disabled", String(!ok)); rwhy.hidden = ok; }
+  function setC4(k) {
+    setTab(k === "outside" ? "outside" : "scans");
+    var lf2 = document.getElementById("lf2");
+    lf2.className = k === "verified" ? "done" : k === "returned" ? "back" : "";
+    document.querySelector(".life span").className = k === "verified" ? "done" : "on";
+    document.getElementById("lifenow").textContent = k === "verified" ? "Verified" : k === "returned" ? "Returned" : "Scan uploaded";
+    document.getElementById("lifenext").textContent = k === "returned" ? "Next: new scan from the Student" : k === "verified" ? "" : "Next: Verify or Return";
+    document.getElementById("deansig").classList.toggle("blank", k !== "verified");
+    document.getElementById("acts").hidden = k !== "check";
+    document.getElementById("retbox").hidden = k !== "return";
+    document.getElementById("rdone").hidden = k !== "returned";
+    document.getElementById("vdone").hidden = k !== "verified";
+    if (k === "return") { why.value = ""; syncSend(); }
+    press("data-c4", k);
+  }
+  document.querySelectorAll("[data-c4]").forEach(function (b) { b.addEventListener("click", function () { setC4(b.getAttribute("data-c4")); }); });
+  document.getElementById("verify").addEventListener("click", function () { setC4("verified"); });
+  document.getElementById("retbtn").addEventListener("click", function () { setC4("return"); why.focus(); });
+  document.getElementById("retcancel").addEventListener("click", function () { setC4("check"); });
+  why.addEventListener("input", syncSend);
+  send.addEventListener("click", function () {
+    if (send.getAttribute("aria-disabled") === "true") return;
+    document.getElementById("rquote").textContent = why.value.trim();
+    setC4("returned");
+  });
+  document.querySelectorAll("[data-defopt]").forEach(function (b) { b.addEventListener("click", function () {
+    var id = b.getAttribute("data-defopt");
+    document.querySelectorAll("use[data-def]").forEach(function (u) { u.setAttribute("href", "#" + id); });
+    document.querySelectorAll("[data-defopt]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+    document.getElementById("defdesc").textContent = b.querySelector("b").textContent.slice(4);
+  }); });
+  document.querySelectorAll(".qi").forEach(function (q) { q.addEventListener("click", function () {
+    document.querySelectorAll(".qi").forEach(function (x) { x.classList.remove("sel"); }); q.classList.add("sel"); }); });
+})();
+</script>
