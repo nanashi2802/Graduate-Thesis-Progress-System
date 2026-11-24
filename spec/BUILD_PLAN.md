@@ -1284,7 +1284,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Depends on:** `DEV_SEED_PASSWORD` in the worktree `.env.local` (the owner sets it)
 - **Done when:**
   - [ ] `pnpm test:e2e` passes locally. The tests do not expect an empty Student: the demo seed links `student@example.test` to a thesis.
-  - [ ] The blocked browser boxes in P1-E11-T04, P1-E13-T02, P2-E02-T02, P2-E05-T01 and P3-E06-T01 are checked or have a new reason.
+  - [ ] The blocked browser boxes in P1-E11-T04, P1-E13-T02, P2-E02-T02, P2-E05-T01, P3-E06-T01 and P3-E07-T08 are checked or have a new reason. P3-E07-T08 adds the log check: no `AccessDeniedError` in the server log.
 - **Tests:** end-to-end (Playwright)
 
 ### P3-E07-T04 — Finish the Google sign-in (Track A, `agent-a`, issue #53, P0)
@@ -1339,7 +1339,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** one shared fix (a role helper the pages call first, or one shared catch). For a page that `agent-b` owns, add a "Request for agent-b" to the pull request (§13.1).
 - **Depends on:** none
 - **Done when:**
-  - [x] Opening another role (pages call `getRoleState` or `pageContext` first; the e2e log check runs in P3-E07-T02)'s portal, and opening a portal signed out, shows Access Denied with its reason and logs no `AccessDeniedError`.
+  - [ ] Opening another role's portal, and opening a portal signed out, shows Access Denied with its reason and logs no `AccessDeniedError`. Blocked: the log check needs `DEV_SEED_PASSWORD`. P3-E07-T02 closes it.
   - [x] The data layer still refuses on its own (NFR-01). No access check is removed.
   - [x] The pull request text says `Fixes #58`.
 - **Tests:** end-to-end (Playwright portals spec), server log check

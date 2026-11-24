@@ -8,7 +8,7 @@ import { deliverables } from "@/server/data/documents";
 import { listStudents, type StudentRow } from "@/server/data/students";
 import { committeeKindFor } from "@/server/domain/committee";
 import type { MilestoneCode } from "@/server/domain/milestone";
-import { pageContext, sessionContext } from "../_lib/action";
+import { sessionContext } from "../_lib/action";
 import { PageHeader, Section, td, th } from "../_lib/page-header";
 import { AdvanceButton, AppointButton, LinkForm, ProposeSeatForm, SeatAnswerButtons } from "./committee-forms";
 
@@ -19,8 +19,7 @@ const STATUS: Record<string, string> = { proposed: "Proposed", accepted: "Accept
 const BEFORE_GATE_1A = "Allowed after Gate 1a (the Adviser endorsement).";
 
 export default async function Page({ searchParams }: PageProps<"/coordinator/committees">) {
-  const ctx = await pageContext();
-  if (!ctx) return null; // The portal layout shows Access Denied.
+  const ctx = await sessionContext();
   const students = await listStudents(ctx);
   const param = (await searchParams).thesis;
   const selected = students.find((s) => s.thesisId === (Array.isArray(param) ? param[0] : param));

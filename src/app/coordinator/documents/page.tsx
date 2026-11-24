@@ -7,7 +7,7 @@ import { deliverables, documentHistory } from "@/server/data/documents";
 import { listStudents } from "@/server/data/students";
 import { decideDocumentChange, type DocumentState } from "@/server/domain/documents";
 import { OutsideSetters } from "@/app/_components/outside-setters";
-import { pageContext } from "../_lib/action";
+import { sessionContext } from "../_lib/action";
 import { PageHeader, Section, td, th } from "../_lib/page-header";
 import { ReviewForm, type ReviewBlocks } from "./review-form";
 
@@ -26,8 +26,7 @@ function blocksFor(state: DocumentState): ReviewBlocks {
 }
 
 export default async function Page({ searchParams }: PageProps<"/coordinator/documents">) {
-  const ctx = await pageContext();
-  if (!ctx) return null; // The portal layout shows Access Denied.
+  const ctx = await sessionContext();
   const students = await listStudents(ctx);
   const param = (await searchParams).thesis;
   const student = students.find((s) => s.thesisId === (Array.isArray(param) ? param[0] : param));

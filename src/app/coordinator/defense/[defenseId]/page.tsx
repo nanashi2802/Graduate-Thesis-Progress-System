@@ -8,7 +8,7 @@ import { EmptyState } from "@/components/empty-state";
 import { InputProblem } from "@/server/data/coordinator";
 import { defenseDetail } from "@/server/data/defense-view";
 import { RevisionItemsForm } from "@/app/_components/revision-panel";
-import { pageContext } from "../../_lib/action";
+import { sessionContext } from "../../_lib/action";
 import { PageHeader, Section, td, th } from "../../_lib/page-header";
 import { CertifyForm, CloseForm, MinutesForm, SheetScanUploader, VerifySheetForm } from "./defense-forms";
 
@@ -19,8 +19,7 @@ const PST = { timeZone: "Asia/Manila", dateStyle: "medium", timeStyle: "short" }
 
 export default async function Page({ params }: PageProps<"/coordinator/defense/[defenseId]">) {
   const { defenseId } = await params;
-  const ctx = await pageContext();
-  if (!ctx) return null; // The portal layout shows Access Denied.
+  const ctx = await sessionContext();
   const d = await defenseDetail(ctx, defenseId).catch((e) => {
     if (e instanceof InputProblem) notFound();
     throw e;

@@ -1,12 +1,11 @@
 // The shared submission view (SV): one read-only record of one milestone, on four routes (FR-SUB-01 to FR-SUB-05).
 // It holds no gate or edit action. It links to the user's own workspace (FR-SUB-04). The manuscript opens there (AD-B-025).
-import type { UserRole } from "@/server/data/schema";
 import Link from "next/link";
 import { AccessDenied } from "@/app/_components/access-denied";
 import { pst } from "@/app/_lib/format";
 import { EmptyState } from "@/components/empty-state";
 import { MilestoneStatusPill } from "@/components/status";
-import { getRoleState } from "@/server/auth/session";
+import { getSessionState } from "@/server/auth/session";
 import { AccessDeniedError, type DataContext } from "@/server/data/access";
 import { InputProblem } from "@/server/data/coordinator";
 import { getDb } from "@/server/data/db";
@@ -15,8 +14,8 @@ import { submissionView } from "@/server/data/submission-view";
 const NAME = { proposal: "Proposal", pre_final: "Pre-Final", final: "Final" } as const;
 const OWN_PR = { student: "/student/pr", adviser: "/adviser/pr", panel_member: "/panel/pr" } as const;
 
-export async function SubmissionViewScreen({ portal, milestoneId }: { portal: UserRole; milestoneId: string }) {
-  const state = await getRoleState(portal);
+export async function SubmissionViewScreen({ milestoneId }: { milestoneId: string }) {
+  const state = await getSessionState();
   if (state.status !== "ok") return null; // The portal layout already blocks this case.
   const ctx: DataContext = { db: getDb(), actor: state.actor };
   const role = ctx.actor.role;

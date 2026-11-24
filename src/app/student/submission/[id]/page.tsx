@@ -3,5 +3,5 @@ import { SubmissionViewScreen } from "@/app/_components/submission-view";
 
 export default async function Page({ params }: PageProps<"/student/submission/[id]">) {
   const { id } = await params;
-  return <SubmissionViewScreen portal="student" milestoneId={id} />;
+  return <SubmissionViewScreen milestoneId={id} />;
 }

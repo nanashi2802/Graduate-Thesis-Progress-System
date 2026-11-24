@@ -8,7 +8,7 @@ import { checkTransition } from "@/server/data/milestones";
 import { listStudents, type StudentRow } from "@/server/data/students";
 import { readinessChecklist } from "@/server/data/tracker";
 import { pstDate } from "@/server/notify/time";
-import { pageContext, sessionContext } from "../_lib/action";
+import { sessionContext } from "../_lib/action";
 import { PageHeader, Section, td, th } from "../_lib/page-header";
 import { CheckCopiesForm, ConfirmDateForm, RecordCopiesForm, ReturnDateForm } from "./schedule-forms";
 
@@ -19,8 +19,7 @@ type Ctx = Awaited<ReturnType<typeof sessionContext>>;
 type Entry = { student: StudentRow; milestone: StudentRow["milestones"][number] };
 
 export default async function Page() {
-  const ctx = await pageContext();
-  if (!ctx) return null; // The portal layout shows Access Denied.
+  const ctx = await sessionContext();
   const students = await listStudents(ctx);
   const entries = students.flatMap((student) => student.milestones.map((milestone) => ({ student, milestone })));
   const requests = entries.filter((e) => e.milestone.status === "DATE_PROPOSED");
