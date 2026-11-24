@@ -746,7 +746,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `playwright.config.ts` (projects `setup`, `chromium`, `portals`), `tests/e2e/auth.setup.ts`, `tests/e2e/roles.ts`, `tests/e2e/portals.spec.ts`, `.gitignore` (`tests/e2e/.auth/`)
 - **Done when:**
   - [x] A Playwright setup project saves one session for each role, and a test opens each portal home and sees Access Denied on another portal. Without `DEV_SEED_PASSWORD` and `NEON_AUTH_BASE_URL` both skip, as `sign-in.spec.ts` does.
-  - [ ] A local run passes. `agent-b` has no `DEV_SEED_PASSWORD` in `.env.local`, so the run is not verified yet. Run `pnpm db:seed-dev`, set the password, then `pnpm test:e2e`.
+  - [x] A local run passes (19 tests, 24 Nov 2026, AD-A-036).
 
 ### P1-E13-T03 — Milestone 1 flow test (Track A lead, AD-A-025)
 - **Goal:** One fake Student goes from account creation to CERTIFIED with every role.
@@ -754,7 +754,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `tests/unit/flow/milestone1.test.ts`
 - **Done when:**
   - [x] The flow runs on the real migrations through the data-layer functions of each screen. A wrong role, a locked manuscript, a date under 7 days, an incomplete checklist, unverified sheets and a missing Certification are each refused on the way.
-  - [ ] The same flow runs in a browser with `pnpm test:e2e` (blocked: needs a seeded sign-in, AD-A-025).
+  - [ ] The same flow runs in a browser. Not built: the sign-in works now (AD-A-036), but no browser spec drives this flow. Phase 4 or the owner adds it.
 - **Tests:** unit (Vitest with PGlite)
 
 ### 3.9 P1-E03 Accounts, users and templates (Track A, `agent-a`, done 22 Nov 2026)
@@ -1113,7 +1113,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Depends on:** T01, P1-E09
 - **Done when:**
   - [x] A Pre-Final test encodes TDW 10 sheets (Adviser and member, comments only), and the Coordinator verifies them (`tests/unit/data/defense-prefinal.test.ts`). The TDW 09 scan already runs through the generic document flow and the FR-DOC-08 checklist.
-  - [ ] The Playwright step waits for P2-E05.
+  - [ ] The Playwright step is not built. The sign-in works now (AD-A-036). Add a flow spec in Phase 4.
 
 ### 4.3 P2-E01 and P2-E03 (Track A, `agent-a`)
 
@@ -1151,7 +1151,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `tests/unit/flow/milestone2.test.ts`, `tests/support/flow.ts` (the Milestone 1 flow, shared), `src/server/data/milestones.ts` (`openMilestone`)
 - **Done when:**
   - [x] The flow runs on the real migrations. Gate 1a waits for IPMO PASSED. No new appointment. A score on TDW 10 is refused. The close opens Milestone 3. Revision items are answered and accepted after the close.
-  - [ ] The same flow runs in a browser (blocked, AD-A-025).
+  - [ ] The same flow runs in a browser. Not built: the sign-in works now (AD-A-036), but no flow spec exists. Phase 4 adds it.
 - **Tests:** unit (Vitest with PGlite)
 
 ---
@@ -1262,7 +1262,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `tests/unit/flow/milestone3.test.ts`, `tests/support/flow.ts` (`runMilestone2`, shared), `src/server/data/milestones.ts` (`acceptedPreFinalItems`)
 - **Done when:**
   - [x] The flow runs on the real migrations: Final Panel, TDW 11 and 12, Defense Day thread, TDW 13 sheets, Gate 2, signed final manuscript, clearance evidence, CLEARED. A wrong role, a missing item and an open thread are each refused on the way.
-  - [ ] The same flow runs in a browser (blocked, AD-A-025).
+  - [ ] The same flow runs in a browser. Not built: the sign-in works now (AD-A-036), but no flow spec exists. Phase 4 adds it.
 - **Tests:** unit (Vitest with PGlite)
 
 ### 5.4 P3-E07 Close-out (gap closure, 23 Nov 2026)
@@ -1283,8 +1283,8 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `tests/e2e/`
 - **Depends on:** `DEV_SEED_PASSWORD` in the worktree `.env.local` (the owner sets it)
 - **Done when:**
-  - [ ] `pnpm test:e2e` passes locally. The tests do not expect an empty Student: the demo seed links `student@example.test` to a thesis.
-  - [ ] The blocked browser boxes in P1-E11-T04, P1-E13-T02, P2-E02-T02, P2-E05-T01, P3-E06-T01 and P3-E07-T08 are checked or have a new reason. P3-E07-T08 adds the log check: no `AccessDeniedError` in the server log.
+  - [x] `pnpm test:e2e` passes locally (19 tests). The tests do not expect an empty Student: the demo seed links `student@example.test` to a thesis.
+  - [x] The blocked browser boxes in P1-E11-T04, P1-E13-T02, P2-E02-T02, P2-E05-T01, P3-E06-T01 and P3-E07-T08 are checked or have a new reason. P3-E07-T08 adds the log check: no `AccessDeniedError` in the server log.
 - **Tests:** end-to-end (Playwright)
 
 ### P3-E07-T04 — Finish the Google sign-in (Track A, `agent-a`, issue #53, P0)
@@ -1339,7 +1339,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** one shared fix (a role helper the pages call first, or one shared catch). For a page that `agent-b` owns, add a "Request for agent-b" to the pull request (§13.1).
 - **Depends on:** none
 - **Done when:**
-  - [ ] Opening another role's portal, and opening a portal signed out, shows Access Denied with its reason and logs no `AccessDeniedError`. Blocked: the log check needs `DEV_SEED_PASSWORD`. P3-E07-T02 closes it.
+  - [x] Opening another role's portal, and opening a portal signed out, shows Access Denied with its reason and logs no `AccessDeniedError`. Checked 24 Nov 2026: the portals spec ran against `next start` and the log has 0 `AccessDeniedError`.
   - [x] The data layer still refuses on its own (NFR-01). No access check is removed.
   - [x] The pull request text says `Fixes #58`.
 - **Tests:** end-to-end (Playwright portals spec), server log check

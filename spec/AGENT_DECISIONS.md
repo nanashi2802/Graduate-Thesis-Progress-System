@@ -484,3 +484,10 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** The helper. A render error is logged by Next even when caught by a boundary. `getRoleState(role)` returns a non-ok state for another role. A shared component gets a `portal` prop from its page. Coordinator pages call `pageContext()`. The layout `RoleGate` still shows Access Denied. The data layer still refuses on its own (NFR-01). Server actions keep their own checks.
 - **Risk:** low. A new page that skips the helper still shows Access Denied and the data layer still refuses. It only logs the error again.
 - **Undo:** revert the commits with AD-A-035.
+
+### AD-A-036 — Browser runs: a port variable and a distinct reset label
+- **Task:** P3-E07-T02
+- **Options:** stop the process on port 3000; or let the e2e port change.
+- **Decision and reason:** `E2E_PORT` (default 3000) sets the port in `playwright.config.ts`. Another workspace of the owner ran a server on 3000, and `reuseExistingServer` tested that app. The reset input on `/login` was renamed "Reset link email", because `getByLabel("Email address")` matched two inputs. The two browser boxes with no spec (flow tests of P1-E11-T04, P2-E02-T02, P2-E05-T01, P3-E06-T01) now say "not built", not "blocked".
+- **Risk:** low. CI uses port 3000 as before.
+- **Undo:** revert the commits with AD-A-036.
