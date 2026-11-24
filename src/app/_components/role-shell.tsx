@@ -7,6 +7,7 @@ import { AppShell } from "@/components/app-shell";
 import { getSessionState } from "@/server/auth/session";
 import { getDb } from "@/server/data/db";
 import { listMyNotifications, unreadCount } from "@/server/data/notifications";
+import { listMyPreferences } from "@/server/data/preferences";
 import { appUser, type UserRole } from "@/server/data/schema";
 
 // Only the routes that exist. Routes with an id in the path (workspace, results) open from the dashboards.
@@ -55,9 +56,9 @@ export async function RoleShell({ role, children }: { role: UserRole; children: 
   if (state.status !== "ok") return <>{children}</>; // The role gate already blocks this case.
   const ctx = { db: getDb(), actor: state.actor };
   const [user] = await ctx.db.select({ name: appUser.fullName }).from(appUser).where(eq(appUser.id, state.actor.userId));
-  const [notifications, unread] = await Promise.all([listMyNotifications(ctx, { limit: 10 }), unreadCount(ctx)]);
+  const [notifications, unread, preferences] = await Promise.all([listMyNotifications(ctx, { limit: 10 }), unreadCount(ctx), listMyPreferences(ctx)]);
   return (
-    <AppShell roleLabel={NAV[role].label} userName={user?.name ?? NAV[role].label} nav={NAV[role].items} notifications={notifications} unread={unread}>
+    <AppShell roleLabel={NAV[role].label} userName={user?.name ?? NAV[role].label} nav={NAV[role].items} notifications={notifications} unread={unread} preferences={preferences}>
       {children}
     </AppShell>
   );

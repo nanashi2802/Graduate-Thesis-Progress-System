@@ -1088,8 +1088,8 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/components/app-shell.tsx` (the menu), a preferences data function, tests
 - **Depends on:** P2-E04-T03
 - **Done when:**
-  - [ ] Only A4, B1, B2, B4, B6, B7 and C2 to C5 have a switch. Other events show "Always on" with the reason (BR-18).
-  - [ ] The data function refuses a code outside INV-29 and a write for another user (NFR-01).
+  - [x] Only A4, B1, B2, B4, B6, B7 and C2 to C5 have a switch. Other events show "Always on" with the reason (BR-18).
+  - [x] The data function refuses a code outside INV-29 and a write for another user (NFR-01).
 - **Tests:** unit (Vitest with PGlite), component test
 
 ### 4.2 P2-E02 TDW 09 and TDW 10, with the shared sheet rules for TDW 08, 10 and 13 (Track B, `agent-b`)
