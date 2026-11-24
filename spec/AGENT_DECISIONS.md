@@ -7,6 +7,15 @@
 
 (`agent-a` adds one summary at the end of each phase, newest first: the decisions made, the risky ones, and what the human must check.)
 
+### FR coverage check (P3-E07-T03, 24 Nov 2026)
+The command found 35 FR IDs that no commit, source file or test cites by ID.
+- **Role alias rows (no work):** FR-ADM-01 to 04, FR-ADV-01 to 03, FR-PAN-01 to 04, FR-STU-01 to 05, FR-SYS-01 to 04.
+- **Built under other IDs (Must):** FR-CMT-05 (NDA and form open the manuscript, `committees.ts`, BR-08), FR-DEF-02 (endorsement form, `milestones.ts`), FR-REV-06 (only the author resolves a thread, `manuscript.ts`, BR-05), FR-SCH-03 (meeting link after Confirmed, `consultations.ts`), FR-WFL-14 and FR-RPT-01 (gate record and append-only audit insert, FR-SYS-04, INV-08). The commits cite BR or INV IDs, not these FR IDs.
+- **Phase 4 (§6):** FR-DOC-09, FR-NTF-10, FR-REV-14, FR-RPT-02, FR-RPT-03, FR-RPT-04.
+- **Deferred (§9):** FR-AIA-01 (AI features) and FR-REV-10 (the paused pre-check).
+- **Should, not planned:** FR-REV-09 (review queue with days waiting). The human decides whether it joins Phase 4.
+- **Human must check:** the Must rows above are traced by file, not by FR ID. Confirm FR-SCH-03 and FR-CMT-05 in the browser.
+
 ### Phase 3 (Track A, 23 Nov 2026)
 - **Made:** AD-A-028 (Defense Day window), AD-A-029 and AD-A-030 (clearance), AD-A-031 (Gate 1b rule for a new Final Panel member). The Milestone 3 flow test runs from the open of Milestone 3 to CLEARED.
 - **Risky:** AD-A-029 (copyright must be REGISTERED before CLEARED, a Student with APPLIED copyright is blocked; confirm with the Coordinator).
