@@ -6,6 +6,7 @@ import "server-only";
 import { asc, count, desc, eq, inArray, max } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import type { MilestoneCode, MilestoneStatus, PstDate } from "@/server/domain/milestone";
+import { residency, type Residency } from "@/server/domain/residency";
 import { pstDate } from "@/server/notify/time";
 import { AccessDeniedError, requireActive, type DataContext } from "./access";
 import { appUser, defenseAttempt, documentRecord, gateAction, milestoneInstance, thesisInstance } from "./schema";
@@ -54,6 +55,8 @@ export type OverviewStudent = {
   targetDate: PstDate | null;
   /** The target date is past and the milestone is not closed. Information only (BR-17). */
   pacingFlag: boolean;
+  /** Residency end date and warning. Information only (BR-17). */
+  residency: Residency | null;
 };
 
 export type CoordinatorOverview = {
@@ -84,6 +87,8 @@ export async function coordinatorOverview(ctx: DataContext, now: Date = new Date
   const rows = await ctx.db
     .select({
       thesisId: thesisInstance.id,
+      degreeLevel: thesisInstance.degreeLevel,
+      programStartTerm: thesisInstance.programStartTerm,
       studentName: student.fullName,
       adviserName: adviser.fullName,
       milestoneId: milestoneInstance.id,
@@ -152,6 +157,7 @@ export async function coordinatorOverview(ctx: DataContext, now: Date = new Date
       milestone: r.code,
       status: r.status,
       targetDate: r.targetDate,
+      residency: residency(r.degreeLevel, r.programStartTerm, today),
       pacingFlag: !!r.targetDate && r.targetDate < today && !FLAG_DONE.includes(r.status),
     })),
   };

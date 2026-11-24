@@ -7,7 +7,7 @@ import { ScanUploader } from "@/app/student/documents/scan-uploader";
 import { FlagBanner } from "@/components/banners";
 import { EmptyState } from "@/components/empty-state";
 import { MilestoneStatusPill } from "@/components/status";
-import { getSessionState } from "@/server/auth/session";
+import { getRoleState } from "@/server/auth/session";
 import { getDb } from "@/server/data/db";
 import { adviserDashboard, ADVISER_QUEUE_LABEL, type AdviserQueueItem } from "@/server/data/queues";
 import type { MilestoneCode } from "@/server/domain/milestone";
@@ -40,7 +40,7 @@ function Action({ q }: { q: AdviserQueueItem }) {
 }
 
 export default async function Page() {
-  const state = await getSessionState();
+  const state = await getRoleState("adviser");
   if (state.status !== "ok") return null; // The portal layout already blocks this case.
   const d = await adviserDashboard({ db: getDb(), actor: state.actor });
   const flagged = d.advisees.filter((a) => a.pacingFlag);

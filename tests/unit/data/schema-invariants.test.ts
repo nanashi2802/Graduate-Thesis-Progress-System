@@ -223,3 +223,21 @@ describe("INV-34: signed documents name the signed commit", () => {
     );
   });
 });
+
+describe("P2-E04-T03: email tables (INV-08, INV-29)", () => {
+  it("email_log accepts INSERT and SELECT only", async () => {
+    const [e] = await db
+      .insert(s.emailLog)
+      .values({ recipientUserId: c.student.id, eventCode: "B3", result: "failed", error: "smtp down" })
+      .returning();
+    expect(e!.emailTemplateVersion).toBeNull();
+    await rejects(db.update(s.emailLog).set({ result: "sent" }).where(eq(s.emailLog.id, e!.id)), /INV-08/);
+    await rejects(db.delete(s.emailLog).where(eq(s.emailLog.id, e!.id)), /INV-08/);
+    await rejects(db.execute(sql.raw("truncate app.email_log")), /INV-08/);
+  });
+
+  it("notification_preference refuses an event that is always on (INV-29)", async () => {
+    await db.insert(s.notificationPreference).values({ userId: c.student.id, eventCode: "A4", enabled: false });
+    await rejects(db.insert(s.notificationPreference).values({ userId: c.student.id, eventCode: "B3" }), /notification_preference_optional/);
+  });
+});

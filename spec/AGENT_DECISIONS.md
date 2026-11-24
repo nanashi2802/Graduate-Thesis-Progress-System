@@ -87,6 +87,7 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** A spike screen in the Coordinator portal, so the portal gate and the server-side Coordinator check (NFR-01) protect it. It is not in `SITEMAP.md`. P1-E06 removes it when commit uploads exist. The viewer uses `react-pdf` (PRD §11.2) and `pdfjs-dist` at the same version, with `disableAutoFetch` and `disableStream`, so pdf.js reads only the byte ranges of the page in view (PRD §11.3 rule 2).
 - **Risk:** low. Spike code only.
 - **Undo:** delete `src/app/coordinator/spike-files/`.
+- **Status:** removed in P3-E07-T06 (issue #55). The route signed a read link for any key (INV-24).
 ### AD-B-001 — Vercel project name, settings and origins
 - **Task:** P0-E05-T01
 - **Options:** name `thesisko` (same as the Neon project); a longer name from the repository
@@ -433,3 +434,60 @@ Copy this block for each decision. Newest last. IDs: `AD-A-nnn` for `agent-a`, `
 - **Decision and reason:** The second. The server never receives file bytes (§10), and a ZIP needs a new dependency. The JSON lists commits, scans, Minutes, consultation log entries and audit records of the thesis (committees, threads, evaluation entries, revision items, bookings and log entries included). Each export writes an audit row (`dossier.export`).
 - **Risk:** low. Read only. The Coordinator cannot download the files from the dossier alone. A ZIP with signed links is a later step.
 - **Undo:** delete `src/server/data/dossier.ts`, the `coordinator/dossier` route and the link in `submission-view.tsx`.
+
+### AD-B-027 — Residency ends on 31 December of the start year plus 5 (Master's) or 7 (Doctoral) years
+- **Task:** P2-E04-T05
+- **Options:** count from the term's first day (the calendar of each term is not in the spec); use 31 December of the start year
+- **Decision and reason:** The second. The term reads "2025-1" and the spec has no term calendar. Only the year is read. R7 says the 5 and 7 year values are unverified, so the result is a warning only (BR-17). The warning starts 90 days before the end date (AD-B-015 uses 90 and 30 for B6).
+- **Risk:** low. The date can be up to about 5 months late for a term 1 start. No action depends on it. The Coordinator must confirm the rule with the Registrar (R7).
+- **Undo:** delete `src/server/domain/residency.ts` and its uses in `tracker.ts`, `overview.ts` and the two dashboards.
+
+### AD-B-028 — E3 is emitted when the committee is appointed or a member declines; C5 has no source yet
+- **Task:** P2-E04-T08
+- **Options:** emit E3 on every committee write; emit E3 only on the FR-NTF-01 triggers. Emit C5 from a document comment feature, or log that none exists.
+- **Decision and reason:** E3 only in `markAppointed` and in `recordSeatAnswer` with a decline (FR-NTF-01: "Committee appointed, or a member declines"). A proposal or an acceptance sends nothing. The link is `/student/dashboard` (S1, shows the committee). The Coordinator recipients get the same link. `documents.ts` has no comment feature, so no code emits C5. Add the emit when a document comment function exists.
+- **Risk:** low. The Coordinator link opens a page the Coordinator may not see. The emit runs after the commit and never throws (INV-30).
+- **Undo:** remove `emitCommitteeChanged` and its two calls in `committees.ts`.
+
+### AD-A-032 — Email tables: one migration, a 30 s limit for the Milestone 3 flow test
+- **Task:** P2-E04-T03
+- **Options:** put the append-only triggers in a second migration; put them in 0010 with the tables. Keep the 5 s test limit; raise it for the flow test.
+- **Decision and reason:** Migration 0010 holds the tables and the `email_log` triggers, so the table never exists without them. `notification_preference` has a DB check for INV-29. The Milestone 3 flow test took 7 s on a loaded machine and hit the 5 s limit, so it now has a 30 s limit. No assertion changed.
+- **Risk:** low.
+- **Undo:** revert the commits with AD-A-032. Migration 0010 only adds two tables and one type.
+
+### AD-A-033 — Where each Track A event is emitted, and what has no source yet
+- **Task:** P2-E04-T07
+- **Options:** emit inside `transitionMilestone` always; emit after the outer commit only.
+- **Decision and reason:** Each data function calls `emitSafely` after its own commit (INV-30). C6 follows FR-NTF-01: Gate 1a (`transitionMilestone` to ADVISER_ENDORSED), Gate 1b (`endorseGate1b`, when the last endorsement completes) and Gate 2 (`transitionMilestone` to FINAL_APPROVED). A Return, CLOSED, CERTIFIED and CLEARED send no C6. A3 is a Return of a date request (DATE_PROPOSED). A1 and A2 come from `proposeDefenseDate` and `confirmDefenseDate`. A6 fires when the last expected sheet is verified (BR-11). B4 fires when items are added and when one is linked. B7 ("commit waiting too long for review") is not emitted here: it needs the daily job and the AS-05 threshold. A5 (substitute) has no source yet: no code writes `defense_substitute` (like C5 in AD-B-028). E2 (access open) is requested from `agent-b` in the pull request text.
+- **Risk:** low. A5, B7 and E2 stay unsent until their sources exist. No test covers the nested-transaction guard, because no nested caller reaches a status that emits, so the guard is removed.
+- **Undo:** revert the commits with AD-A-033. The change only adds calls after commits.
+
+### AD-B-029 — Daily job: dedupe by `notification` row, digests logged for each row, B7 not sent
+- **Task:** P2-E04-T06
+- **Options:** dedupe reminders by `email_log`; dedupe by a `notification` row for the thesis and PST day. Log one `email_log` row for each digest; log one for each group.
+- **Decision and reason:** A reminder writes a `notification` row (target `thesis_instance`) and is skipped when one exists for the same user, event, thesis and PST day. This also stops a second in-app row for a user who turned the event off. A digest writes one `email_log` row for each `notification` row it covers, so "no `email_log` row" finds the unsent rows. Nothing emits B7 (AD-A-033, AS-05 threshold), so the digest code handles it but no row exists yet. A failed reminder or digest is not retried (INV-30).
+- **Risk:** low. A turned-off digest row stays unlogged and is read again each run. Turning the event back on sends the old rows.
+- **Undo:** revert the commits with AD-B-029. `export` of `defaultMailPort` in `recipients.ts` is the only edit outside new files (file owned by nobody).
+
+### AD-A-034 — Neon Auth sends the reset email itself; E1 adds a sign-in notice
+- **Task:** P2-E04-T09
+- **Options:** Neon Auth sends the set-password and reset email (`requestPasswordReset`); or the app asks for a token and sends the email itself.
+- **Decision and reason:** The first. The SDK method `requestPasswordReset({ email, redirectTo })` returns no token, so the app cannot send the link. A new account calls it after the commit, then emits E1 through Resend (link to `/login`, no password, FR-NTF-03). `/login/reset` takes the token and calls `resetPassword`. The "Forgot password" action shows one message for a known and an unknown address.
+- **Risk:** medium. I could not run one real reset on a development branch in this run (no live Neon Auth session). The human must check one reset, and that the Neon Auth email sender is on. A failing link or E1 never undoes the account (INV-30).
+- **Undo:** revert the commits with AD-A-034.
+- **Gap (agent-r review of #71):** the E1 notice "your password was reset" is not built. `setNewPassword` runs with no signed-in actor, so it cannot call `notifyEvent`. Open for a later task.
+
+### AD-A-035 — A page checks its role before any data call
+- **Task:** P3-E07-T08 (issue #58)
+- **Options:** one shared catch for `AccessDeniedError`; or a role helper that each page calls first.
+- **Decision and reason:** The helper. A render error is logged by Next even when caught by a boundary. `getRoleState(role)` returns a non-ok state for another role. A shared component gets a `portal` prop from its page. Coordinator pages call `pageContext()`. The layout `RoleGate` still shows Access Denied. The data layer still refuses on its own (NFR-01). Server actions keep their own checks.
+- **Risk:** low. A new page that skips the helper still shows Access Denied and the data layer still refuses. It only logs the error again.
+- **Undo:** revert the commits with AD-A-035.
+
+### AD-A-036 — Browser runs: a port variable and a distinct reset label
+- **Task:** P3-E07-T02
+- **Options:** stop the process on port 3000; or let the e2e port change.
+- **Decision and reason:** `E2E_PORT` (default 3000) sets the port in `playwright.config.ts`. Another workspace of the owner ran a server on 3000, and `reuseExistingServer` tested that app. The reset input on `/login` was renamed "Reset link email", because `getByLabel("Email address")` matched two inputs. The browser boxes with no flow spec in Track A epics now say "not built", not "blocked". The Track B boxes (P1-E11-T04, P1-E13-T02, P2-E02-T02) stay as they are. PR #76 asks agent-b to update them.
+- **Risk:** low. CI uses port 3000 as before.
+- **Undo:** revert the commits with AD-A-036.

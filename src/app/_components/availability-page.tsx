@@ -1,16 +1,17 @@
 // Slots of one owner: the publish form, the own slots, and (Adviser) the requests (A4, P3, FR-SCH-01, FR-SCH-02, FR-SCH-07).
+import type { UserRole } from "@/server/data/schema";
 import { ActionForm } from "@/app/_components/action-form";
 import { SlotPublishForm } from "@/app/_components/slot-publish-form";
 import { WithdrawButton } from "@/app/_components/slot-list";
 import { MODE, pst, pstRange, SLOT_STATUS } from "@/app/_lib/format";
 import { decideBookingAction } from "@/app/_lib/schedule-actions";
 import { EmptyState } from "@/components/empty-state";
-import { getSessionState } from "@/server/auth/session";
+import { getRoleState } from "@/server/auth/session";
 import { listBookings, listSlots } from "@/server/data/consultations";
 import { getDb } from "@/server/data/db";
 
-export async function AvailabilityPage({ withConsultations }: { withConsultations: boolean }) {
-  const state = await getSessionState();
+export async function AvailabilityPage({ portal, withConsultations }: { portal: UserRole; withConsultations: boolean }) {
+  const state = await getRoleState(portal);
   if (state.status !== "ok") return null; // The portal layout already blocks this case.
   const ctx = { db: getDb(), actor: state.actor };
   const slots = await listSlots(ctx);

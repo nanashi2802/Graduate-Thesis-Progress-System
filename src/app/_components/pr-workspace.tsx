@@ -1,5 +1,6 @@
 // The PR workspace for S2 (Student), A2 (Adviser) and P2 (Panel Member): commits, the viewer, threads and gates
 // (FR-REV-01 to 08, FR-WFL-03, FR-WFL-04, BR-05 to BR-07, BR-18). One shared screen. The role decides the actions.
+import type { UserRole } from "@/server/data/schema";
 import Link from "next/link";
 import { AccessDenied } from "@/app/_components/access-denied";
 import { CommitUploader } from "@/app/_components/commit-uploader";
@@ -9,7 +10,7 @@ import { EndorseButton, NewThreadForm, ReadyButton, ReplyForm, ResolveButton, Re
 import { EmptyState } from "@/components/empty-state";
 import { LockedBanner } from "@/components/banners";
 import { MilestoneStatusPill } from "@/components/status";
-import { getSessionState } from "@/server/auth/session";
+import { getRoleState } from "@/server/auth/session";
 import { AccessDeniedError, type DataContext } from "@/server/data/access";
 import { InputProblem } from "@/server/data/coordinator";
 import { getDb } from "@/server/data/db";
@@ -24,8 +25,8 @@ const ROLE_LABEL = { student: "Student", adviser: "Adviser", panel_member: "Pane
 
 const when = (d: Date) => d.toLocaleString("en-PH", { timeZone: "Asia/Manila", dateStyle: "medium", timeStyle: "short" });
 
-export async function PrWorkspace({ prId, commit }: { prId: string; commit?: string }) {
-  const state = await getSessionState();
+export async function PrWorkspace({ portal, prId, commit }: { portal: UserRole; prId: string; commit?: string }) {
+  const state = await getRoleState(portal);
   if (state.status !== "ok") return null; // The portal layout already blocks this case.
   const ctx: DataContext = { db: getDb(), actor: state.actor };
   const role = ctx.actor.role;

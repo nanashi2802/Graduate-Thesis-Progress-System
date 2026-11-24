@@ -5,8 +5,10 @@ import { Menu } from "lucide-react";
 import { signOut } from "@/app/(auth)/login/actions";
 import { NavLinks, type NavItem } from "@/components/nav-links";
 import { NotificationPanel } from "@/components/notification-panel";
+import { PreferencesForm } from "@/components/preferences-form";
 import { Button } from "@/components/ui/button";
 import type { NotificationItem } from "@/server/data/notifications";
+import type { PreferenceRow } from "@/server/data/preferences";
 
 export function AppShell({
   roleLabel,
@@ -14,6 +16,7 @@ export function AppShell({
   nav,
   notifications,
   unread,
+  preferences,
   children,
 }: {
   roleLabel: string;
@@ -21,6 +24,7 @@ export function AppShell({
   nav: readonly NavItem[];
   notifications: readonly NotificationItem[];
   unread: number;
+  preferences: readonly PreferenceRow[];
   children: ReactNode;
 }) {
   return (
@@ -46,8 +50,9 @@ export function AppShell({
             <summary className="flex h-9 max-w-[200px] cursor-pointer list-none items-center rounded-control px-2 text-sm outline-none hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring [&::-webkit-details-marker]:hidden">
               <span className="truncate">{userName}</span>
             </summary>
-            <div className="absolute right-0 z-20 mt-2 flex w-56 flex-col gap-2 rounded-panel border border-border bg-popover p-3 shadow-md">
+            <div className="absolute right-0 z-20 mt-2 flex w-[min(92vw,320px)] flex-col gap-2 rounded-panel border border-border bg-popover p-3 shadow-md">
               <p className="text-xs text-muted-foreground">Signed in as {userName}</p>
+              <PreferencesForm rows={preferences} />
               <form action={signOut}>
                 <Button type="submit" variant="outline" size="sm">
                   Sign out

@@ -6,6 +6,7 @@ import { and, asc, desc, eq, inArray, ne } from "drizzle-orm";
 import { complianceChecklist, type ChecklistItem } from "@/server/domain/checklist";
 import { addDays, type MilestoneCode, type MilestoneStatus, type PstDate } from "@/server/domain/milestone";
 import type { DocumentState } from "@/server/domain/documents";
+import { residency, type Residency } from "@/server/domain/residency";
 import { nextAction, type NextAction } from "@/server/domain/next-action";
 import { pstDate } from "@/server/notify/time";
 import { requireActive, AccessDeniedError, type DataContext } from "./access";
@@ -38,6 +39,8 @@ export type StudentTracker = {
   outside: OutsideStatuses;
   /** After the Coordinator confirms the date (FR-DEF-03). */
   defense: { attemptId: string; date: PstDate; roomOrLink: string | null; printedCopiesDue: PstDate } | null;
+  /** Null when the start term has no year. A flag only (BR-17). */
+  residency: Residency | null;
   keyDates: { earliestDefenseDate: PstDate | null; printedCopiesDue: PstDate | null; targetDate: PstDate | null };
 };
 
@@ -137,6 +140,7 @@ export async function studentTracker(ctx: DataContext, now: Date = new Date()): 
     checklist,
     outside,
     defense: defenseDate && printedCopiesDue ? { attemptId: scheduled!.id, date: defenseDate, roomOrLink: scheduled!.roomOrLink, printedCopiesDue } : null,
+    residency: residency(thesis.degreeLevel, thesis.programStartTerm, pstDate(now)),
     keyDates: {
       earliestDefenseDate: facts.gate1bCompletedOn ? addDays(facts.gate1bCompletedOn, facts.minNoticeDays) : null,
       printedCopiesDue,

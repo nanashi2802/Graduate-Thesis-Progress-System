@@ -2,7 +2,7 @@
 import { EmptyState } from "@/components/empty-state";
 import { listStudents } from "@/server/data/students";
 import { listActiveUsers } from "@/server/data/users";
-import { sessionContext } from "../_lib/action";
+import { pageContext } from "../_lib/action";
 import { PageHeader, Section, td, th } from "../_lib/page-header";
 import { CreateStudentForm } from "./create-student-form";
 
@@ -10,7 +10,8 @@ const LEVEL = { masters: "Master's", doctoral: "Doctoral" } as const;
 const MILESTONE: Record<string, string> = { proposal: "Proposal", pre_final: "Pre-Final", final: "Final" };
 
 export default async function Page() {
-  const ctx = await sessionContext();
+  const ctx = await pageContext();
+  if (!ctx) return null; // The portal layout shows Access Denied.
   const [students, advisers] = await Promise.all([listStudents(ctx), listActiveUsers(ctx, "adviser")]);
   return (
     <main className="mx-auto flex max-w-[1200px] flex-col gap-12 px-4 py-8 sm:px-8">

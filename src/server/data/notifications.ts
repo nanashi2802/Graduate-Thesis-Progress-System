@@ -8,7 +8,7 @@ import { and, count, desc, eq, inArray, isNull } from "drizzle-orm";
 import { buildNotificationEmail, EVENTS, shouldEmail, type EventCode } from "@/server/notify/events";
 import type { EmailMessage } from "@/server/notify/email";
 import { AccessDeniedError, requireActive, type DataContext } from "./access";
-import { appUser, notification } from "./schema";
+import { appUser, emailLog, notification } from "./schema";
 
 /** The one email call this module needs. The app passes `sendEmail` from `src/server/notify/email.ts`. Tests pass a fake. */
 export type EmailPort = (to: string, msg: EmailMessage) => Promise<string>;
@@ -22,7 +22,7 @@ export type NotifyInput = {
   /** The link in the email. It holds no manuscript text and no comment (FR-NTF-03). */
   link: string;
   deadline?: string | null;
-  /** Events that each user turned off (FR-NTF-05). Empty until P2-E04 adds the preference table. */
+  /** Events that each user turned off (FR-NTF-05). The daily job and T10 fill it from the preference table. */
   turnedOff?: ReadonlyMap<string, ReadonlySet<EventCode>>;
 };
 
@@ -60,24 +60,32 @@ export async function notifyEvent(ctx: DataContext, input: NotifyInput, sendMail
   // 2. The emails. Each failure is caught and reported, never thrown (NFR-05).
   const result: NotifyResult = [];
   for (const row of rows) {
-    result.push({
-      notificationId: row.id,
-      recipientUserId: row.recipientUserId,
-      email: await tryEmail(input, row.recipientUserId, emailOf.get(row.recipientUserId), sendMail),
-    });
+    const userOff = input.turnedOff?.get(row.recipientUserId) ?? new Set<EventCode>();
+    const email = await tryEmail(input, userOff, emailOf.get(row.recipientUserId), sendMail);
+    // One log row for each email tried: sent or failed (FR-NTF-07). A skipped email writes none.
+    if (email.status !== "skipped") {
+      await ctx.db.insert(emailLog).values({
+        notificationId: row.id,
+        recipientUserId: row.recipientUserId,
+        eventCode: input.code,
+        result: email.status,
+        error: email.status === "failed" ? email.error : null,
+      });
+    }
+    result.push({ notificationId: row.id, recipientUserId: row.recipientUserId, email });
   }
   return result;
 }
 
 async function tryEmail(
   input: NotifyInput,
-  userId: string,
+  userOff: ReadonlySet<EventCode>,
   address: string | undefined,
   sendMail: EmailPort | null,
 ): Promise<EmailOutcome> {
   // Reminders and digests come from the daily job (FR-NTF-04, FR-NTF-06).
   if (EVENTS[input.code].delivery !== "immediate") return { status: "skipped", why: "reminder_or_digest" };
-  if (!shouldEmail(input.code, input.turnedOff?.get(userId) ?? new Set())) return { status: "skipped", why: "turned_off" };
+  if (!shouldEmail(input.code, userOff)) return { status: "skipped", why: "turned_off" };
   if (!sendMail) return { status: "skipped", why: "no_email_port" };
   if (!address) return { status: "failed", error: "The user has no email address." };
   try {

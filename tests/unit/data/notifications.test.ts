@@ -12,6 +12,7 @@ import {
   type EmailPort,
 } from "@/server/data/notifications";
 import * as s from "@/server/data/schema";
+import type { EventCode } from "@/server/notify/events";
 import { seedMilestone1 } from "../../support/seed-m1";
 import { makeTestDb } from "../../support/test-db";
 
@@ -68,6 +69,20 @@ describe("notifyEvent (FR-NTF-01, INV-30)", () => {
     const off = new Map([[seed.student.id, new Set(["F2"] as const)]]);
     const res = await notifyEvent(as(seed.coordinator), { code: "F2", recipientUserIds: [seed.student.id], link, turnedOff: off }, okMail);
     expect(res[0]!.email.status).toBe("sent");
+  });
+
+  it("logs a sent and a failed email, and none for a turned-off event (FR-NTF-05, FR-NTF-07)", async () => {
+    await notifyEvent(as(seed.coordinator), { code: "F2", recipientUserIds: [seed.student.id], link }, okMail);
+    await notifyEvent(as(seed.coordinator), { code: "F2", recipientUserIds: [seed.student.id], link }, failMail);
+    const off = new Map([[seed.student.id, new Set<EventCode>(["C2"])]]);
+    const res = await notifyEvent(as(seed.coordinator), { code: "C2", recipientUserIds: [seed.student.id], link, turnedOff: off }, okMail);
+    expect(res[0]!.email.status).toBe("skipped");
+    const log = await db.select().from(s.emailLog).orderBy(s.emailLog.createdAt, s.emailLog.id);
+    expect(log.map((l) => [l.eventCode, l.result, l.error])).toEqual([
+      ["F2", "sent", null],
+      ["F2", "failed", "Resend returned HTTP 500"],
+    ]);
+    expect(await unreadCount(as(seed.student))).toBe(3);
   });
 
   it("works with no email port", async () => {

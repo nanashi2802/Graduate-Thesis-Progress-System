@@ -581,7 +581,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Depends on:** T01, P1-E09, P1-E10
 - **Done when:**
   - [x] A test shows each region for a Student. The function reads only the signed-in Student's thesis, and any other role is refused (NFR-01).
-  - [ ] The residency indicator and the printed copies status are not in the data yet. The residency date waits for R7. The printed copies status waits for `printedCopyStatus` (`agent-a`, P1-E09-T05).
+  - [ ] The printed copies status is in S1 (`printedCopyStatus`). The residency date is in S1 (P2-E04-T05). (Closed by later work.) The residency date waits for R7. The printed copies status waits for `printedCopyStatus` (`agent-a`, P1-E09-T05).
 
 ### P1-E11-T03 — Queues for the Adviser, Panel Member and Coordinator (A1, P1, C1)
 - **Goal:** Data functions return the action queue and the roster (A1), the assignments (P1), and the KPI strip, grouped queue and Student table (C1). Each count opens its queue.
@@ -754,7 +754,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `tests/unit/flow/milestone1.test.ts`
 - **Done when:**
   - [x] The flow runs on the real migrations through the data-layer functions of each screen. A wrong role, a locked manuscript, a date under 7 days, an incomplete checklist, unverified sheets and a missing Certification are each refused on the way.
-  - [ ] The same flow runs in a browser with `pnpm test:e2e` (blocked: needs a seeded sign-in, AD-A-025).
+  - [ ] The same flow runs in a browser. Not built: the sign-in works now (AD-A-036), but no browser spec drives this flow. Phase 4 or the owner adds it.
 - **Tests:** unit (Vitest with PGlite)
 
 ### 3.9 P1-E03 Accounts, users and templates (Track A, `agent-a`, done 22 Nov 2026)
@@ -1008,9 +1008,9 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/data/schema/`, `db/migrations/0010_*`, `tests/unit/schema/`
 - **Depends on:** none
 - **Done when:**
-  - [ ] `email_log` accepts INSERT and SELECT only, like the other append-only tables (trigger test). `email_template_version` is nullable: texts live in code (AD-B-014).
-  - [ ] `notification_preference` refuses an event code outside A4, B1, B2, B4, B6, B7, C2 to C5 (DB check, test).
-  - [ ] `pnpm db:migrate` runs on the `agent-a` Neon branch (§13.8).
+  - [x] `email_log` accepts INSERT and SELECT only, like the other append-only tables (trigger test). `email_template_version` is nullable: texts live in code (AD-B-014).
+  - [x] `notification_preference` refuses an event code outside A4, B1, B2, B4, B6, B7, C2 to C5 (DB check, test).
+  - [x] `pnpm db:migrate` runs on the `agent-a` Neon branch (§13.8).
 - **Tests:** unit (Vitest with PGlite)
 
 ### P2-E04-T04 — Log each email send (Track B, `agent-b`)
@@ -1020,8 +1020,8 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/data/notifications.ts`, `tests/unit/data/notifications.test.ts`
 - **Depends on:** P2-E04-T03
 - **Done when:**
-  - [ ] A failed send writes a `failed` row with the error. The `notification` row stays (INV-30). This closes the open box of P1-E12-T02.
-  - [ ] A turned-off optional event writes no email and no log row (FR-NTF-05).
+  - [x] A failed send writes a `failed` row with the error. The `notification` row stays (INV-30). This closes the open box of P1-E12-T02.
+  - [x] A turned-off optional event writes no email and no log row (FR-NTF-05).
 - **Tests:** unit (Vitest with PGlite, fake email port)
 
 ### P2-E04-T05 — Residency end date and warning (Track B, `agent-b`)
@@ -1031,8 +1031,8 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/domain/residency.ts`, `src/server/data/tracker.ts`, the S1 and C1 screens, `tests/unit/domain/residency.test.ts`
 - **Depends on:** none
 - **Done when:**
-  - [ ] Tests cover both degree levels and a bad start term (no date, no warning).
-  - [ ] S1 and C1 show the end date and a warning inside 90 days. No action is disabled by it (BR-17). This closes the residency boxes of P1-E11-T02 and T04.
+  - [x] Tests cover both degree levels and a bad start term (no date, no warning).
+  - [x] S1 and C1 show the end date and a warning inside 90 days. No action is disabled by it (BR-17). This closes the residency boxes of P1-E11-T02 and T04.
 - **Tests:** unit (Vitest)
 
 ### P2-E04-T06 — Daily job: reminders and digests (Track B, `agent-b`)
@@ -1042,22 +1042,23 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/notify/daily.ts`, a data function for the job, tests
 - **Depends on:** P2-E04-T04, P2-E04-T05
 - **Done when:**
-  - [ ] Reminders go out on their day only. A second run on the same day sends nothing new (check `email_log`).
-  - [ ] Digests group the digest `notification` rows that have no `email_log` row yet. Student Defense Day thread items wait until the defense closes (BR-20).
-  - [ ] A user with an optional event turned off gets no email for it. The in-app row still exists.
-  - [ ] The Phase 0 test email (AD-B-004) still works through `NOTIFY_TEST_TO`.
+  - [x] Reminders go out on their day only. A second run on the same day sends nothing new (check `email_log`).
+  - [x] Digests group the digest `notification` rows that have no `email_log` row yet. Student Defense Day thread items wait until the defense closes (BR-20).
+  - [x] A user with an optional event turned off gets no email for it. The in-app row still exists.
+  - [x] The Phase 0 test email (AD-B-004) still works through `NOTIFY_TEST_TO`.
 - **Tests:** unit (Vitest with PGlite, fake email port, fixed clock)
 
 ### P2-E04-T07 — Emit events from the Track A data functions (Track A, `agent-a`)
 - **Goal:** Each event of FR §4.10 that a Track A data function causes calls `emitSafely` after it commits.
 - **Covers:** FR-NTF-01, FR-NTF-02, FR-NTF-08, INV-28, INV-30
 - **Reads:** `src/server/notify/events.ts`, `src/server/data/recipients.ts`, B3 in `documents.ts` (the pattern)
-- **Changes:** `defense.ts` (A1, A2, A3, A5, A6), `manuscript.ts` (C1, B7, C2, C3, C4, E2), `milestones.ts` (C6), `revisions.ts` (B4), `clearance.ts` (B5), `consultations.ts` (F1, F2), their tests
+- **Changes:** `defense.ts` (A1, A2, A3, A6), `manuscript.ts` (C1, C2, C3, C4), `milestones.ts` (C6), `revisions.ts` (B4), `clearance.ts` (B5), `consultations.ts` (F1, F2), their tests
 - **Depends on:** none (the emit helper exists)
 - **Done when:**
-  - [ ] Each listed event has a test: the right recipients get a `notification` row, and the actor gets none.
-  - [ ] No email holds a meeting link, a score, a verdict or comment text (FR-NTF-03, INV-28).
-  - [ ] Each event commits even when the email port throws (INV-30). This closes the wiring box of P1-E12-T04 for these events.
+  - [x] Each listed event that has a source has a test: the right recipients get a `notification` row, and the actor gets none.
+  - [x] No email holds a meeting link, a score, a verdict or comment text (FR-NTF-03, INV-28).
+  - [x] Each event commits even when the email port throws (INV-30). This closes the wiring box of P1-E12-T04 for these events.
+- **Note:** B7 waits for the daily job (AS-05). A5 has no source yet. E2 is requested from `agent-b` (AD-A-033).
 - **Tests:** unit (Vitest with PGlite)
 
 ### P2-E04-T08 — Emit events from the Track B data functions (Track B, `agent-b`)
@@ -1066,7 +1067,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/data/committees.ts`, `src/server/data/documents.ts`, their tests
 - **Depends on:** none
 - **Done when:**
-  - [ ] E3 and C5 have tests like T07. If no document comment feature exists, log an AD that C5 has no source yet.
+  - [x] E3 and C5 have tests like T07. If no document comment feature exists, log an AD that C5 has no source yet.
 - **Tests:** unit (Vitest with PGlite)
 
 ### P2-E04-T09 — Account setup and password reset email (Track A, `agent-a`)
@@ -1076,10 +1077,10 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/data/students.ts`, the user-create path (C9), `src/app/(auth)/login/`, tests
 - **Depends on:** none
 - **Done when:**
-  - [ ] First, check whether Neon Auth sends the reset email itself or returns a token for the app to send. Log the choice as an AD.
-  - [ ] Creating a user emits E1. The email holds the link only, never a password (FR-NTF-03).
-  - [ ] `/login` has a "Forgot password" action. It shows the same message for a known and an unknown address.
-- **Tests:** unit (Vitest), manual check of one reset on a development branch
+  - [x] First, check whether Neon Auth sends the reset email itself or returns a token for the app to send. Log the choice as an AD.
+  - [x] Creating a user emits E1. The email holds the link only, never a password (FR-NTF-03).
+  - [x] `/login` has a "Forgot password" action. It shows the same message for a known and an unknown address.
+- **Tests:** unit (Vitest), manual check of one reset on a development branch (not done: AD-A-034, for the human)
 
 ### P2-E04-T10 — Notification preferences panel (Track B, `agent-b`)
 - **Goal:** The user menu opens a panel that turns the optional events on and off.
@@ -1087,8 +1088,8 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/components/app-shell.tsx` (the menu), a preferences data function, tests
 - **Depends on:** P2-E04-T03
 - **Done when:**
-  - [ ] Only A4, B1, B2, B4, B6, B7 and C2 to C5 have a switch. Other events show "Always on" with the reason (BR-18).
-  - [ ] The data function refuses a code outside INV-29 and a write for another user (NFR-01).
+  - [x] Only A4, B1, B2, B4, B6, B7 and C2 to C5 have a switch. Other events show "Always on" with the reason (BR-18).
+  - [x] The data function refuses a code outside INV-29 and a write for another user (NFR-01).
 - **Tests:** unit (Vitest with PGlite), component test
 
 ### 4.2 P2-E02 TDW 09 and TDW 10, with the shared sheet rules for TDW 08, 10 and 13 (Track B, `agent-b`)
@@ -1150,7 +1151,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `tests/unit/flow/milestone2.test.ts`, `tests/support/flow.ts` (the Milestone 1 flow, shared), `src/server/data/milestones.ts` (`openMilestone`)
 - **Done when:**
   - [x] The flow runs on the real migrations. Gate 1a waits for IPMO PASSED. No new appointment. A score on TDW 10 is refused. The close opens Milestone 3. Revision items are answered and accepted after the close.
-  - [ ] The same flow runs in a browser (blocked, AD-A-025).
+  - [ ] The same flow runs in a browser. Not built: the sign-in works now (AD-A-036), but no flow spec exists. Phase 4 adds it.
 - **Tests:** unit (Vitest with PGlite)
 
 ---
@@ -1261,7 +1262,7 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `tests/unit/flow/milestone3.test.ts`, `tests/support/flow.ts` (`runMilestone2`, shared), `src/server/data/milestones.ts` (`acceptedPreFinalItems`)
 - **Done when:**
   - [x] The flow runs on the real migrations: Final Panel, TDW 11 and 12, Defense Day thread, TDW 13 sheets, Gate 2, signed final manuscript, clearance evidence, CLEARED. A wrong role, a missing item and an open thread are each refused on the way.
-  - [ ] The same flow runs in a browser (blocked, AD-A-025).
+  - [ ] The same flow runs in a browser. Not built: the sign-in works now (AD-A-036), but no flow spec exists. Phase 4 adds it.
 - **Tests:** unit (Vitest with PGlite)
 
 ### 5.4 P3-E07 Close-out (gap closure, 23 Nov 2026)
@@ -1282,8 +1283,8 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `tests/e2e/`
 - **Depends on:** `DEV_SEED_PASSWORD` in the worktree `.env.local` (the owner sets it)
 - **Done when:**
-  - [ ] `pnpm test:e2e` passes locally. The tests do not expect an empty Student: the demo seed links `student@example.test` to a thesis.
-  - [ ] The blocked browser boxes in P1-E11-T04, P1-E13-T02, P2-E02-T02, P2-E05-T01 and P3-E06-T01 are checked or have a new reason.
+  - [x] `pnpm test:e2e` passes locally (19 tests). The tests do not expect an empty Student: the demo seed links `student@example.test` to a thesis.
+  - [ ] The blocked browser boxes in P1-E11-T04, P1-E13-T02, P2-E02-T02, P2-E05-T01, P3-E06-T01 and P3-E07-T08 are checked or have a new reason. P3-E07-T08 adds the log check: no `AccessDeniedError` in the server log. Waits for the "Request for agent-b" in PR #76 (P1-E11-T04, P1-E13-T02, P2-E02-T02 are Track B boxes).
 - **Tests:** end-to-end (Playwright)
 
 ### P3-E07-T04 — Finish the Google sign-in (Track A, `agent-a`, issue #53, P0)
@@ -1305,8 +1306,8 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `src/server/data/actors.ts`, `src/server/auth/session.ts` (pass `emailVerified`), `tests/unit/data/actors.test.ts`
 - **Depends on:** none
 - **Done when:**
-  - [ ] Test first: an unverified identity does not link to an unlinked row. A verified identity (Google) still links.
-  - [ ] The pull request text says `Fixes #54`.
+  - [x] Test first: an unverified identity does not link to an unlinked row. A verified identity (Google) still links.
+  - [x] The pull request text says `Fixes #54`.
 - **Tests:** unit (Vitest with PGlite)
 
 ### P3-E07-T06 — Delete the P0-E04 file spike (Track A, `agent-a`, issue #55)
@@ -1315,9 +1316,9 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** delete `src/app/coordinator/spike-files/`, and any link or test that names the route
 - **Depends on:** none
 - **Done when:**
-  - [ ] `/coordinator/spike-files` returns 404. No file names the route.
-  - [ ] The e2e file test uses the real commit upload, not the spike.
-  - [ ] The pull request text says `Fixes #55`.
+  - [x] `/coordinator/spike-files` returns 404. Only the e2e 404 test names the route.
+  - [ ] The e2e file test uses the real commit upload, not the spike. Blocked: the run needs `DEV_SEED_PASSWORD` and storage in `.env.local`. P3-E07-T02 adds it. The 404 test replaces the spike test now.
+  - [x] The pull request text says `Fixes #55`.
 - **Tests:** lint, typecheck, unit, end-to-end (Playwright)
 
 ### P3-E07-T07 — Security headers (Track B, `agent-b`, issue #56)
@@ -1326,9 +1327,9 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** `next.config.ts` (`headers()`)
 - **Depends on:** none
 - **Done when:**
-  - [ ] `curl -I` on `/login` shows the three headers.
-  - [ ] The PDF viewer and the file upload still work. No full Content Security Policy now: add it only if the app ever shows HTML that users write.
-  - [ ] The pull request text says `Fixes #56`.
+  - [x] `curl -I` on `/login` shows the three headers.
+  - [x] The PDF viewer and the file upload still work. No full Content Security Policy now: add it only if the app ever shows HTML that users write.
+  - [x] The pull request text says `Fixes #56`.
 - **Tests:** a unit test of the `headers()` result, end-to-end (Playwright)
 
 ### P3-E07-T08 — No data calls after the role check refuses (Track A, `agent-a`, issue #58)
@@ -1338,9 +1339,9 @@ Order: E01 → E02 → E03 → E04 → (E05, E06, E07, E08 in any order) → E09
 - **Changes:** one shared fix (a role helper the pages call first, or one shared catch). For a page that `agent-b` owns, add a "Request for agent-b" to the pull request (§13.1).
 - **Depends on:** none
 - **Done when:**
-  - [ ] Opening another role's portal, and opening a portal signed out, shows Access Denied with its reason and logs no `AccessDeniedError`.
-  - [ ] The data layer still refuses on its own (NFR-01). No access check is removed.
-  - [ ] The pull request text says `Fixes #58`.
+  - [x] Opening another role's portal, and opening a portal signed out, shows Access Denied with its reason and logs no `AccessDeniedError`. Checked 24 Nov 2026: the portals spec ran against `next start` and the log has 0 `AccessDeniedError`.
+  - [x] The data layer still refuses on its own (NFR-01). No access check is removed.
+  - [x] The pull request text says `Fixes #58`.
 - **Tests:** end-to-end (Playwright portals spec), server log check
 
 ### P3-E07-T03 — FR coverage check (Track A, `agent-a`, last task)
