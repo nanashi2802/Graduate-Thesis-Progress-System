@@ -1,7 +1,8 @@
 # DESIGN.md — PUP CpE Thesis Progress Monitoring System
 
-**Status:** Draft v0.1 (22 Nov 2026). No UI code exists yet.
-**Scope:** The visual and interaction design of the web app (30 routes) and the system emails.
+**Status:** Draft v0.2 (23 Nov 2026).
+**Change log:** v0.2, 23 Nov 2026: the owner approved the product name ThesIsko as the wordmark, and the landing page at `/` (Section 5.6). Later on 23 Nov 2026: the owner chose the Route Board world for the landing page, then replaced it with their own reference design (Section 5.6 rewritten, wordmark in Section 1.3 updated).
+**Scope:** The visual and interaction design of the web app (31 routes) and the system emails.
 **Not a source:** The Google Stitch screens in `design/stitch/` are a prototype only. This file does not derive from them. If they disagree, this file wins.
 **Fixed input from the owner:** Use the PUP colors (dark maroon and golden yellow). Do not use the PUP logo, seal or any image symbol (intellectual property constraint). Everything else in this file is a proposal.
 **Sources:** Unified Thesis Process v1.1 (Sections 1.6, 1.7, 2.3, 3), Functional Requirements v1.1 (NFR-04, NFR-09, BR-01, BR-07, BR-15, BR-17, BR-18, BR-19), [PUP Logo and Symbols](https://www.pup.edu.ph/about/logosymbols).
@@ -38,7 +39,7 @@ Density:   Compact for Coordinator tables. Comfortable for Student and
 | **Serif for titles** | A thesis is an academic document. Source Serif 4 is a text serif in the academic-press tradition. It gives the thesis title and page titles authority. It is not used for UI text. |
 | **IBM Plex for UI** | This is a Computer Engineering program. The workflow uses Git terms (Commit, Submission PR). Plex Sans and Plex Mono are one engineered family, so commit tags and UI text match. Both have tabular figures for scores and dates. |
 | **Warm neutrals** | The grays lean slightly toward the maroon hue. Pure cool slate (the Tailwind default) looks inherited, not chosen. |
-| **Color and words, no symbols** | The brand appears only as color and as the text wordmark "PUP CpE Thesis Progress". The app uses no logo, seal, emblem, mascot or image symbol of PUP (Section 2, P9). |
+| **Color and words, no symbols** | The brand appears only as color and as the text wordmark "ThesIsko" (Section 1.3). The app uses no logo, seal, emblem, mascot or image symbol of PUP (Section 2, P9). |
 
 ### 1.2 Self-critique of the plan
 
@@ -47,6 +48,16 @@ Density:   Compact for Coordinator tables. Comfortable for Student and
 | Color | "Maroon sidebar with white text" is the default look of every school portal. | The sidebar is a light warm neutral. Maroon goes to actions, the masthead rule and the active navigation marker only. |
 | Type | Inter, which Section 1.7 names, is the generated-UI default. | IBM Plex Sans, for the CpE and Git reason above. |
 | Layout | A role dashboard drifts to "card soup". | Only one object is a card: the Next-action card. Other regions are ruled sections. |
+
+### 1.3 Wordmark
+
+| Item | Rule |
+| :---- | :---- |
+| Name | **ThesIsko**: Thesis + Isko (from *Iskolar ng Bayan*, the name PUP students use for themselves) |
+| Set | Source Serif 4, weight 600. "Thes" is ink and "Isko" is PUP Maroon (`maroon-600`). On a dark ground, "Thes" is white and "Isko" is `gold-300`. (Owner reference, 23 Nov 2026.) |
+| Descriptor | "PUP CpE Thesis Progress System" in Plex Sans, uppercase by CSS, small, `neutral-600` |
+| Component | `src/app/_components/landing/wordmark.tsx` |
+| Not allowed | A logo mark, seal, star or any image next to the wordmark (P9) |
 
 ---
 
@@ -191,7 +202,7 @@ All three fonts use the SIL Open Font License. Load them with `next/font/google`
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐ 3px maroon masthead rule
-│ PUP CpE Thesis Progress    │ Students / J. Dela Cruz / Milestone 2   [user]│ top bar 56px
+│ ThesIsko                   │ Students / J. Dela Cruz / Milestone 2   [user]│ top bar 56px
 ├────────────┬─────────────────────────────────────────────────────────┤
 │ Dashboard  │ ┌ DOCKET ─────────────────────────────────────────────┐ │
 │▌Manuscript │ │ ①──②──③──◇  Pre-Final · Ready for review            │ │ where am I
@@ -253,6 +264,26 @@ Use a 4 px base. Tokens: `4, 8, 12, 16, 24, 32, 48, 64`. Each step is at least 2
 | laptop | ≥ 1024 | Full shell. Split workspace. |
 
 ---
+
+### 5.6 Landing page (`/`)
+
+The landing page follows the owner's reference design (23 Nov 2026). It is bright and product-led: the student dashboard floats over a campus photo, and each section shows the product at work. It uses the app's fonts and status tones, so the page and the portals read as one product. Landing styles live only in `src/app/landing.css` under `.landing`.
+
+| Part | Rule |
+| :---- | :---- |
+| Visitors | Account holders only. Every call to action is **Sign in** (`/login`). No sign-up, "Get Started" or demo link. |
+| Copy | Describes the product for people. No rules, file names or form numbers. No result claims that no data supports. |
+| Ground and color | White ground, ink `#1E1617`. Maroon for actions and the emphasized words ("path.", "Versioned Journey."). Gold for the hero note card, the latest-version dot and the result quote. Milestone states use the app tones (done green, pending amber, neutral). |
+| Type | IBM Plex Sans for headings (600, tight tracking) and body. Source Serif 4 for the wordmark and the italic quote "Where is my thesis?" (italic loads on `/` only). Small uppercase eyebrows above section titles are part of the owner's reference. |
+| Header | Wordmark, section links (Home, About, Features, For Users, as in-page anchors from `md`), maroon Sign in pill. |
+| Hero | Dark hero (owner feedback, 23 Nov 2026): the campus drone shot fills the hero, cropped to show the whole Main Building (the new tower under construction stays out of frame), under a neutral dark scrim with no color tint (`.landing-hero-scrim`, about 0.85 alpha behind the text, lighter on the right). Hero and header text are white; "thesis." and "path." are a bright landing red (`--landing-red`, #F2564D, about 5:1 on the dark photo; landing only, not a status color); the eyebrow and "Isko" are gold-300. Eyebrow, h1 "Your thesis. / One clear path.", one paragraph, Sign in. Right: the dashboard window (`DashboardMockup`) and the gold "One status. One version. One next action." note. A wave closes the hero. |
+| Sections | The Thesis Journey (four milestones and five inner steps on a dotted grid). Built for Everyone Involved (four role pills that switch one tile: avatar, one line, and what ThesIsko does for that role; `role-switcher.tsx`, WAI-ARIA tabs with arrow keys). More Than a Folder (version list and a pinned comment thread, `VersionsMockup`). The result band (dark photo slot, quote, Sign in, a glass list of what the product gives). Dark footer. |
+| Product windows | Built in code (`src/app/_components/landing/mockups.tsx`) with sample content, labeled "Illustrative". No compare or diff view (deferred, AGENTS.md §9). |
+| Photos | Two drone photos of the PUP Mabini Campus by Patrick Roque (Wikimedia Commons, CC BY-SA 4.0): `public/landing/pup-main-building.jpg` (hero, cropped from the back drone shot) and `pup-campus-skyline.jpg` (result band). The credit with links stays in the footer, as the license requires. Each file carries its origin in a JPEG comment. No photo may show the PUP seal or logo (P9). |
+| Avatars | `chibi-rig.tsx`: animated chibi characters drawn as layered SVG in the style of the owner's character sheet (23 Nov 2026): dark outlines (`#3B2B2B`), cel shading, clumped hair, large anime eyes with two highlights. Student: fluffy black hair, navy hoodie, white tee, backpack straps, tablet, white sneakers. Adviser: long hair with side bangs, round glasses, navy blazer, ID lanyard, papers. Panel Member: tousled hair, rectangular glasses, dark suit, blue shirt, belt, pen and folder. Coordinator: long center-parted hair, lilac blazer, clipboard. Motion follows the Rive state-machine pattern (inputs `lookX`, `lookY`, `pose`, `expression`), rendered with CSS (`.rig*` in `landing.css`): breathing, blinking, head and eyes follow the cursor, the prop lifts when the role is picked, a wave and speech bubble on click. Nothing moves under `prefers-reduced-motion`. A designer-made Rive file with the same inputs can replace the SVG later. The pills use a still, head-only version. |
+| Elevation | Floating windows: a hairline ring plus two soft maroon-tinted shadows (`.landing-window`). |
+| Motion | The hero window rises in (900 ms). The wordmark draws as a stroke, then fills (`stroke-wordmark.tsx`). A dashed-outline sweep moves between "thesis" and "path" in the hero title (`tech-title.tsx`). Blocks rise in on scroll; rows (journey milestones and steps, feature cards, result list) come in one item after another (`.landing-stagger`, CSS scroll timelines, no script). The four feature cards have a solid border and a fixed-height stage. Each stage plays a short scene of its feature only on hover (`.fb-*` in `landing.css`); at rest it shows the final frame. The roles section has a triangle-lattice backdrop with a gold ring and a maroon square that drift slowly; the avatar stage is a ruled manuscript page with a gold floor light. A fixed blur band covers the bottom 7rem of the screen (`gradual-blur.tsx`, React Bits GradualBlur as published), so blocks rise out of focus and sharpen (blur to 0, scale to 1) as they scroll in; the band fades out at the end of the page. After React Bits Tech Text, Stroke Text, Animated Content and Gradual Blur, rebuilt without `gsap`. Nothing moves under `prefers-reduced-motion`. Buttons press to `scale(0.96)`. |
+| Checks | No horizontal scroll at 360 px. Every Sign in link goes to `/login` (`tests/e2e/home.spec.ts`). |
 
 ## 6. Shape, depth and motion
 
@@ -382,7 +413,7 @@ Emails hold the event, the next action, the deadline and a link only (AGENTS.md 
 
 | Part | Rule |
 | :---- | :---- |
-| Header | A 3 px maroon rule and the text wordmark "PUP CpE Thesis Progress" in serif. No logo. |
+| Header | A 3 px maroon rule and the text wordmark "ThesIsko" in serif. No logo. |
 | Body | Plex Sans with system fallbacks, 16 px, ink on white, 560 px wide |
 | Action | One maroon button with the verb. The full link appears as text below it. |
 | Not allowed | Manuscript text, comments, scores, verdicts, images of any kind (no logo, no seal, P9) |

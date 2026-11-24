@@ -1,0 +1,833 @@
+/*
+ * Landing page world: follows the owner's reference design (23 Nov 2026).
+ * Scoped to `.landing`, so no rule leaks into the app portals.
+ */
+
+.landing {
+  --landing-ink: #1e1617;
+  /* Bright red for the two hero title words on the dark photo: about 5:1 on the darkest
+     scrim, so it reads as a highlight. Landing only; the app keeps its status reds. */
+  --landing-red: #f2564d;
+  background: #ffffff;
+  color: var(--landing-ink);
+}
+
+.landing ::selection {
+  background: var(--color-gold-300);
+  color: var(--color-maroon-900);
+}
+
+/* Floating product window: layered soft shadow and a hairline edge. */
+.landing-window {
+  box-shadow:
+    0 0 0 1px rgb(30 22 23 / 0.06),
+    0 24px 48px -20px rgb(61 5 5 / 0.28),
+    0 8px 16px -8px rgb(30 22 23 / 0.12);
+}
+
+/* Soft panel for the journey and versions sections. */
+.landing-panel {
+  background:
+    radial-gradient(60% 80% at 100% 0%, rgb(244 196 48 / 0.08), transparent 70%),
+    radial-gradient(50% 70% at 0% 100%, rgb(128 0 0 / 0.05), transparent 70%),
+    #fdfbfb;
+}
+
+/* Dotted grid behind the journey diagram. */
+.landing-grid {
+  background-image: radial-gradient(rgb(30 22 23 / 0.09) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/*
+ * Neutral dark scrim over the hero drone shot: it darkens the photo without tinting it.
+ * White hero text needs >= 4.5:1 on the lightest pixel under it, so the text side stays
+ * near 0.85 alpha; the photo opens up on the right, behind the dashboard window.
+ * A top band keeps the header links readable.
+ */
+.landing-hero-scrim {
+  background:
+    linear-gradient(180deg, rgb(12 12 12 / 0.6) 0%, rgb(12 12 12 / 0) 22%),
+    linear-gradient(90deg, rgb(12 12 12 / 0.86) 0%, rgb(12 12 12 / 0.78) 42%, rgb(12 12 12 / 0.42) 72%, rgb(12 12 12 / 0.3) 100%);
+}
+@media (max-width: 1023px) {
+  /*
+   * One column: the hero grows tall, so the photo keeps a fixed height (it would zoom in
+   * to cover the whole hero) and fades into the dark hero ground under the dashboard.
+   */
+  .landing-hero-photo {
+    mask-image: linear-gradient(180deg, #000 65%, transparent);
+  }
+  /* The text sits over the whole photo, so the scrim is even. */
+  .landing-hero-scrim {
+    background: linear-gradient(180deg, rgb(12 12 12 / 0.84), rgb(12 12 12 / 0.76));
+  }
+}
+
+/* Glass checklist card on the dark result band. */
+.landing-glass {
+  background: rgb(255 255 255 / 0.08);
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16);
+}
+
+/* Primary pill button. */
+.landing-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0 1.5rem;
+  border-radius: 999px;
+  background: var(--color-maroon-600);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 10px 22px -10px rgb(128 0 0 / 0.7);
+  transition-property: background-color, transform, box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+.landing-cta:hover {
+  background: var(--color-maroon-700);
+}
+.landing-cta:active {
+  transform: scale(0.96);
+}
+.landing-cta:focus-visible {
+  outline: 3px solid var(--color-gold-400);
+  outline-offset: 3px;
+}
+
+/* One entrance on load: the hero screen rises into place. */
+@media (prefers-reduced-motion: no-preference) {
+  .landing-rise {
+    animation: landing-rise 900ms cubic-bezier(0.16, 1, 0.3, 1) 150ms both;
+  }
+}
+/* Anchor links glide to their section. */
+@media (prefers-reduced-motion: no-preference) {
+  html:has(.landing) {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Scroll reveal: blocks ease up into place as they enter the viewport. Native scroll-driven
+   animation, so no script; browsers without it show the blocks at rest. `-late` trails a
+   little, for the second column of a row. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .landing-reveal,
+    .landing-reveal-late {
+      animation: landing-reveal cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+    .landing-reveal-late {
+      animation-range: entry 12% entry 85%;
+    }
+  }
+}
+/* "Summoned": blocks rise out of the blurred screen bottom, slightly small and out of focus,
+   and settle sharp at full size. */
+@keyframes landing-reveal {
+  from { opacity: 0; transform: translateY(40px) scale(0.96); filter: blur(12px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+
+/* Role switch. --dir is 1 when the new pill is to the right of the old one, -1 when left.
+   The avatar springs in from that side; the text and list items follow in a short stagger. */
+@media (prefers-reduced-motion: no-preference) {
+  .role-art {
+    animation: role-art 620ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  }
+  .role-text > :not(ul),
+  .role-text li {
+    animation: role-text 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--i, 0) * 45ms + 40ms);
+  }
+  .role-pill[aria-selected="true"] svg {
+    animation: role-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+}
+
+/* Jelly role pills, after React Bits JellyRadio (MIT + Commons Clause, (c) 2026 David Haz,
+   https://reactbits.dev/micro/jelly-radio), rebuilt with CSS springs so it needs no motion
+   library. The chosen pill swells and pushes its neighbours out. The button carries the
+   horizontal stretch and the inner skin the vertical one, on two springs, so the pill wobbles
+   like jelly. --jr-side is -1 left of the chosen pill, 1 right of it and 0 on it. --jr-far is
+   the distance in pills, for the ripple delay. --jr-push comes from role-switcher.tsx. */
+.role-pill {
+  translate: calc(var(--jr-side, 0) * var(--jr-push, 0px)) 0;
+  scale: 0.96 1;
+}
+.role-pill .role-skin {
+  scale: 1 0.96;
+}
+.role-pill[aria-selected="true"] {
+  scale: 1.1 1;
+}
+.role-pill[aria-selected="true"] .role-skin {
+  scale: 1 1.1;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .role-pill {
+    --jr-delay: calc(var(--jr-far, 0) * 22ms);
+    transition:
+      translate 560ms var(--jr-soft) var(--jr-delay),
+      scale 680ms var(--jr-jelly) var(--jr-delay);
+  }
+  .role-pill .role-skin {
+    transition:
+      scale 600ms var(--jr-soft) calc(var(--jr-delay) + 50ms),
+      background-color 200ms ease,
+      color 200ms ease,
+      box-shadow 200ms ease;
+  }
+  .role-pill:active .role-skin {
+    scale: 1 0.92;
+    transition-duration: 160ms;
+    transition-delay: 0ms;
+  }
+}
+:root {
+  /* Spring curves: bounce about 0.25 (soft) and 0.55 (jelly). */
+  --jr-soft: linear(0, 0.18 5%, 0.55 11%, 0.88 18%, 1.06 25%, 1.12 31%, 1.1 37%, 1.04 45%, 0.99 55%, 0.98 65%, 1 80%, 1);
+  --jr-jelly: linear(0, 0.25 4%, 0.69 9%, 1.06 14%, 1.28 19%, 1.33 23%, 1.27 28%, 1.13 33%, 0.98 39%, 0.9 44%, 0.89 48%, 0.94 55%, 1.01 62%, 1.04 68%, 1.02 76%, 0.99 86%, 1);
+}
+@keyframes role-art {
+  from { opacity: 0; transform: translate(calc(var(--dir, 1) * 36px), 12px) scale(0.94); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes role-text {
+  from { opacity: 0; transform: translateX(calc(var(--dir, 1) * 24px)); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes role-pop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.18) rotate(-6deg); }
+  100% { transform: scale(1); }
+}
+@keyframes landing-rise {
+  from { transform: translateY(24px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ---------- Chibi rigs (roles section) ---------- */
+
+/* Square grid stage, a nod to the owner's character sheet. */
+
+.rig {
+  --lx: 0;
+  --ly: 0;
+}
+.rig * {
+  transform-box: view-box;
+}
+.rig-mouth-happy {
+  opacity: 0;
+}
+.rig-live[data-pose="lift"] .rig-mouth-happy,
+.rig-live[data-pose="wave"] .rig-mouth-happy {
+  opacity: 1;
+}
+.rig-live[data-pose="lift"] .rig-mouth-calm,
+.rig-live[data-pose="wave"] .rig-mouth-calm {
+  opacity: 0;
+}
+.rig-bubble {
+  transition: opacity 200ms cubic-bezier(0.2, 0, 0, 1);
+}
+/* The happy poses smile. */
+.rig-live[data-pose="present"][data-act="cheer"] .rig-mouth-happy,
+.rig-live[data-pose="present"][data-act="hand-up"] .rig-mouth-happy {
+  opacity: 1;
+}
+.rig-live[data-pose="present"][data-act="cheer"] .rig-mouth-calm,
+.rig-live[data-pose="present"][data-act="hand-up"] .rig-mouth-calm {
+  opacity: 0;
+}
+/* Face the scene card: the art is drawn facing right. */
+.rig-live[data-face="left"] {
+  transform: scaleX(-1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rig-live .rig-breathe {
+    transform-origin: 120px 384px;
+    animation: rig-breathe 3.6s ease-in-out infinite;
+  }
+  .rig-live .rig-eye {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: rig-blink 5.2s infinite;
+  }
+  .rig-live[data-role="adviser"] .rig-eye { animation-delay: 1.3s; }
+  .rig-live[data-role="panel"] .rig-eye { animation-delay: 2.6s; }
+  .rig-live[data-role="coordinator"] .rig-eye { animation-delay: 3.9s; }
+
+  .rig-live .rig-head {
+    transform-origin: 120px 158px;
+    transform: rotate(calc(var(--lx) * 5deg)) translate(calc(var(--lx) * 2px), calc(var(--ly) * 1.5px));
+    transition: transform 320ms cubic-bezier(0.2, 0, 0, 1);
+  }
+  .rig-live .rig-pupil {
+    transform: translate(calc(var(--lx) * 3.5px), calc(var(--ly) * 3px));
+    transition: transform 200ms cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  /* Right arm lifts the prop when the role comes on stage. */
+  .rig-live .rig-arm-r {
+    transform-origin: 158px 174px;
+    transition: transform 520ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .rig-live[data-pose="lift"] .rig-arm-r {
+    transform: rotate(-62deg);
+  }
+
+  /* Present: the character acts out the highlighted feature. data-act picks the pose; the prop
+     is counter-rotated so it stays upright, and the eyes follow it. A new prop pops in when the
+     feature changes. Arms ease between poses with a soft overshoot. */
+  .rig-live .rig-prop {
+    transform-origin: 172px 252px;
+    transition: transform 560ms cubic-bezier(0.34, 1.4, 0.64, 1);
+  }
+  .rig-live .rig-prop-in {
+    transform-origin: 172px 252px;
+    animation: rig-prop-in 460ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  .rig-live[data-pose="present"] .rig-arm-r,
+  .rig-live[data-pose="present"] .rig-arm-l {
+    transition-duration: 560ms;
+    transition-timing-function: cubic-bezier(0.34, 1.4, 0.64, 1);
+  }
+
+  /* show: hold the prop out to the side. */
+  .rig-live[data-pose="present"][data-act="show"] .rig-arm-r { transform: rotate(-40deg); }
+  .rig-live[data-pose="present"][data-act="show"] .rig-prop { transform: rotate(40deg) scale(1.25); }
+  .rig-live[data-pose="present"][data-act="show"] .rig-head {
+    transform: rotate(calc(3deg + var(--lx) * 3deg)) translate(calc(var(--lx) * 2px), calc(var(--ly) * 1.5px));
+  }
+  .rig-live[data-pose="present"][data-act="show"] .rig-pupil {
+    transform: translate(calc(2.5px + var(--lx) * 1.5px), calc(2px + var(--ly) * 1px));
+  }
+
+  /* front: hold the prop in front of the chest and look down at it. */
+  .rig-live[data-pose="present"][data-act="front"] .rig-arm-r,
+  .rig-live[data-pose="present"][data-act="hand-up"] .rig-arm-r { transform: rotate(26deg); }
+  .rig-live[data-pose="present"][data-act="front"] .rig-prop,
+  .rig-live[data-pose="present"][data-act="hand-up"] .rig-prop { transform: rotate(-26deg) scale(1.2); }
+  .rig-live[data-pose="present"][data-act="front"] .rig-head {
+    transform: rotate(calc(-2deg + var(--lx) * 2deg)) translateY(2px);
+  }
+  .rig-live[data-pose="present"][data-act="front"] .rig-pupil { transform: translate(0.5px, 3.5px); }
+
+  /* raise: lift the prop high, beside the head, and look up at it. */
+  .rig-live[data-pose="present"][data-act="raise"] .rig-arm-r { transform: rotate(-138deg); }
+  .rig-live[data-pose="present"][data-act="raise"] .rig-prop { transform: rotate(138deg) scale(1.15); }
+  .rig-live[data-pose="present"][data-act="raise"] .rig-head { transform: rotate(5deg) translateY(-1px); }
+  .rig-live[data-pose="present"][data-act="raise"] .rig-pupil { transform: translate(3px, -3px); }
+
+  /* hand-up: prop in front, the other hand up ("I did it"). */
+  .rig-live[data-pose="present"][data-act="hand-up"] .rig-arm-l { transform: rotate(128deg); }
+  .rig-live[data-pose="present"][data-act="hand-up"] .rig-head { transform: rotate(-4deg); }
+
+  /* cheer: both arms up and two small hops. */
+  .rig-live[data-pose="present"][data-act="cheer"] .rig-arm-r { transform: rotate(-130deg); }
+  .rig-live[data-pose="present"][data-act="cheer"] .rig-prop { transform: rotate(130deg) scale(1.1); }
+  .rig-live[data-pose="present"][data-act="cheer"] .rig-arm-l { transform: rotate(128deg); }
+  .rig-live[data-pose="present"][data-act="cheer"] .rig-head { transform: rotate(-3deg); }
+  .rig-live[data-pose="present"][data-act="cheer"] .rig-body {
+    animation: rig-hop 520ms cubic-bezier(0.3, 0, 0.3, 1) 380ms 2;
+  }
+
+  /* Turning to face the scene card. */
+  .rig-live {
+    transition: transform 420ms cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  /* Left arm waves when the character is clicked. */
+  .rig-live .rig-arm-l {
+    transform-origin: 82px 174px;
+    transition: transform 360ms cubic-bezier(0.2, 0, 0, 1);
+  }
+  .rig-live[data-pose="wave"] .rig-arm-l {
+    animation: rig-wave 1.4s ease-in-out;
+  }
+}
+
+@keyframes rig-hop {
+  0%, 100% { transform: translateY(0); }
+  45% { transform: translateY(-14px); }
+}
+@keyframes rig-prop-in {
+  from { opacity: 0; transform: scale(0.6) rotate(-12deg); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes rig-breathe {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50% { transform: translateY(-2px) scaleY(1.012); }
+}
+@keyframes rig-blink {
+  0%, 93%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+@keyframes rig-wave {
+  0% { transform: rotate(0deg); }
+  20% { transform: rotate(125deg); }
+  40% { transform: rotate(150deg); }
+  60% { transform: rotate(118deg); }
+  80% { transform: rotate(145deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* ---------- Feature tour (roles section) ---------- */
+
+/* The progress line under the highlighted feature. When it ends, the tour moves on, so with
+   reduced motion (no animation) the tour stays put. Hover, focus or Pause holds it. */
+.feature-progress {
+  display: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .feature-progress {
+    display: block;
+    transform-origin: left;
+    animation: feature-progress 5200ms linear both;
+  }
+  .feature-tour:hover .feature-progress,
+  .feature-tour:focus-within .feature-progress,
+  .feature-tour[data-paused="true"] .feature-progress {
+    animation-play-state: paused;
+  }
+  .scene-card {
+    animation: scene-card 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .rig-slot {
+    transition: transform 720ms cubic-bezier(0.65, 0, 0.35, 1);
+  }
+}
+@keyframes feature-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes scene-card {
+  from { opacity: 0; transform: translate(calc(var(--from, 1) * 18px), 8px) scale(0.94); }
+  to { opacity: 1; transform: none; }
+}
+
+/* The scene card sits in one of four corners of the stage; the avatar stands on the other side.
+   Poses that lift the prop (raise, cheer) use the bottom corners, so the card never hides it. */
+.rig-stage {
+  container-type: inline-size;
+}
+.scene-card {
+  position: absolute;
+  top: 1rem;
+}
+.scene-card[data-pos$="r"] { right: 1rem; --from: 1; }
+.scene-card[data-pos$="l"] { left: 1rem; --from: -1; }
+.scene-card[data-pos^="b"] { top: auto; bottom: 1.5rem; }
+/* 100cqw is the stage's content box, so the padding is already left out. */
+.rig-stage[data-side="left"] .rig-slot {
+  transform: translateX(calc(100cqw - 100%));
+}
+
+/* Scene parts. Each is drawn at its final state; these animate it in from hidden, once. --d is
+   the delay for one part. */
+.scene * {
+  transform-box: fill-box;
+}
+.sc-swap-out {
+  opacity: 0;
+}
+.scene .sc-cover {
+  transform-origin: left;
+  transform: scaleX(0);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .scene [class^="sc-"] {
+    animation-delay: var(--d, 0ms);
+    animation-fill-mode: both;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    animation-duration: 560ms;
+  }
+  .scene .sc-pop { transform-origin: center; animation-name: sc-pop; animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .scene .sc-rise { animation-name: sc-rise; }
+  .scene .sc-drop { animation-name: sc-drop; animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .scene .sc-fade { animation-name: sc-fade; }
+  .scene .sc-slide-l { animation-name: sc-slide-l; }
+  .scene .sc-slide-r { animation-name: sc-slide-r; }
+  .scene .sc-grow-x { transform-origin: left; animation-name: sc-grow-x; animation-duration: 900ms; }
+  .scene .sc-draw { animation-name: sc-draw; animation-duration: 700ms; }
+  .scene .sc-float { animation-name: sc-float; animation-duration: 1400ms; }
+  .scene .sc-cover { transform-origin: left; animation-name: sc-cover; animation-duration: 700ms; }
+  .scene .sc-swap-out { animation-name: sc-swap-out; animation-duration: 300ms; }
+  .scene .sc-shake { transform-origin: top; animation-name: sc-shake; animation-duration: 900ms; animation-timing-function: ease-in-out; }
+  .scene .sc-wave { transform-origin: left bottom; animation-name: sc-wave; animation-duration: 1200ms; animation-timing-function: ease-in-out; }
+  .scene .sc-write { animation-name: sc-write; animation-duration: 1500ms; animation-timing-function: ease-in-out; }
+  .scene .sc-pulse { transform-origin: center; animation: sc-pulse 1600ms ease-out 1.2s 3 both; }
+}
+@keyframes sc-pop { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: none; } }
+@keyframes sc-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes sc-drop { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: none; } }
+@keyframes sc-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sc-slide-l { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: none; } }
+@keyframes sc-slide-r { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+@keyframes sc-grow-x { from { transform: scaleX(0); } to { transform: none; } }
+@keyframes sc-draw { from { stroke-dasharray: 1; stroke-dashoffset: 1; } to { stroke-dasharray: 1; stroke-dashoffset: 0; } }
+@keyframes sc-float {
+  0% { opacity: 0; transform: translateY(14px); }
+  40% { opacity: 1; transform: translateY(-4px); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes sc-cover { from { transform: none; } to { transform: scaleX(0); } }
+@keyframes sc-swap-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes sc-shake {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(14deg); }
+  40% { transform: rotate(-12deg); }
+  60% { transform: rotate(8deg); }
+  80% { transform: rotate(-4deg); }
+}
+@keyframes sc-wave {
+  0%, 100% { transform: none; }
+  30% { transform: skewY(-8deg); }
+  65% { transform: skewY(6deg); }
+}
+@keyframes sc-write {
+  0% { opacity: 0; transform: translate(-60px, -46px); }
+  15% { opacity: 1; }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes sc-pulse {
+  from { opacity: 0.9; transform: scale(0.7); }
+  to { opacity: 0; transform: scale(1.6); }
+}
+
+/* Hero construction on load (hero-stroke.tsx). Each letter of the title draws as an outline,
+   each word fills with a wipe from the left, and the outline fades. Then the paragraph rises,
+   and the Sign in button builds: its outline draws, it fills, and its label slides in. The
+   step times are custom properties on .hero-build. Without motion, all shows at rest. */
+.hero-build {
+  --hb-draw: 1.2s;
+  --hb-fill: calc(var(--hb-draw) + 0.15s);
+  --hb-copy: 1.7s;
+  --hb-cta: 2s;
+}
+.hero-stroke-svg {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+  opacity: 0;
+}
+.hero-stroke-svg text {
+  fill: none;
+  stroke: var(--color-gold-300);
+  stroke-width: 1.6px;
+  stroke-linejoin: round;
+}
+.hero-cta-outline {
+  display: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-stroke-svg {
+    opacity: 1;
+    animation: hb-fade 0.6s ease calc(var(--hb-fill) + 0.7s) forwards;
+  }
+  .hero-stroke-svg tspan {
+    stroke-dasharray: 900;
+    stroke-dashoffset: 900;
+    animation: sw-draw var(--hb-draw) cubic-bezier(0.33, 1, 0.68, 1) calc(var(--i) * 35ms) forwards;
+  }
+  .hero-build .hero-fill {
+    clip-path: inset(-25% 100% -25% 0);
+    animation: sw-wipe 0.7s cubic-bezier(0.65, 0, 0.35, 1) calc(var(--hb-fill) + var(--w, 0) * 90ms) forwards;
+  }
+  .hero-build .hero-eyebrow {
+    animation: hb-rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+  }
+  .hero-build .hero-copy {
+    animation: hb-rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) var(--hb-copy) both;
+  }
+  .hero-build .hero-note {
+    animation: hb-rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--hb-cta) + 0.9s) both;
+  }
+  /* The Sign in button: the outline draws round the pill, the maroon floods in, then the label. */
+  .hero-build .landing-cta {
+    position: relative;
+    animation: hb-cta-fill 0.45s cubic-bezier(0.2, 0, 0, 1) calc(var(--hb-cta) + 0.55s) backwards;
+  }
+  .hero-build .landing-cta > :not(.hero-cta-outline) {
+    animation: hb-cta-label 0.5s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--hb-cta) + 0.75s) backwards;
+  }
+  .hero-cta-outline {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .hero-cta-outline rect {
+    fill: none;
+    stroke: var(--color-gold-300);
+    stroke-width: 1.5px;
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation:
+      hb-outline 0.6s cubic-bezier(0.65, 0, 0.35, 1) var(--hb-cta) forwards,
+      hb-fade 0.4s ease calc(var(--hb-cta) + 0.9s) forwards;
+  }
+}
+@keyframes hb-fade {
+  to { opacity: 0; }
+}
+@keyframes hb-rise {
+  from { opacity: 0; transform: translateY(14px); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+@keyframes hb-outline {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes hb-cta-fill {
+  from { background-color: transparent; box-shadow: 0 10px 22px -10px rgb(128 0 0 / 0); }
+}
+@keyframes hb-cta-label {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Wordmark stroke draw, then fill wipe (stroke-wordmark.tsx). Without motion it shows filled. */
+@media (prefers-reduced-motion: no-preference) {
+  .stroke-wordmark-line {
+    stroke-dasharray: 700;
+    stroke-dashoffset: 700;
+    animation: sw-draw 1.6s cubic-bezier(0.33, 1, 0.68, 1) calc(var(--i) * 50ms) forwards;
+  }
+  .stroke-wordmark-fill {
+    clip-path: inset(-20% 100% -20% 0);
+    animation: sw-wipe 0.8s cubic-bezier(0.65, 0, 0.35, 1) 1.8s forwards;
+  }
+}
+@keyframes sw-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes sw-wipe {
+  to { clip-path: inset(-20% -5% -20% 0); }
+}
+
+/* Staggered reveal: the children of a row ease in one after another as the row scrolls into
+   view. Each child sets --i (0, 1, 2 ...); its scroll range starts a step later. `-blur` adds a
+   soft focus-in, for the dark result band. Browsers without scroll timelines show them at rest. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .landing-stagger > *,
+    .landing-stagger-blur > * {
+      animation: landing-stagger cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-timeline: view();
+      animation-range: cover calc(var(--i, 0) * 2.5%) cover calc(20% + var(--i, 0) * 2.5%);
+    }
+    .landing-stagger-blur > * {
+      animation-name: landing-stagger-blur;
+    }
+  }
+}
+@keyframes landing-stagger {
+  from { opacity: 0; transform: translateY(20px) scale(0.92); filter: blur(8px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+@keyframes landing-stagger-blur {
+  from { opacity: 0; transform: translateY(12px); filter: blur(6px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+
+/* ── Roles section: geometric backdrop ─────────────────────────────────────────────────
+   A fine triangle lattice (maroon hairlines, gold nodes) that fades out toward the content,
+   with two large outline shapes, a gold ring and a tilted maroon square, at the edges. */
+.landing-roles-bg {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: linear-gradient(180deg, #ffffff 0%, #fdf9f6 55%, #ffffff 100%);
+}
+.landing-roles-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='69.28'%3E%3Cg fill='none' stroke='%23800000' stroke-opacity='0.09' stroke-width='1'%3E%3Cpath d='M0 0L40 69.28M40 0L0 69.28M0 0H40M0 34.64H40'/%3E%3C/g%3E%3Cg fill='%23D4A017' fill-opacity='0.35'%3E%3Ccircle cx='0' cy='0' r='1.6'/%3E%3Ccircle cx='40' cy='0' r='1.6'/%3E%3Ccircle cx='20' cy='34.64' r='1.6'/%3E%3Ccircle cx='0' cy='69.28' r='1.6'/%3E%3Ccircle cx='40' cy='69.28' r='1.6'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 40px 69.28px;
+  mask-image: radial-gradient(120% 90% at 50% 40%, transparent 30%, #000 75%);
+  -webkit-mask-image: radial-gradient(120% 90% at 50% 40%, transparent 30%, #000 75%);
+}
+.landing-roles-bg::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -6rem;
+  right: -5rem;
+  width: 22rem;
+  height: 22rem;
+  border-radius: 999px;
+  border: 2px solid rgb(212 160 23 / 0.35);
+  box-shadow:
+    0 0 0 28px rgb(212 160 23 / 0.06),
+    0 0 0 29px rgb(212 160 23 / 0.2);
+  pointer-events: none;
+}
+.landing-roles-shape {
+  position: absolute;
+  z-index: -1;
+  left: -4rem;
+  bottom: 3rem;
+  width: 11rem;
+  height: 11rem;
+  rotate: 18deg;
+  border: 2px solid rgb(128 0 0 / 0.18);
+  border-radius: 1.5rem;
+  box-shadow: 18px 18px 0 -2px rgb(128 0 0 / 0.05);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .landing-roles-bg::after { animation: roles-orbit 18s ease-in-out infinite alternate; }
+  .landing-roles-shape { animation: roles-tilt 14s ease-in-out infinite alternate; }
+}
+@keyframes roles-orbit { to { transform: translate(-1.5rem, 1.5rem) scale(1.06); } }
+@keyframes roles-tilt { to { rotate: 34deg; translate: 0.75rem -1rem; } }
+
+/* ── Avatar stage: a manuscript page ────────────────────────────────────────────────────
+   Ruled lines and a maroon double margin rule, like a thesis draft on a legal pad; a warm
+   gold pool of light sits on the floor under the character. Replaces the graph-paper grid. */
+.rig-stage {
+  background-color: #fffdf8;
+  background-image:
+    radial-gradient(40% 22% at var(--floor-x, 30%) 96%, rgb(244 196 48 / 0.3), transparent 70%),
+    linear-gradient(90deg, transparent 2.25rem, rgb(128 0 0 / 0.28) 2.25rem, rgb(128 0 0 / 0.28) calc(2.25rem + 1px), transparent calc(2.25rem + 1px), transparent calc(2.25rem + 4px), rgb(128 0 0 / 0.2) calc(2.25rem + 4px), rgb(128 0 0 / 0.2) calc(2.25rem + 5px), transparent calc(2.25rem + 5px)),
+    repeating-linear-gradient(180deg, transparent 0 27px, rgb(37 70 120 / 0.1) 27px 28px);
+  background-position: 0 0, 0 0, 0 3.5rem;
+  background-repeat: no-repeat, no-repeat, repeat;
+}
+/* The floor light follows the character to the side it stands on. */
+.rig-stage[data-side="left"] {
+  --floor-x: 70%;
+}
+
+/* ── Feature card scenes (feature-cards.tsx) ─────────────────────────────────────────────
+   Each scene loops on its own. With reduced motion, every element shows its final frame. */
+.fb-mark { background: linear-gradient(transparent 55%, rgb(244 196 48 / 0.7) 55%) no-repeat 0 0 / 100% 100%; }
+.fb-typing { opacity: 0; }
+.fb-ver-new::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.65) 50%, transparent 70%);
+  transform: translateX(-120%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fb-card:hover .fb-icon { animation: fb-hop 600ms cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+  /* Version history: an upload fills the bar, then v3 lands with a bounce and a glint. */
+  .fb-card .fb-ver { animation: fb-ver 6s cubic-bezier(0.34, 1.56, 0.64, 1) infinite; animation-delay: var(--d); }
+  .fb-card .fb-ver-new { animation: fb-ver-new 6s cubic-bezier(0.34, 1.56, 0.64, 1) infinite; }
+  .fb-card .fb-ver-new::after { animation: fb-glint 6s ease-in-out infinite; }
+  .fb-bar { transform-origin: left; }
+  .fb-card .fb-bar { animation: fb-bar 6s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
+  .fb-card .fb-up { animation: fb-up 6s ease-in-out infinite; }
+
+  /* Pinned feedback: the pin drops in, the note swings on it, a highlighter sweeps the text. */
+  .fb-note { transform-origin: 1.5rem 0; }
+  .fb-card .fb-pin { animation: fb-pin 7s cubic-bezier(0.34, 1.56, 0.64, 1) infinite; }
+  .fb-card .fb-note { animation: fb-swing 7s ease-in-out infinite; }
+  .fb-card .fb-mark { animation: fb-mark 7s ease-out infinite; }
+
+  /* Fix tags: the fix slides over, the link marches, the comment pops a check. */
+  .fb-card .fb-fix { animation: fb-fix 6s cubic-bezier(0.34, 1.56, 0.64, 1) infinite; }
+  .fb-card .fb-link { animation: fb-march 0.6s linear infinite; }
+  .fb-card .fb-target { animation: fb-target 6s ease-in-out infinite; }
+  .fb-card .fb-check { animation: fb-check 6s cubic-bezier(0.34, 1.8, 0.64, 1) infinite; }
+
+  /* Threaded replies: the Adviser asks, the Student types, the reply pops in. */
+  .fb-card .fb-msg { animation: fb-msg 8s cubic-bezier(0.34, 1.56, 0.64, 1) infinite; }
+  .fb-card .fb-typing { animation: fb-typing 8s ease-in-out infinite; }
+  .fb-card .fb-dot { animation: fb-dot 0.9s ease-in-out infinite; animation-delay: var(--d); }
+  .fb-card .fb-reply { animation: fb-reply 8s cubic-bezier(0.34, 1.56, 0.64, 1) infinite; }
+}
+@keyframes fb-hop { 40% { transform: translateY(-6px) rotate(-8deg); } 70% { transform: translateY(1px) rotate(4deg); } }
+
+@keyframes fb-ver {
+  0% { opacity: 0; transform: translateX(-14px) scale(0.8); }
+  10%, 88% { opacity: 1; transform: none; }
+  96%, 100% { opacity: 0; transform: translateY(6px); }
+}
+@keyframes fb-ver-new {
+  0%, 52% { opacity: 0; transform: translateY(-18px) scale(0.6) rotate(-6deg); }
+  62%, 88% { opacity: 1; transform: none; }
+  96%, 100% { opacity: 0; transform: translateY(6px); }
+}
+@keyframes fb-glint { 0%, 64% { transform: translateX(-120%); } 76%, 100% { transform: translateX(120%); } }
+@keyframes fb-bar {
+  0%, 14% { transform: scaleX(0); opacity: 1; }
+  52% { transform: scaleX(1); opacity: 1; }
+  62%, 100% { transform: scaleX(1); opacity: 0.25; }
+}
+@keyframes fb-up {
+  0%, 14% { transform: translateY(0); }
+  20%, 32%, 44% { transform: translateY(-4px); }
+  26%, 38%, 52% { transform: translateY(0); }
+  58% { transform: translateY(-10px); opacity: 0; }
+  66%, 100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fb-pin {
+  0% { opacity: 0; transform: translateY(-28px) rotate(-30deg); }
+  10% { opacity: 1; transform: translateY(2px) rotate(8deg); }
+  14%, 90% { opacity: 1; transform: none; }
+  97%, 100% { opacity: 0; transform: translateY(-10px) rotate(-20deg); }
+}
+@keyframes fb-swing {
+  0%, 10% { transform: rotate(0); }
+  15% { transform: rotate(-4deg); }
+  21% { transform: rotate(2.5deg); }
+  27% { transform: rotate(-1deg); }
+  32%, 100% { transform: rotate(0); }
+}
+@keyframes fb-mark { 0%, 30% { background-size: 0% 100%; } 48%, 92% { background-size: 100% 100%; } 100% { background-size: 0% 100%; } }
+
+@keyframes fb-fix {
+  0% { opacity: 0; transform: translateX(-30px) rotate(-8deg); }
+  14% { opacity: 1; transform: translateX(4px) rotate(2deg); }
+  20%, 90% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateX(-10px); }
+}
+@keyframes fb-march { to { stroke-dashoffset: -6; } }
+@keyframes fb-target {
+  0%, 38% { background-color: var(--color-neutral-100); }
+  46%, 100% { background-color: var(--color-green-100); }
+}
+@keyframes fb-check {
+  0%, 40% { opacity: 0; transform: scale(0) rotate(-90deg); }
+  48% { opacity: 1; transform: scale(1.35) rotate(10deg); }
+  54%, 90% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: scale(0); }
+}
+
+@keyframes fb-msg {
+  0% { opacity: 0; transform: scale(0.4); }
+  8%, 90% { opacity: 1; transform: none; }
+  97%, 100% { opacity: 0; transform: scale(0.9); }
+}
+@keyframes fb-typing {
+  0%, 14% { opacity: 0; transform: scale(0.5); }
+  20%, 44% { opacity: 1; transform: none; }
+  48%, 100% { opacity: 0; transform: scale(0.6); }
+}
+@keyframes fb-dot { 0%, 100% { transform: translateY(0); opacity: 0.4; } 40% { transform: translateY(-4px); opacity: 1; } }
+@keyframes fb-reply {
+  0%, 46% { opacity: 0; transform: scale(0.3) rotate(-4deg); }
+  56%, 90% { opacity: 1; transform: none; }
+  97%, 100% { opacity: 0; transform: scale(0.9); }
+}
+

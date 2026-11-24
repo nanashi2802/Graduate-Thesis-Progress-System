@@ -1,7 +1,7 @@
 # SITEMAP — PUP CpE Thesis Progress Monitoring System
 
 **Compliance standard:** Simplified Technical English (ASD-STE100) at about 80%
-**Version:** 1.0 draft · 22 Nov 2026
+**Version:** 1.1 draft · 23 Nov 2026 · Change log: 23 Nov 2026, the owner added the public landing page `/` (route 31).
 **Derived from:** Unified Thesis Process v1.1 (Parts 3 and 4), Operational Flow, DFD and Sitemap v3.1 (Part 4), Functional Requirements v1.1
 **Rule for this file:** This file holds no new rule. If it disagrees with the Functional Requirements, the Functional Requirements win. Correct this file.
 **Companion files:** `PRD.md`, `USERFLOW.md`, `DFD.md`, `ERD.md`
@@ -13,8 +13,8 @@
 | Item | Value |
 | :---- | :---- |
 | Portals | 4: `/student`, `/adviser`, `/panel`, `/coordinator` |
-| Routes | 30: 1 public, 7 Student, 6 Adviser, 5 Panel Member, 11 Coordinator |
-| Screens | Sign in, 25 role screens (S1 to S6, A1 to A5, P1 to P4, C1 to C10), and 1 shared submission view (SV) on 4 routes |
+| Routes | 31: 2 public, 7 Student, 6 Adviser, 5 Panel Member, 11 Coordinator |
+| Screens | Landing page, Sign in, 25 role screens (S1 to S6, A1 to A5, P1 to P4, C1 to C10), and 1 shared submission view (SV) on 4 routes |
 | Page-frame panels | 3, with no route: notification center, preferences, search |
 
 ## 2. Global access rules
@@ -33,10 +33,11 @@
 | 10 | The meeting link of an online consultation shows only to the Adviser and the booked Student. | FR-SCH-03 |
 | 11 | Every disabled action shows its reason. | BR-18 |
 
-## 3. Route table (30 routes)
+## 3. Route table (31 routes)
 
 | Route | Role | Screen | ID | Main FRs |
 | :---- | :---- | :---- | :---- | :---- |
+| `/` | Public | Landing page: what ThesIsko is, and the way in (Sign in). No sign-up. | — | ACC-01, ACC-04 |
 | `/login` | Public | Sign in | — | ACC-01, ACC-08 |
 | `/student/dashboard` | Student | Thesis tracker | S1 | TRK-01, TRK-05, WFL-12 |
 | `/student/pr/[prId]` | Student | Manuscript workspace | S2 | REV-01 to REV-08, REV-14 |

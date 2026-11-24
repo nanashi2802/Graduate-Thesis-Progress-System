@@ -23,7 +23,8 @@ const sourceSerif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
-  title: "PUP CpE Thesis Progress",
+  // Product name ThesIsko (DESIGN.md §1.3).
+  title: "ThesIsko — PUP CpE Thesis Progress System",
   description: "Thesis progress monitoring for PUP CpE graduate students",
 };
 
