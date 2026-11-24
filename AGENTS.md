@@ -229,7 +229,7 @@ CI (`.github/workflows/ci.yml`) runs lint, type check, unit tests, the build and
 
 ### 13.5 When to stop
 
-- Stop at the end of Phase 3 (P3-E06 passes). Phase 4 items need the human to pick them (`spec/BUILD_PLAN.md` §6). A builder whose track has no task left ends its run with `RESULT: phase-complete`. "No task left" also needs the §8 gap closure steps done or blocked, and P3-E07-T03 (FR coverage check) passed. The runner then starts it no more.
+- Stop at the end of Phase 3 (P3-E06 passes). Phase 4 items need the human to pick them (`spec/BUILD_PLAN.md` §6). A builder whose track has no task left ends its run with `RESULT: phase-complete`. "No task left" also needs the §8 gap closure steps done or blocked, and P3-E07-T03 (FR coverage check) passed. Before you report it, search the epics of your track in `spec/BUILD_PLAN.md` for `- [ ]`. Each open box needs a task in your track or a "blocked" decision. Your own task list alone is not enough. The runner then starts it no more.
 - Stop and write the reason in `spec/AGENT_DECISIONS.md` when a step needs a paid plan, a payment method, real student data or a human sign-in that you cannot do.
 - If one task fails 3 times for the same reason, log it as blocked, note it in your pull request, and take the next task that does not depend on it.
 - Before you stop, push your branch and leave your pull request in a clear state (ready, draft or closed, with a note).
@@ -262,6 +262,9 @@ CI (`.github/workflows/ci.yml`) runs lint, type check, unit tests, the build and
    - It does not change §2, §13, `.claude/`, `.githooks/`, `commit-policy.yml`, `scripts/agents*.sh`, `docs/agents/` or the rulesets. A change to `ci.yml` only fixes a step.
    - It edits only files its author owns or files nobody owns (§13.1). An edit of the other agent's files or plan lines is blocking.
    - The hand-off note shows a full `pnpm test` run on the head commit. A partial run is blocking.
+   - Security, for each change to sign-in, sessions, routes, file links or config: a refused role makes no data call, a signed link covers one key and one action, an email links an account only when it is verified, and the security headers stay. A gap is blocking.
+   - Each new test fails when the code it tests is removed. A test of a rule that checks only a count or "no throw" is blocking.
+   - Each "Done when" box that the pull request ticks is true in the diff.
    - Each decision is in `spec/AGENT_DECISIONS.md`, and its risk is stated honestly.
    - Every disabled action shows its reason (BR-18). UI text follows §5.
 5. **Pass:** set the status on the head commit:
