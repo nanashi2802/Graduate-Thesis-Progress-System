@@ -1,23 +1,31 @@
-import type { CSSProperties, ReactNode } from "react";
+"use client";
+
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { ArrowUp, Check, Layers, MessageSquare, MessagesSquare, Pin, Tag, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /*
  * Versions features: four equal cards in the order of one revision loop (upload, feedback,
- * fix, reply). Each card has a solid border and a fixed-height stage. The stage plays a short
- * scene of its feature only while you hover the card (`.fb-*` keyframes in landing.css). At
- * rest, and with reduced motion, each stage shows the final frame. Sample content only.
+ * fix, reply). Each card has a solid border and a fixed-height stage. The cards play a short
+ * scene of their feature one at a time, in a loop (`.fb-*` keyframes in landing.css). The
+ * playing card has a maroon border. Hover a card to play it and hold it.
+ * The other cards, and all cards with reduced motion, show the final frame. Sample content only.
  */
 
 const chip = "rounded-full px-2.5 py-1 text-xs font-medium";
 
-type Feature = { name: string; line: string; icon: LucideIcon; scene: ReactNode };
+/** scene: the length of the scene keyframes in seconds. The turn passes on at PLAY of it,
+ * before the keyframes fade out for a loop. */
+type Feature = { name: string; line: string; icon: LucideIcon; seconds: number; scene: ReactNode };
+
+const PLAY = 0.88;
 
 const at = (d: number) => ({ "--d": `${d}s` }) as CSSProperties;
 
 const FEATURES: Feature[] = [
   {
     name: "Version history",
+    seconds: 3.6,
     line: "Track every upload.",
     icon: Layers,
     scene: (
@@ -43,6 +51,7 @@ const FEATURES: Feature[] = [
   },
   {
     name: "Pinned feedback",
+    seconds: 4.2,
     line: "Always in context.",
     icon: MessageSquare,
     scene: (
@@ -56,6 +65,7 @@ const FEATURES: Feature[] = [
   },
   {
     name: "Fix tags",
+    seconds: 3.6,
     line: "Link each fix to a comment.",
     icon: Tag,
     scene: (
@@ -76,6 +86,7 @@ const FEATURES: Feature[] = [
   },
   {
     name: "Threaded replies",
+    seconds: 4.8,
     line: "Clear discussions.",
     icon: MessagesSquare,
     scene: (
@@ -100,32 +111,67 @@ const FEATURES: Feature[] = [
 ];
 
 export function FeatureCards({ className }: { className?: string }) {
+  // -1 until the effect runs, so the server render and reduced motion show every card at rest.
+  const [active, setActive] = useState(-1);
+  const [held, setHeld] = useState(false);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (held) return;
+    // The first card starts a moment after load; each next card when the one before ends.
+    const ms = active < 0 ? 400 : (FEATURES[active]?.seconds ?? 3.6) * PLAY * 1000;
+    const timer = window.setTimeout(() => setActive((i) => (i + 1) % FEATURES.length), ms);
+    return () => window.clearTimeout(timer);
+  }, [active, held]);
+
   return (
     <ul className={cn("landing-stagger grid gap-4 md:grid-cols-2 xl:grid-cols-4", className)}>
-      {FEATURES.map((f, i) => (
-        <li
-          key={f.name}
-          style={{ "--i": i } as CSSProperties}
-          className="fb-card flex flex-col rounded-2xl border border-neutral-200 bg-white p-4 transition-[border-color,box-shadow] duration-200 hover:border-maroon-600/45 hover:shadow-[0_10px_30px_-18px_rgb(128_0_0/0.45)]"
-        >
-          <div
-            aria-hidden="true"
-            className="flex min-h-32 items-center rounded-xl border border-neutral-100 bg-neutral-50 px-4 py-5"
+      {FEATURES.map((f, i) => {
+        const on = i === active;
+        return (
+          <li
+            key={f.name}
+            data-active={on}
+            onPointerEnter={() => {
+              if (active < 0) return;
+              setActive(i);
+              setHeld(true);
+            }}
+            onPointerLeave={() => setHeld(false)}
+            style={{ "--i": i } as CSSProperties}
+            className={cn(
+              "fb-card flex flex-col rounded-2xl border bg-white p-4 transition-[border-color,box-shadow] duration-300",
+              on
+                ? "border-maroon-600/55 shadow-[0_10px_30px_-18px_rgb(128_0_0/0.5)]"
+                : "border-neutral-200",
+            )}
           >
-            {f.scene}
-          </div>
-          <div className="mt-4 flex items-start gap-3 px-1">
-            <span className="fb-icon flex size-9 shrink-0 items-center justify-center rounded-lg bg-maroon-50 text-maroon-600">
-              <f.icon aria-hidden="true" strokeWidth={1.5} className="size-[18px]" />
-            </span>
-            <div className="min-w-0">
-              <h3 className="text-[15px] font-semibold text-neutral-900">{f.name}</h3>
-              <p className="mt-0.5 text-sm text-neutral-600">{f.line}</p>
+            <div
+              aria-hidden="true"
+              className="flex min-h-32 items-center rounded-xl border border-neutral-100 bg-neutral-50 px-4 py-5"
+            >
+              {f.scene}
             </div>
-            <span className="ml-auto font-mono text-[11px] text-neutral-400 tabular-nums">0{i + 1}</span>
-          </div>
-        </li>
-      ))}
+            <div className="mt-4 flex items-start gap-3 px-1">
+              <span className="fb-icon flex size-9 shrink-0 items-center justify-center rounded-lg bg-maroon-50 text-maroon-600">
+                <f.icon aria-hidden="true" strokeWidth={1.5} className="size-[18px]" />
+              </span>
+              <div className="min-w-0">
+                <h3 className="text-[15px] font-semibold text-neutral-900">{f.name}</h3>
+                <p className="mt-0.5 text-sm text-neutral-600">{f.line}</p>
+              </div>
+              <span
+                className={cn(
+                  "ml-auto font-mono text-[11px] tabular-nums transition-colors duration-300",
+                  on ? "text-maroon-600" : "text-neutral-400",
+                )}
+              >
+                0{i + 1}
+              </span>
+            </div>
+          </li>
+        );
+      })}
     </ul>
   );
 }

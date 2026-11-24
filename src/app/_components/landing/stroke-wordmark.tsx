@@ -3,20 +3,26 @@ import { cn } from "@/lib/utils";
 
 /*
  * The "ThesIsko" wordmark, drawn as a stroke on load, then filled with a wipe from the left.
+ * The outline fades out after the fill, so the wordmark rests as plain filled letters.
+ * On dark, "Isko" uses #a80000: the button maroon (#800000) at the same red hue, a little
+ * brighter, because thin letters on the dark photo read darker than a filled button.
  * After React Bits StrokeText (MIT + Commons Clause, (c) 2026 David Haz,
  * https://reactbits.dev/text-animations/stroke-text), rebuilt with CSS keyframes (landing.css)
  * so it needs no script and no animation library.
  *
  * The SVG copies the HTML wordmark box: Source Serif 4 at 600 measures 424.1 units wide at a
  * 100-unit size (letter-spacing -0.01em), with a 104-unit ascent and a 34-unit descent.
- * textLength holds the width if the fallback serif shows before the web font loads.
+ * TRACK adds open letter spacing: 7 gaps of 0.06em. textLength with lengthAdjust "spacing"
+ * puts the extra width only between the letters, so the glyphs keep their shape. It also holds
+ * the width if the fallback serif shows before the web font loads.
  */
-const WIDTH = 424.1;
+const TRACK = 6;
+const WIDTH = 424.1 + 7 * TRACK;
 const ASCENT = 104;
 const DESCENT = 34;
 const PARTS = [
   { text: "Thes", fill: "var(--color-foreground)", dark: "#ffffff" },
-  { text: "Isko", fill: "var(--color-maroon-600)", dark: "var(--color-gold-300)" },
+  { text: "Isko", fill: "var(--color-maroon-600)", dark: "#a80000" },
 ];
 
 export function StrokeWordmark({ className, onDark = false }: { className?: string; onDark?: boolean }) {
@@ -29,7 +35,7 @@ export function StrokeWordmark({ className, onDark = false }: { className?: stri
     y: ASCENT,
     fontSize: 100,
     textLength: WIDTH,
-    lengthAdjust: "spacingAndGlyphs" as const,
+    lengthAdjust: "spacing" as const,
     className: "font-serif font-semibold",
   };
   return (
@@ -42,7 +48,14 @@ export function StrokeWordmark({ className, onDark = false }: { className?: stri
         aria-hidden="true"
         className="block"
       >
-        <text {...textProps} fill="none" stroke={onDark ? "var(--color-gold-300)" : "var(--color-maroon-600)"} strokeWidth={2.4} strokeLinejoin="round">
+        <text
+          {...textProps}
+          className={`${textProps.className} stroke-wordmark-outline`}
+          fill="none"
+          stroke={onDark ? "#ffffff" : "var(--color-maroon-600)"}
+          strokeWidth={2.4}
+          strokeLinejoin="round"
+        >
           {letters.map((l) => (
             <tspan key={l.index} className="stroke-wordmark-line" style={{ "--i": l.index } as CSSProperties}>
               {l.char}

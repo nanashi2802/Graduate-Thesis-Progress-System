@@ -14,9 +14,15 @@ import { cn } from "@/lib/utils";
 const BASELINE = "0.895em";
 
 /** The outline layer for one word. `start` is the index of its first letter in the title. */
-export function StrokeOutline({ text, start }: { text: string; start: number }) {
+export function StrokeOutline({ text, start, plain = false }: { text: string; start: number; plain?: boolean }) {
   return (
-    <svg aria-hidden="true" focusable="false" className="hero-stroke-svg" width="100%" height="100%">
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      className={cn("hero-stroke-svg", plain && "hero-stroke-plain")}
+      width="100%"
+      height="100%"
+    >
       <text x="0" y={BASELINE}>
         {Array.from(text).map((char, n) => (
           <tspan key={n} style={{ "--i": start + n } as CSSProperties}>
@@ -45,7 +51,7 @@ export function StrokeWord({
       <span className="hero-fill inline-block" style={{ "--w": word } as CSSProperties}>
         {text}
       </span>
-      <StrokeOutline text={text} start={start} />
+      <StrokeOutline text={text} start={start} plain />
     </span>
   );
 }

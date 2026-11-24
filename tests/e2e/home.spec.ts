@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 test("landing page loads and links to sign-in", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveTitle("ThesIsko — PUP CpE Thesis Progress System");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Your thesis. One clear path.");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName("Your thesis. One clear path.");
 
   // Every way in goes to the sign-in page; there is no sign-up or demo link.
   const signIn = page.getByRole("link", { name: "Sign in" });

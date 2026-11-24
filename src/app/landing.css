@@ -8,6 +8,8 @@
   /* Bright red for the two hero title words on the dark photo: about 5:1 on the darkest
      scrim, so it reads as a highlight. Landing only; the app keeps its status reds. */
   --landing-red: #f2564d;
+  /* Bright crimson for the construction outlines on the dark hero (hero-stroke.tsx, Sign in). */
+  --landing-crimson: #ff2448;
   background: #ffffff;
   color: var(--landing-ink);
 }
@@ -522,9 +524,13 @@
 }
 .hero-stroke-svg text {
   fill: none;
-  stroke: var(--color-gold-300);
+  stroke: var(--landing-crimson);
   stroke-width: 1.6px;
   stroke-linejoin: round;
+}
+/* The plain words ("Your", "One clear") draw a white outline; the accent words stay crimson. */
+.hero-stroke-svg.hero-stroke-plain text {
+  stroke: #ffffff;
 }
 .hero-cta-outline {
   display: none;
@@ -571,7 +577,7 @@
   }
   .hero-cta-outline rect {
     fill: none;
-    stroke: var(--color-gold-300);
+    stroke: var(--landing-crimson);
     stroke-width: 1.5px;
     stroke-dasharray: 100;
     stroke-dashoffset: 100;
@@ -598,8 +604,16 @@
   to { opacity: 1; transform: none; }
 }
 
-/* Wordmark stroke draw, then fill wipe (stroke-wordmark.tsx). Without motion it shows filled. */
+/* Wordmark stroke draw, then fill wipe, then the outline fades (stroke-wordmark.tsx). At rest,
+   and without motion, it shows only the filled letters. */
+.stroke-wordmark-outline {
+  opacity: 0;
+}
 @media (prefers-reduced-motion: no-preference) {
+  .stroke-wordmark-outline {
+    opacity: 1;
+    animation: hb-fade 0.5s ease 2.5s forwards;
+  }
   .stroke-wordmark-line {
     stroke-dasharray: 700;
     stroke-dashoffset: 700;
@@ -716,7 +730,12 @@
 }
 
 /* ── Feature card scenes (feature-cards.tsx) ─────────────────────────────────────────────
-   Each scene loops on its own. With reduced motion, every element shows its final frame. */
+   The scenes play one at a time, in a loop (feature-cards.tsx sets data-active on one card).
+   The playing card gets a maroon border. Every other card, and every card
+   with reduced motion, shows its final frame. */
+.fb-card {
+  position: relative;
+}
 .fb-mark { background: linear-gradient(transparent 55%, rgb(244 196 48 / 0.7) 55%) no-repeat 0 0 / 100% 100%; }
 .fb-typing { opacity: 0; }
 .fb-ver-new::after {
@@ -727,33 +746,33 @@
   transform: translateX(-120%);
 }
 @media (prefers-reduced-motion: no-preference) {
-  .fb-card:hover .fb-icon { animation: fb-hop 600ms cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .fb-card[data-active="true"] .fb-icon { animation: fb-hop 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 150ms; }
 
   /* Version history: an upload fills the bar, then v3 lands with a bounce and a glint. */
-  .fb-card .fb-ver { animation: fb-ver 6s cubic-bezier(0.34, 1.56, 0.64, 1) infinite; animation-delay: var(--d); }
-  .fb-card .fb-ver-new { animation: fb-ver-new 6s cubic-bezier(0.34, 1.56, 0.64, 1) infinite; }
-  .fb-card .fb-ver-new::after { animation: fb-glint 6s ease-in-out infinite; }
+  .fb-card[data-active="true"] .fb-ver { animation: fb-ver 3.6s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; animation-delay: var(--d); }
+  .fb-card[data-active="true"] .fb-ver-new { animation: fb-ver-new 3.6s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+  .fb-card[data-active="true"] .fb-ver-new::after { animation: fb-glint 3.6s ease-in-out backwards; }
   .fb-bar { transform-origin: left; }
-  .fb-card .fb-bar { animation: fb-bar 6s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
-  .fb-card .fb-up { animation: fb-up 6s ease-in-out infinite; }
+  .fb-card[data-active="true"] .fb-bar { animation: fb-bar 3.6s cubic-bezier(0.65, 0, 0.35, 1) backwards; }
+  .fb-card[data-active="true"] .fb-up { animation: fb-up 3.6s ease-in-out backwards; }
 
   /* Pinned feedback: the pin drops in, the note swings on it, a highlighter sweeps the text. */
   .fb-note { transform-origin: 1.5rem 0; }
-  .fb-card .fb-pin { animation: fb-pin 7s cubic-bezier(0.34, 1.56, 0.64, 1) infinite; }
-  .fb-card .fb-note { animation: fb-swing 7s ease-in-out infinite; }
-  .fb-card .fb-mark { animation: fb-mark 7s ease-out infinite; }
+  .fb-card[data-active="true"] .fb-pin { animation: fb-pin 4.2s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+  .fb-card[data-active="true"] .fb-note { animation: fb-swing 4.2s ease-in-out backwards; }
+  .fb-card[data-active="true"] .fb-mark { animation: fb-mark 4.2s ease-out backwards; }
 
   /* Fix tags: the fix slides over, the link marches, the comment pops a check. */
-  .fb-card .fb-fix { animation: fb-fix 6s cubic-bezier(0.34, 1.56, 0.64, 1) infinite; }
-  .fb-card .fb-link { animation: fb-march 0.6s linear infinite; }
-  .fb-card .fb-target { animation: fb-target 6s ease-in-out infinite; }
-  .fb-card .fb-check { animation: fb-check 6s cubic-bezier(0.34, 1.8, 0.64, 1) infinite; }
+  .fb-card[data-active="true"] .fb-fix { animation: fb-fix 3.6s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+  .fb-card[data-active="true"] .fb-link { animation: fb-march 0.6s linear infinite; }
+  .fb-card[data-active="true"] .fb-target { animation: fb-target 3.6s ease-in-out backwards; }
+  .fb-card[data-active="true"] .fb-check { animation: fb-check 3.6s cubic-bezier(0.34, 1.8, 0.64, 1) backwards; }
 
   /* Threaded replies: the Adviser asks, the Student types, the reply pops in. */
-  .fb-card .fb-msg { animation: fb-msg 8s cubic-bezier(0.34, 1.56, 0.64, 1) infinite; }
-  .fb-card .fb-typing { animation: fb-typing 8s ease-in-out infinite; }
-  .fb-card .fb-dot { animation: fb-dot 0.9s ease-in-out infinite; animation-delay: var(--d); }
-  .fb-card .fb-reply { animation: fb-reply 8s cubic-bezier(0.34, 1.56, 0.64, 1) infinite; }
+  .fb-card[data-active="true"] .fb-msg { animation: fb-msg 4.8s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+  .fb-card[data-active="true"] .fb-typing { animation: fb-typing 4.8s ease-in-out backwards; }
+  .fb-card[data-active="true"] .fb-dot { animation: fb-dot 0.9s ease-in-out infinite; animation-delay: var(--d); }
+  .fb-card[data-active="true"] .fb-reply { animation: fb-reply 4.8s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
 }
 @keyframes fb-hop { 40% { transform: translateY(-6px) rotate(-8deg); } 70% { transform: translateY(1px) rotate(4deg); } }
 
