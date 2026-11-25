@@ -15,7 +15,7 @@ export function LoginForm() {
       <form action={action} className="flex flex-col gap-3">
         <label className="flex flex-col gap-1 text-sm">
           Email address
-          <input name="email" type="email" autoComplete="email" required className="rounded-md border px-3 py-2" />
+          <input name="email" type="email" autoComplete="email" required className="rounded-md border border-input px-3 py-2" />
         </label>
         <label className="flex flex-col gap-1 text-sm">
           Password
@@ -24,7 +24,7 @@ export function LoginForm() {
             type="password"
             autoComplete="current-password"
             required
-            className="rounded-md border px-3 py-2"
+            className="rounded-md border border-input px-3 py-2"
           />
         </label>
         {state.error && (
@@ -46,7 +46,7 @@ export function LoginForm() {
       <details className="text-sm">
         <summary className="cursor-pointer">Forgot password</summary>
         <form action={resetAction} className="mt-2 flex flex-col gap-2">
-          <input name="email" type="email" autoComplete="email" required aria-label="Reset link email" className="rounded-md border px-3 py-2" />
+          <input name="email" type="email" autoComplete="email" required aria-label="Reset link email" className="rounded-md border border-input px-3 py-2" />
           <Button type="submit" variant="outline" disabled={resetPending}>
             Send reset link
           </Button>

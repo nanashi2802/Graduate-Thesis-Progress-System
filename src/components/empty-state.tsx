@@ -1,11 +1,8 @@
+// Thin adapter (R1.5, IMPLEMENTATION_PLAN.md §4.4): the pattern is in src/components/patterns/empty-state.
+// The old prop `detail` maps to the pattern prop `body`. R7 moves the call sites, and R8 removes this file.
 import type { ReactNode } from "react";
-import { cn } from "@/lib/utils";
+import { EmptyState as EmptyStatePattern } from "@/components/patterns/empty-state";
 
-/**
- * An empty region says what is missing, why, and the next step (DESIGN.md §7.11).
- * No illustrations. Example: "No endorsements are waiting." / "New items appear
- * when a Student marks a commit Ready."
- */
 export function EmptyState({
   title,
   detail,
@@ -17,11 +14,5 @@ export function EmptyState({
   action?: ReactNode;
   className?: string;
 }) {
-  return (
-    <div data-slot="empty-state" className={cn("flex flex-col items-start gap-2 py-6", className)}>
-      <p className="text-base font-semibold text-foreground">{title}</p>
-      <p className="max-w-[72ch] text-sm text-muted-foreground">{detail}</p>
-      {action ? <div className="pt-2">{action}</div> : null}
-    </div>
-  );
+  return <EmptyStatePattern title={title} body={detail} action={action} className={className} />;
 }

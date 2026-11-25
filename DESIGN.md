@@ -1,7 +1,18 @@
 # DESIGN.md — PUP CpE Thesis Progress Monitoring System
 
-**Status:** Draft v0.3 (25 Nov 2026). v0.2 plus the retrofit decisions UX-D-01 to UX-D-05. It is not yet built.
-**Change log:** v0.3, 25 Nov 2026 (decisions in `docs/ui-ux-audit/DESIGN_DECISIONS.md`):
+**Status:** Draft v0.4 (26 Nov 2026). v0.3 plus the brand alignment of preview round UX-P-01 (UX-D-08 to UX-D-13). Task R1.5 builds it.
+**Change log:** v0.4, 26 Nov 2026 (decisions in `docs/ui-ux-audit/DESIGN_DECISIONS.md`, approved in UX-P-01):
+- **Brand:** the ThesIsko brand guide v1.0 is the source for identity (§1, §1.1, UX-D-10). F1 narrows to the PUP logo and seal. The ThesIsko mark is allowed. Novie is an exception for R4 and R7 (§2, UX-D-11 items 6 and 7).
+- **Color:** the brand palette replaces D-01 and D-02: Golden Yellow, the brand maroon and gold ramps, cool neutrals, Success and Error (§3, §12, UX-D-11 item 1). The dark set is in §12.5.
+- **Type:** Poppins, Inter and JetBrains Mono replace Source Serif 4 and IBM Plex. The scale has a 16 px base and a ratio of 1.25 (§4, UX-D-11 item 3).
+- **Shape and icons:** radius 6, 8 and 12 px (§6.1). Glyphs have a 1.75 px stroke, outline only (§6.2, UX-D-11 items 4 and 5).
+- **Stepper:** completed steps maroon, the current step gold (§8.2, G8, UX-D-08, UX-D-11 item 2).
+- **Theme switch:** a squish switch with a sun-to-moon thumb and "Use system" (§7.3, UX-D-13). Focus adds a soft maroon ring (§10).
+- **Registry:** new pattern `brand-mark` (§7.4).
+
+v0.3 is in `docs/stale/DESIGN_v0.3.md`.
+
+v0.3, 25 Nov 2026:
 - **Dark mode:** light and dark themes are both first-class. The OS setting is the default, and a manual toggle overrides it (§7.3, UX-D-01). D-04 is closed. The dark values come in preview round UX-P-01 (§12.5).
 - **References:** Linear, Notion and Stripe join the reference owners (§1.1, UX-D-03).
 - **System states:** loading blocks, inline errors and a Base UI toast (§7.4, UX-D-04). D-09 and D-11 are closed. D-10 closes in preview round UX-P-02.
@@ -20,10 +31,10 @@ v0.2 is in `docs/stale/DESIGN_v0.2.md`. v0.1 is in `docs/stale/DESIGN_v0.1.md`.
 **Change path (UX-D-02):** a change to a rule in this file needs a preview, the owner's approval and a record in `docs/ui-ux-audit/DESIGN_DECISIONS.md`. Then it goes into a new version of this file.
 **Scope:** The visual and interaction design of the web app (31 routes) and the system emails. One spec for each screen is in `design/screens/<ID>.md`. This file holds the principles, the tokens, the patterns and the rules that all screens share.
 **Not a source:** The Google Stitch screens in `design/stitch/` are a prototype only. This file does not derive from them.
-**Fixed input from the owner:** Use the PUP colors (dark maroon and golden yellow). Do not use the PUP logo, seal or any image symbol (intellectual property constraint).
-**Sources:** Unified Thesis Process v1.2, Functional Requirements v1.2, `spec/SITEMAP.md`, `GLOSSARY.md`, the change proposals in `spec/proposals/2026-11-24-design-session-changes.md`.
+**Fixed input from the owner:** Use the brand colors (PUP Maroon and Golden Yellow). Do not use the PUP logo or seal (intellectual property constraint, F1). The ThesIsko mark is allowed.
+**Sources:** the ThesIsko brand guide (`docs/reference/brand/ThesIsko-Design-Principles-Brand-Guidelines.docx` v1.0) and its reconciliation (`docs/reference/brand/THESISKO_BRAND_GUIDELINE_RECONCILIATION.md`) for identity, Unified Thesis Process v1.2, Functional Requirements v1.2, `spec/SITEMAP.md`, `GLOSSARY.md`, the change proposals in `spec/proposals/2026-11-24-design-session-changes.md`.
 
-> **Replaces UTP v1.1 §1.7 visual guidance.** The owner confirmed the three changes: IBM Plex Sans instead of Inter, warm neutrals instead of cool slate, and a defined vermilion for "returned". UTP v1.2 must point to this file.
+> **Replaces UTP v1.1 §1.7 visual guidance.** v0.4 follows the brand guide: Inter for text, cool neutrals and a defined Error red for "returned" (UX-D-11). It replaces the v0.2 choices (IBM Plex Sans, warm neutrals, vermilion). UTP v1.2 must point to this file.
 
 ---
 
@@ -36,9 +47,11 @@ Purpose:   Four roles track one thesis through three defenses and clearance.
            Panel Members use a tablet on Defense Day.
 Treatment: Utility, leaning product. Calm and exact. A registrar's ledger that
            also shows each user the next step.
-Type:      Source Serif 4 (titles) / IBM Plex Sans (UI) / IBM Plex Mono (data)
-Color:     ground #FAF8F8, ink #1E1617, action PUP Maroon #800000,
-           achieved PUP Gold #F4C430
+Brand:     ThesIsko (brand guide v1.0). Identity from the guide, product rules
+           from this file (UX-D-10).
+Type:      Poppins (titles) / Inter (text and UI) / JetBrains Mono (data)
+Color:     ground Canvas #F8FAFC, ink #0F172A, action PUP Maroon #800000,
+           achieved and current step Golden Yellow #F4B41A
 Layout:    Identity line, then the Docket (where am I, what blocks me, what can
            I do now), then ruled sections. At most 3 cards on a screen.
 Density:   Comfortable for Students and Advisers. Compact for the Coordinator.
@@ -47,7 +60,7 @@ Density:   Comfortable for Students and Advisers. Compact for the Coordinator.
 
 ### 1.1 Reference owners
 
-Each kind of screen borrows from one proven public system. The reference sets the pattern, not the look. The look comes from this file.
+Each kind of screen borrows from one proven public system. The reference sets the pattern, not the look. The look comes from this file. The brand guide is the source for the identity: name, palette, logo, typography roles and mascot (UX-D-10). This file records how that identity applies to the product.
 
 | Screens | Reference | What we take |
 | :---- | :---- | :---- |
@@ -73,7 +86,7 @@ Each kind of screen borrows from one proven public system. The reference sets th
 | G5 | **Details on demand** | A list row shows 3 facts at most. More facts go behind a hover, a "?" or a link to the record. | Owner |
 | G6 | **Space first, rules second, cards last** | Group with space. Separate with hairline rules. Use a card only for a region that must stand apart. At most 3 cards on a screen. | Owner |
 | G7 | **Two densities** | Comfortable for Students and Advisers. Compact for the Coordinator (§5.4). | Owner |
-| G8 | **Maroon is action, gold is earned** | Maroon marks the thing to do now. Gold marks a milestone achieved and the current step. Neither is decoration. | UTP 1.7 |
+| G8 | **Maroon is action, gold is earned** | Maroon marks the thing to do now and the completed stepper steps. Gold marks a milestone achieved and the current step. Neither is decoration. | UTP 1.7, UX-D-08, UX-D-11 |
 | G9 | **Paper is the record** | The screen is the index of the signed paper. The UI says "recorded" or "verified", never "signed". | BR-01 |
 | G10 | **Every blocked action explains itself** | A disabled action shows its reason next to it (§8.4). | BR-18 |
 | G11 | **Plain words** | ASD-STE100 at about 80%. No enum names, codes or system words in the UI. | AGENTS.md §5 |
@@ -83,7 +96,7 @@ Each kind of screen borrows from one proven public system. The reference sets th
 
 | # | Rule | Source |
 | :---- | :---- | :---- |
-| F1 | Use no PUP logo, seal, emblem or image symbol anywhere: app, emails, favicon, documents. No icon may copy or suggest a part of the PUP logo. | Owner (intellectual property) |
+| F1 | Use no PUP logo or seal anywhere: app, emails, favicon, documents. No icon may copy or suggest a part of the PUP logo or seal (no star, laurel or torch). The ThesIsko mark is allowed: official artwork only, never redrawn or recolored (§7.4 `brand-mark`). Exception: the mascot Novie may appear in empty states and milestone moments (R4, R7), never on a serious outcome (Returned, a failed check). | Owner (intellectual property), UX-D-10, UX-D-11 items 6 and 7 |
 | F2 | A flag warns. It never blocks and never looks like a block. | BR-17 |
 | F3 | Nothing is deleted, so no solid red (destructive) button exists. | BR-19 |
 | F4 | Scores are numbers only. No grade, no grade equivalent, no color on scores. | BR-15 |
@@ -116,26 +129,33 @@ The system teaches the user, but only at the edges of the work. The working surf
 
 | Token | Hex | Use |
 | :---- | :---- | :---- |
-| `maroon-600` (**PUP Maroon**) | `#800000` | Primary buttons, links, focus ring, active navigation marker, masthead rule |
-| `gold-400` (**PUP Gold**) | `#F4C430` | Achieved pills, the current stepper step, the focus ring on maroon surfaces |
+| `maroon-500` (**PUP Maroon**) | `#800000` | Primary buttons, links, focus ring, active navigation marker, masthead rule, completed stepper steps |
+| `maroon-700` (**Deep Maroon**) | `#5C0B0F` | Primary hover |
+| `gold-500` (**Golden Yellow**) | `#F4B41A` | Achieved pills, the current stepper step, the focus ring on maroon surfaces |
+| Ink, Slate, Line, Canvas | `#0F172A`, `#475569`, `#E2E8F0`, `#F8FAFC` | Text, muted text, hairlines, the page ground |
+| Success, Error | `#15803D`, `#B91C1C` | The `done` and `returned` tone text |
 
-> **Warning:** Gold on white has a contrast of 1.64:1. Never put gold text on a light surface. Never use a gold fill without a maroon or ink label on it.
+Source: the brand guide v1.0, Brand Colors and Supporting Colors (UX-D-11 item 1).
+
+> **Warning:** Golden Yellow on white has a contrast of about 1.9:1. Never put gold text on a light surface. Never use a gold fill without an ink label on it.
 
 ### 3.2 Ramps
 
-| Step | Maroon | Gold | Neutral (warm) |
+Maroon and gold use the brand step names: step 500 is the brand color.
+
+| Step | Maroon | Gold | Neutral (cool) |
 | :---- | :---- | :---- | :---- |
 | 0 | | | `#FFFFFF` surface |
-| 50 | `#FBF3F3` | `#FFFBEB` | `#FAF8F8` ground |
-| 100 | `#F5E1E1` | `#FFF6D6` | `#F4F1F1` sunken |
-| 200 | `#E9BFBF` | `#FCE7A1` | `#E7E1E1` hairline |
-| 300 | `#D69393` | `#F8D35E` | `#D3CBCB` divider strong |
-| 400 | `#BA5F5F` | `#F4C430` | `#A59A9C` disabled text on white (non-essential only) |
-| 500 | `#9E2B2B` | `#D9A600` | `#8C8082` input border (3.80:1) |
-| 600 | `#800000` | `#A87F00` | `#6E6264` muted text (5.84:1) |
-| 700 | `#6B0000` hover | `#7A5C00` | `#4A3F41` secondary text (10.10:1) |
-| 800 | `#560000` pressed | | `#2E2426` |
-| 900 | `#3D0505` | | `#1E1617` ink (16.79:1 on ground) |
+| 50 | `#F7F0F0` | `#FEFBF1` | `#F8FAFC` ground (Canvas) |
+| 100 | `#EDDBDB` | `#FDF5DF` | `#F1F5F9` sunken |
+| 200 | `#D9B3B3` | `#FCE9BA` | `#E2E8F0` hairline (Line) |
+| 300 | `#C28585` | `#FADB91` | `#CBD5E1` divider strong |
+| 400 | `#A64D4D` | `#F7CB5F` | `#94A3B8` disabled text (non-essential only) |
+| 500 | `#800000` PUP Maroon | `#F4B41A` Golden Yellow | `#64748B` input border (3:1 or more) |
+| 600 | `#720406` | `#CA9210` | `#475569` muted text (Slate) |
+| 700 | `#5C0B0F` Deep Maroon, hover | `#8A5F00` | `#334155` secondary text |
+| 800 | `#3C070A` pressed | `#5A3E00` | `#1E293B` |
+| 900 | `#2A0507` | | `#0F172A` ink (Ink) |
 
 ### 3.3 Semantic tones
 
@@ -143,18 +163,18 @@ Statuses use seven tones. Each pill always has a glyph and a text label, so colo
 
 | Tone | Text | Fill | Border | Glyph | Meaning |
 | :---- | :---- | :---- | :---- | :---- | :---- |
-| `neutral` | `#5B5052` | `#F4F1F1` | `#E7E1E1` | `todo` [D-06] | Not started. Draft. |
-| `active` | `#1F4E8C` | `#E7EEF8` | `#BCD0EC` | [D-06] | In progress. The next step is with someone. |
+| `neutral` | `#475569` | `#F1F5F9` | `#E2E8F0` | `todo` [D-06] | Not started. Draft. |
+| `active` | `#1E40AF` | `#EFF6FF` | `#BFDBFE` | [D-06] | In progress. The next step is with someone. |
 | `pending` | `#8F4A06` | `#FCEEDD` | `#F1CFA6` | [D-06] | Waiting for a person. Provisional. Flag. |
-| `done` | `#1B6B45` | `#E5F3EA` | `#B7DDC5` | `done` [D-06] | Approved, resolved, verified. |
-| `returned` | `#B3261E` | `#FCE9E7` | `#F2BDB8` | `return` [D-06] | Sent back with a written reason. |
-| `locked` | `#4A3F41` | `#EFEBEB` | `#D3CBCB` | `lock` [D-06] | Cannot change until an event. |
-| `achieved` | `#3D0505` | `#F4C430` | `#D9A600` | [D-06] | A milestone is achieved. Gold, earned. |
+| `done` | `#15803D` | `#F0FDF4` | `#BBF7D0` | `done` [D-06] | Approved, resolved, verified. |
+| `returned` | `#B91C1C` | `#FEF2F2` | `#FECACA` | `return` [D-06] | Sent back with a written reason. |
+| `locked` | `#334155` | `#EEF2F6` | `#CBD5E1` | `lock` [D-06] | Cannot change until an event. |
+| `achieved` | `#0F172A` | `#F4B41A` | `#CA9210` | [D-06] | A milestone is achieved. Gold, earned. |
 
-All text and fill pairs pass WCAG AA (4.5:1 or more). The lowest pair is `returned` at 5.59:1.
+These are the light values. The dark values are in §12.5. All text and fill pairs pass WCAG AA (4.5:1 or more) in light and dark. `tests/unit/components/contrast.test.ts` checks them.
 
-- **Pending is orange:** gold belongs to `achieved`, so "waiting" never reads as "achieved".
-- **Returned is vermilion:** maroon is the action color. "Returned" appears only as a tinted pill, text or an outline button, never as a solid button (F3).
+- **Pending is orange:** gold belongs to `achieved`, so "waiting" never reads as "achieved". This is a product refinement of the brand guide.
+- **Returned is the brand Error red:** maroon is the action color. "Returned" appears only as a tinted pill, text or an outline button, never as a solid button (F3).
 - **Verified is green:** a verified document uses `done`. Gold is only for a milestone achieved.
 
 ### 3.4 Colors in third-party components
@@ -200,32 +220,34 @@ A component from a library (shadcn, Base UI or other) takes our tokens. It never
 
 | Role | Font | Notes |
 | :---- | :---- | :---- |
-| Title | Source Serif 4 (variable, `opsz`) | Page titles, thesis title, Defense Day header. Weight 600. Never below 22 px. |
-| UI and body | IBM Plex Sans | All UI text. Weights 400, 500 and 600 only. |
-| Data | IBM Plex Mono | Commit tags, form numbers (TDW 07), dates and times, file hashes, KPI counts. Weight 400 to 600. |
+| Title and heading | Poppins | Page titles, headings, the thesis title, large figures, the Defense Day header. Weights 500, 600 and 700. |
+| Text and UI | Inter | Paragraphs, tables, forms and all UI text. Weights 400, 500 and 600. |
+| Data | JetBrains Mono | Revision numbers, commit tags, form numbers (TDW 07), dates and times, IDs, file hashes, counters. Weights 400 to 600. |
 
-All three fonts use the SIL Open Font License. Load them with `next/font/google`. They are self-hosted at build time (NFR-06).
+Source: the brand guide v1.0, Typography and Font Sizes for Web and Mobile (UX-D-11 item 3). All three fonts use the SIL Open Font License. Load them with `next/font/google` in `src/app/layout.tsx`. They are self-hosted at build time (NFR-06). The CSS variables are `--font-display`, `--font-text` and `--font-data`. The Tailwind classes keep their names: `font-serif` is Poppins, `font-sans` is Inter, `font-mono` is JetBrains Mono.
 
 ### 4.1 Scale
 
 | Token | Size / line height | Font, weight | Use |
 | :---- | :---- | :---- | :---- |
-| `kpi` | 36 / 36 | Mono 600 | KPI strip counts (C1) |
-| `display` | 36 / 44 | Serif 600 | Thesis title on the Student dashboard |
-| `title` | 28 / 36 | Serif 600 | Page title |
-| `heading` | 20 / 28 | Sans 600 | Section heading |
-| `subheading` | 16 / 24 | Sans 600 | Region heading, dialog title |
-| `body` | 16 / 24 | Sans 400 | Default text, forms, threads |
-| `ui` | 14 / 20 | Sans 400 or 500 | Tables, buttons, navigation, pills |
-| `caption` | 12 / 16 | Sans 500 | Disabled-action reasons, timestamps in lists |
-| `mono` | 13 / 20 | Mono 400 | Commit tags, form numbers, dates |
+| `kpi` | 39 / 47 (2.441 rem) | Mono 600 | KPI strip counts (C1) |
+| `display` | 39 / 47 (2.441 rem) | Poppins 600 | Thesis title on the Student dashboard |
+| `title` | 31 / 37 (1.953 rem) | Poppins 600 | Page title |
+| `heading` | 25 / 30 (1.563 rem) | Poppins 500 | Section heading |
+| `subheading` | 20 / 24 (1.25 rem) | Inter 600 | Region heading, dialog title |
+| `body` | 16 / 24 | Inter 400 | Default text, forms, threads |
+| `ui` | 14 / 20 | Inter 400 or 500 | Table text and table metadata, buttons, navigation, pills |
+| `caption` | 12.8 / 16 (0.8 rem) | Inter 500 | Disabled-action reasons, timestamps in lists |
+| `mono` | 13 / 20 | JetBrains Mono 400 | Commit tags, form numbers, dates |
+
+The scale has a 16 px base (1 rem) and a ratio of 1.25. Line height is 1.2 for headings and 1.5 for body text. Body text is never below 16 px. Captions and table metadata are never below 12.8 px. On phones, each heading drops one step. Use rem units. The `ui` size (14 or 15 px) stays open for a later round (UX-D-09). R7 moves the screens to this scale.
 
 ### 4.2 Rules
 
 - Use sentence case for headings, buttons and labels.
 - Use tabular figures for scores, counts, dates and the KPI strip.
 - Write dates in Philippine Standard Time, in one format: `Tue 12 Jan 2027, 09:00 PHT`. Use relative time ("6d") only next to an absolute date or in a queue age column (NFR-11).
-- Keep reading text at 72 characters or fewer for each line. Critique threads use a 60-character measure.
+- Keep reading text between 45 and 72 characters for each line. Critique threads use a 60-character measure.
 - Use `text-wrap: balance` for titles and `text-wrap: pretty` for body text.
 - Truncate a thesis title in tables at one line. Show the full title in a tooltip and on focus.
 
@@ -237,7 +259,7 @@ All three fonts use the SIL Open Font License. Load them with `next/font/google`
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐ 3 px maroon masthead rule
-│ PUP CpE Thesis Progress   [Find a Student or form  /]      [bell] [user] │ top bar 56 px
+│ ThesIsko                     [D-08 controls]   [theme] [bell] [user] │ top bar 56 px
 ├────────────┬─────────────────────────────────────────────────────────┤
 │ Dashboard  │ Identity line: thesis title · Master's · Adviser          │
 │ Process    │ ┌ DOCKET ─────────────────────────────────────────────┐ │
@@ -253,7 +275,7 @@ All three fonts use the SIL Open Font License. Load them with `next/font/google`
 | :---- | :---- |
 | Masthead rule | A 3 px PUP Maroon line at the top of every page. The only full-width brand color. |
 | Sidebar | 240 px, fill `neutral-100`. Each item has a domain glyph. The active item has a 3 px maroon left marker and maroon text. The sidebar shows **every** item of the role. An item that is not open yet shows a `lock` glyph, and its reason in a tooltip ("Opens at Gate 1b"). Below 1024 px, the sidebar becomes a drawer. |
-| Top bar | Wordmark, search, notification bell, user menu. Fill white with a hairline bottom border. |
+| Top bar | The brand mark (`brand-mark`, text treatment until the artwork arrives), the D-08 controls, the theme switch, the notification bell, the user menu. Card fill with a hairline bottom border. |
 | Content | Maximum 1200 px wide. Gutters: 32 px on desktop, 24 px on tablet, 16 px on phone. |
 
 ### 5.2 Identity line
@@ -316,10 +338,10 @@ Use a 4 px base. Tokens: `4, 8, 12, 16, 24, 32, 48, 64`. Each step is at least 2
 
 | Item | Rule |
 | :---- | :---- |
-| Radius | Controls 4 px. Cards and dialogs 6 px. Status pills fully round. Document stamps 2 px. |
-| Borders | 1 px hairline `neutral-200` between regions. Inputs use `neutral-500` (3.80:1). |
-| Shadow | None on the page. Popovers, menus, toasts and dialogs only: `0 8px 24px rgb(30 22 23 / 0.12)`. |
-| Motion | Use the `motion` package (`motion/react`) for animation. Respect `prefers-reduced-motion`: every animation must have a reduced-motion path. No counting numbers. Use CSS for simple changes and `motion/react` only where CSS cannot do it (UX-D-04). The durations and the entry-animation rule are decided in preview round UX-P-02 (D-10). Until then, add no animation. |
+| Radius | Controls 6 px. Cards, popovers and menus 8 px. Panels and dialogs 12 px. Status pills and avatars fully round. Document stamps 2 px. (Brand guide, Shapes and Buttons; UX-D-11 item 5.) |
+| Borders | 1 px hairline `--border` between regions. Inputs use `--input` (3:1 or more on the card). |
+| Shadow | None on the page. Popovers, menus, toasts and dialogs only: `0 8px 24px rgb(15 23 42 / 0.12)`. |
+| Motion | Use the `motion` package (`motion/react`) for animation. Respect `prefers-reduced-motion`: every animation must have a reduced-motion path. No counting numbers. Use CSS for simple changes and `motion/react` only where CSS cannot do it (UX-D-04). The durations and the entry-animation rule are decided in preview round UX-P-02 (D-10). Until then, add no animation. One exception is approved: the theme switch (UX-D-13) uses a velocity spring, a squash at the end and a sun-to-moon morph. With reduced motion it changes at once. |
 | Gradients | None. |
 
 ### 6.2 Icons: the domain glyph set
@@ -329,11 +351,12 @@ Thesis concepts use custom glyphs. Generic UI uses Lucide.
 | Rule | Value |
 | :---- | :---- |
 | Grid | 24 × 24 |
-| Stroke | 1.5 px, round caps, round joins |
-| Fill | One tone fill on the object (class `tone`, `currentColor` at 16% opacity) |
+| Stroke | 1.75 px, round caps, round joins (brand guide, Icons; UX-D-11 item 4) |
+| Fill | None. Outline only. No filled, two-tone or 3D icons. |
 | Sizes | 16 px in text, 20 px in buttons and the sidebar, 30 px in the KPI strip |
-| Labels | A glyph sits with a label, except in an icon button that has an `aria-label` |
-| Forbidden shapes | No star, seal, laurel, torch or other part of the PUP logo (F1) |
+| Labels | A glyph sits with a label in navigation and buttons. An icon alone needs a tooltip and an accessible name. |
+| Color | Maroon on white, white on maroon, ink in dense tables. Gold only for the milestone icon and highlights on dark grounds. |
+| Forbidden shapes | No star, seal, laurel, torch or other part of the PUP logo or seal (F1) |
 | Location | `src/components/patterns/glyphs/`. The set can be swapped in one place. |
 | Lucide | Only for generic UI: search, chevrons, close, menu, external link |
 
@@ -354,7 +377,7 @@ Thesis concepts use custom glyphs. Generic UI uses Lucide.
 | `template` | Template | A blank form |
 | `overview`, `student`, `users`, `audit`, `export`, `search`, `bell`, `done`, `todo`, `lock`, `received` | Shell and status | As drawn in the Coordinator mockup |
 
-The SVG source of every approved glyph is in `design/mockups/coordinator-mockups.html` (the `<symbol>` elements). The `defense` glyph is `g-def-a`. Options B and C (`g-def-b`, `g-def-c`) were not chosen.
+The first SVG source of every approved glyph is in `design/mockups/coordinator-mockups.html` (the `<symbol>` elements). The `defense` glyph is `g-def-a`. Options B and C (`g-def-b`, `g-def-c`) were not chosen. R1.6 redrew them at 1.75 px with no tone fill (`src/components/patterns/glyphs/`).
 
 The glyphs for the Student, Adviser and Panel Member sidebars and three status glyphs are still to draw (D-06, D-07).
 
@@ -391,10 +414,10 @@ A lint rule can enforce layer 3: no import from `@/components/ui/*` or a library
 **Themes (UX-D-01):** the app has a light theme and a dark theme. Both are first-class.
 
 - The OS setting (`prefers-color-scheme`) is the default.
-- A manual toggle in the top bar overrides it: Light, Dark or System. The browser keeps the choice in `localStorage`.
-- A small inline script sets the theme before the first paint. The app does not use `next-themes`.
+- A manual switch in the top bar and on LOGIN overrides it (`theme-toggle`, UX-D-13). It is a squish switch (`role="switch"`, name "Dark theme"). Its thumb is a sun in light and morphs into a crescent moon in dark. After a choice, a "Use system" link returns to the OS setting. The browser keeps the choice in `localStorage`.
+- A small inline script (`THEME_SCRIPT` in `src/lib/theme.ts`) sets the theme before the first paint. It is the first child of `<head>` in `src/app/layout.tsx`. The app does not use `next-themes`. If a CSP with `script-src` is added later, it needs a hash for this script.
 - A theme changes only the semantic and status tokens (§12.2, §12.3, §12.5). A component never uses `dark:` classes for colors.
-- The PDF page, the emails and the printed views stay light.
+- The PDF page, the emails and the printed views stay light. The PDF page uses `bg-white`, the one allowed exception.
 
 ### 7.4 Pattern registry
 
@@ -429,7 +452,8 @@ A lint rule can enforce layer 3: no import from `@/components/ui/*` or a library
 | Flag line | `flag` | Own (BR-17) | S1, C1, C5, P4 |
 | Empty state | `empty-state` | Vercel Geist | All |
 | Glyph | `glyphs` | Own | All |
-| Theme toggle (Light, Dark, System) | `theme-toggle` | Own (UX-D-01) | Top bar of all signed-in screens, LOGIN |
+| Theme switch (dark on or off, "Use system") | `theme-toggle` | React Bits SquishSwitch, adapted (UX-D-13) | Top bar of all signed-in screens, LOGIN |
+| Brand mark (full logo, symbol, text treatment) | `brand-mark` | ThesIsko brand guide, Logo (UX-D-10, UX-D-11 item 6) | LOGIN (full), top bar of the role shells (text or symbol), compact navigation (symbol) |
 | Loading blocks | `loading` | Own (UX-D-04): blocks of the content's size, no shimmer | All |
 | Inline error with "Try again" | `error` | Own (UX-D-04) | All |
 | Toast | `toast` | Base UI Toast (`@base-ui/react/toast`, UX-D-04): 4 s, `role="status"`, a glyph and a label. Small actions only. | All |
@@ -452,22 +476,23 @@ Four nodes: Proposal, Pre-Final, Final, Clearance. Stage 0 (the advising forms) 
 
 | Node state | Look |
 | :---- | :---- |
-| Completed | A gold-filled circle with a maroon check |
-| Active | A gold-filled circle with a maroon border, and the label in `subheading` |
-| Locked | A `neutral-300` outline circle with a `lock` glyph, and the label in muted text |
+| Completed | A maroon-filled circle (`--primary`) with a white check |
+| Active (current) | A gold-filled circle (`--progress`) with a 2 px maroon border, and the label in `subheading` |
+| Locked | A `--divider-strong` outline circle with a `lock` glyph, and the label in muted text |
 
-The line between nodes is maroon after a completed node and `neutral-300` after other nodes. No star or other shape from the PUP logo (F1).
+The line between nodes is maroon after a completed node and `--divider-strong` after other nodes. No star or other shape from the PUP logo (F1). Source: the brand guide sample (UX-D-08, UX-D-11 item 2).
 
 ### 8.3 Buttons
 
 | Kind | Look | Use |
 | :---- | :---- | :---- |
-| Primary | Maroon fill, white text. Hover `maroon-700`. Pressed `maroon-800`. | One for each region. Gate actions, Verify, Confirm. |
-| Secondary | White fill, `neutral-500` border, ink text | Upload, Download form, row actions |
+| Primary | Maroon fill, white text. Hover Deep Maroon `maroon-700`. Pressed `maroon-800`. | One for each region. Gate actions, Verify, Confirm. |
+| Secondary | Card fill, `--input` border, ink text | Upload, Download form, row actions |
 | Return | White fill, `returned` text and border, `return` glyph | Return. It opens the Return dialog or the inline Return composer. |
 | Text | No fill, maroon text, underline on hover | Low actions |
 
 - Heights: 36 px default, 32 px for compact row actions, 48 px on Defense Day.
+- No gold button for now (UX-D-11 item 5).
 - Labels are verbs that name the result: "Endorse for defense", not "Submit". Gate buttons name the gate: "Endorse (Gate 1b)".
 
 ### 8.4 Disabled action with a reason
@@ -486,7 +511,7 @@ When the manuscript is locked (BR-07), the viewer shows a `locked` banner across
 
 ### 8.7 Commit selector
 
-Each commit shows `v3` in Plex Mono, the short hash in muted mono, the date and the uploader. The commit marked Ready has an `active` pill. No commit has a delete or edit control (BR-19).
+Each commit shows `v3` in JetBrains Mono, the short hash in muted mono, the date and the uploader. The commit marked Ready has an `active` pill. No commit has a delete or edit control (BR-19).
 
 ### 8.8 Critique thread
 
@@ -546,7 +571,7 @@ Demo data stays empty, so the first day is a designed state on every screen. Eac
 | Item | Rule |
 | :---- | :---- |
 | Standard | WCAG 2.2 AA |
-| Focus | A 2 px maroon outline with a 2 px offset on light surfaces. On maroon fills, a gold outline (6.67:1). Never remove the focus outline. |
+| Focus | A 2 px `--ring` outline with a 2 px offset, plus a soft ring (`box-shadow: 0 0 0 4px` of `--ring` at 22%). In light `--ring` is maroon. In dark it is `#C28585`. On maroon fills, a gold outline. Native `input`, `select`, `textarea` and `summary` get the same outline from `globals.css` (UX-002). Never remove the focus outline. (Brand guide, Shapes and Buttons; UX-D-11 item 5.) |
 | Targets | 24 × 24 px minimum. 32 px for compact row actions. 44 px on tablet. 48 px on Defense Day. |
 | Color | Every status has a glyph and a label (§3.3). |
 | Tables | Real `<table>` markup. Sortable headers use `aria-sort`. |
@@ -563,10 +588,10 @@ Emails hold the event, the next action, the deadline and a link only (AGENTS.md 
 
 | Part | Rule |
 | :---- | :---- |
-| Header | A 3 px maroon rule and the text wordmark "PUP CpE Thesis Progress" in serif. No logo. |
-| Body | Plex Sans with system fallbacks, 16 px, ink on white, 560 px wide |
+| Header | A 3 px maroon rule and the horizontal ThesIsko logo (official artwork, UX-D-11 item 6). Until the artwork arrives, the text "ThesIsko · Graduate Thesis Progress". No PUP logo or seal (F1). |
+| Body | Inter with system fallbacks, 16 px, ink on white, 560 px wide |
 | Action | One maroon button with the verb. The full link appears as text below it. |
-| Not allowed | Manuscript text, comments, scores, verdicts, images of any kind (F1) |
+| Not allowed | Manuscript text, comments, scores, verdicts, any image other than the ThesIsko logo (F1) |
 
 ---
 
@@ -576,31 +601,26 @@ All tokens live in `src/styles/tokens.css` (§7.1). `globals.css` imports it.
 
 ### 12.1 Primitive tokens (Tailwind v4 theme)
 
+The font families are mapped in `globals.css` (`@theme inline`) from the `next/font` variables (§4).
+
 ```css
 @theme {
-  --font-serif: "Source Serif 4", Georgia, serif;
-  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --color-maroon-50: #F7F0F0;  --color-maroon-100: #EDDBDB; --color-maroon-200: #D9B3B3;
+  --color-maroon-300: #C28585; --color-maroon-400: #A64D4D; --color-maroon-500: #800000;
+  --color-maroon-600: #720406; --color-maroon-700: #5C0B0F; --color-maroon-800: #3C070A;
+  --color-maroon-900: #2A0507;
 
-  --color-maroon-50: #FBF3F3;  --color-maroon-100: #F5E1E1;
-  --color-maroon-200: #E9BFBF; --color-maroon-300: #D69393;
-  --color-maroon-400: #BA5F5F; --color-maroon-500: #9E2B2B;
-  --color-maroon-600: #800000; --color-maroon-700: #6B0000;
-  --color-maroon-800: #560000; --color-maroon-900: #3D0505;
+  --color-gold-50: #FEFBF1;  --color-gold-100: #FDF5DF; --color-gold-200: #FCE9BA;
+  --color-gold-300: #FADB91; --color-gold-400: #F7CB5F; --color-gold-500: #F4B41A;
+  --color-gold-600: #CA9210; --color-gold-700: #8A5F00; --color-gold-800: #5A3E00;
 
-  --color-gold-50: #FFFBEB;  --color-gold-100: #FFF6D6;
-  --color-gold-200: #FCE7A1; --color-gold-300: #F8D35E;
-  --color-gold-400: #F4C430; --color-gold-500: #D9A600;
-  --color-gold-600: #A87F00; --color-gold-700: #7A5C00;
+  --color-neutral-0: #FFFFFF;   --color-neutral-50: #F8FAFC;  --color-neutral-100: #F1F5F9;
+  --color-neutral-200: #E2E8F0; --color-neutral-300: #CBD5E1; --color-neutral-400: #94A3B8;
+  --color-neutral-500: #64748B; --color-neutral-600: #475569; --color-neutral-700: #334155;
+  --color-neutral-800: #1E293B; --color-neutral-900: #0F172A;
 
-  --color-neutral-0: #FFFFFF;   --color-neutral-50: #FAF8F8;
-  --color-neutral-100: #F4F1F1; --color-neutral-200: #E7E1E1;
-  --color-neutral-300: #D3CBCB; --color-neutral-400: #A59A9C;
-  --color-neutral-500: #8C8082; --color-neutral-600: #6E6264;
-  --color-neutral-700: #4A3F41; --color-neutral-800: #2E2426;
-  --color-neutral-900: #1E1617;
-
-  --radius-stamp: 2px; --radius-control: 4px; --radius-card: 6px;
+  --radius-stamp: 2px; --radius-control: 6px; --radius-card: 8px; --radius-panel: 12px;
+  --shadow-popover: 0 8px 24px rgb(15 23 42 / 0.12);
 }
 ```
 
@@ -610,28 +630,33 @@ All tokens live in `src/styles/tokens.css` (§7.1). `globals.css` imports it.
 | :---- | :---- |
 | `--background` | `neutral-50` |
 | `--foreground` | `neutral-900` |
-| `--card`, `--popover` | `neutral-0` |
-| `--primary` / `--primary-foreground` | `maroon-600` / `neutral-0` |
+| `--card`, `--popover` | `#FFFFFF` |
+| `--primary` / `--primary-foreground` | `maroon-500` / `#FFFFFF` |
 | `--secondary` / `--secondary-foreground` | `neutral-100` / `neutral-900` |
 | `--muted` / `--muted-foreground` | `neutral-100` / `neutral-600` |
 | `--accent` / `--accent-foreground` | `maroon-50` / `maroon-700` |
-| `--destructive` | `returned` text `#B3261E` (tinted use only, F3) |
-| `--border` | `neutral-200` |
+| `--destructive` | `returned` text `#B91C1C` (tinted use only, F3) |
+| `--border` / `--divider-strong` | `neutral-200` / `neutral-300` |
 | `--input` | `neutral-500` |
-| `--ring` | `maroon-600` |
-| `--radius` | `4px` |
+| `--ring`, `--link` | `maroon-500` |
+| `--text-secondary` | `neutral-700` |
+| `--progress` | `gold-500` (the current stepper step) |
+| `--wordmark` | `maroon-500` (the brand mark text treatment) |
+| `--radius` | `6px` |
+
+Use `text-link` for text links, not `text-primary`. In dark, the primary fill is too dark for text.
 
 ### 12.3 Status tokens
 
 ```css
 :root {
-  --tone-neutral-fg: #5B5052;  --tone-neutral-bg: #F4F1F1;  --tone-neutral-line: #E7E1E1;
-  --tone-active-fg: #1F4E8C;   --tone-active-bg: #E7EEF8;   --tone-active-line: #BCD0EC;
+  --tone-neutral-fg: #475569;  --tone-neutral-bg: #F1F5F9;  --tone-neutral-line: #E2E8F0;
+  --tone-active-fg: #1E40AF;   --tone-active-bg: #EFF6FF;   --tone-active-line: #BFDBFE;
   --tone-pending-fg: #8F4A06;  --tone-pending-bg: #FCEEDD;  --tone-pending-line: #F1CFA6;
-  --tone-done-fg: #1B6B45;     --tone-done-bg: #E5F3EA;     --tone-done-line: #B7DDC5;
-  --tone-returned-fg: #B3261E; --tone-returned-bg: #FCE9E7; --tone-returned-line: #F2BDB8;
-  --tone-locked-fg: #4A3F41;   --tone-locked-bg: #EFEBEB;   --tone-locked-line: #D3CBCB;
-  --tone-achieved-fg: #3D0505; --tone-achieved-bg: #F4C430; --tone-achieved-line: #D9A600;
+  --tone-done-fg: #15803D;     --tone-done-bg: #F0FDF4;     --tone-done-line: #BBF7D0;
+  --tone-returned-fg: #B91C1C; --tone-returned-bg: #FEF2F2; --tone-returned-line: #FECACA;
+  --tone-locked-fg: #334155;   --tone-locked-bg: #EEF2F6;   --tone-locked-line: #CBD5E1;
+  --tone-achieved-fg: #0F172A; --tone-achieved-bg: #F4B41A; --tone-achieved-line: #CA9210;
 }
 ```
 
@@ -643,7 +668,7 @@ All tokens live in `src/styles/tokens.css` (§7.1). `globals.css` imports it.
   --cell-pad-x: 16px;
   --row-action-w: 132px;      --row-action-h: 32px;
   --kpi-num-size: 36px;       --kpi-glyph-size: 30px;
-  --glyph-stroke: 1.5;        --glyph-tone-opacity: 0.16;
+  --glyph-stroke: 1.75;
   --sidebar-w: 240px;         --topbar-h: 56px;
   --target-tablet: 44px;      --target-defense: 48px;
 }
@@ -651,10 +676,37 @@ All tokens live in `src/styles/tokens.css` (§7.1). `globals.css` imports it.
 
 ### 12.5 Dark tokens
 
-Values approved in UX-P-01. Task R1.5 of `docs/ui-ux-audit/IMPLEMENTATION_PLAN.md` fills this section.
+Values approved in UX-P-01 (26 Nov 2026). The set is built from the brand colors ("White on Ink", "Golden Yellow on Ink"). It is a product refinement of the brand guide (UX-D-01, UX-D-11).
 
 - The primitive ramps (§12.1) do not change between themes. The semantic tokens (§12.2) and the status tokens (§12.3) get a second value set under `.dark`.
-- The same contrast rules apply in dark: 4.5:1 for text, 3:1 for the input border and the focus ring.
+- The same contrast rules apply in dark: 4.5:1 for text, 3:1 for the input border and the focus ring. `contrast.test.ts` checks them.
+- The primary fill is lighter in dark (`#A64D4D`), so its white label keeps 4.5:1 and the fill stands out from the ground. Links use `--link` (`#D9B3B3`).
+
+| Token | Dark value |
+| :---- | :---- |
+| `--background` / `--foreground` | `#0F172A` / `#F8FAFC` |
+| `--card` / `--popover` | `#172033` / `#1E293B` |
+| `--secondary`, `--muted` | `#0B1222` |
+| `--muted-foreground` / `--text-secondary` | `#94A3B8` / `#CBD5E1` |
+| `--primary` / `--primary-foreground` | `#A64D4D` / `#FFFFFF` |
+| `--accent` / `--accent-foreground` | `#3C070A` / `#EDDBDB` |
+| `--destructive` | `#FCA5A5` |
+| `--border` / `--divider-strong` | `#334155` / `#475569` |
+| `--input` | `#7C8BA1` |
+| `--ring` / `--link` | `#C28585` / `#D9B3B3` |
+| `--progress` / `--wordmark` | `#F4B41A` / `#F8FAFC` |
+
+```css
+.dark {
+  --tone-neutral-fg: #CBD5E1;  --tone-neutral-bg: #1E293B;  --tone-neutral-line: #334155;
+  --tone-active-fg: #93C5FD;   --tone-active-bg: #172554;   --tone-active-line: #1E3A8A;
+  --tone-pending-fg: #F2B877;  --tone-pending-bg: #33210D;  --tone-pending-line: #5C3D17;
+  --tone-done-fg: #86EFAC;     --tone-done-bg: #052E16;     --tone-done-line: #166534;
+  --tone-returned-fg: #FCA5A5; --tone-returned-bg: #450A0A; --tone-returned-line: #7F1D1D;
+  --tone-locked-fg: #CBD5E1;   --tone-locked-bg: #1E293B;   --tone-locked-line: #475569;
+  --tone-achieved-fg: #0F172A; --tone-achieved-bg: #F4B41A; --tone-achieved-line: #CA9210;
+}
+```
 
 ---
 
@@ -672,7 +724,7 @@ Values approved in UX-P-01. Task R1.5 of `docs/ui-ux-audit/IMPLEMENTATION_PLAN.m
 | Map library components to our tokens. | Keep a library's own palette. |
 | Use mono for commit tags, form numbers, dates and counts. | Use mono for body text or labels. |
 | Show the rubric total as a number. | Show a grade, a grade equivalent or colored scores. |
-| Use the text wordmark and the PUP colors. | Use the PUP logo, seal, emblem, a star or any image symbol (F1). |
+| Use the official ThesIsko artwork (or its text treatment) and the brand colors. | Use the PUP logo or seal, a star, or a redrawn or recolored ThesIsko mark (F1). |
 
 ---
 
@@ -682,10 +734,10 @@ The owner decides D-06 to D-08 and D-10 in the retrofit preview rounds (`docs/ui
 
 | ID | Point |
 | :---- | :---- |
-| D-01 | Closed (24 Nov 2026). The owner confirmed PUP Gold `#F4C430`. |
-| D-02 | Closed (24 Nov 2026). The owner confirmed IBM Plex Sans, warm neutrals and vermilion. |
-| D-03 | Closed. No PUP logo, seal or image symbol (F1). |
-| D-04 | Closed (25 Nov 2026, UX-D-01). Light and dark themes now, with the OS default and a manual toggle (§7.3). The dark values close in UX-P-01 (§12.5). |
+| D-01 | Replaced (26 Nov 2026, UX-D-11). Golden Yellow `#F4B41A` from the brand guide. |
+| D-02 | Replaced (26 Nov 2026, UX-D-11). Inter, cool neutrals and the brand Error red. |
+| D-03 | Closed. No PUP logo or seal (F1, narrowed in v0.4). |
+| D-04 | Closed (25 Nov 2026, UX-D-01). Light and dark themes, with the OS default and a manual switch (§7.3). The dark values were approved in UX-P-01 on 26 Nov 2026 (§12.5). |
 | D-05 | Closed. Replaced by F1. |
 | D-06 | Status pill glyphs. Proposal: the pills use domain glyphs (`todo`, `done`, `return`, `lock`), plus new glyphs for `active`, `pending` and `achieved`. |
 | D-07 | Missing glyphs: Thesis process, Manuscript, Schedule, Defense results, Submission, Advisees, Review queue, Consultations, Availability, Assignments. Draw them for one approval. |

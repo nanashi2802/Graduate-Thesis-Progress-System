@@ -9,7 +9,7 @@ export function ClearanceList({ rows, action }: { rows: ClearanceRow[]; action?:
       {rows.map((r) => (
         <li key={r.kind} className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-2 text-sm">
-            {r.done ? <CircleCheck aria-hidden className="mt-0.5 size-4 text-primary" /> : <CircleDashed aria-hidden className="mt-0.5 size-4 text-muted-foreground" />}
+            {r.done ? <CircleCheck aria-hidden className="mt-0.5 size-4 text-link" /> : <CircleDashed aria-hidden className="mt-0.5 size-4 text-muted-foreground" />}
             <div>
               <p className="font-medium">{r.label}</p>
               <p className="text-xs text-muted-foreground">

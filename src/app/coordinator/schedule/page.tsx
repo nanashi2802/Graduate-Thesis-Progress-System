@@ -91,7 +91,7 @@ async function Scheduled({ entry, ctx }: { entry: Entry; ctx: Ctx }) {
         {attempt.scheduledStartAt ? new Intl.DateTimeFormat("en-PH", PST).format(attempt.scheduledStartAt) : "No start time"} · {attempt.roomOrLink ?? "No room"}
       </p>
       <p className="text-sm">
-        <Link className="font-medium text-primary underline-offset-4 hover:underline" href={`/coordinator/defense/${attempt.id}`}>
+        <Link className="font-medium text-link underline-offset-4 hover:underline" href={`/coordinator/defense/${attempt.id}`}>
           Open the defense page<span className="sr-only"> of {entry.student.studentName}</span>
         </Link>
         <span className="text-muted-foreground"> for the sheets, the Minutes and the close.</span>

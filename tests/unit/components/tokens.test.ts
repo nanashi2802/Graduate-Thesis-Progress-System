@@ -1,4 +1,5 @@
-// Task R1.1 (DESIGN.md §7.1, §12, UX-D-01): one token file holds every raw color and size, for light and dark.
+// Tasks R1.1 and R1.5 (DESIGN.md §7.1, §12, UX-D-01, UX-D-11): one token file holds every raw color and size,
+// for light and dark. The values come from the brand guide v1.0, approved in preview round UX-P-01.
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { block, declarations } from "../../support/css-tokens";
@@ -7,9 +8,28 @@ const tokens = readFileSync("src/styles/tokens.css", "utf8");
 const globals = readFileSync("src/app/globals.css", "utf8");
 
 const EXACT: Record<string, string> = {
-  "--color-maroon-600": "#800000",
-  "--color-gold-400": "#F4C430",
-  "--tone-returned-fg": "#B3261E",
+  // Brand guide v1.0, Brand Colors and Supporting Colors (UX-D-11 item 1).
+  "--color-maroon-500": "#800000",
+  "--color-maroon-700": "#5C0B0F",
+  "--color-gold-500": "#F4B41A",
+  "--color-gold-700": "#8A5F00",
+  "--color-neutral-900": "#0F172A",
+  "--color-neutral-600": "#475569",
+  "--color-neutral-200": "#E2E8F0",
+  "--color-neutral-50": "#F8FAFC",
+  "--primary": "var(--color-maroon-500)",
+  "--background": "var(--color-neutral-50)",
+  "--card": "#FFFFFF",
+  "--foreground": "var(--color-neutral-900)",
+  "--muted-foreground": "var(--color-neutral-600)",
+  "--border": "var(--color-neutral-200)",
+  "--tone-done-fg": "#15803D",
+  "--tone-returned-fg": "#B91C1C",
+  "--tone-achieved-bg": "#F4B41A",
+  // Shapes and Buttons: 6 px controls, 8 px cards, 12 px panels (UX-D-11 item 5).
+  "--radius-control": "6px",
+  "--radius-panel": "12px",
+  "--radius": "6px",
   "--row-h-comfortable": "56px",
   "--row-h-compact": "48px",
   "--cell-pad-x": "16px",
@@ -17,19 +37,19 @@ const EXACT: Record<string, string> = {
   "--row-action-h": "32px",
   "--kpi-num-size": "36px",
   "--kpi-glyph-size": "30px",
-  "--glyph-stroke": "1.5",
-  "--glyph-tone-opacity": "0.16",
+  "--glyph-stroke": "1.75",
   "--sidebar-w": "240px",
   "--topbar-h": "56px",
   "--target-tablet": "44px",
   "--target-defense": "48px",
-  "--radius-card": "6px",
+  "--radius-card": "8px",
 };
 
 const SEMANTIC = [
   "--background", "--foreground", "--card", "--card-foreground", "--popover", "--popover-foreground",
   "--primary", "--primary-foreground", "--secondary", "--secondary-foreground", "--muted", "--muted-foreground",
   "--accent", "--accent-foreground", "--destructive", "--border", "--input", "--ring", "--link", "--text-secondary",
+  "--divider-strong", "--progress", "--wordmark",
 ];
 const TONES = ["neutral", "active", "pending", "done", "returned", "locked", "achieved"].flatMap((t) =>
   ["fg", "bg", "line"].map((p) => `--tone-${t}-${p}`),
@@ -46,6 +66,14 @@ describe("tokens.css (R1.1)", () => {
   it.each([...SEMANTIC, ...TONES])("gives %s a value in light (:root) and in dark (.dark)", (name) => {
     expect(declarations(block(tokens, ":root")).has(name)).toBe(true);
     expect(declarations(block(tokens, ".dark")).has(name)).toBe(true);
+  });
+
+  it("keeps pending orange, not gold (UX-D-11: waiting must not read as achieved)", () => {
+    expect(all.get("--tone-pending-fg")).not.toMatch(/F4B41A|8A5F00/i);
+  });
+
+  it("drops the glyph tone fill (R1.6: outline glyphs only)", () => {
+    expect(tokens).not.toContain("--glyph-tone-opacity");
   });
 
   it("keeps the old status class names (text-tone-done-fg …) mapped to the theme-aware tokens", () => {

@@ -101,7 +101,7 @@ export default async function Page() {
                 </p>
                 {b.slot.meetingLink ? (
                   <p>
-                    Meeting link: <a className="text-primary underline" href={b.slot.meetingLink}>{b.slot.meetingLink}</a>
+                    Meeting link: <a className="text-link underline" href={b.slot.meetingLink}>{b.slot.meetingLink}</a>
                   </p>
                 ) : null}
                 {b.booking.agenda ? <p>Agenda: {b.booking.agenda}</p> : null}

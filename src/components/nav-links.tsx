@@ -19,7 +19,7 @@ export function NavLinks({ items, className }: { items: readonly NavItem[]; clas
               aria-current={active ? "page" : undefined}
               className={cn(
                 "flex h-10 items-center border-l-[3px] px-4 text-sm outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-ring",
-                active ? "border-primary font-semibold text-primary" : "border-transparent text-foreground hover:bg-neutral-200",
+                active ? "border-primary font-semibold text-link" : "border-transparent text-foreground hover:bg-border",
               )}
             >
               {item.label}

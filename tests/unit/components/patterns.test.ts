@@ -130,6 +130,8 @@ describe("Labels for codes (UX-016, G11)", () => {
   });
   it("writes TDW numbers with a space", () => {
     expect(formLabel("TDW_03")).toBe("TDW 03");
+    // The old call sites pass "TDW 07" (already spaced). The label stays as it is (R1.5 re-export).
+    expect(formLabel("TDW 07")).toBe("TDW 07");
     expect(gateLabel("gate_1b")).toBe("Gate 1b");
   });
 });

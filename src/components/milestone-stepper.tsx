@@ -22,7 +22,8 @@ const STATE_TEXT: Record<StepState, string> = {
 };
 
 /**
- * Milestone stepper (DESIGN.md §7.2, FR-TRK-01). Gold marks completed and active nodes.
+ * Milestone stepper (DESIGN.md §8.2, FR-TRK-01). Completed nodes are maroon, the current node is gold with a
+ * maroon edge (UX-D-11 item 2, approved in UX-P-01). R7 moves the call sites to the `stepper` pattern.
  * It uses a check, never a star or another shape from the PUP logo (DESIGN.md P9).
  */
 export function MilestoneStepper({
@@ -49,20 +50,20 @@ export function MilestoneStepper({
             {i > 0 ? (
               <span
                 aria-hidden="true"
-                className={cn("h-px w-6 sm:w-10", states[i - 1] === "completed" ? "bg-primary" : "bg-neutral-300")}
+                className={cn("h-px w-6 sm:w-10", states[i - 1] === "completed" ? "bg-primary" : "bg-divider-strong")}
               />
             ) : null}
             <span
               aria-hidden="true"
               className={cn(
                 "flex size-6 shrink-0 items-center justify-center rounded-full border",
-                state === "completed" && "border-gold-500 bg-gold-400 text-maroon-600",
-                state === "active" && "border-2 border-maroon-600 bg-gold-400 text-maroon-600",
-                state === "locked" && "border-neutral-300 bg-card text-neutral-600",
+                state === "completed" && "border-primary bg-primary text-primary-foreground",
+                state === "active" && "border-2 border-primary bg-progress",
+                state === "locked" && "border-divider-strong bg-card text-muted-foreground",
               )}
             >
               {state === "completed" ? <Check strokeWidth={2} className="size-3.5" /> : null}
-              {state === "locked" ? <Lock strokeWidth={1.5} className="size-3" /> : null}
+              {state === "locked" ? <Lock strokeWidth={1.75} className="size-3" /> : null}
             </span>
             <span
               className={cn(

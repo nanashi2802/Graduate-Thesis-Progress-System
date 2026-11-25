@@ -35,7 +35,9 @@ export default function PdfViewer({ url, page: target, onRetry }: { url: string;
         onLoadSuccess={(pdf) => setPages(pdf.numPages)}
       >
         {/* A later page range can fail too, for example after the signed link expires (300 s). */}
+        {/* UX-D-01: the PDF page stays light in the dark theme. `bg-white` is the one allowed exception. */}
         <Page
+          className="w-fit bg-white"
           pageNumber={page}
           width={480}
           suspense={false}

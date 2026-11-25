@@ -89,6 +89,17 @@ Copy this block for each round. Fill it after the owner reviews.
 | UX-P-06 | Forms and Defense Day | Not shown |
 | UX-P-07a to 07d | Screens by role: Student, Adviser, Panel Member, Coordinator (with SV and LOGIN) | Not shown |
 
+### Notes for UX-P-07 (from Task R1.5, 26 Nov 2026)
+
+These old components have props that differ from their patterns, so R1.5 did not re-export them. R7 moves their screens onto the patterns.
+
+| Old component | Call sites | Difference |
+| :---- | :---- | :---- |
+| `ActionButton` (`src/components/action-button.tsx`) | 8 files | Prop `blockedReason`; the pattern `BlockedAction` uses `reason` and `variant` |
+| `Docket` (`src/components/docket.tsx`) | 1 file | Different props from the `docket` pattern |
+| `MilestoneStepper` (`src/components/milestone-stepper.tsx`) | 1 file | Props `current` (0 to 3) and `allDone`; the pattern uses `current` (1 to 4) and `completed`. Its colors already match UX-D-11. |
+| `FlagBanner` (`src/components/banners.tsx`) | 7 files | Different props from the `flag` pattern |
+
 ## 4. Dependency proposals
 
 | Package | Use | Why not an existing package | Status |

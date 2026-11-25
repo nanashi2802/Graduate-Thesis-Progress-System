@@ -13,9 +13,9 @@ const FORM: Record<string, string> = {
   SUPPORTING: "Supporting document",
 };
 
-/** "TDW_03" gives "TDW 03". Other codes give a short name. */
+/** "TDW_03" and "TDW 03" give "TDW 03". Other codes give a short name. */
 export function formLabel(code: string): string {
-  if (/^TDW_\d{2}$/.test(code)) return code.replace("_", " ");
+  if (/^TDW[_ ]\d{2}$/.test(code)) return code.replace("_", " ");
   return FORM[code] ?? code.replace(/_/g, " ").toLowerCase().replace(/^./, (c) => c.toUpperCase());
 }
 

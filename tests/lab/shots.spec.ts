@@ -79,7 +79,8 @@ const LIVE_ROUNDS: Record<string, LivePage[]> = {
 
 const ROUND = process.env.LAB_ROUND ?? "";
 const LIVE = process.env.LAB_LIVE === "1";
-const OUT = `ui-shots/${ROUND}`;
+// LAB_OUT: another output folder, for example a before and after pair of the same round.
+const OUT = process.env.LAB_OUT ?? `ui-shots/${ROUND}`;
 
 // Signed file links carry a key id and a signature in the query string. Never write them to disk.
 const redact = (text: string) => text.replace(/(https?:\/\/[^\s?'"]+)\?[^\s'"]*/g, "$1?<query removed>").slice(0, 300);

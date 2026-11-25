@@ -32,7 +32,7 @@ export function Docket({
     <section
       data-slot="docket"
       aria-label={label}
-      className={cn("flex flex-col gap-4 rounded-panel border border-border bg-card p-6", className)}
+      className={cn("flex flex-col gap-4 rounded-card border border-border bg-card p-6", className)}
     >
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3">{where}</div>
       <p data-slot="docket-blocker" className={cn("text-base", blocked ? "text-foreground" : "text-muted-foreground")}>

@@ -12,7 +12,7 @@ export function DashSection({ title, id, children }: { title: string; id?: strin
 
 export const th = "border-b border-border px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground";
 export const td = "border-b border-border px-3 py-2 align-top text-sm text-foreground";
-export const linkClass = "text-sm font-medium text-primary underline-offset-4 hover:underline";
+export const linkClass = "text-sm font-medium text-link underline-offset-4 hover:underline";
 
 export const MILESTONE_LABEL: Record<string, string> = { proposal: "Proposal", pre_final: "Pre-Final", final: "Final" };
 

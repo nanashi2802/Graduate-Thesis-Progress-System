@@ -8,7 +8,7 @@ export const PDF_LOAD_ERROR = "The manuscript did not load.";
 
 export function PdfLoadError({ onRetry }: { onRetry: () => void }) {
   return (
-    <div role="alert" className="flex flex-col items-start gap-2 rounded-panel border border-border bg-card p-4">
+    <div role="alert" className="flex flex-col items-start gap-2 rounded-card border border-border bg-card p-4">
       <p className="text-sm font-semibold text-foreground">{PDF_LOAD_ERROR}</p>
       <p className="text-sm text-muted-foreground">The link can expire. Try again to get a new link.</p>
       <Button type="button" variant="outline" size="sm" onClick={onRetry}>

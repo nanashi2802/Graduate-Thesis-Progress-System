@@ -33,7 +33,7 @@ export default async function Page({ params }: PageProps<"/coordinator/defense/[
         detail={`${d.scheduledStartAt ? new Intl.DateTimeFormat("en-PH", PST).format(d.scheduledStartAt) : "No start time"} · ${d.roomOrLink ?? "No room"}`}
       />
       <p className="text-sm">
-        <Link className="font-medium text-primary underline-offset-4 hover:underline" href="/coordinator/schedule">
+        <Link className="font-medium text-link underline-offset-4 hover:underline" href="/coordinator/schedule">
           Back to the schedule
         </Link>
       </p>

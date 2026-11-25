@@ -10,7 +10,7 @@ import { pageContext } from "../_lib/action";
 import { PageHeader, Section } from "../_lib/page-header";
 import { CloseForm, VerifyForm } from "./forms";
 
-const link = "text-sm font-medium text-primary underline-offset-4 hover:underline";
+const link = "text-sm font-medium text-link underline-offset-4 hover:underline";
 
 export default async function Page({ searchParams }: PageProps<"/coordinator/clearance">) {
   const ctx = await pageContext();

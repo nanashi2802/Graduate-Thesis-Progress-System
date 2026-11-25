@@ -63,7 +63,7 @@ function StudentPicker({ students }: { students: StudentRow[] }) {
                     <td className={td}>{s.adviserName}</td>
                     <td className={td}>{current ? `${MILESTONE_LABEL[current.code] ?? current.code} · ${milestoneStatusView(current.status, current.code as MilestoneCode).label}` : "None"}</td>
                     <td className={td}>
-                      <Link className="text-sm font-medium text-primary underline-offset-4 hover:underline" href={`/coordinator/committees?thesis=${s.thesisId}`}>
+                      <Link className="text-sm font-medium text-link underline-offset-4 hover:underline" href={`/coordinator/committees?thesis=${s.thesisId}`}>
                         Open the board<span className="sr-only"> of {s.studentName}</span>
                       </Link>
                     </td>
@@ -89,7 +89,7 @@ async function Board({ student, board, ctx }: { student: StudentRow; board: Appo
   return (
     <>
       <p className="text-sm">
-        <Link className="font-medium text-primary underline-offset-4 hover:underline" href="/coordinator/committees">
+        <Link className="font-medium text-link underline-offset-4 hover:underline" href="/coordinator/committees">
           All Students
         </Link>
         <span className="text-muted-foreground"> / {student.studentName} · Adviser {student.adviserName}</span>

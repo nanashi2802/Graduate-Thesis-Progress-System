@@ -14,9 +14,9 @@ type FontSet = { id: string; name: string; serif: string; sans: string; mono: st
 // Override only the variables a set changes. A variable that points at itself is invalid CSS.
 const v = (serif?: string, sans?: string, mono?: string) =>
   ({
-    ...(serif && { "--font-source-serif": serif }),
-    ...(sans && { "--font-plex-sans": sans }),
-    ...(mono && { "--font-plex-mono": mono }),
+    ...(serif && { "--font-display": serif }),
+    ...(sans && { "--font-text": sans }),
+    ...(mono && { "--font-data": mono }),
   }) as CSSProperties;
 
 const SERIF = "var(--font-lab-source-serif)";

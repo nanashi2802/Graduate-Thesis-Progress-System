@@ -13,7 +13,7 @@ import { ReviewForm, type ReviewBlocks } from "./review-form";
 
 const MILESTONE_LABEL: Record<string, string> = { proposal: "Proposal", pre_final: "Pre-Final", final: "Final" };
 const TARGETS = ["verified", "returned"] as const;
-const link = "text-sm font-medium text-primary underline-offset-4 hover:underline";
+const link = "text-sm font-medium text-link underline-offset-4 hover:underline";
 
 // The same rule the action runs. A dummy reason passes the reason check, so the box can still be empty (BR-18).
 function blocksFor(state: DocumentState): ReviewBlocks {

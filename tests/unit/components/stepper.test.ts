@@ -22,4 +22,12 @@ describe("MilestoneStepper (DESIGN.md §7.2, FR-TRK-01)", () => {
     const html = renderToStaticMarkup(createElement(MilestoneStepper, { current: 3, allDone: true }));
     expect(html).not.toContain("aria-current");
   });
+
+  // UX-D-11 item 2 (UX-P-01): completed steps maroon, the current step gold with a maroon edge. No raw palette class.
+  it("uses the approved look: completed maroon, current gold (R1.5)", () => {
+    const html = renderToStaticMarkup(createElement(MilestoneStepper, { current: 1 }));
+    expect(html).toMatch(/data-state="completed".*?border-primary bg-primary text-primary-foreground/);
+    expect(html).toMatch(/data-state="active".*?border-2 border-primary bg-progress/);
+    expect(html).not.toMatch(/gold-|maroon-|neutral-/);
+  });
 });

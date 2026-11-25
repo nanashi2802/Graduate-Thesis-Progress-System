@@ -20,7 +20,7 @@ export default async function Page() {
         <h1 className="text-2xl font-semibold">Clearance</h1>
         <p className="max-w-[72ch] text-sm text-muted-foreground">
           Each item must be done before the Coordinator closes your thesis as Cleared.{" "}
-          <Link className="font-medium text-primary underline-offset-4 hover:underline" href="/student/documents">
+          <Link className="font-medium text-link underline-offset-4 hover:underline" href="/student/documents">
             Upload evidence on the Documents page.
           </Link>
         </p>

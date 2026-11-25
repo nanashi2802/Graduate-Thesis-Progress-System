@@ -42,7 +42,7 @@ export default async function Page() {
         <p className="max-w-[72ch] text-sm text-muted-foreground">Each count opens its queue below. The oldest request comes first.</p>
       </header>
 
-      <section aria-label="Queue counts" className="flex flex-col gap-4 rounded-panel border border-border bg-card p-6">
+      <section aria-label="Queue counts" className="flex flex-col gap-4 rounded-card border border-border bg-card p-6">
         <ul className="grid gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
           {o.kpis.map((k) => (
             <li key={k.kind} className="flex items-baseline gap-3">

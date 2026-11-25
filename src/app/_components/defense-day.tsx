@@ -62,7 +62,7 @@ export async function DefenseDay({ portal, attemptId }: { portal: UserRole; atte
           <span aria-current="page" className="font-semibold">
             My evaluation
           </span>
-          <Link href={`/panel/pr/${page.prId}`} className="text-primary underline-offset-4 hover:underline">
+          <Link href={`/panel/pr/${page.prId}`} className="text-link underline-offset-4 hover:underline">
             Manuscript and comments
           </Link>
         </nav>

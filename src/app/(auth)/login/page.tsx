@@ -1,5 +1,7 @@
 // `/login` (SITEMAP §3, FR-ACC-01, D-23).
 import { Suspense } from "react";
+import { BrandMark } from "@/components/patterns/brand-mark";
+import { ThemeToggle } from "@/components/patterns/theme-toggle";
 import { LoginForm } from "./login-form";
 
 const ERRORS: Record<string, string> = {
@@ -21,6 +23,11 @@ async function ErrorBanner({ searchParams }: { searchParams: PageProps<"/login">
 export default function LoginPage({ searchParams }: PageProps<"/login">) {
   return (
     <main className="mx-auto flex min-h-svh max-w-sm flex-col justify-center gap-6 px-4">
+      {/* UX-D-01: the theme switch on LOGIN. UX-D-11 item 6: the full brand mark (text treatment until the artwork arrives). */}
+      <div className="fixed top-4 right-4 sm:right-6">
+        <ThemeToggle compact />
+      </div>
+      <BrandMark variant="full" descriptor />
       <h1 className="text-2xl font-semibold">Sign in</h1>
       <Suspense fallback={null}>
         <ErrorBanner searchParams={searchParams} />

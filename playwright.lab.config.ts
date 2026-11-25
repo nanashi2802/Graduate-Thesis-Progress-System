@@ -9,6 +9,7 @@ import { defineConfig, devices, type Project } from "@playwright/test";
 // LAB_THEMES  "light", "dark" or "light,dark" (default)
 // LAB_VIEWPORTS  a comma list of viewport names (default: all)
 // LAB_PORT    the dev server port (default 3100)
+// LAB_OUT     the output folder (default ui-shots/<round>)
 
 const PORT = Number(process.env.LAB_PORT ?? 3100);
 const LIVE = process.env.LAB_LIVE === "1";
