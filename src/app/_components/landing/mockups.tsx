@@ -1,31 +1,14 @@
 // Illustrative product screens for the landing page. Sample content only (AGENTS.md §11).
 // They show how ThesIsko looks; they are not live data and they make no claim about real users.
-import {
-  Bell,
-  BookOpen,
-  CalendarDays,
-  Check,
-  FileText,
-  LayoutDashboard,
-  SendHorizontal,
-  Settings,
-} from "lucide-react";
-import { Wordmark } from "./wordmark";
+import type { CSSProperties } from "react";
+import { Check, CircleCheck, FileText, SendHorizontal, ShieldCheck, Users, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const NAV = [
-  { label: "Dashboard", icon: LayoutDashboard, active: true },
-  { label: "My Thesis", icon: BookOpen },
-  { label: "Schedule", icon: CalendarDays },
-  { label: "Notifications", icon: Bell },
-  { label: "Settings", icon: Settings },
-];
-
-const JOURNEY = [
-  { label: "Proposal", done: true },
-  { label: "Pre-Final", done: true },
-  { label: "Final", done: true },
-  { label: "Clearance", done: false },
+const JOURNEY: { label: string; icon: LucideIcon }[] = [
+  { label: "Proposal", icon: FileText },
+  { label: "Pre-Final", icon: Users },
+  { label: "Final", icon: ShieldCheck },
+  { label: "Clearance", icon: CircleCheck },
 ];
 
 function Initials({ name }: { name: string }) {
@@ -39,75 +22,46 @@ function Initials({ name }: { name: string }) {
   );
 }
 
-/** Hero screen: the student dashboard with the thesis journey. */
-export function DashboardMockup() {
+/**
+ * Hero card: the thesis journey, the core of the app, with no app chrome around it.
+ * On load the track fills from the Proposal to clearance and each milestone checks off in
+ * turn (`.hj-*` in landing.css). The hero text builds after it. Without motion it shows at rest.
+ */
+export function HeroJourney() {
   return (
-    <div className="landing-window overflow-hidden rounded-2xl bg-white">
-      <div className="flex min-h-[19rem]">
-        <aside className="hidden w-36 shrink-0 border-r border-neutral-200 bg-neutral-50 px-3 py-4 sm:block">
-          <Wordmark className="text-[15px]" />
-          <ul className="mt-5 space-y-1">
-            {NAV.map(({ label, icon: Icon, active }) => (
-              <li
-                key={label}
-                className={cn(
-                  "flex items-center gap-2 rounded-md px-2 py-1.5 text-[12px]",
-                  active ? "bg-maroon-50 font-semibold text-maroon-700" : "text-neutral-600",
-                )}
+    <div className="hero-journey landing-window rounded-2xl bg-white p-5 sm:p-6">
+      <p className="text-xs font-semibold tracking-[0.14em] text-neutral-500 uppercase">Thesis journey</p>
+      <ol className="relative mt-5 grid grid-cols-4">
+        <span aria-hidden="true" className="absolute top-5 right-[12.5%] left-[12.5%] h-0.5 rounded-full bg-neutral-200" />
+        <span
+          aria-hidden="true"
+          className="hj-fill absolute top-5 right-[12.5%] left-[12.5%] h-0.5 origin-left rounded-full bg-maroon-600"
+        />
+        {JOURNEY.map(({ label, icon: Icon }, i) => (
+          <li key={label} className="relative flex flex-col items-center gap-2 text-center">
+            <span aria-hidden="true" className="relative size-10">
+              <span className="absolute inset-0 flex items-center justify-center rounded-full border-2 border-neutral-200 bg-white text-neutral-400">
+                <Icon strokeWidth={1.5} className="size-[18px]" />
+              </span>
+              {i === JOURNEY.length - 1 ? <span className="hj-ring absolute inset-0 rounded-full border-2 border-gold-400" /> : null}
+              <span
+                className="hj-done absolute inset-0 flex items-center justify-center rounded-full bg-maroon-600 text-white"
+                style={{ "--n": i } as CSSProperties}
               >
-                <Icon aria-hidden="true" strokeWidth={1.5} className="size-3.5" />
-                {label}
-              </li>
-            ))}
-          </ul>
-        </aside>
-        <div className="flex-1 px-5 py-4">
-          <p className="text-[14px] font-semibold text-neutral-900">Thesis Journey</p>
-          <ol className="relative mt-4 grid grid-cols-4">
-            <span aria-hidden="true" className="absolute top-[11px] right-[12.5%] left-[12.5%] h-0.5 bg-neutral-200" />
-            <span aria-hidden="true" className="absolute top-[11px] left-[12.5%] h-0.5 w-[50%] bg-maroon-600" />
-            {JOURNEY.map((step) => (
-              <li key={step.label} className="relative flex flex-col items-center gap-1.5 text-center">
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    "flex size-6 items-center justify-center rounded-full",
-                    step.done ? "bg-maroon-600 text-white" : "border-2 border-neutral-300 bg-white",
-                  )}
-                >
-                  {step.done ? <Check strokeWidth={2.5} className="size-3.5" /> : null}
-                </span>
-                <span className="text-[10.5px] leading-tight text-neutral-700">{step.label}</span>
-              </li>
-            ))}
-          </ol>
-          <div className="mt-5 flex items-center gap-3 rounded-lg border border-gold-200 bg-gold-50 px-3 py-2.5">
-            <span aria-hidden="true" className="flex size-6 items-center justify-center rounded-full bg-tone-done-fg text-white">
-              <Check strokeWidth={2.5} className="size-3.5" />
+                <Check strokeWidth={2.5} className="size-[18px]" />
+              </span>
             </span>
-            <div className="flex-1">
-              <p className="text-[12px] font-semibold text-neutral-900">Final Defense completed</p>
-              <p className="text-[11px] text-neutral-600">Next step: clearance</p>
-            </div>
-            <span className="rounded-md bg-maroon-600 px-2.5 py-1 text-[11px] font-medium text-white">View details</span>
-          </div>
-          <p className="mt-4 text-[11px] font-semibold text-neutral-500">Latest activity</p>
-          <ul className="mt-2 divide-y divide-neutral-100">
-            <li className="flex items-center gap-2.5 py-2">
-              <Initials name="DS" />
-              <div className="flex-1">
-                <p className="text-[12px] text-neutral-800">Dr. Santos commented on v2.0</p>
-                <p className="text-[10.5px] text-neutral-500">Nov 20, 2026 · 10:45 AM</p>
-              </div>
-            </li>
-            <li className="flex items-center gap-2.5 py-2">
-              <Initials name="JD" />
-              <div className="flex-1">
-                <p className="text-[12px] text-neutral-800">New file uploaded (Chapter 4)</p>
-                <p className="text-[10.5px] text-neutral-500">Nov 20, 2026 · 9:12 AM</p>
-              </div>
-            </li>
-          </ul>
+            <span className="text-[13px] leading-tight font-medium text-neutral-800">{label}</span>
+          </li>
+        ))}
+      </ol>
+      <div className="hj-status mt-6 flex items-center gap-3 rounded-xl bg-tone-done-bg px-4 py-3">
+        <span aria-hidden="true" className="flex size-7 shrink-0 items-center justify-center rounded-full bg-tone-done-fg text-white">
+          <Check strokeWidth={2.5} className="size-4" />
+        </span>
+        <div>
+          <p className="text-sm font-semibold text-neutral-900">Clearance complete</p>
+          <p className="text-xs text-neutral-600">Each milestone is closed and on record.</p>
         </div>
       </div>
     </div>

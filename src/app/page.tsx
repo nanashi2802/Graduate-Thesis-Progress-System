@@ -1,6 +1,6 @@
 /*
  * DIRECTION CONTRACT (impeccable; the owner's reference design pins the world, 23 Nov 2026)
- * THESIS: One clear path for every thesis. A bright, product-led page: the student dashboard
+ * THESIS: One clear path for every thesis. A bright, product-led page: the thesis journey card
  *   floats over the campus, and every section shows the product doing its job.
  * OWN-WORLD: White ground, PUP maroon for actions and emphasis, gold for highlights and the
  *   result quote. IBM Plex Sans headings and body, Source Serif 4 for the wordmark and the quote.
@@ -8,8 +8,8 @@
  * STORY: Faculty and Graduate School users see one path from proposal to clearance, see how
  *   versions keep feedback, see a place for every role, and sign in.
  * FIRST VIEWPORT: Header (wordmark, section links, Sign in pill). Left: eyebrow, "Your thesis.
- *   One clear path.", one paragraph, Sign in. Right: campus photo slot with the dashboard
- *   window and the gold "One status. One version. One next action." note, all over a full-bleed
+ *   One clear path.", one paragraph, Sign in. Right: the compact thesis journey card
+ *   (it plays Proposal to clearance first, then the text builds) and the gold "One status. One version. One next action." note, all over a full-bleed
  *   campus drone shot under a neutral dark scrim (owner feedback, 23 Nov 2026).
  * FORM: Owner's reference (pinned), replacing the Route Board roll (seed a9bfe9cc). Code-led.
  * FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review,
@@ -39,7 +39,8 @@ import {
 import { cn } from "@/lib/utils";
 import { FeatureCards } from "./_components/landing/feature-cards";
 import GradualBlur from "./_components/landing/gradual-blur";
-import { DashboardMockup, VersionsMockup } from "./_components/landing/mockups";
+import { JourneyShards } from "./_components/landing/journey-shards";
+import { HeroJourney, VersionsMockup } from "./_components/landing/mockups";
 import { RoleSwitcher } from "./_components/landing/role-switcher";
 import { StrokeWordmark } from "./_components/landing/stroke-wordmark";
 import { TechTitle } from "./_components/landing/tech-title";
@@ -215,8 +216,8 @@ export default function Home() {
                 <p className="hero-note text-sm text-white/80">Your program coordinator sets up your account.</p>
               </div>
             </div>
-            <div className="landing-rise relative">
-              <aside className="absolute -top-8 right-2 z-10 hidden w-52 rounded-xl bg-gold-100 p-4 shadow-[0_14px_28px_-14px_rgb(122_92_0/0.55)] sm:block lg:-right-4">
+            <div className="hj-stage relative mx-auto w-full max-w-md lg:mr-0">
+              <aside className="hj-note absolute -top-10 -right-2 z-10 hidden w-52 rounded-xl bg-gold-100 p-4 shadow-[0_14px_28px_-14px_rgb(122_92_0/0.55)] sm:block lg:-right-4">
                 <p className="flex gap-2.5 text-sm leading-snug font-semibold text-maroon-900">
                   <Sparkles aria-hidden="true" strokeWidth={1.5} className="mt-0.5 size-4 shrink-0 text-gold-600" />
                   <span>
@@ -229,8 +230,8 @@ export default function Home() {
                 </p>
               </aside>
               <figure>
-                <DashboardMockup />
-                <figcaption className="sr-only">Illustrative student dashboard with sample content.</figcaption>
+                <HeroJourney />
+                <figcaption className="sr-only">Sample thesis journey: Proposal, Pre-Final, Final and clearance, all complete.</figcaption>
               </figure>
             </div>
           </div>
@@ -245,8 +246,9 @@ export default function Home() {
         </section>
 
         {/* The thesis journey */}
-        <section id="journey" aria-labelledby="journey-title" className="scroll-mt-6">
-          <div className="mx-auto grid w-full max-w-6xl gap-12 px-4 py-20 sm:px-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.4fr)] lg:items-center lg:py-24">
+        <section id="journey" aria-labelledby="journey-title" className="landing-shards-bg relative scroll-mt-6 overflow-hidden">
+          <JourneyShards className="absolute inset-0" />
+          <div className="relative mx-auto grid w-full max-w-6xl gap-12 px-4 py-32 sm:px-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.4fr)] lg:items-center lg:py-48">
             <div className="landing-reveal">
               <Eyebrow className="text-gold-600">One track. All the steps.</Eyebrow>
               <h2 id="journey-title" className="mt-4 text-[clamp(2rem,3.6vw,2.75rem)] leading-[1.1] font-semibold tracking-[-0.02em]">
