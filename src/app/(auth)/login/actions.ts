@@ -1,9 +1,12 @@
 "use server";
 // Email and password sign-in (FR-ACC-01).
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { neonSendSetLink } from "@/server/auth/admin";
 import { getAuth } from "@/server/auth/neon-auth";
 import { afterSignInPath } from "@/server/auth/session";
+import { getDb } from "@/server/data/db";
+import { clientIp, withSignInLimit } from "@/server/data/sign-in-limit";
 
 export type SignInState = { error?: string; message?: string };
 
@@ -11,9 +14,17 @@ export async function signInWithEmail(_prev: SignInState, formData: FormData): P
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   if (!email || !password) return { error: "Enter your email address and your password." };
-  const { data, error } = await getAuth().signIn.email({ email, password });
-  if (error || !data?.user) return { error: "The email address or the password is not correct." };
-  redirect(await afterSignInPath(data.user));
+  // The app's own rate limit (issue #57): Neon Auth sees only the server address.
+  const outcome = await withSignInLimit(getDb(), { email, ip: clientIp(await headers()) }, async () => {
+    const { data, error } = await getAuth().signIn.email({ email, password });
+    return error || !data?.user ? { status: error?.status ?? 401 } : { user: data.user };
+  });
+  if (outcome.kind === "limited") {
+    return { error: "Too many sign-in attempts. Wait 15 minutes, then try again, or sign in with Google." };
+  }
+  if (outcome.kind === "unavailable") return { error: "Sign-in is not available now. Try again in a few minutes." };
+  if (outcome.kind === "wrong") return { error: "The email address or the password is not correct." };
+  redirect(await afterSignInPath(outcome.user));
 }
 
 export async function signOut(): Promise<void> {

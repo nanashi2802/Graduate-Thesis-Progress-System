@@ -120,6 +120,7 @@
 | `notification` | One in-app event for one user | D13 | NTF-01 |
 | `email_log` | One email send attempt | D13 | NTF-07 |
 | `notification_preference` | A user turns an optional event off | D13 | NTF-05, 09 |
+| `sign_in_attempt` | One email sign-in attempt, for the login rate limit (issue #57). It holds only a sha256 hash of the email address or the client address. It is not an audit record: rows older than 15 minutes are deleted. | D1 | ACC-01, NFR-01 |
 
 ## 4. Diagram
 
@@ -463,6 +464,11 @@ erDiagram
         text error
         timestamptz created_at
     }
+    sign_in_attempt {
+        uuid id PK
+        text bucket "sha256 of email or client address"
+        timestamptz created_at
+    }
     notification_preference {
         uuid user_id PK,FK
         event_code event_code PK "optional events only (FR-NTF-05)"
@@ -640,6 +646,8 @@ The data layer applies this on every read and write (NFR-01, FR-ACC-03).
 | Coordinator | All rows | Accounts, templates, committees, documents, outside statuses, schedule, sheets, Minutes, closes, clearance |
 
 No role reads another user's `notification`, `notification_preference` or `saved_filter` rows.
+
+`sign_in_attempt` has no role scope. Only the email sign-in action reads and writes it, before any user is known (`src/server/data/sign-in-limit.ts`).
 
 ## 9. Open points
 
