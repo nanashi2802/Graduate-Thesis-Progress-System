@@ -4,7 +4,7 @@
 // It runs before any user is known, so it takes no actor: it reads and writes only its own table.
 import "server-only";
 import { createHash } from "node:crypto";
-import { and, count, eq, gt, inArray, lt } from "drizzle-orm";
+import { and, count, eq, gt, inArray, lt, or } from "drizzle-orm";
 import type { Db } from "./db";
 import { signInAttempt } from "./schema";
 
@@ -50,7 +50,7 @@ export async function withSignInLimit<U>(
   const rows = await db
     .insert(signInAttempt)
     .values([email, ...(ip ? [ip] : [])].map((bucket) => ({ bucket, createdAt: now })))
-    .returning({ id: signInAttempt.id, bucket: signInAttempt.bucket });
+    .returning({ id: signInAttempt.id });
   const ids = rows.map((r) => r.id);
   const release = () => db.delete(signInAttempt).where(inArray(signInAttempt.id, ids));
 
@@ -71,11 +71,14 @@ export async function withSignInLimit<U>(
     throw e;
   }
   if ("user" in result) {
-    // A correct password clears the count of this email address, and this attempt's client address row.
-    const ipRow = rows.find((r) => r.bucket === ip);
-    await db.delete(signInAttempt).where(eq(signInAttempt.bucket, email));
-    if (ipRow) await db.delete(signInAttempt).where(eq(signInAttempt.id, ipRow.id));
+    // A correct password clears the count of this email address, and this attempt's own rows.
+    await db.delete(signInAttempt).where(or(eq(signInAttempt.bucket, email), inArray(signInAttempt.id, ids)));
     return { kind: "ok", user: result.user };
+  }
+  if (result.status === 429) {
+    // Neon Auth's own limit (on the server address). It says nothing about this password.
+    await release();
+    return { kind: "limited" };
   }
   if (result.status >= 500) {
     // A Neon Auth outage must not lock users out.

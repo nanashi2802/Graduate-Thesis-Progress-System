@@ -79,7 +79,11 @@ describe("withSignInLimit", () => {
 
   it("does not extend the lockout with refused attempts", async () => {
     await fail(MAX_ATTEMPTS_PER_EMAIL, "student@example.test", null);
-    for (let i = 0; i < 3; i++) await run({ email: "student@example.test", ip: null }, correct, later(60_000));
+    // 5 refused attempts 10 minutes later. If they counted, they would still block at 15 minutes + 1 s.
+    for (let i = 0; i < MAX_ATTEMPTS_PER_EMAIL; i++) {
+      expect((await run({ email: "student@example.test", ip: null }, correct, later(10 * 60_000))).kind).toBe("limited");
+    }
+    expect(await db.select().from(signInAttempt)).toHaveLength(MAX_ATTEMPTS_PER_EMAIL);
     expect((await run({ email: "student@example.test", ip: null }, correct, later(SIGN_IN_WINDOW_MS + 1000))).kind).toBe("ok");
   });
 
@@ -96,6 +100,12 @@ describe("withSignInLimit", () => {
     await expect(run({ email: "student@example.test", ip: "203.0.113.1" }, () => Promise.reject(new Error("boom")))).rejects.toThrow();
     expect(await db.select().from(signInAttempt)).toHaveLength(0);
     expect((await run({ email: "student@example.test", ip: "203.0.113.1" }, correct)).kind).toBe("ok");
+  });
+
+  it("shows a Neon Auth 429 as too many attempts, and does not count it", async () => {
+    const busy = async (): Promise<AttemptResult<User>> => ({ status: 429 });
+    expect((await run({ email: "student@example.test", ip: "203.0.113.1" }, busy)).kind).toBe("limited");
+    expect(await db.select().from(signInAttempt)).toHaveLength(0);
   });
 
   it("stores hashes only, never the email address or the client address", async () => {
