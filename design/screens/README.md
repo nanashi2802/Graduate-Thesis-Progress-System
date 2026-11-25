@@ -43,7 +43,7 @@ Each file has: route, role, density, FRs, job, regions (top to bottom, with the 
 | C10 | `/coordinator/audit` | Coordinator | [C10.md](C10.md) |
 | SV | `/{student,adviser,panel,coordinator}/submission/[id]` | All four | [SV.md](SV.md) |
 
-**Route to remove:** `/coordinator/spike-files` is a spike page in the code. It is not a screen. Remove it when the screens are built.
+**Route removed:** `/coordinator/spike-files` was a spike page, not a screen. It is no longer on `dev` (checked 25 Nov 2026).
 
 ## Sidebars
 
