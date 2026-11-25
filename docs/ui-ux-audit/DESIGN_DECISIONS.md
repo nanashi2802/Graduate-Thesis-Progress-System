@@ -73,13 +73,15 @@ Copy this block for each round. Fill it after the owner reviews.
 - **Revisions:** (25 Nov 2026, not committed) The stepper uses maroon (`--primary`): a solid maroon circle with a white check when completed, a maroon ring with a dot when current. Read as PUP Maroon, not the vermilion of "Returned". Gold stays for the `achieved` status only. (26 Nov 2026) Brand alignment R1.6 per UX-D-11: brand palette in a scoped `/lab` token set, Poppins, Inter and JetBrains Mono, 1.75 px outline glyphs, radius 6, 8, 12, soft maroon focus ring, stepper completed maroon and current gold, `brand-mark` pattern and `/lab/brand` (artwork pending). New page `/lab/typography` compares 4 font sets on real screen parts: A current (Source Serif 4, IBM Plex Sans, IBM Plex Mono), B Source family (Source Serif 4, Source Sans 3, Source Code Pro, recommended), C Civic (Newsreader, Public Sans, IBM Plex Mono), D Legibility (Source Serif 4, Atkinson Hyperlegible Next and Mono). If approved, the stepper change edits `DESIGN.md` G8 and §8.2, and a font change edits §1 and §4.
 - **Feedback 2:** (26 Nov 2026) "Lets do E for the typography options. Lets make the theme toggle prettier. I am thinking of some kind of pill switch that will show a moon when dark mode and sun when light mode."
 - **Revisions 2:** (26 Nov 2026, not committed) Typography E is UX-D-11 (already in the preview). `theme-toggle` is now a pill switch (`role="switch"`, name "Dark theme", tooltip): the thumb shows a deep-gold sun in light and a Golden Yellow moon in dark; both icons sit faintly in the track. It follows the OS until clicked; then a "Use system" link returns to the OS setting, so UX-D-01 keeps its System choice. Replaces the 3-option radio group. (26 Nov 2026) Motion and one icon at a time: UX-D-12.
-- **Result:** Waiting
-- **Approved on:**
-- **Rules changed in DESIGN.md:**
+- **Result:** Approved
+- **Approved on:** 26 Nov 2026. Owner's words: "Approve the R1, then lets proceed with writing the implementation of R2, designed and written for a new session."
+- **What the approval covers:** everything shown in UX-P-01 at commits `6c5c9b5` and `c7b7a71`: the brand-aligned light and dark token sets of `src/app/lab/_mock/brand-preview.css` (UX-D-11), the fonts Poppins, Inter and JetBrains Mono, the 1.75 px outline glyphs, the base patterns, the stepper (completed maroon, current gold), the squish theme switch (UX-D-13), the brand mark with its text fallback.
+- **Not decided at this gate:** `@axe-core/playwright` (§4, still proposed). The master logo SVG files (still missing, UX-X-19).
+- **Rules changed in DESIGN.md:** in R1.5: a new `DESIGN.md` v0.4 (palette, dark tokens §12.5, fonts §1 and §4, type scale, icons §6.2, radii §6.1, focus §10, F1 narrowed, stepper §8.2, G8, theme toggle §7.3, brand mark in §7.4).
 
 | Round | Scope | Result |
 | :---- | :---- | :---- |
-| UX-P-01 | Foundations: tokens in light and dark, the theme toggle, glyphs, base patterns | Waiting (preview built 25 Nov 2026) |
+| UX-P-01 | Foundations: tokens in light and dark, the theme toggle, glyphs, base patterns | **Approved 26 Nov 2026** |
 | UX-P-02 | Shell and system states: app shell, sidebar, top-bar panels (D-08), status glyphs (D-06), sidebar glyphs (D-07), toast, loading and error, motion (D-10) | Not shown |
 | UX-P-03 | Queues, inbox and dialogs | Not shown |
 | UX-P-04 | Student path: task list, step-by-step, Thesis process | Not shown |
