@@ -74,6 +74,8 @@ export const templateVersion = app.table(
     printedCopiesMasters: integer("printed_copies_masters").notNull(),
     printedCopiesDoctoral: integer("printed_copies_doctoral").notNull(),
     reviewerWaitDays: integer("reviewer_wait_days"),
+    // FR-TRK-06, D-27: null is Off. Over the limit raises a flag only (BR-17). The number is [CONFIRM].
+    adviseeLimit: integer("advisee_limit"),
     changeNote: text("change_note"),
     createdByUserId: uuid("created_by_user_id").references(() => appUser.id),
     createdAt: createdAt(),
@@ -82,6 +84,7 @@ export const templateVersion = app.table(
     unique("template_version_no").on(t.milestoneTemplateId, t.versionNo),
     check("template_version_days", sql`${t.minNoticeDays} >= 0 and ${t.printedCopiesDueDays} >= 0`),
     check("template_version_sizes", sql`${t.panelSizeMasters} > 0 and ${t.panelSizeDoctoral} > 0`),
+    check("template_version_advisee_limit", sql`${t.adviseeLimit} is null or ${t.adviseeLimit} > 0`),
   ],
 );
 

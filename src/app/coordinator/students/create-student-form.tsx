@@ -11,6 +11,9 @@ export function CreateStudentForm({ advisers }: { advisers: { id: string; fullNa
       <Field label="Email address" htmlFor="email" hint="The system sends the sign-in email to this address.">
         <input id="email" name="email" type="email" required className={fieldClass} />
       </Field>
+      <Field label="Working thesis title" htmlFor="title" hint="The Student can edit it until Gate 1b (FR-ACC-09).">
+        <input id="title" name="title" required maxLength={300} className={fieldClass} />
+      </Field>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Degree level" htmlFor="degreeLevel">
           <select id="degreeLevel" name="degreeLevel" className={fieldClass} defaultValue="masters">

@@ -1,6 +1,7 @@
 // `/coordinator/committees` (C3): the appointment board (FR-CMT-01 to FR-CMT-04, BR-18).
 // Pick a Student, then work on the Evaluation Committee (Milestone 1) and the Final Panel (Milestone 3).
 import Link from "next/link";
+import { FlagBanner } from "@/components/banners";
 import { EmptyState } from "@/components/empty-state";
 import { milestoneStatusView } from "@/components/status";
 import { appointmentBoard, type AppointmentBoard } from "@/server/data/committees";
@@ -93,6 +94,11 @@ async function Board({ student, board, ctx }: { student: StudentRow; board: Appo
         </Link>
         <span className="text-muted-foreground"> / {student.studentName} · Adviser {student.adviserName}</span>
       </p>
+      {board.adviser.adviseeLimitFlag ? (
+        <FlagBanner>
+          {board.adviser.fullName} advises {board.adviser.activeAdvisees} active Students. This is over the advisee limit. This is information only (BR-17).
+        </FlagBanner>
+      ) : null}
       {sections.length === 0 ? (
         <EmptyState title="No milestone needs a committee yet." detail="The Evaluation Committee opens at Milestone 1." />
       ) : null}

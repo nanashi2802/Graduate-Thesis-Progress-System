@@ -107,7 +107,7 @@ export default async function Page({ params }: PageProps<"/coordinator/defense/[
 
       <Section title="Close the stage">
         <p className="max-w-[72ch] text-sm text-muted-foreground">
-          The stage closes after the verdict, each verified sheet and the Minutes. A document Mismatch also needs a look.
+          The stage closes after the verdict, each verified sheet and the Minutes. A returned document also blocks the close (BR-12).
         </p>
         <CloseForm milestoneId={d.milestoneId} blockedReason={d.closeBlockedReason} />
       </Section>

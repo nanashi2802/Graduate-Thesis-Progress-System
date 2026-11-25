@@ -3,6 +3,7 @@ export { OutsideChip } from "./outside-chip";
 export { MilestoneStatusPill, StatusPill } from "./status-pill";
 export {
   documentStateView,
+  documentHistoryLabel,
   milestoneStatusView,
   outsideStatusView,
   type DocumentState,

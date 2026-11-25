@@ -279,14 +279,16 @@ async function openContext(ctx: DataContext, m: typeof milestoneInstance.$inferS
   return null;
 }
 
-// FR-REV-04: the Adviser or a Panel Member posts a general thread on a commit.
+// FR-REV-04: the Adviser or a Panel Member posts a thread on a commit, with an optional page number (D-26).
 export async function postThread(
   ctx: DataContext,
-  input: { commitId: string; body: string },
+  input: { commitId: string; body: string; page?: number | null },
 ): Promise<{ threadId: string }> {
   requireActive(ctx.actor);
   const body = input.body.trim();
   if (!body) throw new InputProblem("Write the comment first.");
+  const page = input.page ?? null;
+  if (page !== null && !(Number.isInteger(page) && page >= 1 && page <= 9999)) throw new InputProblem("Write a page number from 1 to 9999.");
   const [row] = await ctx.db
     .select({ milestone: milestoneInstance })
     .from(manuscriptCommit)
@@ -308,6 +310,7 @@ export async function postThread(
         authorRole: ctx.actor.role,
         context,
         body,
+        page,
       })
       .returning();
     await recordAudit({ db: tx, actor: ctx.actor }, { action: "thread.post", targetTable: "critique_thread", targetId: t!.id, detail: { context } });

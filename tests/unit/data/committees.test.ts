@@ -14,6 +14,7 @@ import {
 import type { Db } from "@/server/data/db";
 import * as s from "@/server/data/schema";
 import type { Designation } from "@/server/domain/milestone";
+import { makeUser } from "../../support/fixtures";
 import { seedMilestone1 } from "../../support/seed-m1";
 import { makeTestDb } from "../../support/test-db";
 
@@ -247,6 +248,25 @@ describe("appointmentBoard (FR-CMT-02)", () => {
 
   it("is for the Coordinator only (NFR-01)", async () => {
     await expect(appointmentBoard({ db, actor: actorOf(seed.adviser) }, seed.thesis.id)).rejects.toThrow(AccessDeniedError);
+  });
+
+  it("flags the Adviser of the Student when the Adviser is over the advisee limit (FR-TRK-06, BR-17, D-27)", async () => {
+    expect((await appointmentBoard(ctx(), seed.thesis.id)).adviser).toMatchObject({ userId: seed.adviser.id, activeAdvisees: 1, adviseeLimitFlag: false });
+    await db.update(s.templateVersion).set({ adviseeLimit: 1 }).where(eq(s.templateVersion.id, seed.versions.proposal.id));
+    expect((await appointmentBoard(ctx(), seed.thesis.id)).adviser.adviseeLimitFlag).toBe(false);
+    const other = await makeUser(db, "student");
+    await db.insert(s.thesisInstance).values({
+      studentUserId: other.id,
+      adviserUserId: seed.adviser.id,
+      degreeLevel: "masters",
+      programStartTerm: "2025-1",
+      writing1Course: "RSH_641",
+      createdByUserId: seed.coordinator.id,
+    });
+    const board = await appointmentBoard(ctx(), seed.thesis.id);
+    expect(board.adviser).toMatchObject({ activeAdvisees: 2, adviseeLimitFlag: true });
+    // A flag never blocks (BR-17): the board still offers its actions.
+    expect((await propose(seed.panel[0]!.id)).ok).toBe(true);
   });
 });
 

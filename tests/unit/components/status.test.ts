@@ -7,6 +7,7 @@ import {
   OutsideChip,
   StatusPill,
   documentStateView,
+  documentHistoryLabel,
   milestoneStatusView,
   outsideStatusView,
   type DocumentState,
@@ -49,8 +50,18 @@ describe("milestoneStatusView (DESIGN.md §3.4)", () => {
 });
 
 describe("documentStateView and outsideStatusView", () => {
-  it("shows a Mismatch as a flag (pending), not as a block (BR-17)", () => {
-    expect(documentStateView("mismatch").tone).toBe("pending");
+  it("shows six document states, and a Return as returned (FR-DOC-02, D-28)", () => {
+    const states = ["not_started", "prepared", "scan_uploaded", "locked_as_submitted", "verified", "returned"] as const;
+    expect(states.map((x) => documentStateView(x).label)).toEqual([
+      "Not started", "Prepared", "Scan uploaded", "Locked as submitted", "Verified", "Returned",
+    ]);
+    expect(documentStateView("returned").tone).toBe("returned");
+  });
+
+  it("labels the removed states in old history rows (INV-08, D-28)", () => {
+    expect(documentHistoryLabel("mismatch")).toBe("Mismatch");
+    expect(documentHistoryLabel("physical_received")).toBe("Physical received");
+    expect(documentHistoryLabel("verified")).toBe("Verified");
   });
 
   it("maps outside values as DESIGN.md §3.4 says", () => {

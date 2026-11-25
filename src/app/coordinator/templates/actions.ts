@@ -12,6 +12,9 @@ export async function saveTemplateAction(_prev: FormState, form: FormData): Prom
     const current = (await listTemplates(ctx)).find((t) => t.code === code);
     if (!current) throw new InputProblem("This template does not exist.");
     const wait = optionalText(form, "reviewerWaitDays");
+    // FR-TRK-06, D-27: only the Proposal form shows the advisee limit. Empty is Off. Other templates keep their value.
+    const limit = code === "proposal" ? optionalText(form, "adviseeLimit") : null;
+    const adviseeLimit = code === "proposal" ? (limit === null ? null : Number(limit)) : current.version.adviseeLimit;
     const { versionNo } = await saveTemplateVersion(ctx, code, {
       minNoticeDays: int(form, "minNoticeDays"),
       printedCopiesDueDays: int(form, "printedCopiesDueDays"),
@@ -20,6 +23,7 @@ export async function saveTemplateAction(_prev: FormState, form: FormData): Prom
       printedCopiesMasters: int(form, "printedCopiesMasters"),
       printedCopiesDoctoral: int(form, "printedCopiesDoctoral"),
       reviewerWaitDays: wait === null ? null : Number(wait),
+      adviseeLimit,
       // The required items carry over to the new version unchanged.
       items: current.items.map((i) => ({
         formCode: i.formCode,

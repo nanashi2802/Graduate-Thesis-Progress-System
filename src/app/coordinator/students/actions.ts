@@ -19,6 +19,7 @@ export async function createStudentAction(_prev: FormState, form: FormData): Pro
         comprehensiveExamDate: optionalText(form, "comprehensiveExamDate"),
         writing1Course: text(form, "writing1Course") as Writing1CourseValue,
         adviserUserId: text(form, "adviserUserId"),
+        title: text(form, "title"),
       },
       neonCreateAuthUser,
       undefined,

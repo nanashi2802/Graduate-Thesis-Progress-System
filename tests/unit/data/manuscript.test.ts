@@ -159,6 +159,37 @@ describe("markCommitReady (FR-REV-07)", () => {
   });
 });
 
+describe("thread page numbers (FR-REV-04, D-26)", () => {
+  it("stores an optional page number on a thread", async () => {
+    const t = await setup();
+    const { threadId } = await postThread(as(t.adviser), { commitId: t.commit.id, body: "See the method.", page: 14 });
+    expect((await listThreads(as(t.adviser), t.milestone.id)).find((v) => v.thread.id === threadId)?.thread.page).toBe(14);
+  });
+
+  it("stores no page when none is given", async () => {
+    const t = await setup();
+    const { threadId } = await postThread(as(t.adviser), { commitId: t.commit.id, body: "General point." });
+    const second = await postThread(as(t.adviser), { commitId: t.commit.id, body: "Also general.", page: null });
+    const views = await listThreads(as(t.adviser), t.milestone.id);
+    expect(views.find((v) => v.thread.id === threadId)?.thread.page).toBeNull();
+    expect(views.find((v) => v.thread.id === second.threadId)?.thread.page).toBeNull();
+  });
+
+  it("refuses a page below 1 or above 9999, or not a whole number", async () => {
+    const t = await setup();
+    for (const page of [0, -1, 10000, 2.5, Number.NaN]) {
+      await expect(postThread(as(t.adviser), { commitId: t.commit.id, body: "x", page })).rejects.toThrow("Write a page number from 1 to 9999.");
+    }
+    expect(await listThreads(as(t.adviser), t.milestone.id)).toHaveLength(0);
+  });
+
+  it("refuses a page out of range in the database too", async () => {
+    const t = await setup();
+    const { threadId } = await postThread(as(t.adviser), { commitId: t.commit.id, body: "x", page: 1 });
+    await expect(db.update(s.critiqueThread).set({ page: 0 }).where(eq(s.critiqueThread.id, threadId))).rejects.toThrow();
+  });
+});
+
 describe("threads (FR-REV-04 to 06, BR-05, BR-06, INV-07)", () => {
   it("lets the Adviser post in context A and the Student reply", async () => {
     const t = await setup();

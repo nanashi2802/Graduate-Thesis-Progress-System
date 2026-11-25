@@ -170,10 +170,25 @@ describe("INV-19: a returned gate action needs a reason", () => {
       db.insert(s.gateAction).values({ milestoneInstanceId: c.milestone.id, gate: "gate_1a", result: "returned", reason: "  ", actorUserId: c.adviser.id, actorRole: "adviser" }),
     );
   });
-  it("refuses a returned or mismatch document event with no reason", async () => {
+  it("refuses a returned document event with no reason", async () => {
     const [rec] = await db.insert(s.documentRecord).values({ milestoneInstanceId: c.milestone.id, formCode: "TDW_06" }).returning();
     await rejects(
-      db.insert(s.documentEvent).values({ documentRecordId: rec!.id, fromState: "verified", toState: "mismatch", actorUserId: c.coordinator.id }),
+      db.insert(s.documentEvent).values({ documentRecordId: rec!.id, fromState: "locked_as_submitted", toState: "returned", reason: " ", actorUserId: c.coordinator.id }),
+    );
+  });
+});
+
+describe("D-28: the removed document states", () => {
+  it("refuses a live document in a removed state", async () => {
+    const [rec] = await db.insert(s.documentRecord).values({ milestoneInstanceId: c.milestone.id, formCode: "TDW_06" }).returning();
+    await rejects(db.update(s.documentRecord).set({ state: "mismatch" as never }).where(eq(s.documentRecord.id, rec!.id)));
+    await rejects(db.update(s.documentRecord).set({ state: "physical_received" as never }).where(eq(s.documentRecord.id, rec!.id)));
+  });
+  it("refuses a new event into a removed state", async () => {
+    const [rec] = await db.insert(s.documentRecord).values({ milestoneInstanceId: c.milestone.id, formCode: "TDW_06" }).returning();
+    await rejects(
+      db.insert(s.documentEvent).values({ documentRecordId: rec!.id, fromState: "locked_as_submitted", toState: "mismatch" as never, reason: "x", actorUserId: c.coordinator.id }),
+      /D-28/,
     );
   });
 });

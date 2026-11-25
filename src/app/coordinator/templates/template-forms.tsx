@@ -11,6 +11,7 @@ type Version = {
   printedCopiesMasters: number;
   printedCopiesDoctoral: number;
   reviewerWaitDays: number | null;
+  adviseeLimit: number | null;
 };
 type Rubric = { code: string; label: string; weightPct: number };
 
@@ -24,9 +25,9 @@ export function TemplateForm({ code, version, rubric }: { code: string; version:
         id={id(key)}
         name={key}
         type="number"
-        min={key === "reviewerWaitDays" ? 0 : undefined}
+        min={key === "reviewerWaitDays" ? 0 : key === "adviseeLimit" ? 1 : undefined}
         defaultValue={version[key] ?? ""}
-        required={key !== "reviewerWaitDays"}
+        required={key !== "reviewerWaitDays" && key !== "adviseeLimit"}
         className={fieldClass}
       />
     </Field>
@@ -42,6 +43,9 @@ export function TemplateForm({ code, version, rubric }: { code: string; version:
         {num("minNoticeDays", "Minimum notice after Gate 1b (days)", "BR-09: at least 7.")}
         {num("printedCopiesDueDays", "Printed copies due before the defense (days)")}
         {num("reviewerWaitDays", "Reviewer wait threshold (days)", "Empty means no threshold.")}
+        {code === "proposal"
+          ? num("adviseeLimit", "Advisee limit", "Empty means Off. An Adviser over the limit gets a flag. It never blocks an action (BR-17).")
+          : null}
       </div>
       {rubric.length > 0 ? (
         <fieldset className="flex flex-col gap-3">

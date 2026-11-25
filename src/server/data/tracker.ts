@@ -14,6 +14,7 @@ import { printedCopyStatus } from "./defense";
 import { loadMilestoneContext, loadMilestoneFacts } from "./milestone-facts";
 import { currentOutsideStatuses, type OutsideStatuses } from "./outside";
 import { requireThesisRead } from "./scope";
+import { titleLocked } from "./students";
 import {
   appUser,
   committee,
@@ -27,6 +28,8 @@ import {
 export type StudentTracker = {
   identity: {
     title: string | null;
+    /** FR-ACC-09, D-24: the Student can edit the title until the first Gate 1b. */
+    titleEditable: boolean;
     degreeLevel: "masters" | "doctoral";
     adviserName: string;
     /** Names of the accepted Panel Members of the committee or the Final Panel, once appointed. */
@@ -50,7 +53,11 @@ type Db = DataContext["db"];
 
 // The readiness checklist (FR-DOC-08), the same list as the date confirmation. Call only after an access check.
 async function loadChecklist(db: Db, milestoneId: string, code: MilestoneCode, committeeId: string | null) {
-  const docs = await db.select().from(documentRecord).where(eq(documentRecord.milestoneInstanceId, milestoneId));
+  // D-25: an optional copy never counts in the checklist (FR-DOC-12).
+  const docs = await db
+    .select()
+    .from(documentRecord)
+    .where(and(eq(documentRecord.milestoneInstanceId, milestoneId), eq(documentRecord.optional, false)));
   const documents: Record<string, DocumentState | undefined> = {};
   for (const d of docs) documents[formKey(d.formCode)] = d.state as DocumentState;
   const seatNdas = committeeId
@@ -125,6 +132,7 @@ export async function studentTracker(ctx: DataContext, now: Date = new Date()): 
   return {
     identity: {
       title: thesis.title,
+      titleEditable: !(await titleLocked(ctx.db, thesis.id)),
       degreeLevel: thesis.degreeLevel,
       adviserName: adviser?.name ?? "",
       committeeNames: appointed.map((a) => a.name),

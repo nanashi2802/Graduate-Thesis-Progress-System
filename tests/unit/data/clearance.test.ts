@@ -72,8 +72,8 @@ describe("Clearance checklist (FR-CLR-01 to 04)", () => {
     await expect(verifyClearanceItem(as(w.coordinator), { milestoneId: w.m3.id, kind: "final_copy" })).rejects.toThrow(/approved manuscript/);
     await expect(verifyClearanceItem(as(w.coordinator), { milestoneId: w.m3.id, kind: "ipmo" as "final_copy" })).rejects.toThrow(/another record/);
     await expect(verifyClearanceItem(as(w.coordinator), { milestoneId: w.m3.id, kind: "final_copy", matchesApproved: true })).rejects.toThrow(/evidence/);
-    // A returned or mismatched scan is not evidence (FR-CLR-02).
-    for (const state of ["returned", "mismatch"] as const) {
+    // A returned or unlocked scan is not evidence (FR-CLR-02).
+    for (const state of ["returned", "scan_uploaded"] as const) {
       const [r] = await db.insert(s.documentRecord).values({ milestoneInstanceId: w.m3.id, formCode: "FINAL_COPY", state }).returning();
       await expect(verifyClearanceItem(as(w.coordinator), { milestoneId: w.m3.id, kind: "final_copy", matchesApproved: true })).rejects.toThrow(/evidence/);
       await db.delete(s.documentRecord).where(eq(s.documentRecord.id, r!.id));

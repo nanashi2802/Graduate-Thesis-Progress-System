@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getSessionState } from "@/server/auth/session";
 import { AccessDeniedError } from "@/server/data/access";
 import { getDb } from "@/server/data/db";
-import { confirmScanUpload, requestScanUpload } from "@/server/data/documents";
+import { confirmScanUpload, requestAdvisingCopyUpload, requestScanUpload, type AdvisingForm } from "@/server/data/documents";
 import { checkStoredFile, createUploadLink, type UploadLink } from "@/server/files/storage";
 
 const files = { createUploadLink, checkStoredFile };
@@ -24,6 +24,16 @@ export async function requestScan(input: Meta & { milestoneId: string; requiredI
     return res.ok ? { documentId: res.value.documentId, link: res.value.link } : { error: res.reason };
   } catch (e) {
     return { error: e instanceof AccessDeniedError ? "You cannot upload this document." : "The system could not start the upload. Try again." };
+  }
+}
+
+// FR-DOC-12, D-25: an optional, write-once copy of an advising form. Nobody reviews it.
+export async function requestAdvisingCopy(input: Meta & { formCode: AdvisingForm }): Promise<{ documentId?: string; link?: UploadLink; error?: string }> {
+  try {
+    const res = await requestAdvisingCopyUpload(await context(), input, files);
+    return res.ok ? { documentId: res.value.documentId, link: res.value.link } : { error: res.reason };
+  } catch (e) {
+    return { error: e instanceof AccessDeniedError ? "You cannot upload this copy." : "The system could not start the upload. Try again." };
   }
 }
 

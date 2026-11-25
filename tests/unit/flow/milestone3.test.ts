@@ -47,7 +47,7 @@ describe("Milestone 3: Final Defense and clearance with every role", () => {
       const done = await confirmScanUpload(as(uploader), { documentId: req.value.documentId, key: req.value.link.key, ...meta }, files);
       if (!done.ok) throw new Error(`${formCode}: ${done.reason}`);
       if (verify) {
-        for (const to of ["physical_received", "verified"] as const) {
+        for (const to of ["verified"] as const) {
           const r = await reviewDocument(as(coordinator), { documentId: req.value.documentId, to });
           if (!r.ok) throw new Error(`${formCode} ${to}: ${r.reason}`);
         }

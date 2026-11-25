@@ -1,5 +1,6 @@
 "use client";
 // PDF viewer that loads only the pages in view by range requests (PRD §11.3 rule 2, DFD T5).
+// A thread page number (FR-REV-04, D-26) moves the viewer. A number past the end goes to the last page.
 import { useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { Button } from "@/components/ui/button";
@@ -9,9 +10,18 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.m
 // No streaming and no background fetch: pdf.js asks only for the byte ranges it needs.
 const options = { disableAutoFetch: true, disableStream: true, rangeChunkSize: 65536 };
 
-export default function PdfViewer({ url }: { url: string }) {
+// Before the PDF loads, `pages` is 0 and only the lower bound applies.
+const clamp = (n: number, pages: number) => Math.min(Math.max(1, n), pages || n);
+
+export default function PdfViewer({ url, page: target }: { url: string; page?: number }) {
   const [pages, setPages] = useState(0);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(target ? clamp(target, 0) : 1);
+  // Follow a new target page, and clamp it again when the page count is known.
+  const [seen, setSeen] = useState({ target, pages });
+  if (seen.target !== target || seen.pages !== pages) {
+    setSeen({ target, pages });
+    if (target) setPage(clamp(target, pages));
+  }
   return (
     <div className="flex flex-col gap-3">
       <Document file={url} options={options} onLoadSuccess={(pdf) => setPages(pdf.numPages)}>

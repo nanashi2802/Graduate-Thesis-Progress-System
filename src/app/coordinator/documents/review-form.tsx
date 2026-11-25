@@ -1,16 +1,14 @@
 "use client";
-// One row of the C4 review: a reason box and the four actions. A blocked action shows its reason (BR-18).
+// One row of the C4 review: a reason box and the two actions, Verify and Return (D-28). A blocked action shows its reason (BR-18).
 import { useActionState } from "react";
 import { ActionButton } from "@/components/action-button";
 import { fieldClass } from "../_lib/form-parts";
 import { reviewDocumentAction } from "./actions";
 
-export type ReviewBlocks = Partial<Record<"physical_received" | "verified" | "mismatch" | "returned", string>>;
+export type ReviewBlocks = Partial<Record<"verified" | "returned", string>>;
 
 const ACTIONS = [
-  { to: "physical_received", label: "Mark received", variant: "outline" },
   { to: "verified", label: "Verify", variant: "default" },
-  { to: "mismatch", label: "Mismatch", variant: "outline" },
   { to: "returned", label: "Return", variant: "outline" },
 ] as const;
 
@@ -21,8 +19,8 @@ export function ReviewForm({ documentId, blocks }: { documentId: string; blocks:
       <input type="hidden" name="documentId" value={documentId} />
       <input
         name="reason"
-        aria-label="Reason for a Return or a Mismatch"
-        placeholder="Reason (needed for Return and Mismatch)"
+        aria-label="Reason for a Return"
+        placeholder="Reason (needed for a Return)"
         className={fieldClass}
       />
       <div className="flex flex-wrap gap-2">

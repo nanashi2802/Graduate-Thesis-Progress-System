@@ -19,6 +19,7 @@ import { AccessDeniedError, requireActive, type DataContext } from "./access";
 import { recordAudit } from "./audit";
 import { emitSafely } from "./recipients";
 import { checkTransition, transitionMilestone, TransitionRefused } from "./milestones";
+import { adviseeLoad } from "./templates";
 import {
   appUser,
   committee,
@@ -335,6 +336,8 @@ export type AppointmentBoard = {
     advanceBlockedReason: string | null;
     seats: BoardSeat[];
   }[];
+  /** FR-TRK-06, D-27: the Adviser of the Student, with the active Students. The flag never blocks (BR-17). */
+  adviser: { userId: string; fullName: string; activeAdvisees: number; adviseeLimitFlag: boolean };
   /** Every active Panel Member, with workload and availability (FR-CMT-02). The Adviser pool is separate (SITEMAP C3). */
   pool: { userId: string; fullName: string; activeSeats: number; freeDefenseSlots: number }[];
 };
@@ -342,6 +345,13 @@ export type AppointmentBoard = {
 /** The C3 board for one thesis (FR-CMT-02, FR-CMT-03). */
 export async function appointmentBoard(ctx: DataContext, thesisId: string): Promise<AppointmentBoard> {
   requireCoordinator(ctx);
+  const [thesis] = await ctx.db
+    .select({ adviserUserId: thesisInstance.adviserUserId, fullName: appUser.fullName })
+    .from(thesisInstance)
+    .innerJoin(appUser, eq(appUser.id, thesisInstance.adviserUserId))
+    .where(eq(thesisInstance.id, thesisId));
+  if (!thesis) throw new AccessDeniedError("no such thesis");
+  const adviserLoad = (await adviseeLoad(ctx.db, [thesis.adviserUserId])).get(thesis.adviserUserId);
   const committees = await ctx.db.select().from(committee).where(eq(committee.thesisInstanceId, thesisId));
   const seats = committees.length
     ? await ctx.db
@@ -411,6 +421,12 @@ export async function appointmentBoard(ctx: DataContext, thesisId: string): Prom
           appointed: seat.appointedAt !== null,
         })),
     })),
+    adviser: {
+      userId: thesis.adviserUserId,
+      fullName: thesis.fullName,
+      activeAdvisees: adviserLoad?.active ?? 0,
+      adviseeLimitFlag: adviserLoad?.overLimit ?? false,
+    },
     pool: members.map((p) => ({
       ...p,
       activeSeats: loadBy.get(p.userId) ?? 0,

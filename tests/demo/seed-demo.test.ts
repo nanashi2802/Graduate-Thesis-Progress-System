@@ -49,6 +49,7 @@ test("seed demo data", { timeout: 900_000 }, async () => {
       comprehensiveExamDate: null,
       writing1Course: "RSH_641",
       adviserUserId: thesis!.adviserUserId,
+      title: "Fake thesis title",
     },
     async () => ({ authUserId: crypto.randomUUID() }),
   );

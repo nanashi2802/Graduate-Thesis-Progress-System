@@ -128,7 +128,11 @@ export async function loadMilestoneFacts(db: Db, ctx: MilestoneContext, now: Dat
       ).length
     : 0;
 
-  const docs = await db.select().from(documentRecord).where(eq(documentRecord.milestoneInstanceId, milestone.id));
+  // D-25: an optional copy never counts and never blocks (FR-DOC-12).
+  const docs = await db
+    .select()
+    .from(documentRecord)
+    .where(and(eq(documentRecord.milestoneInstanceId, milestone.id), eq(documentRecord.optional, false)));
   const docState = (form: string) => docs.find((d) => d.formCode === form)?.state as DocumentState | undefined;
   const documents: Record<string, DocumentState | undefined> = {};
   for (const d of docs) documents[formKey(d.formCode)] = d.state as DocumentState;
@@ -239,7 +243,7 @@ export async function loadMilestoneFacts(db: Db, ctx: MilestoneContext, now: Dat
     verdict: (latestAttempt?.verdict ?? null) as Verdict | null,
     sheetsVerifiedAndMatched,
     minutesIssued,
-    documentInMismatch: docs.some((d) => d.state === "mismatch"),
+    documentReturned: docs.some((d) => d.state === "returned"),
     revisionItemsAllAccepted,
     certificationVerified: docState("CERTIFICATION") === "verified",
     gate2Complete,

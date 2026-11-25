@@ -25,7 +25,7 @@ const actor = (u: { id: string; role: s.UserRole }, isActive = true): Actor => (
   isActive,
 });
 
-async function doc(formCode: s.FormCode, state: s.DocumentState, subjectUserId?: string) {
+async function doc(formCode: s.FormCode, state: s.LiveDocumentState, subjectUserId?: string) {
   const [d] = await db
     .insert(s.documentRecord)
     .values({ milestoneInstanceId: c.milestone.id, formCode, state, subjectUserId })
@@ -33,7 +33,7 @@ async function doc(formCode: s.FormCode, state: s.DocumentState, subjectUserId?:
   return d!;
 }
 
-async function seat(status: s.MemberStatus = "accepted", opts: { form?: s.DocumentState; nda?: s.DocumentState } = {}) {
+async function seat(status: s.MemberStatus = "accepted", opts: { form?: s.LiveDocumentState; nda?: s.LiveDocumentState } = {}) {
   const member = await makeUser(db, "panel_member");
   const form = opts.form ? await doc("TDW_06", opts.form) : undefined;
   const [com] = await db

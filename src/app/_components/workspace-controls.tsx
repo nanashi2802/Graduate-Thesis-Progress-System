@@ -107,17 +107,42 @@ export function ReturnForm({ milestoneId }: { milestoneId: string }) {
 export function NewThreadForm({ commitId, blockedReason }: { commitId: string | null; blockedReason?: string }) {
   const { pending, run, line } = useRun();
   const [body, setBody] = useState("");
+  const [page, setPage] = useState("");
   return (
     <form
       className="flex flex-col gap-2"
       onSubmit={(e) => {
         e.preventDefault();
-        if (commitId && !blockedReason) run(() => postThreadAction(commitId, body), () => setBody(""));
+        // FR-REV-04, D-26: the page is optional. The server checks the range.
+        const pageNo = page.trim() === "" ? null : Number(page);
+        if (commitId && !blockedReason)
+          run(
+            () => postThreadAction(commitId, body, pageNo),
+            () => {
+              setBody("");
+              setPage("");
+            },
+          );
       }}
     >
       <label className="flex flex-col gap-1 text-sm font-medium">
         New thread on this commit
         <textarea className="min-h-20 rounded-control border border-input bg-card p-2 text-sm font-normal" value={body} onChange={(e) => setBody(e.target.value)} aria-disabled={blockedReason ? true : undefined} readOnly={blockedReason ? true : false} />
+      </label>
+      <label className="flex items-center gap-2 text-sm font-medium">
+        Page <span className="font-normal text-muted-foreground">(optional)</span>
+        <input
+          type="number"
+          inputMode="numeric"
+          min={1}
+          max={9999}
+          step={1}
+          className="w-24 rounded-control border border-input bg-card p-1.5 font-mono text-sm font-normal"
+          value={page}
+          onChange={(e) => setPage(e.target.value)}
+          aria-disabled={blockedReason ? true : undefined}
+          readOnly={blockedReason ? true : false}
+        />
       </label>
       <ActionButton type="submit" size="sm" blockedReason={blockedReason} className="self-start">
         {pending ? "Posting…" : "Post thread"}

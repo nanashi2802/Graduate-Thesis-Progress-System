@@ -53,7 +53,7 @@ export type MilestoneFacts = {
   verdict: Verdict | null;
   sheetsVerifiedAndMatched: boolean;
   minutesIssued: boolean;
-  documentInMismatch: boolean;
+  documentReturned: boolean;
   revisionItemsAllAccepted: boolean;
   certificationVerified: boolean;
   gate2Complete: boolean;
@@ -76,7 +76,7 @@ export type BlockCode =
   | "no_verdict"
   | "sheet_not_verified"
   | "minutes_missing"
-  | "document_mismatch"
+  | "document_returned"
   | "disapproved"
   | "not_disapproved"
   | "revisions_not_accepted"
@@ -104,7 +104,7 @@ const MESSAGES: Record<BlockCode, string> = {
   no_verdict: "Record the verdict first.",
   sheet_not_verified: "A sheet is not verified.",
   minutes_missing: "Issue the Minutes first.",
-  document_mismatch: "A document has a mismatch. Correct it first.",
+  document_returned: "A document was returned. The Student uploads a corrected scan first.",
   disapproved: "The verdict is Disapproved. The cycle starts again at review.",
   not_disapproved: "The verdict is not Disapproved.",
   revisions_not_accepted: "Every member must accept the revisions first.",
@@ -221,7 +221,7 @@ export const ALLOWED_TRANSITIONS: readonly Transition[] = [
       if (!f.verdict) return "no_verdict";
       if (!f.sheetsVerifiedAndMatched) return "sheet_not_verified";
       if (!f.minutesIssued) return "minutes_missing";
-      return f.documentInMismatch ? "document_mismatch" : null;
+      return f.documentReturned ? "document_returned" : null;
     },
   },
   {

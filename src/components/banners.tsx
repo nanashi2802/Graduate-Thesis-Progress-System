@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 /**
  * A flag (BR-17, DESIGN.md §7.5). It warns and never blocks: put it above the
  * action it concerns, and keep that action enabled. Examples: the residency
- * warning, the Action Taken mismatch, a document Mismatch.
+ * warning, the Action Taken mismatch, a printed-copy mismatch.
  */
 export function FlagBanner({ children, className }: { children: ReactNode; className?: string }) {
   return (

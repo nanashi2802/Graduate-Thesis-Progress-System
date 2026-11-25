@@ -5,7 +5,7 @@ const full: ChecklistFacts = {
   documents: {
     "TDW 03": "locked_as_submitted",
     "TDW 06": "verified",
-    "TDW 07": "physical_received",
+    "TDW 07": "locked_as_submitted",
     "TDW 09": "locked_as_submitted",
     "TDW 11": "verified",
     "TDW 12": "verified",
@@ -43,8 +43,8 @@ describe("complianceChecklist (FR-DOC-08, INV-13)", () => {
     expect(checklistComplete("pre_final", { ...full, officialReceipt: undefined })).toBe(false);
   });
 
-  it("counts a locked scan and a Mismatch as submitted (BR-12), but not a returned or missing scan", () => {
-    expect(checklistComplete("proposal", { ...full, documents: { ...full.documents, "TDW 07": "mismatch" } })).toBe(true);
+  it("counts a locked or verified scan as submitted, but not a returned or missing scan (BR-12, D-28)", () => {
+    expect(checklistComplete("proposal", { ...full, documents: { ...full.documents, "TDW 07": "verified" } })).toBe(true);
     expect(checklistComplete("proposal", { ...full, documents: { ...full.documents, "TDW 07": "returned" } })).toBe(false);
     expect(checklistComplete("proposal", { ...full, documents: { ...full.documents, "TDW 07": "scan_uploaded" } })).toBe(false);
     expect(checklistComplete("pre_final", { ...full, documents: { ...full.documents, "TDW 09": undefined } })).toBe(false);

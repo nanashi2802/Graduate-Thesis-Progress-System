@@ -71,6 +71,8 @@ export const critiqueThread = app.table(
     authorRole: userRole("author_role").notNull(),
     context: commentContext("context").notNull(),
     body: text("body").notNull(),
+    // FR-REV-04, D-26: an optional page number. The server never counts PDF pages (NFR-12), so only the range is checked.
+    page: integer("page"),
     state: threadState("state").notNull().default("OPEN"),
     resolvedAt: ts("resolved_at"),
     createdAt: createdAt(),
@@ -80,6 +82,7 @@ export const critiqueThread = app.table(
       "critique_thread_resolved_at",
       sql`(${t.state} = 'RESOLVED') = (${t.resolvedAt} is not null)`,
     ),
+    check("critique_thread_page", sql`${t.page} is null or ${t.page} between 1 and 9999`),
   ],
 );
 

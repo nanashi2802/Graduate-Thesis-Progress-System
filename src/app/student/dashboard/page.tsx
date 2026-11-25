@@ -14,6 +14,7 @@ import { getDb } from "@/server/data/db";
 import { submissionFor } from "@/server/data/manuscript";
 import { studentTracker } from "@/server/data/tracker";
 import type { MilestoneCode } from "@/server/domain/milestone";
+import { TitleEditor } from "./title-editor";
 
 const STAGE: Record<MilestoneCode, StepperStageIndex> = { proposal: 0, pre_final: 1, final: 2 };
 const MILESTONE_LABEL: Record<MilestoneCode, string> = { proposal: "Proposal", pre_final: "Pre-Final", final: "Final" };
@@ -64,6 +65,7 @@ export default async function Page() {
       <header className="flex flex-col gap-1">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
         <p className="text-base font-medium">{t.identity.title ?? "Your thesis"}</p>
+        {t.identity.titleEditable ? <TitleEditor title={t.identity.title ?? ""} /> : null}
         <p className="text-sm text-muted-foreground">
           {t.identity.degreeLevel === "masters" ? "Master's" : "Doctoral"} · Adviser {t.identity.adviserName}
           {t.identity.committeeNames.length > 0 ? ` · Committee: ${t.identity.committeeNames.join(", ")}` : ""}

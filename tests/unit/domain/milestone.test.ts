@@ -35,7 +35,7 @@ const ok: MilestoneFacts = {
   verdict: "approved",
   sheetsVerifiedAndMatched: true,
   minutesIssued: true,
-  documentInMismatch: false,
+  documentReturned: false,
   revisionItemsAllAccepted: true,
   certificationVerified: true,
   gate2Complete: true,
@@ -221,11 +221,11 @@ describe("other guards", () => {
       decideTransition("proposal", "DEFENSE_SCHEDULED", "DEFENSE_HELD", lead, { ...ok, verdict: null }).ok,
     ).toBe(false);
   });
-  it("INV-16: closing needs verified sheets, Minutes and no mismatch", () => {
+  it("INV-16: closing needs verified sheets, Minutes and no returned document", () => {
     for (const bad of [
       { sheetsVerifiedAndMatched: false },
       { minutesIssued: false },
-      { documentInMismatch: true },
+      { documentReturned: true },
     ]) {
       expect(decideTransition("proposal", "DEFENSE_HELD", "CLOSED", coordinator, { ...ok, ...bad }).ok).toBe(false);
     }

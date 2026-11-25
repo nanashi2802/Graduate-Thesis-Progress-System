@@ -1,0 +1,2 @@
+ALTER TABLE "app"."critique_thread" ADD COLUMN "page" integer;--> statement-breakpoint
+ALTER TABLE "app"."critique_thread" ADD CONSTRAINT "critique_thread_page" CHECK ("app"."critique_thread"."page" is null or "app"."critique_thread"."page" between 1 and 9999);

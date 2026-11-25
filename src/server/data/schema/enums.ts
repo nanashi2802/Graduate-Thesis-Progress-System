@@ -36,6 +36,8 @@ export const gateKind = app.enum("gate_kind", [
   "data_gathering",
 ]);
 export const gateResult = app.enum("gate_result", ["endorsed", "returned", "accepted", "approved", "recorded"]);
+// The type keeps `physical_received` and `mismatch` for old history rows (INV-08).
+// No live row and no new event may use them (D-28). The domain type has six states.
 export const documentState = app.enum("document_state", [
   "not_started",
   "prepared",
@@ -46,7 +48,10 @@ export const documentState = app.enum("document_state", [
   "mismatch",
   "returned",
 ]);
+// TDW 01 and TDW 02 are advising forms. The Student may keep an optional copy of them (FR-DOC-12, D-25).
 export const formCode = app.enum("form_code", [
+  "TDW_01",
+  "TDW_02",
   "TDW_03",
   "TDW_04",
   "TDW_05",
@@ -102,6 +107,8 @@ export type MilestoneCodeValue = (typeof milestoneCode.enumValues)[number];
 export type MilestoneStatusValue = (typeof milestoneStatus.enumValues)[number];
 export type FormCode = (typeof formCode.enumValues)[number];
 export type DocumentState = (typeof documentState.enumValues)[number];
+/** D-28: the states a live `document_record` row can hold. The check `document_record_live_state` keeps it true. */
+export type LiveDocumentState = Exclude<DocumentState, "physical_received" | "mismatch">;
 export type GateKindValue = (typeof gateKind.enumValues)[number];
 export type GateResultValue = (typeof gateResult.enumValues)[number];
 export type MemberStatus = (typeof memberStatus.enumValues)[number];

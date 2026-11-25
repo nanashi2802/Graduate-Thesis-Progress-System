@@ -120,7 +120,8 @@ export async function verifyClearanceItem(
       and(
         eq(documentRecord.milestoneInstanceId, m.id),
         eq(documentRecord.formCode, EVIDENCE_FORM[input.kind]),
-        inArray(documentRecord.state, ["locked_as_submitted", "physical_received", "verified"]),
+        inArray(documentRecord.state, ["locked_as_submitted", "verified"]),
+        eq(documentRecord.optional, false),
       ),
     );
   if (!evidence) throw new InputProblem("The Student has not uploaded the evidence for this item yet (FR-CLR-02).");

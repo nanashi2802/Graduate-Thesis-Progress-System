@@ -5,15 +5,14 @@ import { EmptyState } from "@/components/empty-state";
 import { DocumentStamp } from "@/components/status";
 import { getSessionState } from "@/server/auth/session";
 import { getDb } from "@/server/data/db";
-import { deliverables, readableMilestones } from "@/server/data/documents";
+import { advisingCopies, deliverables, readableMilestones } from "@/server/data/documents";
 import { canUploadScan, type DocumentState } from "@/server/domain/documents";
 import { ScanUploader } from "./scan-uploader";
 
 // Why a locked scan takes no new file. The text follows the state (BR-18, BR-19).
 function lockedReason(state: DocumentState | undefined): string {
   if (state === "verified") return "Verified against the paper. No action is needed.";
-  if (state === "physical_received") return "The Coordinator has the paper. No action is needed.";
-  return "The scan is locked. A new file needs a Return or a Mismatch first.";
+  return "The scan is locked. A new file needs a Return first.";
 }
 
 const SIGNERS = (s: string | null) => (s ? `Signed by ${s}.` : "");
@@ -24,6 +23,9 @@ export default async function Page() {
   const ctx = { db: getDb(), actor: state.actor };
   const milestone = (await readableMilestones(ctx)).at(-1);
   const items = milestone ? await deliverables(ctx, milestone.id) : [];
+  // FR-DOC-12, D-25: the advising-form copies live on Milestone 1 only.
+  const proposal = (await readableMilestones(ctx)).find((m) => m.code === "proposal");
+  const copies = proposal ? await advisingCopies(ctx, proposal.id) : [];
 
   return (
     <main className="mx-auto flex max-w-[960px] flex-col gap-8 px-4 py-8 sm:px-8">
@@ -60,6 +62,28 @@ export default async function Page() {
           })}
         </ul>
       )}
+      {copies.length > 0 ? (
+        <details className="border-t border-border pt-4">
+          <summary className="cursor-pointer text-sm font-medium">Advising forms · optional</summary>
+          <p className="mt-2 max-w-[72ch] text-sm text-muted-foreground">
+            You can keep one copy of each advising form here. Nobody reviews a copy, and a copy never blocks a step. You cannot replace a copy after the upload.
+          </p>
+          <ul className="mt-2 flex flex-col divide-y divide-border border-y border-border">
+            {copies.map((c) => (
+              <li key={c.formCode} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-start sm:justify-between">
+                <DocumentStamp form={c.formCode.replace("_", " ")} state={c.state} />
+                {canUploadScan(c.state) || c.state === "not_started" ? (
+                  <ScanUploader advisingForm={c.formCode} label={`copy of ${c.formCode.replace("_", " ")}`} />
+                ) : (
+                  <ActionButton type="button" variant="outline" size="sm" blockedReason="The copy is saved. A copy is write-once.">
+                    Upload copy
+                  </ActionButton>
+                )}
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
     </main>
   );
 }

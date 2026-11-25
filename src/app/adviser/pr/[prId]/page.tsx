@@ -3,6 +3,6 @@ import { PrWorkspace } from "@/app/_components/pr-workspace";
 
 export default async function Page({ params, searchParams }: PageProps<"/adviser/pr/[prId]">) {
   const { prId } = await params;
-  const { commit } = await searchParams;
-  return <PrWorkspace portal="adviser" prId={prId} commit={typeof commit === "string" ? commit : undefined} />;
+  const { commit, page } = await searchParams;
+  return <PrWorkspace portal="adviser" prId={prId} commit={typeof commit === "string" ? commit : undefined} page={typeof page === "string" ? page : undefined} />;
 }
