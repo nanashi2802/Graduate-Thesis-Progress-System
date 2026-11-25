@@ -9,7 +9,7 @@ const PdfViewer = dynamic(() => import("@/components/pdf-viewer"), {
   loading: () => <p className="text-sm text-muted-foreground">Loading the viewer…</p>,
 });
 
-export function PdfPane({ commitId }: { commitId: string }) {
+export function PdfPane({ commitId, page }: { commitId: string; page?: number }) {
   const [state, setState] = useState<{ commitId: string; url?: string; error?: string } | null>(null);
   useEffect(() => {
     let live = true;
@@ -22,5 +22,5 @@ export function PdfPane({ commitId }: { commitId: string }) {
   }, [commitId]);
   if (!state || state.commitId !== commitId) return <p className="text-sm text-muted-foreground">Opening the file…</p>;
   if (!state.url) return <p role="alert" className="text-sm text-destructive">{state.error ?? "The file did not open."}</p>;
-  return <PdfViewer url={state.url} />;
+  return <PdfViewer url={state.url} page={page} />;
 }

@@ -58,9 +58,9 @@ export async function approveFinalAction(milestoneId: string): Promise<Result> {
   });
 }
 
-export async function postThreadAction(commitId: string, body: string): Promise<Result> {
+export async function postThreadAction(commitId: string, body: string, page: number | null = null): Promise<Result> {
   return run(async (ctx) => {
-    await postThread(ctx, { commitId, body });
+    await postThread(ctx, { commitId, body, page });
   });
 }
 

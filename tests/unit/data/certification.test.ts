@@ -29,7 +29,7 @@ async function closed() {
   const [item] = await db.select().from(s.templateRequiredItem).where(eq(s.templateRequiredItem.templateVersionId, t.version.id));
   const [attempt] = await db.insert(s.defenseAttempt).values({ milestoneInstanceId: t.milestone.id, attemptNo: 1, status: "closed" }).returning();
   const [revision] = await db.insert(s.revisionItem).values({ defenseAttemptId: attempt!.id, ordinal: 1, body: "Add a limitation section." }).returning();
-  const certification = async (state: s.DocumentState) =>
+  const certification = async (state: s.LiveDocumentState) =>
     db.insert(s.documentRecord).values({
       milestoneInstanceId: t.milestone.id,
       templateRequiredItemId: item!.id,
@@ -50,7 +50,7 @@ describe("CLOSED to CERTIFIED (FR-WFL-06, INV-17, INV-34)", () => {
       { revisionItemId: t.revision.id, memberUserId: t.member.id },
     ]);
     await expect(transitionMilestone(as(t.coordinator), t.milestone.id, "CERTIFIED")).rejects.toMatchObject({ code: "certification_missing" });
-    await t.certification("physical_received");
+    await t.certification("returned");
     await expect(transitionMilestone(as(t.coordinator), t.milestone.id, "CERTIFIED")).rejects.toMatchObject({ code: "certification_missing" });
     await db.update(s.documentRecord).set({ state: "verified" }).where(eq(s.documentRecord.milestoneInstanceId, t.milestone.id));
     await expect(transitionMilestone(as(t.adviser), t.milestone.id, "CERTIFIED")).rejects.toMatchObject({ code: "wrong_actor" });

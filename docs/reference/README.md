@@ -1,6 +1,6 @@
 # Reference sources
 
-This folder holds the official PUP Graduate School source files. The Unified Thesis Process (`docs/PUP_CpE_Thesis_Progress_System_Unified_Thesis_Process_v1.1.md`) derives from them. Its source order puts the TDW forms first and the Guidelines second.
+This folder holds the official PUP Graduate School source files. The Unified Thesis Process (`docs/PUP_CpE_Thesis_Progress_System_Unified_Thesis_Process_v1.2.md`) derives from them. Its source order puts the TDW forms first and the Guidelines second.
 
 These files hold no project rules. Do not edit them. If a new version arrives, add it next to the old one.
 

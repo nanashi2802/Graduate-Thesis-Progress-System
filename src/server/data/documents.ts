@@ -43,7 +43,9 @@ export type DocBlockCode =
   | "hash_mismatch"
   | "subject_required"
   | "subject_not_seat"
-  | "no_commit";
+  | "no_commit"
+  | "optional_copy"
+  | "not_advising_form";
 
 export type DocResult<T> = { ok: true; value: T } | { ok: false; code: DocBlockCode; reason: string };
 
@@ -52,13 +54,24 @@ const MESSAGES: Record<DocBlockCode, string> = {
   wrong_actor: "Your role cannot make this change.",
   not_allowed: "This document change is not allowed.",
   reason_required: "Write a reason.",
-  locked: "The scan is locked. A new file needs a Return or a Mismatch first.",
+  locked: "The scan is locked. A new file needs a Return first.",
   bad_file: "The file is not allowed.",
   bad_key: "The upload is not valid. Start the upload again.",
   hash_mismatch: "The stored file does not match the hash from your browser. No record is made.",
   subject_required: "Choose the member for this NDA.",
   subject_not_seat: "This person has no seat on the committee of this thesis.",
   no_commit: "Upload a manuscript commit first. This form is signed for one commit.",
+  optional_copy: "An optional copy is not reviewed.",
+  not_advising_form: "Only TDW 01, TDW 02 and TDW 04 have an optional copy.",
+};
+
+/** FR-DOC-12, D-25: the advising forms with an optional copy, in the order of Guidelines A.1 to A.4. */
+export const ADVISING_FORMS = ["TDW_01", "TDW_04", "TDW_02"] as const;
+export type AdvisingForm = (typeof ADVISING_FORMS)[number];
+const ADVISING_LABEL: Record<AdvisingForm, string> = {
+  TDW_01: "TDW 01 copy",
+  TDW_04: "TDW 04 copy",
+  TDW_02: "TDW 02 copy",
 };
 
 const refuse = <T>(code: DocBlockCode, reason?: string): DocResult<T> => ({ ok: false, code, reason: reason ?? MESSAGES[code] });
@@ -128,7 +141,11 @@ export async function deliverables(ctx: DataContext, milestoneId: string): Promi
     .select()
     .from(templateRequiredItem)
     .where(eq(templateRequiredItem.templateVersionId, m.templateVersionId));
-  const docs = await ctx.db.select().from(documentRecord).where(eq(documentRecord.milestoneInstanceId, milestoneId));
+  // D-25: an optional copy has no template item, so it never shows here (FR-DOC-08).
+  const docs = await ctx.db
+    .select()
+    .from(documentRecord)
+    .where(and(eq(documentRecord.milestoneInstanceId, milestoneId), eq(documentRecord.optional, false)));
   return items.map((i) => ({
     requiredItemId: i.id,
     formCode: i.formCode,
@@ -140,6 +157,69 @@ export async function deliverables(ctx: DataContext, milestoneId: string): Promi
       .filter((d) => d.templateRequiredItemId === i.id)
       .map((d) => ({ id: d.id, subjectUserId: d.subjectUserId, state: d.state })),
   }));
+}
+
+export type AdvisingCopy = { formCode: AdvisingForm; label: string; documentId: string | null; state: DocumentState };
+
+/** FR-DOC-12, D-25: the optional copies of the advising forms on a Milestone 1 (Proposal). Empty for other milestones. */
+export async function advisingCopies(ctx: DataContext, milestoneId: string): Promise<AdvisingCopy[]> {
+  const m = await loadMilestone(ctx, milestoneId);
+  if (m.milestoneCode !== "proposal") return [];
+  const docs = await ctx.db
+    .select()
+    .from(documentRecord)
+    .where(and(eq(documentRecord.milestoneInstanceId, m.id), eq(documentRecord.optional, true)));
+  return ADVISING_FORMS.map((formCode) => {
+    const d = docs.find((x) => x.formCode === formCode);
+    return { formCode, label: ADVISING_LABEL[formCode], documentId: d?.id ?? null, state: d?.state ?? "not_started" };
+  });
+}
+
+/**
+ * FR-DOC-12, D-25: the Student asks for an upload link for one optional copy of an advising form.
+ * The record lives on the Milestone 1 of the Student's own thesis. It is write-once: after the upload,
+ * `canUploadScan` is false, and no Return exists for a copy.
+ */
+export async function requestAdvisingCopyUpload(
+  ctx: DataContext,
+  input: { formCode: AdvisingForm; sha256: string; size: number; contentType: string },
+  files: FilePort,
+): Promise<DocResult<{ documentId: string; link: UploadLink }>> {
+  requireActive(ctx.actor);
+  if (ctx.actor.role !== "student") throw new AccessDeniedError("only the Student uploads an optional copy");
+  const theses = await readableTheses(ctx);
+  const thesis = theses[0];
+  if (!thesis) throw new AccessDeniedError("the Student has no thesis");
+  if (!(ADVISING_FORMS as readonly string[]).includes(input.formCode)) return refuse("not_advising_form");
+  const req: UploadRequest = { kind: "scan", sha256: input.sha256, size: input.size, contentType: input.contentType };
+  const problem = uploadProblem(req);
+  if (problem) return refuse("bad_file", problem);
+  const [m] = await ctx.db
+    .select()
+    .from(milestoneInstance)
+    .where(and(eq(milestoneInstance.thesisInstanceId, thesis.id), eq(milestoneInstance.milestoneCode, "proposal")));
+  if (!m) return refuse("not_found");
+  const record = await ctx.db.transaction(async (tx) => {
+    const [found] = await tx
+      .select()
+      .from(documentRecord)
+      .where(and(eq(documentRecord.milestoneInstanceId, m.id), eq(documentRecord.formCode, input.formCode), eq(documentRecord.optional, true)));
+    if (found) return found;
+    const [doc] = await tx
+      .insert(documentRecord)
+      .values({ milestoneInstanceId: m.id, formCode: input.formCode, optional: true, state: "prepared" })
+      .returning();
+    await step(tx, ctx, doc!.id, "not_started", "prepared", null);
+    await recordAudit({ db: tx, actor: ctx.actor }, {
+      action: "document.prepared",
+      targetTable: "document_record",
+      targetId: doc!.id,
+      detail: { formCode: input.formCode, optional: true },
+    });
+    return doc!;
+  });
+  if (!canUploadScan(record.state)) return refuse("locked");
+  return { ok: true, value: { documentId: record.id, link: await files.createUploadLink(req) } };
 }
 
 /**
@@ -219,7 +299,7 @@ export async function requestScanUpload(
 
 /**
  * FR-DOC-03, NFR-02, BR-19: after the browser upload, check the stored hash and size,
- * then write the file row and lock the scan. A Mismatch file locks again in one step.
+ * then write the file row and lock the scan. A corrected scan after a Return locks the same way (BR-12).
  */
 export async function confirmScanUpload(
   ctx: DataContext,
@@ -237,13 +317,14 @@ export async function confirmScanUpload(
   if (!(await files.checkStoredFile(input.key, input.sha256, input.size))) return refuse("hash_mismatch");
 
   const actor: DocumentActor = "uploader";
-  const path: [DocumentState, DocumentState, DocumentActor][] =
-    doc.state === "mismatch"
-      ? [["mismatch", "locked_as_submitted", actor]]
-      : [
-          [doc.state, "scan_uploaded", actor],
-          ["scan_uploaded", "locked_as_submitted", "system"],
-        ];
+  // D-25: an optional copy stops at Scan uploaded. It is never locked as submitted, so it never waits for a review.
+  const path: [DocumentState, DocumentState, DocumentActor][] = doc.optional
+    ? [[doc.state, "scan_uploaded", actor]]
+    : [
+        [doc.state, "scan_uploaded", actor],
+        ["scan_uploaded", "locked_as_submitted", "system"],
+      ];
+  const finalState = path.at(-1)![1];
   for (const [from, to, who] of path) {
     const d = decideDocumentChange(from, to, who);
     if (!d.ok) return refuse(d.code, d.reason);
@@ -265,28 +346,30 @@ export async function confirmScanUpload(
       uploadedByUserId: ctx.actor.userId,
     });
     for (const [from, to] of path) await step(tx, ctx, doc.id, from, to, null);
-    await tx.update(documentRecord).set({ state: "locked_as_submitted" }).where(eq(documentRecord.id, doc.id));
+    await tx.update(documentRecord).set({ state: finalState }).where(eq(documentRecord.id, doc.id));
     await recordAudit({ db: tx, actor: ctx.actor }, {
       action: "document.upload_scan",
       targetTable: "document_record",
       targetId: doc.id,
-      detail: { formCode: doc.formCode, versionNo },
+      detail: { formCode: doc.formCode, versionNo, ...(doc.optional ? { optional: true } : {}) },
     });
     return { ok: true, value: null };
   });
 }
 
-/** FR-DOC-06, FR-DOC-07: the Coordinator marks received, verifies, returns or marks a Mismatch. */
+/** FR-DOC-06, FR-DOC-07: the Coordinator verifies a document or returns it with a reason (D-28). */
 export async function reviewDocument(
   ctx: DataContext,
-  input: { documentId: string; to: "physical_received" | "verified" | "mismatch" | "returned"; reason?: string | null },
+  input: { documentId: string; to: "verified" | "returned"; reason?: string | null },
 ): Promise<DocResult<null>> {
   requireActive(ctx.actor);
   if (ctx.actor.role !== "coordinator") throw new AccessDeniedError("only the Coordinator reviews documents");
   const { doc } = await loadDocument(ctx, input.documentId);
+  // D-25: an optional copy is never reviewed.
+  if (doc.optional) return refuse("optional_copy");
   const reason = input.reason?.trim() ? input.reason.trim() : null;
-  // BR-13 for a Return. The ERD check also needs a reason for a Mismatch (BR-12: say what differs).
-  if ((input.to === "returned" || input.to === "mismatch") && !reason) return refuse("reason_required");
+  // BR-13: a Return needs a reason.
+  if (input.to === "returned" && !reason) return refuse("reason_required");
   const d = decideDocumentChange(doc.state, input.to, "coordinator", reason);
   if (!d.ok) return refuse(d.code, d.reason);
   const result = await ctx.db.transaction(async (tx) => {

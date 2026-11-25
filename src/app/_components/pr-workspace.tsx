@@ -25,7 +25,7 @@ const ROLE_LABEL = { student: "Student", adviser: "Adviser", panel_member: "Pane
 
 const when = (d: Date) => d.toLocaleString("en-PH", { timeZone: "Asia/Manila", dateStyle: "medium", timeStyle: "short" });
 
-export async function PrWorkspace({ portal, prId, commit }: { portal: UserRole; prId: string; commit?: string }) {
+export async function PrWorkspace({ portal, prId, commit, page }: { portal: UserRole; prId: string; commit?: string; page?: string }) {
   const state = await getRoleState(portal);
   if (state.status !== "ok") return null; // The portal layout already blocks this case.
   const ctx: DataContext = { db: getDb(), actor: state.actor };
@@ -52,6 +52,8 @@ export async function PrWorkspace({ portal, prId, commit }: { portal: UserRole; 
   const { milestone, commits, pr, locked, threads } = ws;
   const newest = commits.at(-1) ?? null;
   const selected = commits.find((c) => String(c.ordinal) === commit) ?? newest;
+  // FR-REV-04, D-26: `?page=` comes from the page link of a thread. The viewer clamps it to the last page.
+  const viewPage = page && /^\d{1,4}$/.test(page) ? Number(page) : undefined;
   const status = milestone.status;
   const gate1bOpen = milestone.milestoneCode === "pre_final" ? status === "ADVISER_ENDORSED" : status === "COMMITTEE_APPOINTED";
 
@@ -133,7 +135,7 @@ export async function PrWorkspace({ portal, prId, commit }: { portal: UserRole; 
                   v{selected.ordinal}, uploaded {when(selected.uploadedAt)}. {selected.changeNote ? `Change note: ${selected.changeNote}` : ""}
                 </p>
               ) : null}
-              {selected ? <PdfPane key={selected.id} commitId={selected.id} /> : null}
+              {selected ? <PdfPane key={selected.id} commitId={selected.id} page={viewPage} /> : null}
             </>
           )}
           {canUpload ? <CommitUploader milestoneId={milestone.id} openThreads={openOwn} /> : null}
@@ -154,6 +156,15 @@ export async function PrWorkspace({ portal, prId, commit }: { portal: UserRole; 
                     <span>{thread.authorRole === "adviser" ? "Adviser" : "Panel Member"}</span>
                     <span className="font-medium text-foreground">{thread.state === "OPEN" ? "Open" : "Resolved"}</span>
                     {outdated ? <span className="rounded-full border border-border px-2">Outdated</span> : null}
+                    {thread.page ? (
+                      <Link
+                        href={`?commit=${commitOrdinal}&page=${thread.page}`}
+                        className="font-mono text-foreground underline-offset-4 hover:underline"
+                        aria-label={`Show page ${thread.page} of v${commitOrdinal}`}
+                      >
+                        p. {thread.page}
+                      </Link>
+                    ) : null}
                   </p>
                   <p className="text-sm whitespace-pre-wrap">{thread.body}</p>
                   {addressedByOrdinals.length > 0 ? (

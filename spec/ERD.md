@@ -59,7 +59,7 @@
 | `member_status` | `proposed`, `accepted`, `declined` | FR-CMT-03 |
 | `gate_kind` | `gate_1a`, `gate_1b`, `certification`, `gate_2`, `date_confirmation`, `stage_close`, `clearance_close`, `data_gathering` | FR-WFL-03 to 11 |
 | `gate_result` | `endorsed`, `returned`, `accepted`, `approved`, `recorded` | FR-WFL-14 |
-| `document_state` | `not_started`, `prepared`, `scan_uploaded`, `locked_as_submitted`, `verified`, `returned` | FR-DOC-02 |
+| `document_state` | `not_started`, `prepared`, `scan_uploaded`, `locked_as_submitted`, `verified`, `returned`. The database type keeps `physical_received` and `mismatch` for old history rows (INV-08). No live row and no new event may use them (D-28). | FR-DOC-02 |
 | `form_code` | `TDW_01` to `TDW_13`, `OR`, `ETHICS_CERT`, `CERTIFICATION`, `SIGNED_FINAL_MANUSCRIPT`, `MINUTES`, `FINAL_COPY`, `CONFERENCE_CERT`, `JOURNAL_PUB`, `SUPPORTING` | Unified App. A, Guidelines B.16, C.23, C.25 |
 | `outside_kind` | `ethics`, `ipmo`, `rpo`, `copyright` | BR-14 |
 | `outside_value` | Ethics: `NOT_SUBMITTED`, `UNDER_REVIEW`, `CHANGES_REQUIRED`, `APPROVED`. IPMO: `NOT_SUBMITTED`, `UNDER_CHECK`, `FAILED`, `PASSED`. RPO: `NOT_SUBMITTED`, `UNDER_EDITING`, `DONE`. Copyright: `NOT_APPLIED`, `APPLIED`, `REGISTERED`. | FR-WFL-10 |

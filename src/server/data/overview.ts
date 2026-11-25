@@ -3,7 +3,7 @@
 // Each KPI count is the length of its queue, so a count always opens the same list.
 // A pacing flag is information only (BR-17). It never blocks an action.
 import "server-only";
-import { asc, count, desc, eq, inArray, max } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, max } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import type { MilestoneCode, MilestoneStatus, PstDate } from "@/server/domain/milestone";
 import { residency, type Residency } from "@/server/domain/residency";
@@ -76,7 +76,7 @@ const KIND_BY_STATUS: Partial<Record<MilestoneStatus, (m: MilestoneCode) => Queu
 // A pacing flag shows while a milestone is before the defense is closed and the target date has passed (FR-TRK-06).
 const FLAG_DONE: MilestoneStatus[] = ["CLOSED", "CERTIFIED", "FINAL_APPROVED", "CLEARED"];
 
-const WAITING_SCAN_STATES = ["locked_as_submitted", "physical_received"] as const;
+const WAITING_SCAN_STATES = ["locked_as_submitted"] as const;
 const DAY_MS = 86_400_000;
 
 export async function coordinatorOverview(ctx: DataContext, now: Date = new Date()): Promise<CoordinatorOverview> {
@@ -115,7 +115,8 @@ export async function coordinatorOverview(ctx: DataContext, now: Date = new Date
     ? await ctx.db
         .select({ id: documentRecord.milestoneInstanceId, n: count() })
         .from(documentRecord)
-        .where(inArray(documentRecord.state, [...WAITING_SCAN_STATES]))
+        // D-25: an optional copy never waits for a review (FR-DOC-12).
+        .where(and(inArray(documentRecord.state, [...WAITING_SCAN_STATES]), eq(documentRecord.optional, false)))
         .groupBy(documentRecord.milestoneInstanceId)
     : [];
   // The newest attempt of each milestone (the rows run newest first, so the first one for a milestone wins).

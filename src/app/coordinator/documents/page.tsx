@@ -2,7 +2,7 @@
 // Pick a Student, then work through the records of each milestone.
 import Link from "next/link";
 import { EmptyState } from "@/components/empty-state";
-import { DocumentStamp, documentStateView } from "@/components/status";
+import { DocumentStamp, documentHistoryLabel } from "@/components/status";
 import { deliverables, documentHistory } from "@/server/data/documents";
 import { listStudents } from "@/server/data/students";
 import { decideDocumentChange, type DocumentState } from "@/server/domain/documents";
@@ -12,7 +12,7 @@ import { PageHeader, Section, td, th } from "../_lib/page-header";
 import { ReviewForm, type ReviewBlocks } from "./review-form";
 
 const MILESTONE_LABEL: Record<string, string> = { proposal: "Proposal", pre_final: "Pre-Final", final: "Final" };
-const TARGETS = ["physical_received", "verified", "mismatch", "returned"] as const;
+const TARGETS = ["verified", "returned"] as const;
 const link = "text-sm font-medium text-primary underline-offset-4 hover:underline";
 
 // The same rule the action runs. A dummy reason passes the reason check, so the box can still be empty (BR-18).
@@ -35,7 +35,7 @@ export default async function Page({ searchParams }: PageProps<"/coordinator/doc
     <main className="mx-auto flex max-w-[1200px] flex-col gap-12 px-4 py-8 sm:px-8">
       <PageHeader
         title="Document review"
-        detail="Compare each scan with the signed paper. Mark it received, verify it, return it with a reason, or record a Mismatch."
+        detail="Compare each scan with the signed paper. Verify it, or return it with a reason."
       />
       {!student ? (
         <Section title="Choose a Student">
@@ -101,7 +101,7 @@ export default async function Page({ searchParams }: PageProps<"/coordinator/doc
                                       <ol className="mt-1 flex flex-col gap-1 text-xs">
                                         {history.events.map((e, i) => (
                                           <li key={i}>
-                                            {documentStateView(e.fromState).label} → {documentStateView(e.toState).label}
+                                            {documentHistoryLabel(e.fromState)} → {documentHistoryLabel(e.toState)}
                                             {e.reason ? ` · ${e.reason}` : ""}
                                           </li>
                                         ))}

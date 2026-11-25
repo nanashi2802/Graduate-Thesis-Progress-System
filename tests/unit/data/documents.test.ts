@@ -5,14 +5,19 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { AccessDeniedError, type Actor } from "@/server/data/access";
 import type { Db } from "@/server/data/db";
 import {
+  advisingCopies,
   confirmScanUpload,
   deliverables,
   documentHistory,
   readableMilestones,
+  requestAdvisingCopyUpload,
   requestScanUpload,
   reviewDocument,
   type FilePort,
 } from "@/server/data/documents";
+import { loadMilestoneContext, loadMilestoneFacts } from "@/server/data/milestone-facts";
+import { coordinatorOverview } from "@/server/data/overview";
+import { studentTracker } from "@/server/data/tracker";
 import * as s from "@/server/data/schema";
 import { seedMilestone1 } from "../../support/seed-m1";
 import { makeTestDb } from "../../support/test-db";
@@ -199,53 +204,141 @@ describe("scan upload (FR-DOC-03, BR-19, NFR-02)", () => {
   });
 });
 
-describe("Coordinator review (FR-DOC-06, FR-DOC-07, BR-12, BR-13)", () => {
-  it("marks received, then verified, with one history row and one audit record each", async () => {
+describe("Coordinator review (FR-DOC-06, FR-DOC-07, BR-12, BR-13, D-28)", () => {
+  it("verifies a locked scan, with one history row and one audit record", async () => {
     const id = await uploadAs(student(), await itemId("TDW_07"));
-    expect(await reviewDocument(coord(), { documentId: id, to: "physical_received" })).toEqual({ ok: true, value: null });
+    const before = (await db.select().from(s.auditRecord)).length;
     expect(await reviewDocument(coord(), { documentId: id, to: "verified" })).toEqual({ ok: true, value: null });
     const history = await documentHistory(coord(), id);
-    expect(history.events.at(-1)).toMatchObject({ fromState: "physical_received", toState: "verified" });
-    const audit = await db.select().from(s.auditRecord);
-    expect(audit.filter((a) => a.action.startsWith("document.")).length).toBeGreaterThanOrEqual(2);
+    expect(history.events.filter((e) => e.toState === "verified")).toEqual([
+      expect.objectContaining({ fromState: "locked_as_submitted", toState: "verified" }),
+    ]);
+    const audit = (await db.select().from(s.auditRecord)).slice(before);
+    expect(audit.map((a) => a.action)).toEqual(["document.verified"]);
   });
 
-  it("needs a reason for a Return and a Mismatch (BR-13)", async () => {
+  it("needs a reason for a Return (BR-13)", async () => {
     const id = await uploadAs(student(), await itemId("TDW_07"));
     expect(await reviewDocument(coord(), { documentId: id, to: "returned", reason: " " })).toMatchObject({
       ok: false,
       code: "reason_required",
     });
-    expect(await reviewDocument(coord(), { documentId: id, to: "mismatch" })).toMatchObject({ ok: false, code: "reason_required" });
-    expect(await reviewDocument(coord(), { documentId: id, to: "mismatch", reason: "Page 3 differs" })).toMatchObject({ ok: true });
+    expect(await reviewDocument(coord(), { documentId: id, to: "returned", reason: "Page 3 differs" })).toMatchObject({ ok: true });
   });
 
-  it("tells the Student about a Return with an in-app notice, and only about a Return (B3)", async () => {
-    const id = await uploadAs(student(), await itemId("TDW_07"));
-    await reviewDocument(coord(), { documentId: id, to: "mismatch", reason: "Page 3 differs" });
+  it("tells the Student about a Return with an in-app notice, and not about a Verify (B3)", async () => {
+    const verified = await uploadAs(student(), await itemId("TDW_07"));
+    await reviewDocument(coord(), { documentId: verified, to: "verified" });
     expect(await db.select().from(s.notification)).toHaveLength(0);
-    await uploadAs(student(), await itemId("TDW_07"));
+    const id = await uploadAs(student(), await itemId("OR"));
     await reviewDocument(coord(), { documentId: id, to: "returned", reason: "Missing signature" });
     const rows = await db.select().from(s.notification);
     expect(rows).toEqual([expect.objectContaining({ recipientUserId: seed.student.id, eventCode: "B3", targetTable: "document_record", targetId: id })]);
   });
 
-  it("lets the uploader replace a returned scan, and a mismatch file locks again", async () => {
+  it("lets the uploader replace a returned scan, and the new scan locks (BR-12)", async () => {
     const item = await itemId("TDW_07");
     const id = await uploadAs(student(), item);
     await reviewDocument(coord(), { documentId: id, to: "returned", reason: "Missing signature" });
     expect(await uploadAs(student(), item)).toBe(id);
-    await reviewDocument(coord(), { documentId: id, to: "mismatch", reason: "Wrong page" });
-    expect(await uploadAs(student(), item)).toBe(id);
     const history = await documentHistory(student(), id);
-    expect(history.files.map((f) => f.versionNo)).toEqual([1, 2, 3]);
+    expect(history.files.map((f) => f.versionNo)).toEqual([1, 2]);
+    expect(history.events.slice(-2)).toEqual([
+      expect.objectContaining({ fromState: "returned", toState: "scan_uploaded" }),
+      expect.objectContaining({ fromState: "scan_uploaded", toState: "locked_as_submitted" }),
+    ]);
     const [doc] = await db.select().from(s.documentRecord).where(eq(s.documentRecord.id, id));
     expect(doc!.state).toBe("locked_as_submitted");
   });
 
-  it("refuses a skipped step and a non-Coordinator", async () => {
+  it("refuses a Return of a verified document (BR-19)", async () => {
     const id = await uploadAs(student(), await itemId("TDW_07"));
+    await reviewDocument(coord(), { documentId: id, to: "verified" });
+    expect(await reviewDocument(coord(), { documentId: id, to: "returned", reason: "Too late" })).toMatchObject({ ok: false, code: "not_allowed" });
+    const [doc] = await db.select().from(s.documentRecord).where(eq(s.documentRecord.id, id));
+    expect(doc!.state).toBe("verified");
+  });
+
+  it("refuses a second Verify and a non-Coordinator", async () => {
+    const id = await uploadAs(student(), await itemId("TDW_07"));
+    await reviewDocument(coord(), { documentId: id, to: "verified" });
     expect(await reviewDocument(coord(), { documentId: id, to: "verified" })).toMatchObject({ ok: false, code: "not_allowed" });
-    await expect(reviewDocument(student(), { documentId: id, to: "physical_received" })).rejects.toThrow(AccessDeniedError);
+    await expect(reviewDocument(student(), { documentId: id, to: "returned", reason: "x" })).rejects.toThrow(AccessDeniedError);
+  });
+});
+
+describe("optional copies of the advising forms (FR-DOC-12, D-25)", () => {
+  async function copy(formCode: "TDW_01" | "TDW_02" | "TDW_04", ctx = student()) {
+    const req = await requestAdvisingCopyUpload(ctx, { formCode, ...upload }, files);
+    if (!req.ok) return req;
+    const done = await confirmScanUpload(ctx, { documentId: req.value.documentId, key: req.value.link.key, ...upload }, files);
+    return done.ok ? { ok: true as const, documentId: req.value.documentId } : done;
+  }
+  const recordOf = async (id: string) => (await db.select().from(s.documentRecord).where(eq(s.documentRecord.id, id)))[0]!;
+
+  it("lets the Student upload one copy of each advising form, on the Milestone 1 record", async () => {
+    for (const form of ["TDW_01", "TDW_04", "TDW_02"] as const) {
+      const res = await copy(form);
+      if (!res.ok) throw new Error(res.reason);
+      expect(await recordOf(res.documentId)).toMatchObject({
+        formCode: form,
+        optional: true,
+        state: "scan_uploaded",
+        templateRequiredItemId: null,
+        milestoneInstanceId: seed.milestone.id,
+      });
+    }
+    expect((await advisingCopies(student(), seed.milestone.id)).map((c) => [c.formCode, c.state])).toEqual([
+      ["TDW_01", "scan_uploaded"],
+      ["TDW_04", "scan_uploaded"],
+      ["TDW_02", "scan_uploaded"],
+    ]);
+  });
+
+  it("refuses a second copy of the same form (write-once)", async () => {
+    expect((await copy("TDW_01")).ok).toBe(true);
+    expect(await requestAdvisingCopyUpload(student(), { formCode: "TDW_01", ...upload }, files)).toMatchObject({ ok: false, code: "locked" });
+    expect((await db.select().from(s.documentFile)).length).toBe(1);
+  });
+
+  it("refuses a form code that is not an advising form", async () => {
+    const res = await requestAdvisingCopyUpload(student(), { formCode: "TDW_07" as "TDW_01", ...upload }, files);
+    expect(res).toMatchObject({ ok: false, code: "not_advising_form" });
+    expect(await db.select().from(s.documentRecord)).toHaveLength(0);
+  });
+
+  it("refuses every role except the Student", async () => {
+    await expect(requestAdvisingCopyUpload(coord(), { formCode: "TDW_01", ...upload }, files)).rejects.toThrow(AccessDeniedError);
+    await expect(requestAdvisingCopyUpload({ db, actor: actorOf(seed.adviser) }, { formCode: "TDW_01", ...upload }, files)).rejects.toThrow(AccessDeniedError);
+  });
+
+  it("refuses a Coordinator review of a copy", async () => {
+    const res = await copy("TDW_04");
+    if (!res.ok) throw new Error(res.reason);
+    expect(await reviewDocument(coord(), { documentId: res.documentId, to: "verified" })).toMatchObject({ ok: false, code: "optional_copy", reason: "An optional copy is not reviewed." });
+    expect(await reviewDocument(coord(), { documentId: res.documentId, to: "returned", reason: "x" })).toMatchObject({ ok: false, code: "optional_copy" });
+  });
+
+  it("never shows a copy in the Coordinator scan queue, the deliverables or the FR-DOC-08 checklist", async () => {
+    const before = (await studentTracker(student()))!.checklist;
+    const deliverablesBefore = await deliverables(student(), seed.milestone.id);
+    // Even a copy in a locked state does not count. The database allows this state, so the reads must filter it.
+    await db.insert(s.documentRecord).values({ milestoneInstanceId: seed.milestone.id, formCode: "TDW_04", optional: true, state: "locked_as_submitted" });
+    expect((await coordinatorOverview(coord())).queue.filter((q) => q.kind === "review_documents")).toEqual([]);
+    expect((await studentTracker(student()))!.checklist).toEqual(before);
+    expect(await deliverables(student(), seed.milestone.id)).toEqual(deliverablesBefore);
+  });
+
+  it("does not block the stage close", async () => {
+    await db.insert(s.documentRecord).values({ milestoneInstanceId: seed.milestone.id, formCode: "TDW_01", optional: true, state: "returned" });
+    const mctx = (await loadMilestoneContext(db, seed.milestone.id))!;
+    expect((await loadMilestoneFacts(db, mctx)).documentReturned).toBe(false);
+  });
+
+  it("refuses an optional copy of another form, or one with a template item, in the database", async () => {
+    await expect(db.insert(s.documentRecord).values({ milestoneInstanceId: seed.milestone.id, formCode: "TDW_07", optional: true })).rejects.toThrow();
+    await expect(
+      db.insert(s.documentRecord).values({ milestoneInstanceId: seed.milestone.id, formCode: "TDW_01", optional: true, templateRequiredItemId: await itemId("TDW_07") }),
+    ).rejects.toThrow();
   });
 });

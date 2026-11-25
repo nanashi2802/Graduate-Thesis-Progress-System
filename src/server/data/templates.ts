@@ -1,13 +1,15 @@
 // Milestone Templates, versions and target dates (FR-TPL-01 to FR-TPL-05, INV-26, C8). Server only.
 import "server-only";
-import { and, asc, desc, eq, max } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, max, notInArray } from "drizzle-orm";
 import type { DataContext } from "./access";
 import { recordAudit } from "./audit";
 import { InputProblem, requireCoordinator } from "./coordinator";
 import type { Db } from "./db";
 import {
+  appUser,
   milestoneInstance,
   milestoneTemplate,
+  thesisInstance,
   rubricIndicator,
   templateRequiredItem,
   templateVersion,
@@ -24,6 +26,8 @@ export type TemplateParams = {
   printedCopiesMasters: number;
   printedCopiesDoctoral: number;
   reviewerWaitDays: number | null;
+  /** FR-TRK-06, D-27: null is Off. Only the Proposal template value counts (see `adviseeLimit`). */
+  adviseeLimit: number | null;
 };
 export type RequiredItemInput = {
   formCode: FormCode;
@@ -55,6 +59,9 @@ function paramsProblem(p: TemplateParams): string | null {
   if (counts.some((n) => !Number.isInteger(n) || n < 1)) return "Sizes and copy counts must be whole numbers of 1 or more.";
   const days = [p.minNoticeDays, p.printedCopiesDueDays, p.reviewerWaitDays ?? 0];
   if (days.some((n) => !Number.isInteger(n) || n < 0)) return "Day counts must be whole numbers of 0 or more.";
+  if (p.adviseeLimit !== null && !(Number.isInteger(p.adviseeLimit) && p.adviseeLimit >= 1)) {
+    return "Set the advisee limit to Off or a number of 1 or more.";
+  }
   return null;
 }
 
@@ -69,6 +76,41 @@ export async function latestVersionId(db: Db, code: MilestoneCodeValue): Promise
     .limit(1);
   if (!row) throw new Error(`No template version for ${code}. Run the migrations (FR-TPL-02).`);
   return row.id;
+}
+
+/**
+ * FR-TRK-06, D-27: the advisee limit, from the latest Proposal version (the version a new Student starts with).
+ * Null is Off. Call only after an access check.
+ */
+export async function adviseeLimit(db: Db): Promise<number | null> {
+  const [row] = await db.select({ limit: templateVersion.adviseeLimit }).from(templateVersion).where(eq(templateVersion.id, await latestVersionId(db, "proposal")));
+  return row?.limit ?? null;
+}
+
+/**
+ * FR-TRK-06, D-27: the active Students of each Adviser, and whether each is over the limit.
+ * An active Student has an active account and a thesis that is not cleared.
+ * The flag is information only (BR-17): no action checks it. Call only after an access check.
+ */
+export async function adviseeLoad(db: Db, adviserUserIds: readonly string[]): Promise<Map<string, { active: number; overLimit: boolean }>> {
+  const out = new Map<string, { active: number; overLimit: boolean }>();
+  if (adviserUserIds.length === 0) return out;
+  const limit = await adviseeLimit(db);
+  const cleared = db
+    .select({ id: milestoneInstance.thesisInstanceId })
+    .from(milestoneInstance)
+    .where(eq(milestoneInstance.status, "CLEARED"));
+  const rows = await db
+    .select({ adviserUserId: thesisInstance.adviserUserId, n: count() })
+    .from(thesisInstance)
+    .innerJoin(appUser, eq(appUser.id, thesisInstance.studentUserId))
+    .where(and(inArray(thesisInstance.adviserUserId, [...adviserUserIds]), eq(appUser.isActive, true), notInArray(thesisInstance.id, cleared)))
+    .groupBy(thesisInstance.adviserUserId);
+  for (const id of adviserUserIds) {
+    const active = Number(rows.find((r) => r.adviserUserId === id)?.n ?? 0);
+    out.set(id, { active, overLimit: limit !== null && active > limit });
+  }
+  return out;
 }
 
 export type TemplateSummary = {
@@ -140,6 +182,7 @@ export async function saveTemplateVersion(
         printedCopiesMasters: input.printedCopiesMasters,
         printedCopiesDoctoral: input.printedCopiesDoctoral,
         reviewerWaitDays: input.reviewerWaitDays,
+        adviseeLimit: input.adviseeLimit,
         changeNote: input.changeNote.trim(),
         createdByUserId: ctx.actor.userId,
       })

@@ -35,9 +35,7 @@ export type DocumentState =
   | "prepared"
   | "scan_uploaded"
   | "locked_as_submitted"
-  | "physical_received"
   | "verified"
-  | "mismatch"
   | "returned";
 
 const DOCUMENT_STATE: Record<DocumentState, StatusView> = {
@@ -45,15 +43,20 @@ const DOCUMENT_STATE: Record<DocumentState, StatusView> = {
   prepared: { label: "Prepared", tone: "neutral" },
   scan_uploaded: { label: "Scan uploaded", tone: "pending" },
   locked_as_submitted: { label: "Locked as submitted", tone: "locked" },
-  physical_received: { label: "Physical received", tone: "active" },
   verified: { label: "Verified", tone: "done" },
-  // A mismatch is a flag (BR-17): it warns and never blocks.
-  mismatch: { label: "Mismatch", tone: "pending" },
   returned: { label: "Returned", tone: "returned" },
 };
 
 export function documentStateView(state: DocumentState): StatusView {
   return DOCUMENT_STATE[state];
+}
+
+// D-28: old history rows keep two removed states (INV-08). They show only in a state history.
+const REMOVED_DOCUMENT_STATE: Record<string, string> = { physical_received: "Physical received", mismatch: "Mismatch" };
+
+/** The label of a state in a `document_event` row, also for the removed states. */
+export function documentHistoryLabel(state: string): string {
+  return REMOVED_DOCUMENT_STATE[state] ?? DOCUMENT_STATE[state as DocumentState]?.label ?? state;
 }
 
 export type OutsideKind = "ethics" | "ipmo" | "rpo" | "copyright";

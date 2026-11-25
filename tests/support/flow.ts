@@ -70,6 +70,7 @@ export async function runMilestone1(db: Db) {
       comprehensiveExamDate: null,
       writing1Course: "RSH_641",
       adviserUserId: adviser.id,
+      title: "Fake thesis title",
     },
     async () => ({ authUserId: crypto.randomUUID() }),
   );
@@ -99,7 +100,7 @@ export async function runMilestone1(db: Db) {
     );
     if (!done.ok) throw new Error(`${formCode}: ${done.reason}`);
     if (verify) {
-      for (const to of ["physical_received", "verified"] as const) {
+      for (const to of ["verified"] as const) {
         const r = await reviewDocument(as(coordinator), { documentId: req.value.documentId, to });
         if (!r.ok) throw new Error(`${formCode} ${to}: ${r.reason}`);
       }
@@ -257,7 +258,7 @@ export async function runMilestone2(db: Db) {
       if (!req.ok) throw new Error(`${formCode}: ${req.reason}`);
       const done = await confirmScanUpload(as(uploader), { documentId: req.value.documentId, key: req.value.link.key, ...meta }, files);
       if (!done.ok) throw new Error(`${formCode}: ${done.reason}`);
-      for (const to of ["physical_received", "verified"] as const) {
+      for (const to of ["verified"] as const) {
         const r = await reviewDocument(as(coordinator), { documentId: req.value.documentId, to });
         if (!r.ok) throw new Error(`${formCode} ${to}: ${r.reason}`);
       }

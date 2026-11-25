@@ -24,6 +24,7 @@ import {
   thesisInstance,
 } from "./schema";
 import { canReadManuscript } from "./scope";
+import { adviseeLoad } from "./templates";
 
 const DAY_MS = 86_400_000;
 // A pacing flag shows while the milestone is before its close and the target date has passed (FR-TRK-06).
@@ -73,7 +74,12 @@ export type AdviseeRow = {
   pacingFlag: boolean;
 };
 
-export type AdviserDashboard = { queue: AdviserQueueItem[]; advisees: AdviseeRow[] };
+export type AdviserDashboard = {
+  queue: AdviserQueueItem[];
+  advisees: AdviseeRow[];
+  /** FR-TRK-06, D-27: the Adviser has more active Students than the advisee limit. A flag only (BR-17). */
+  adviseeLimitFlag: boolean;
+};
 
 const PRE_DEFENSE: MilestoneStatus[] = ["READY", "ADVISER_ENDORSED", "COMMITTEE_APPOINTED", "COMMITTEE_ENDORSED", "DATE_PROPOSED"];
 
@@ -109,7 +115,13 @@ export async function adviserDashboard(ctx: DataContext, now: Date = new Date())
   const ids = rows.map((r) => r.milestoneId);
   const gates = ids.length ? await ctx.db.select().from(gateAction).where(inArray(gateAction.milestoneInstanceId, ids)) : [];
   const lastGateAt = (id: string, fallback: Date) => gates.filter((g) => g.milestoneInstanceId === id).reduce<Date>((a, g) => (g.createdAt > a ? g.createdAt : a), fallback);
-  const docs = ids.length ? await ctx.db.select().from(documentRecord).where(inArray(documentRecord.milestoneInstanceId, ids)) : [];
+  // D-25: an optional copy never shows in a queue (FR-DOC-12).
+  const docs = ids.length
+    ? await ctx.db
+        .select()
+        .from(documentRecord)
+        .where(and(inArray(documentRecord.milestoneInstanceId, ids), eq(documentRecord.optional, false)))
+    : [];
 
   for (const r of rows) {
     const since = lastGateAt(r.milestoneId, r.openedAt);
@@ -164,8 +176,10 @@ export async function adviserDashboard(ctx: DataContext, now: Date = new Date())
         .orderBy(desc(defenseAttempt.attemptNo))
     : [];
   const attemptOf = (milestoneId: string) => open.find((a) => a.milestoneId === milestoneId)?.id ?? null;
+  const load = (await adviseeLoad(ctx.db, [ctx.actor.userId])).get(ctx.actor.userId);
   return {
     queue,
+    adviseeLimitFlag: load?.overLimit ?? false,
     advisees: [...latest.values()].map((r) => ({
       thesisId: r.thesisId,
       studentName: r.studentName,

@@ -2,6 +2,7 @@
 import { sql } from "drizzle-orm";
 import {
   bigint,
+  boolean,
   check,
   integer,
   text,
@@ -13,7 +14,7 @@ import {
 import { appUser, milestoneInstance, templateRequiredItem } from "./accounts";
 import { app } from "./app";
 import { createdAt, id, ts } from "./columns";
-import { documentState, formCode, matchResult } from "./enums";
+import { documentState, formCode, matchResult, type LiveDocumentState } from "./enums";
 import { defenseAttempt } from "./defense";
 import { manuscriptCommit, MAX_FILE_BYTES } from "./manuscript";
 
@@ -30,13 +31,27 @@ export const documentRecord = app.table(
     formCode: formCode("form_code").notNull(),
     subjectUserId: uuid("subject_user_id").references(() => appUser.id),
     linkedCommitId: uuid("linked_commit_id").references((): AnyPgColumn => manuscriptCommit.id),
-    state: documentState("state").notNull().default("not_started"),
+    state: documentState("state").$type<LiveDocumentState>().notNull().default("not_started"),
+    // FR-DOC-12, D-25: an optional copy of an advising form. It is never reviewed, never counts and never blocks.
+    optional: boolean("optional").notNull().default(false),
   },
   (t) => [
     check(
       "document_record_signed_commit",
       sql`${t.formCode} not in ('CERTIFICATION', 'SIGNED_FINAL_MANUSCRIPT') or ${t.linkedCommitId} is not null`,
     ),
+    // D-28: the states `physical_received` and `mismatch` are removed. Only old history rows keep them (INV-08).
+    check("document_record_live_state", sql`${t.state} not in ('physical_received', 'mismatch')`),
+    // D-25: only TDW 01, 02 and 04 have an optional copy, and a copy has no template item.
+    // The `::text` cast lets the check run in the same transaction that adds the enum values.
+    check(
+      "document_record_optional",
+      sql`not ${t.optional} or (${t.formCode}::text in ('TDW_01', 'TDW_02', 'TDW_04') and ${t.templateRequiredItemId} is null)`,
+    ),
+    // D-25: one optional copy for each form code and milestone (write-once).
+    uniqueIndex("document_record_one_optional")
+      .on(t.milestoneInstanceId, t.formCode)
+      .where(sql`${t.optional}`),
     uniqueIndex("document_record_one_signed")
       .on(t.milestoneInstanceId, t.formCode)
       .where(sql`${t.formCode} in ('CERTIFICATION', 'SIGNED_FINAL_MANUSCRIPT')`),
@@ -69,7 +84,8 @@ export const documentFile = app.table(
   ],
 );
 
-// Append-only history (INV-08). A Return or a mismatch needs a reason (BR-12, BR-13).
+// Append-only history (INV-08). A Return needs a reason (BR-12, BR-13). Old mismatch rows have one too.
+// A trigger refuses a new event into a removed state (D-28, migration 0012).
 export const documentEvent = app.table(
   "document_event",
   {
@@ -88,7 +104,7 @@ export const documentEvent = app.table(
   (t) => [
     check(
       "document_event_reason",
-      sql`${t.toState} not in ('returned', 'mismatch') or length(trim(coalesce(${t.reason}, ''))) > 0`,
+      sql`${t.toState} <> 'returned' or length(trim(coalesce(${t.reason}, ''))) > 0`,
     ),
   ],
 );

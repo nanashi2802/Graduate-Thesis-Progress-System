@@ -58,7 +58,7 @@ async function setup(opts: { withChecklist?: boolean } = {}) {
   const chair = await makeUser(db, "panel_member");
   const [com] = await db.insert(s.committee).values({ thesisInstanceId: t.thesis.id, kind: "evaluation_committee" }).returning();
   const [item] = await db.select().from(s.templateRequiredItem).where(eq(s.templateRequiredItem.templateVersionId, t.version.id));
-  const doc = async (formCode: s.FormCode, state: s.DocumentState, subject: string | null = null) =>
+  const doc = async (formCode: s.FormCode, state: s.LiveDocumentState, subject: string | null = null) =>
     (
       await db
         .insert(s.documentRecord)
@@ -265,15 +265,15 @@ describe("verdict, held, Minutes and close (FR-DEF-07 to 10, INV-15, INV-16)", (
     expect(pr!.lockedAt).toBeNull();
   });
 
-  it("refuses to close while a document is in Mismatch (BR-12, INV-16)", async () => {
+  it("refuses to close while a document is returned (BR-12, INV-16, D-28)", async () => {
     const w = await scheduled();
     await allSheets(w);
     await recordVerdict(as(w.lead), w.milestone.id, "approved");
     await markDefenseHeld(as(w.lead), w.milestone.id);
     await verifyAll(w);
     await issueMinutes(as(w.coordinator), w.attempt.id, "Minutes");
-    await db.update(s.documentRecord).set({ state: "mismatch" }).where(eq(s.documentRecord.formCode, "TDW_07"));
-    await expect(closeDefense(as(w.coordinator), w.milestone.id)).rejects.toMatchObject({ code: "document_mismatch" });
+    await db.update(s.documentRecord).set({ state: "returned" }).where(eq(s.documentRecord.formCode, "TDW_07"));
+    await expect(closeDefense(as(w.coordinator), w.milestone.id)).rejects.toMatchObject({ code: "document_returned" });
   });
 
   it("sends a Disapproved defense back to DRAFT with the manuscript unlocked, and a new attempt follows (FR-WFL-09, FR-DEF-12)", async () => {

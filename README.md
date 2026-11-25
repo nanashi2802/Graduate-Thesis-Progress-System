@@ -202,9 +202,9 @@ The governing documents are in [`docs/`](docs/) and [`spec/`](spec/). The agent 
 | [`spec/ERD.md`](spec/ERD.md) | Data model: tables, enums, invariants, state machines |
 | [`spec/BUILD_PLAN.md`](spec/BUILD_PLAN.md) | Build phases, epics and tasks |
 | [`DESIGN.md`](DESIGN.md) | Design system: colors, type, layout, components, tokens |
-| [Functional Requirements v1.1](docs/PUP_CpE_Thesis_Progress_System_Functional_Requirements_v1.1.md) | FR, BR, NFR and AS IDs. The spec. |
+| [Functional Requirements v1.2](docs/PUP_CpE_Thesis_Progress_System_Functional_Requirements_v1.2.md) | FR, BR, NFR and AS IDs. The spec. |
 | [Operational Flow, DFD and Sitemap v3.1](docs/PUP_CpE_Thesis_Progress_System_Operational_Flow_DFD_Sitemap_v3.1.md) | Process, data flows, 30 routes |
-| [Unified Thesis Process v1.1](docs/PUP_CpE_Thesis_Progress_System_Unified_Thesis_Process_v1.1.md) | Source of truth for the thesis process |
+| [Unified Thesis Process v1.2](docs/PUP_CpE_Thesis_Progress_System_Unified_Thesis_Process_v1.2.md) | Source of truth for the thesis process |
 
 If two documents disagree, the Unified Thesis Process wins for process rules. The Functional Requirements win for system behavior. The old documents in [`docs/stale/`](docs/stale/) are history only. Do not use them as a source.
 

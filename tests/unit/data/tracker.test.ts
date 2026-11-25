@@ -21,7 +21,7 @@ beforeEach(async () => {
 describe("studentTracker", () => {
   it("gives the regions for a new Student: DRAFT, an upload next action and an empty checklist", async () => {
     const t = (await studentTracker(asStudent()))!;
-    expect(t.identity).toMatchObject({ degreeLevel: seed.thesis.degreeLevel, committeeNames: [] });
+    expect(t.identity).toMatchObject({ degreeLevel: seed.thesis.degreeLevel, committeeNames: [], titleEditable: true });
     expect(t.identity.adviserName).toBe(seed.adviser.fullName);
     expect(t.stepper.map((x) => x.code)).toEqual(["proposal"]);
     expect(t.current).toMatchObject({ milestoneId: seed.milestone.id, code: "proposal", status: "DRAFT" });

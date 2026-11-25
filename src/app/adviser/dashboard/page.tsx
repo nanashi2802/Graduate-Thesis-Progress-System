@@ -87,6 +87,9 @@ export default async function Page() {
       </DashSection>
 
       <DashSection title="Advisees">
+        {d.adviseeLimitFlag ? (
+          <FlagBanner>You advise more active Students than the advisee limit. This is information only (BR-17).</FlagBanner>
+        ) : null}
         {flagged.length > 0 ? (
           <FlagBanner>
             {flagged.length === 1 ? "1 advisee is" : `${flagged.length} advisees are`} past the target date: {flagged.map((a) => a.studentName).join(", ")}. This is information only (BR-17).

@@ -5,8 +5,10 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { AccessDeniedError, type Actor } from "@/server/data/access";
 import type { Db } from "@/server/data/db";
 import { publishSlots, requestBooking } from "@/server/data/consultations";
+import { transitionMilestone } from "@/server/data/milestones";
 import { adviserDashboard, panelDashboard } from "@/server/data/queues";
 import * as s from "@/server/data/schema";
+import { makeUser } from "../../support/fixtures";
 import { seedMilestone1 } from "../../support/seed-m1";
 import { makeTestDb } from "../../support/test-db";
 
@@ -101,7 +103,7 @@ describe("adviserDashboard (A1)", () => {
   it("shows only the Adviser's own advisees, and refuses other roles (NFR-01)", async () => {
     const [other] = await db.insert(s.appUser).values({ email: "adv2@example.test", fullName: "Other Adviser", role: "adviser", authUserId: "adv2-auth" }).returning();
     await setStatus("READY");
-    expect(await adviserDashboard({ db, actor: actorOf(other!) })).toEqual({ queue: [], advisees: [] });
+    expect(await adviserDashboard({ db, actor: actorOf(other!) })).toEqual({ queue: [], advisees: [], adviseeLimitFlag: false });
     for (const u of [seed.student, seed.coordinator, seed.panel[0]!]) {
       await expect(adviserDashboard({ db, actor: actorOf(u) })).rejects.toBeInstanceOf(AccessDeniedError);
     }
@@ -178,5 +180,46 @@ describe("panelDashboard (P1)", () => {
     for (const u of [seed.student, seed.adviser, seed.coordinator]) {
       await expect(panelDashboard({ db, actor: actorOf(u) })).rejects.toBeInstanceOf(AccessDeniedError);
     }
+  });
+});
+
+describe("advisee-limit flag on A1 (FR-TRK-06, BR-17, D-27)", () => {
+  const setLimit = (n: number | null) => db.update(s.templateVersion).set({ adviseeLimit: n }).where(eq(s.templateVersion.id, seed.versions.proposal.id));
+  async function secondAdvisee() {
+    const other = await makeUser(db, "student");
+    await db.insert(s.thesisInstance).values({
+      studentUserId: other.id,
+      adviserUserId: seed.adviser.id,
+      degreeLevel: "masters",
+      programStartTerm: "2025-1",
+      writing1Course: "RSH_641",
+      createdByUserId: seed.coordinator.id,
+    });
+    return other;
+  }
+
+  it("shows no flag while the limit is Off", async () => {
+    await secondAdvisee();
+    expect((await adviserDashboard(adviser())).adviseeLimitFlag).toBe(false);
+  });
+
+  it("flags an Adviser over the limit, and counts only active Students", async () => {
+    await setLimit(1);
+    expect((await adviserDashboard(adviser())).adviseeLimitFlag).toBe(false);
+    const other = await secondAdvisee();
+    expect((await adviserDashboard(adviser())).adviseeLimitFlag).toBe(true);
+    await db.update(s.appUser).set({ isActive: false }).where(eq(s.appUser.id, other.id));
+    expect((await adviserDashboard(adviser())).adviseeLimitFlag).toBe(false);
+  });
+
+  it("never blocks an action (BR-17)", async () => {
+    await setLimit(1);
+    await secondAdvisee();
+    await readyCommit();
+    await setStatus("READY");
+    expect((await adviserDashboard(adviser())).adviseeLimitFlag).toBe(true);
+    await transitionMilestone(adviser(), seed.milestone.id, "ADVISER_ENDORSED");
+    const [m] = await db.select().from(s.milestoneInstance).where(eq(s.milestoneInstance.id, seed.milestone.id));
+    expect(m!.status).toBe("ADVISER_ENDORSED");
   });
 });

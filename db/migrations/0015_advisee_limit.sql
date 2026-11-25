@@ -1,0 +1,2 @@
+ALTER TABLE "app"."template_version" ADD COLUMN "advisee_limit" integer;--> statement-breakpoint
+ALTER TABLE "app"."template_version" ADD CONSTRAINT "template_version_advisee_limit" CHECK ("app"."template_version"."advisee_limit" is null or "app"."template_version"."advisee_limit" > 0);

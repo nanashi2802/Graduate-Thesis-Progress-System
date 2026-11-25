@@ -7,6 +7,7 @@ import { InputProblem } from "@/server/data/coordinator";
 import type { Db } from "@/server/data/db";
 import * as s from "@/server/data/schema";
 import {
+  adviseeLimit,
   latestVersionId,
   listTemplates,
   rubricProblem,
@@ -39,6 +40,7 @@ const input = (over: Partial<TemplateVersionInput> = {}): TemplateVersionInput =
   printedCopiesMasters: 5,
   printedCopiesDoctoral: 6,
   reviewerWaitDays: null,
+  adviseeLimit: null,
   items: [{ formCode: "TDW_07", label: "Endorsement", paperSigners: null, uploaderRole: "student", neededForDateConfirmation: true }],
   rubric: RUBRIC,
   changeNote: "Test change",
@@ -116,5 +118,32 @@ describe("setTargetDate (FR-TPL-05)", () => {
     await expect(setTargetDate({ db, actor: coordinator }, c.milestone.id, "15/03/2027")).rejects.toThrow(InputProblem);
     const student: Actor = { userId: c.student.id, role: "student", isActive: true };
     await expect(setTargetDate({ db, actor: student }, c.milestone.id, "2027-03-15")).rejects.toThrow(AccessDeniedError);
+  });
+});
+
+describe("advisee limit (FR-TRK-06, D-27)", () => {
+  it("ships Off by default", async () => {
+    expect(await adviseeLimit(db)).toBeNull();
+  });
+
+  it("saves a limit on the Proposal template, and Off again", async () => {
+    await saveTemplateVersion({ db, actor: coordinator }, "proposal", input({ adviseeLimit: 4 }));
+    expect(await adviseeLimit(db)).toBe(4);
+    await saveTemplateVersion({ db, actor: coordinator }, "proposal", input({ adviseeLimit: null }));
+    expect(await adviseeLimit(db)).toBeNull();
+  });
+
+  it("reads the limit from the Proposal template only", async () => {
+    await saveTemplateVersion({ db, actor: coordinator }, "final", input({ adviseeLimit: 2 }));
+    expect(await adviseeLimit(db)).toBeNull();
+  });
+
+  it("refuses a limit below 1 or not a whole number", async () => {
+    for (const limit of [0, -2, 1.5]) {
+      await expect(saveTemplateVersion({ db, actor: coordinator }, "proposal", input({ adviseeLimit: limit }))).rejects.toThrow(
+        "Set the advisee limit to Off or a number of 1 or more.",
+      );
+    }
+    expect(await adviseeLimit(db)).toBeNull();
   });
 });

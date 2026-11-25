@@ -85,6 +85,34 @@
       "when": 1795565067901,
       "tag": "0011_sign_in_attempt",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1795588991880,
+      "tag": "0012_document_verify_or_return",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1795589477561,
+      "tag": "0013_thread_page",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1795589715114,
+      "tag": "0014_advising_copies",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1795589954386,
+      "tag": "0015_advisee_limit",
+      "breakpoints": true
     }
   ]
 }

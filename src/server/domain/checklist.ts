@@ -20,9 +20,9 @@ export type ChecklistFacts = {
 
 export type ChecklistItem = { id: string; label: string; done: boolean };
 
-// AD-B-013: a submitted scan counts once it is locked. A Mismatch still counts (BR-12:
-// it never stops the defense). The appointment form, the NDAs and the OR must be verified.
-const SUBMITTED: readonly DocumentState[] = ["locked_as_submitted", "physical_received", "verified", "mismatch"];
+// AD-B-013: a submitted scan counts once it is locked. A returned scan does not count until
+// the corrected scan locks (D-28). The appointment form, the NDAs and the OR must be verified.
+const SUBMITTED: readonly DocumentState[] = ["locked_as_submitted", "verified"];
 const submitted = (s: DocumentState | undefined) => s !== undefined && SUBMITTED.includes(s);
 const verified = (s: DocumentState | undefined) => s === "verified";
 const allVerified = (list: readonly DocumentState[]) => list.length > 0 && list.every(verified);

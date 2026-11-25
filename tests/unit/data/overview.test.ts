@@ -61,7 +61,7 @@ describe("coordinatorOverview", () => {
   it("queues the scans that wait for review, with a count", async () => {
     await db.insert(s.documentRecord).values([
       { milestoneInstanceId: seed.milestone.id, formCode: "TDW_07", state: "locked_as_submitted" },
-      { milestoneInstanceId: seed.milestone.id, formCode: "OR", state: "physical_received" },
+      { milestoneInstanceId: seed.milestone.id, formCode: "OR", state: "locked_as_submitted" },
       { milestoneInstanceId: seed.milestone.id, formCode: "TDW_03", state: "verified" },
     ]);
     const o = await coordinatorOverview(coord());

@@ -6,9 +6,7 @@ import { reviewDocument } from "@/server/data/documents";
 import { runAction, text, type FormState } from "../_lib/action";
 
 const DONE = {
-  physical_received: "Marked as received.",
   verified: "Verified against the paper.",
-  mismatch: "Marked as a Mismatch. It does not stop the defense (BR-12).",
   returned: "Returned to the uploader with your reason.",
 } as const;
 
