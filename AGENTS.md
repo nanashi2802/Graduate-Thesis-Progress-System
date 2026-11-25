@@ -98,9 +98,9 @@ The human must also require the CI check and pull requests on `main` in the repo
 | DFD | `spec/DFD.md` | Entities, processes, stores, flows, trust boundaries. Derived. |
 | Build plan | `spec/BUILD_PLAN.md` | Phases, epics, tasks. Expand it one level at a time (§0). |
 | ERD | `spec/ERD.md` | Tables, enums, invariants (`INV-nn`), state machines, row access. Read it before you write a migration or a data-layer check. |
-| Functional Requirements | `docs/PUP_CpE_Thesis_Progress_System_Functional_Requirements_v1.1.md` | FR, BR, NFR and AS IDs. The spec. |
+| Functional Requirements | `docs/PUP_CpE_Thesis_Progress_System_Functional_Requirements_v1.2.md` | FR, BR, NFR and AS IDs. The spec. |
 | Operational Flow, DFD and Sitemap | `docs/PUP_CpE_Thesis_Progress_System_Operational_Flow_DFD_Sitemap_v3.1.md` | Process, data flows, 30 routes |
-| Unified Thesis Process | `docs/PUP_CpE_Thesis_Progress_System_Unified_Thesis_Process_v1.1.md` | Source of truth for the thesis process |
+| Unified Thesis Process | `docs/PUP_CpE_Thesis_Progress_System_Unified_Thesis_Process_v1.2.md` | Source of truth for the thesis process |
 | Design system | `DESIGN.md` (repository root) | Visual and interaction design: colors, type, layout, components, tokens. Draft v0.1. |
 | AGENTS.md reference | `docs/reference/AGENTS_md_Reference.md` | Read it before you change the structure of this file |
 
