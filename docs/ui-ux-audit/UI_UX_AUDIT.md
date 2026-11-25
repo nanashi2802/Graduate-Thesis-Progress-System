@@ -267,7 +267,7 @@ One row for each route in `spec/SITEMAP.md`, plus `/login/reset`. "Exists" means
 | UX-034 | C4 | Coordinator | Observed. C4 opens a Student chooser, then a list. The spec asks for a scan inbox with "No scans are waiting. …". | `design/screens/C4.md` | `ui-shots/audit/C4-desktop-light.png` | Low | 1.60 | `inbox`. R3, R7d. | Presentation |
 | UX-035 | A1, A3, S4 empty states | Adviser, Student | Observed. The empty-state texts differ from the specs (for example A1: "Nothing waits for you." against "No requests are waiting. Requests appear here when an advisee marks a version Ready."). | `DESIGN.md` §8.11, the screen specs | Screenshots of A1, A3, S4 | Low | 1.00 | Use the spec text. R7. | Presentation |
 | UX-036 | Tables on a phone | All | Observed. Tables keep their columns at 390 px. C6 cuts the table. | `DESIGN.md` §5.6: tables become stacked rows on a phone | `ui-shots/audit/C6-phone-light.png` | Low | 1.20 | `queue-table` stacked mode. R3. Phones are checked last. | Presentation |
-| UX-037 | Dev server | — | Observed. `pnpm dev` (the owner's server on port 3000) returned HTTP 500 for S2, A2, P2 and all four SV routes. The log says "Jest worker encountered 2 child process exceptions" and "write EPIPE". The production build renders S2, A2 and SV. Hypothesis: the dev render worker crashes on these routes, or the long-running dev server was in a bad state. Not checked after a restart. | `/lab` previews run on the dev server. R5 previews need these routes. | `.next/dev/logs/next-development.log`, `ui-shots/audit-dev-smoke/` | Low | 1.35 | Restart the dev server and check again before R5. If it still fails, diagnose it in R5. | Presentation (tooling) |
+| UX-037 | Dev server | — | Observed. `pnpm dev` (the owner's server on port 3000) returned HTTP 500 for S2, A2, P2 and all four SV routes. The log says "Jest worker encountered 2 child process exceptions" and "write EPIPE". The production build renders S2, A2 and SV. Hypothesis: the dev render worker crashes on these routes, or the long-running dev server was in a bad state. Not checked after a restart. **R1 (25 Nov 2026):** the same crash hit the new dynamic route `/lab/patterns/[name]`, while the static `/lab` routes worked. Every route that failed has a dynamic segment. Stronger hypothesis: the dev worker for dynamic routes crashes. **Resolved 25 Nov 2026:** the cause was a stale Turbopack cache in `.next/dev` (814 MB). A new dev server still served the old `globals.css` until the cache was deleted. After `rm -rf .next/dev` and a restart, S2, A2, P2, S5, C6 and the 4 SV routes returned 200 in dev. Fix for the future: stop `pnpm dev`, delete `.next/dev`, start it again. | `/lab` previews run on the dev server. R5 previews need these routes. | `.next/dev/logs/next-development.log`, `ui-shots/audit-dev-smoke/` | Low (resolved) | 1.35 | Restart the dev server and check again before R5. If it still fails, diagnose it in R5. | Presentation (tooling) |
 | UX-039 | Slot lists | Student, Adviser | Observed. A4 lists a confirmed slot as "In person · Confirmed" with no Student name. S4 shows "Confirmed · In person · Confirmed". | G5: the row must say whose slot it is. Repeated words. | `ui-shots/audit/flow-booking-3-adviser-after-confirm.png`, `S4-desktop-light.png` | Low | 1.20 | `slot-list`. R6. | Presentation |
 
 | UX-040 | `pdf-viewer` pager | Student, Adviser, Panel Member | Observed (Round H check). When the PDF does not load, the pager still shows "Page 1 of 0" with its buttons. | The pager suggests a document that is not there. | `ui-shots/round-h/P2-desktop-relay1.png` | Low | 0.95 | Hide the pager until the page count is known. R5 `pdf-viewer`. | Presentation |
@@ -310,6 +310,18 @@ Report each one here. Do not fix it on your own.
 | UX-X-05 | `DESIGN_DECISIONS.md` §2.1 and `DESIGN.md` §9: the UI says Endorse and Return, never "approve" | "Approve data gathering", "Approve the final manuscript (Gate 2)", and the verdict names "Approved", "Approved with Revisions" | Open (owner): keep the UTP names for verdicts and Gate 2, or change the labels |
 | UX-X-06 | `IMPLEMENTATION_PLAN.md` Task 1.1: seed with `pnpm db:seed-dev` | The demo sign-ins now point to flow users (`tests/demo/seed-demo.test.ts`). `seed-dev.mjs` upserts `app_user` by email, and the old seeded emails are renamed `retired.*`. Hypothesis: running it inserts new, empty app accounts for the same sign-ins and breaks the demo link. Not run. | Open (owner): correct Task 1.1 to name the demo seed, or keep `db:seed-dev` |
 | UX-X-07 | `design/screens/S3.md` first day: every row shows "Download form" | S3 has upload buttons only | Open (owner): UX-032 is a new control (Behavior) |
+| UX-X-08 | Brand guide, Brand Colors: Golden Yellow `#F4B41A`, exact values | `DESIGN.md` D-01 (owner, 24 Nov 2026) and `tokens.css`: PUP Gold `#F4C430` | Decided: UX-D-11 (25 Nov 2026) |
+| UX-X-09 | Brand guide, Supporting Colors: maroon ramp 50 `#F7F0F0` … 500 `#800000`, 600 `#720406`, 700 `#5C0B0F` (Deep Maroon, hover), 800 `#3C070A`; gold ramp 50 to 800 | `tokens.css`: own ramp, `#800000` is step 600, hover `#6B0000` | Decided: UX-D-11 (25 Nov 2026) |
+| UX-X-10 | Brand guide, Supporting Colors: cool neutrals. Ink `#0F172A`, Slate `#475569`, Line `#E2E8F0`, Canvas `#F8FAFC`, White as the main background | `DESIGN.md` D-02 (owner, 24 Nov 2026): warm neutrals (`#1E1617` ink, `#FAF8F8` ground). The dark proposal is warm too. | Decided: UX-D-11 (25 Nov 2026) |
+| UX-X-11 | Brand guide, Supporting Colors: Success `#15803D`, Error `#B91C1C` (blocked, re-defense). Color Combinations: Deep Gold on white for "pending labels". | `tokens.css`: done `#1B6B45`, returned `#B3261E`, pending orange `#8F4A06` (`DESIGN.md` §3.3: "pending is orange, gold belongs to achieved") | Decided: UX-D-11 (25 Nov 2026) |
+| UX-X-12 | Brand guide, Brand Idea and principle 03: Golden Yellow marks progress and the next thing to do, the current step, milestones. Graphic Elements: the stepper uses milestone dots, the last dot gold. The sample app: completed steps maroon, current step gold. | UX-D-08 (owner, today): stepper all maroon. `DESIGN.md` G8: maroon is action, gold is earned. | Decided: UX-D-11 (25 Nov 2026) |
+| UX-X-13 | Brand guide, Typography: Poppins (titles, headings, large figures), Inter (text, tables, forms, interface), JetBrains Mono (revision numbers, dates, IDs, counters) | UX-D-09 (owner, today): Source Serif 4, Source Sans 3, Source Code Pro. `DESIGN.md` D-02 had replaced Inter with IBM Plex Sans. | Decided: UX-D-11 (25 Nov 2026) |
+| UX-X-14 | Brand guide, Font Sizes for Web and Mobile: 16 px base, ratio 1.25, body never below 16 px, captions and table metadata never below 12.8 px, line height 1.5 body and 1.2 headings, rem units | `DESIGN.md` §4.1: `ui` 14 px, `caption` 12 px, `mono` 13 px, title 28, display 36 | Decided: UX-D-11 (25 Nov 2026) |
+| UX-X-15 | Brand guide, Icons: 1.75 px stroke, outline only, no fills, no two-tone; maroon on white, ink in dense tables, gold for the milestone icon | `DESIGN.md` §6.2 and the R1 glyphs: 1.5 px stroke with a 16% tone fill (two-tone) | Decided: UX-D-11 (25 Nov 2026) |
+| UX-X-16 | Brand guide, Shapes and Buttons: radius 6 px controls, 8 px cards, 12 px panels; focus is a maroon border with a soft maroon ring; one gold accent button for a single high-value action | `DESIGN.md` §6.1: 4 px controls, 6 px cards, 2 px stamps; 2 px maroon outline with a 2 px offset; no gold button | Decided: UX-D-11 (25 Nov 2026) |
+| UX-X-17 | Brand guide, Logo and the hybrid strategy (UX-D-10): ThesIsko symbol and wordmark ("Thes" Poppins Medium, "Isko" Poppins Bold, descriptor "Graduate Thesis Progress") | `DESIGN.md` F1: no image symbol anywhere (app, emails, favicon); the brand is the text wordmark "PUP CpE Thesis Progress". `DESIGN.md` §11: emails have no logo. | Decided: UX-D-11 (25 Nov 2026) |
+| UX-X-18 | Brand guide, Mascot (Novie): a golden star for onboarding, empty states, milestones and tips | `DESIGN.md` F1: no star shape; §8.11: no illustrations in empty states | Decided: UX-D-11 (25 Nov 2026) |
+| UX-X-19 | The reconciliation says to reference the exact brand-guide file and section | The brand guide and the reconciliation are in the owner's Downloads folder, not in the repository. No logo or mascot artwork files (SVG) exist; the guide holds only raster sample sheets. | Decided: UX-D-11 (25 Nov 2026) |
 
 ---
 
@@ -339,3 +351,40 @@ All 38 findings, sorted by score. Critical findings come first at any score.
 | 18 | UX-022 | Medium | 2.00 | Native date inputs, no BR-09 limit in the picker | R6 |
 | 19 | UX-018 | Medium | 1.15 | "Evaluator" on C6 (AGENTS.md §8, Medium by rule) | R7d |
 | 20–38 | UX-014, UX-021, UX-020, UX-032, UX-034, UX-033, UX-004, UX-006, UX-031, UX-017, UX-037, UX-036, UX-039, UX-005, UX-007, UX-019, UX-024, UX-035, UX-015 | Low | 1.90 to 0.85 | See §2 to §5 | R1 to R7 |
+
+---
+
+## 9. Brand guide compliance (R1, 25 Nov 2026)
+
+Source: `ThesIsko-Design-Principles-Brand-Guidelines.docx` v1.0 (section names below), with `THESISKO_BRAND_GUIDELINE_RECONCILIATION.md` (UX-D-10). This section records findings only. The brand rules stay in the brand guide.
+
+### 9.1 Already satisfied
+
+| Brand guide section | Requirement | Where |
+| :---- | :---- | :---- |
+| Brand Colors | Maroon `#800000` is the primary color: primary buttons, headings, active navigation | `tokens.css` `--primary`, `--ring` |
+| Color Combinations | White on maroon and maroon on white (10.95:1) | Primary button, links |
+| Shapes and Buttons | One maroon primary button for each view; secondary actions outlined | `BlockedAction`, `DESIGN.md` G1 |
+| Shapes and Buttons | Status pills: light tint with dark text from the same family, always with a word | `status` pattern, contrast test |
+| Shapes and Buttons | Never remove the focus style | Round H, Task H.2 (UX-001) |
+| Principle 04 | WCAG AA text contrast; color never the only signal | `contrast.test.ts` (light and dark), glyph and label on each pill |
+| Spacing and Layout | 8-point system with 4 and 12 px allowed; 24 px card padding; 240 px sidebar | `DESIGN.md` §5.5, Docket, `--sidebar-w` |
+| Icons | 24 px grid, round caps and joins, outline icons, label with each icon in navigation | `glyphs` pattern |
+| Graphic Elements | No gradients in curves; the product stepper uses dots on a straight line | `DESIGN.md` §6.1, `stepper` pattern |
+| Logo Animation | Not looped, no sound; not used in the working app | No animation in R1 (D-10) |
+| Reconciliation §2 | Light and dark themes, system default, manual toggle in the shared header | UX-D-01, `theme-toggle` |
+
+### 9.2 Not yet applied, or applied differently
+
+See UX-X-08 to UX-X-19 for each conflict. Summary: palette values (gold, ramps, neutrals, status colors), the gold role and the stepper, the typography families and the screen type scale, icon stroke and fill, radii and focus ring, the logo and the wordmark text, the mascot.
+
+### 9.3 Product refinements (the brand applied to the app, not a conflict)
+
+| Item | Refinement | Reason |
+| :---- | :---- | :---- |
+| Input edge | Inputs keep a darker edge than the brand Line color | Line `#E2E8F0` on white is 1.23:1; WCAG 1.4.11 needs 3:1 for an input edge |
+| Dark theme | The brand defines only "White on Ink" and "Golden Yellow on Ink" for dark surfaces; the retrofit defines a full dark token set (UX-D-01) | The brand guide has no dark theme; build the dark set from the brand colors |
+| Status tones | `active` (blue), `locked` and `neutral` have no brand equivalent and stay product tones | They carry workflow meaning (F5) |
+| Color proportion | 60/30/10 is a reference, not a per-screen ratio | Reconciliation §2 |
+| Decoration | Page curve, book pattern, mascot and logo animation only on public brand surfaces (LOGIN) and meaningful moments, never on working surfaces | Reconciliation §2, `DESIGN.md` G4 |
+| Landing page | The reconciliation names a landing page. `spec/SITEMAP.md` has none (`/` is a Phase 0 placeholder). Screens are locked, so the full logo goes on LOGIN only until the owner adds a landing page. | Locked routes |

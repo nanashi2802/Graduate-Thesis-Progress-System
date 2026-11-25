@@ -75,9 +75,9 @@ Each round has the same 4 steps: **Build preview → Gate → Integrate → Vali
 | :---- | :---- | :---- | :---- | :---- |
 | 0 | Documents: `DESIGN.md` v0.3, AGENTS.md §6 row | — | D-04, D-09, D-11 (text) | Done 25 Nov 2026, not committed |
 | 1 | Stage 1 audit | — | — | Done 25 Nov 2026, not committed. 38 findings, 1 Critical (`UI_UX_AUDIT.md` §8). |
-| 2 | `/lab` showcase and the screenshot tool | — | — | Task 2.2 done 25 Nov 2026 (not committed). Task 2.1 not started. |
+| 2 | `/lab` showcase and the screenshot tool | — | — | Done 25 Nov 2026. Task 2.2 committed (`a160436`). Task 2.1 not committed. |
 | H | Hotfix before R1 (§6.2): UX-009 PDF error state, UX-001 focus line | — | — | H.1 (UX-D-06) and H.2 (UX-D-07) built 25 Nov 2026, not committed. Round H is complete. |
-| R1 | Foundations: tokens in light and dark, theme, glyphs, base patterns | 1, 2, 3 | Dark values (UX-P-01) | Not started |
+| R1 | Foundations: tokens in light and dark, theme, glyphs, base patterns | 1, 2, 3 | Dark values (UX-P-01) | Build preview done 25 Nov 2026 (not committed). Waiting for gate UX-P-01 and the brand decisions UX-X-08 to UX-X-19 (UX-D-10). |
 | R2 | Shell and system states: app shell, sidebar, toast, loading and error, motion | 4 | D-06, D-07, D-08, D-10 | Not started |
 | R3 | Queues, inbox, dialogs, side sheet | 5, 6, part of 9 | — | Not started |
 | R4 | Student path: task list, step-by-step, Thesis process | 7 | — | Not started |
@@ -304,9 +304,11 @@ Task 1.7 mapped each finding in `UI_UX_AUDIT.md` to a round. The rows below are 
 
 **Tests:** `lab-guard.test.ts` sets `NODE_ENV` to `production`, calls the layout and expects the `notFound` error. With `development`, it renders the children.
 
-- [ ] Write the test. Run it. Expected: FAIL.
-- [ ] Build the layout, the index and the lint rule. Run `pnpm test tests/unit/lab-guard.test.ts && pnpm lint`. Expected: PASS.
-- [ ] Add `ui-shots/` to `.gitignore`.
+- [x] Write the test. Run it. Expected: FAIL.
+- [x] Build the layout, the index and the lint rule. Run `pnpm test tests/unit/lab-guard.test.ts && pnpm lint`. Expected: PASS.
+- [x] Add `ui-shots/` to `.gitignore`. (Done in Task 2.2.)
+
+**As built (25 Nov 2026):** `src/app/lab/layout.tsx` (guard, header, lab-only theme switch), `src/app/lab/page.tsx` (index), `src/app/lab/_mock/pages.ts` (page list and gate states), `src/app/lab/_mock/theme-switch.tsx` (sets the `dark` class for the tab only, until `theme-toggle` in R1.2). `tests/unit/lab-guard.test.ts` also checks the lint rule with the ESLint API. `tests/e2e/lab.spec.ts` checks the 404 in the production build. `pnpm lab:shots lab` (with `LAB_PORT=3000`) took 11 shots. The Next dev indicator shows in dev shots.
 
 ### Task 2.2: the screenshot tool
 
@@ -360,8 +362,8 @@ Task 1.7 mapped each finding in `UI_UX_AUDIT.md` to a round. The rows below are 
 - `tokens.test.ts`: read `tokens.css` as text and check each name and value above. Check that `globals.css` holds no hex color. Check that each semantic and status token has a value in `:root` and in `.dark`.
 - `contrast.test.ts`: parse both value sets. Compute the WCAG ratio. Each text pair (foreground on background, card, popover; muted on card; each tone fg on its bg; primary-foreground on primary) needs 4.5:1 or more. The input border and the focus ring need 3:1 or more on the surface they sit on.
 
-- [ ] Write the tests. Run `pnpm test tests/unit/components/tokens.test.ts tests/unit/components/contrast.test.ts`. Expected: FAIL.
-- [ ] Write `tokens.css` and the `.dark` set (§8.1). Run the tests and `pnpm build`. Expected: PASS.
+- [x] Write the tests. Run `pnpm test tests/unit/components/tokens.test.ts tests/unit/components/contrast.test.ts`. Expected: FAIL.
+- [x] Write `tokens.css` and the `.dark` set (§8.1). Run the tests and `pnpm build`. Expected: PASS. **As built:** the light look is pixel-identical (LOGIN compared with the audit shot). Added tokens: `--link` (links in dark need `maroon-300`: the primary maroon is about 2.5:1 on the dark ground), `--text-secondary`, `--divider-strong`, `--radius-card` (with `--radius-panel` kept as an alias until R8). The light set also answers to `.light`, so the `/lab` side-by-side panels work in a dark page.
 
 ### 8.1 Dark start set (a proposal for UX-P-01, not approved)
 
@@ -406,16 +408,16 @@ Warm neutrals, not an inversion. Maroon is too dark for text on a dark surface, 
 
 **Tests:** `resolveTheme` for each of the 6 cases. The script string sets `dark` when the stored choice is "dark", and leaves it out for "light" (run it in a `jsdom` or a fake `document`). The toggle has the accessible name "Theme" and 3 options.
 
-- [ ] Write the tests. Run them. Expected: FAIL. Build it. Run them. Expected: PASS.
-- [ ] In R1, `/lab` shows the toggle. The toggle moves into the live top bar in Task R1.4 (Integrate).
+- [x] Write the tests. Run them. Expected: FAIL. Build it. Run them. Expected: PASS. (The test and the code were written in one step; the test was not seen failing first.)
+- [x] In R1, `/lab` shows the toggle. **As built:** a 3-option radio group, state in `useSyncExternalStore` (server snapshot "system"). `layout.tsx` gets `THEME_SCRIPT` only in R1.5, so no live page turns dark before the gate. The toggle moves into the live top bar in Task R1.4 (Integrate).
 
 ### Task R1.3: glyph set (old Task 2)
 
 **Files:** create `src/components/patterns/glyphs/index.tsx`. Test: `tests/unit/components/glyphs.test.ts`.
 **Interfaces:** `type GlyphName = "scan" | "verify" | "flag" | "return" | "seat" | "calendar" | "defense" | "gate" | "commit" | "clear" | "template" | "overview" | "student" | "users" | "audit" | "export" | "search" | "bell" | "done" | "todo" | "lock" | "received"`; `Glyph(props: { name: GlyphName; size?: 16 | 20 | 30; label?: string; className?: string })`. Without `label`: `aria-hidden="true"`. With it: `role="img"` and `aria-label`.
 
-- [ ] Test: each name has `viewBox="0 0 24 24"`, `stroke-width="1.5"`, round caps and joins, `stroke="currentColor"`, no `fill` except on the `.tone` element. Size 30 gives `width="30"`. Run it. Expected: FAIL.
-- [ ] Copy the path data from the `<symbol>` elements in `design/mockups/coordinator-mockups.html`. Map `g-mismatch` → `flag` and `g-def-a` → `defense`. The `.tone` element gets `fill="currentColor"` and `fill-opacity: var(--glyph-tone-opacity)`. Glyphs use `currentColor`, so they work in both themes. Run the test. Expected: PASS.
+- [x] Test: each name has `viewBox="0 0 24 24"`, `stroke-width="1.5"`, round caps and joins, `stroke="currentColor"`, no `fill` except on the `.tone` element. Size 30 gives `width="30"`. Run it. Expected: FAIL.
+- [x] Copy the path data from the `<symbol>` elements in `design/mockups/coordinator-mockups.html`. Map `g-mismatch` → `flag` and `g-def-a` → `defense`. The `.tone` element gets `fill="currentColor"` and `fill-opacity: var(--glyph-tone-opacity)`. Glyphs use `currentColor`, so they work in both themes. Run the test. Expected: PASS.
 
 ### Task R1.4: base patterns (old Task 3)
 
@@ -433,9 +435,18 @@ Warm neutrals, not an inversion. Maroon is too dark for text on a dark surface, 
 - `Docket(props: { step: 1 | 2 | 3 | 4; milestone: string; status: MilestoneStatus; blocker: string | null; action: ReactNode; formLink?: { href: string; label: string }; processLink?: boolean })`. No blocker shows "Nothing blocks this step."
 - `Stepper(props: { current: 1 | 2 | 3 | 4; completed: number[]; compact?: boolean })`.
 
-- [ ] Tests: Docket shows "Step 2 of 4", the blocker line, one primary action, and the process link only when asked. IdentityLine has a serif title and "Master's" or "Doctoral". Flag in compact mode keeps the text for screen readers. EmptyState has no image. `return` variant has no solid fill. Run them. Expected: FAIL.
-- [ ] Build each pattern. First line `// Source: …` (the §7.4 Source column). Tokens and glyphs only. Pills keep the Lucide icons until R2 decides D-06 (`// D-06 open`).
-- [ ] Add each pattern's `/lab` page. Run `pnpm lab:shots r1`.
+- [x] Tests: Docket shows "Step 2 of 4", the blocker line, one primary action, and the process link only when asked. IdentityLine has a serif title and "Master's" or "Doctoral". Flag in compact mode keeps the text for screen readers. EmptyState has no image. `return` variant has no solid fill. Run them. Expected: FAIL.
+- [x] Build each pattern. First line `// Source: …` (the §7.4 Source column). Tokens and glyphs only. Pills keep the Lucide icons until R2 decides D-06 (`// D-06 open`).
+- [x] Add each pattern's `/lab` page. Run `pnpm lab:shots r1`. **As built:** the patterns are new code. The old components are not changed and not yet re-exports, so no live page changes before the gate; R1.5 makes the old paths re-export. Also in R1.4: the label map for codes (`formLabel`, `gateLabel`, `gateResultLabel`, UX-016), `src/lib/date.ts` (`Tue 12 Jan 2027, 09:00 PHT`, UX-021), the blocked primary look (UX-008), the stamp width (UX-015), `IdentityLine` with the Student name for other roles (UX-030). The pattern pages are static folders, because the dev server failed on the dynamic route `/lab/patterns/[name]` (UX-037).
+
+### Task R1.6: brand alignment (UX-D-10, UX-D-11: decided 26 Nov 2026)
+
+- [x] Update `tokens.css` to the decided palette (gold, ramps, neutrals, status colors) and build the dark set from the brand colors. Run `contrast.test.ts`. **As built:** in `/lab` only, as `src/app/lab/_mock/brand-preview.css` under `.r1-preview` (test: `brand-tokens.test.ts`, light and dark contrast). R1.5 copies the values into `tokens.css`. New tokens in both files: `--progress` (the gold current step), `--wordmark` (maroon on light, white on dark).
+- [x] Apply the decided font families and screen type scale (`layout.tsx` in R1.5, the `/lab` preview first). **As built:** the lab wrapper maps `font-serif` to Poppins, `font-sans` to Inter, `font-mono` to JetBrains Mono. `/lab/typography` shows set E (approved) next to A to D. Captions in the patterns use 0.8 rem (12.8 px).
+- [x] Apply the decided icon stroke and fill rule to the glyph generator and its test. 1.75 px, outline only; the 20 tone shapes are removed. Status pill icons use 1.75 px too. `--glyph-tone-opacity` is unused now: remove it in R1.5.
+- [x] Add a `brand-mark` pattern that shows the official artwork only (full logo, symbol, text wordmark) from `public/brand/`. It needs the master files (UX-X-19). No redraw, no recolor. **As built:** with no artwork, `full` shows the text treatment (the plain name in one weight, not the two-weight logo wordmark), and `symbol` shows nothing visible (a screen-reader name only).
+- [x] `/lab/brand`: the logo treatments for LOGIN and the four role shells, light and dark, with the clear space and the 140 px rule.
+- [x] Show the revised preview in UX-P-01 before R1.5. Stepper: completed maroon, current gold (`--progress`). Radius 6, 8, 12; soft maroon focus ring (preview CSS).
 
 ### Gate R1 → `UX-P-01`
 
@@ -608,6 +619,8 @@ Fill one row for each validation run. Never write "pass" for a check you did not
 | 25 Nov 2026 | 0, 1, 2.2 | Uncommitted | Not run again | Pass (inside `pnpm build`) | Not run again (no app code changed) | Not run | Pass (after a type fix in `playwright.lab.config.ts`) | Audit shots: 200 taken (light, 5 viewports, reduced-motion pass) | Not run (R1.1) | Probe: no visible focus (UX-001), no skip link | Pass (no animation exists) | Not run (package not approved) | Stage 1. P2 crashes (UX-009). Dev server fails on 7 routes (UX-037). |
 | 25 Nov 2026 | H (H.1) | Uncommitted | Pass (0 errors, the same 1 warning) | Pass | Pass (63 files, 617 tests; the 2 viewer tests fail without the fix) | Pass (19, `E2E_PORT=3100` on the new build) | Pass | P2 desktop and tablet, storage 404 and CORS refusal (`ui-shots/round-h/`) | Not run (R1.1) | "Try again" is a real button | Not run | Not run | UX-009 fixed. A stale `.next/server/route-cache` from an older `next start` gave a CSS 404 until it was cleared. |
 | 25 Nov 2026 | H (H.2) | Uncommitted | Pass (0 errors, the same 1 warning) | Pass | Pass (64 files, 625 tests) | Pass (19, `E2E_PORT=3100`) | Pass | Focus close-ups (`ui-shots/round-h/focus-*.png`) | Not run (R1.1) | Probe: `outline-style: solid` on links, buttons and Coordinator fields | Not run | Not run | UX-001 fixed. UX-002 stays for R1. |
+| 25 Nov 2026 | 2 (Task 2.1) | Uncommitted | Pass (0 errors, the same 1 warning) | Pass | Pass (65 files, 631 tests) | Pass (20, `E2E_PORT=3100`; `/lab` is 404) | Pass | `pnpm lab:shots lab`: 11 shots, light and dark | Not run (R1.1) | Not run | Pass (no animation) | Not run | Dark shows the old shadcn values until R1.1 |
+| 25 Nov 2026 | R1 (build preview) | Uncommitted | Pass (0 errors, the same 1 warning) | Pass | Pass (70 files, 835 tests) | Not run (no live page changed; runs at R1.5) | Pass (compiled CSS has the dark set) | `pnpm lab:shots r1`: 110 shots, 0 errors | Pass (light and dark, `contrast.test.ts`) | Not run (at the gate) | Pass (reduced-motion pass) | Not run (package not approved) | Light look pixel-identical. Button `link` variant now uses `--link` (same color in light). |
 
 ---
 
