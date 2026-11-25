@@ -19,6 +19,25 @@ const eslintConfig = defineConfig([
     // Agent worktrees (AGENTS.md §13). Each one is a full checkout with its own build output.
     ".claude/**",
   ]),
+  // The /lab showcase uses mock data only (IMPLEMENTATION_PLAN.md Task 2.1, UX-D-05).
+  // Type-only imports stay allowed, so mock data can use the real view-model types.
+  {
+    files: ["src/app/lab/**"],
+    rules: {
+      "@typescript-eslint/no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/server/*", "@/server/**", "@/app/_lib/*", "@/app/_lib/**", "**/actions", "**/*-actions"],
+              allowTypeImports: true,
+              message: "/lab uses mock data only. Import types only from the server, data and action modules.",
+            },
+          ],
+        },
+      ],
+    },
+  },
 ]);
 
 export default eslintConfig;

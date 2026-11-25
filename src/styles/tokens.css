@@ -1,0 +1,161 @@
+/*
+ * Design tokens (DESIGN.md §7.1 layer 1, §12; Task R1.1 of docs/ui-ux-audit/IMPLEMENTATION_PLAN.md).
+ * Only this file holds raw colors and sizes. globals.css imports it.
+ *
+ * Themes (UX-D-01): the primitive ramps do not change between themes. The semantic tokens (§12.2) and
+ * the status tokens (§12.3) have a light set (:root) and a dark set (.dark). A component never uses
+ * `dark:` classes for colors: it uses these tokens, and the tokens change.
+ *
+ * The dark values are the start set of IMPLEMENTATION_PLAN.md §8.1. They are a proposal for preview
+ * round UX-P-01 and are not approved yet. tests/unit/components/contrast.test.ts checks both sets.
+ */
+
+/* §12.1 Primitive tokens (Tailwind theme). */
+@theme {
+  --color-maroon-50: #FBF3F3;  --color-maroon-100: #F5E1E1;
+  --color-maroon-200: #E9BFBF; --color-maroon-300: #D69393;
+  --color-maroon-400: #BA5F5F; --color-maroon-500: #9E2B2B;
+  --color-maroon-600: #800000; --color-maroon-700: #6B0000;
+  --color-maroon-800: #560000; --color-maroon-900: #3D0505;
+
+  --color-gold-50: #FFFBEB;  --color-gold-100: #FFF6D6;
+  --color-gold-200: #FCE7A1; --color-gold-300: #F8D35E;
+  --color-gold-400: #F4C430; --color-gold-500: #D9A600;
+  --color-gold-600: #A87F00; --color-gold-700: #7A5C00;
+
+  --color-neutral-0: #FFFFFF;   --color-neutral-50: #FAF8F8;
+  --color-neutral-100: #F4F1F1; --color-neutral-200: #E7E1E1;
+  --color-neutral-300: #D3CBCB; --color-neutral-400: #A59A9C;
+  --color-neutral-500: #8C8082; --color-neutral-600: #6E6264;
+  --color-neutral-700: #4A3F41; --color-neutral-800: #2E2426;
+  --color-neutral-900: #1E1617;
+
+  --radius-stamp: 2px; --radius-control: 4px; --radius-card: 6px;
+  /* Old name, kept until R8 because components still use `rounded-panel`. */
+  --radius-panel: 6px;
+  --shadow-popover: 0 8px 24px rgb(30 22 23 / 0.12);
+}
+
+/* §12.3 Status tokens as Tailwind colors (text-tone-done-fg, bg-tone-done-bg …). They follow the theme. */
+@theme inline {
+  --color-tone-neutral-fg: var(--tone-neutral-fg);   --color-tone-neutral-bg: var(--tone-neutral-bg);   --color-tone-neutral-line: var(--tone-neutral-line);
+  --color-tone-active-fg: var(--tone-active-fg);     --color-tone-active-bg: var(--tone-active-bg);     --color-tone-active-line: var(--tone-active-line);
+  --color-tone-pending-fg: var(--tone-pending-fg);   --color-tone-pending-bg: var(--tone-pending-bg);   --color-tone-pending-line: var(--tone-pending-line);
+  --color-tone-done-fg: var(--tone-done-fg);         --color-tone-done-bg: var(--tone-done-bg);         --color-tone-done-line: var(--tone-done-line);
+  --color-tone-returned-fg: var(--tone-returned-fg); --color-tone-returned-bg: var(--tone-returned-bg); --color-tone-returned-line: var(--tone-returned-line);
+  --color-tone-locked-fg: var(--tone-locked-fg);     --color-tone-locked-bg: var(--tone-locked-bg);     --color-tone-locked-line: var(--tone-locked-line);
+  --color-tone-achieved-fg: var(--tone-achieved-fg); --color-tone-achieved-bg: var(--tone-achieved-bg); --color-tone-achieved-line: var(--tone-achieved-line);
+  --color-link: var(--link);
+  --color-text-secondary: var(--text-secondary);
+  --color-divider-strong: var(--divider-strong);
+  --color-progress: var(--progress);
+  --color-wordmark: var(--wordmark);
+}
+
+/* Light theme: §12.2 semantic tokens, §12.3 status tokens, §12.4 pattern tokens.
+   `.light` forces the light set inside a dark page (the /lab side-by-side panels). */
+:root, .light {
+  --background: var(--color-neutral-50);
+  --foreground: var(--color-neutral-900);
+  --card: var(--color-neutral-0);
+  --card-foreground: var(--color-neutral-900);
+  --popover: var(--color-neutral-0);
+  --popover-foreground: var(--color-neutral-900);
+  --primary: var(--color-maroon-600);
+  --primary-foreground: var(--color-neutral-0);
+  --secondary: var(--color-neutral-100);
+  --secondary-foreground: var(--color-neutral-900);
+  --muted: var(--color-neutral-100);
+  --muted-foreground: var(--color-neutral-600);
+  --accent: var(--color-maroon-50);
+  --accent-foreground: var(--color-maroon-700);
+  --destructive: #B3261E;
+  --border: var(--color-neutral-200);
+  --input: var(--color-neutral-500);
+  --ring: var(--color-maroon-600);
+  --link: var(--color-maroon-600);
+  --text-secondary: var(--color-neutral-700);
+  --divider-strong: var(--color-neutral-300);
+  /* The current step of the stepper (brand guide: gold marks the current step, UX-D-11). */
+  --progress: var(--color-gold-400);
+  /* The text treatment of the brand mark (brand guide: maroon on light, white on dark). */
+  --wordmark: var(--color-maroon-600);
+  --radius: 4px;
+  --sidebar: var(--color-neutral-100);
+  --sidebar-foreground: var(--color-neutral-900);
+  --sidebar-primary: var(--color-maroon-600);
+  --sidebar-primary-foreground: var(--color-neutral-0);
+  --sidebar-accent: var(--color-maroon-50);
+  --sidebar-accent-foreground: var(--color-maroon-700);
+  --sidebar-border: var(--color-neutral-200);
+  --sidebar-ring: var(--color-maroon-600);
+  --chart-1: var(--color-maroon-600);
+  --chart-2: #1F4E8C;
+  --chart-3: #1B6B45;
+  --chart-4: #8F4A06;
+  --chart-5: var(--color-neutral-600);
+
+  --tone-neutral-fg: #5B5052;  --tone-neutral-bg: #F4F1F1;  --tone-neutral-line: #E7E1E1;
+  --tone-active-fg: #1F4E8C;   --tone-active-bg: #E7EEF8;   --tone-active-line: #BCD0EC;
+  --tone-pending-fg: #8F4A06;  --tone-pending-bg: #FCEEDD;  --tone-pending-line: #F1CFA6;
+  --tone-done-fg: #1B6B45;     --tone-done-bg: #E5F3EA;     --tone-done-line: #B7DDC5;
+  --tone-returned-fg: #B3261E; --tone-returned-bg: #FCE9E7; --tone-returned-line: #F2BDB8;
+  --tone-locked-fg: #4A3F41;   --tone-locked-bg: #EFEBEB;   --tone-locked-line: #D3CBCB;
+  --tone-achieved-fg: #3D0505; --tone-achieved-bg: #F4C430; --tone-achieved-line: #D9A600;
+
+  --row-h-comfortable: 56px;  --row-h-compact: 48px;
+  --cell-pad-x: 16px;
+  --row-action-w: 132px;      --row-action-h: 32px;
+  --kpi-num-size: 36px;       --kpi-glyph-size: 30px;
+  --glyph-stroke: 1.5;        --glyph-tone-opacity: 0.16;
+  --sidebar-w: 240px;         --topbar-h: 56px;
+  --target-tablet: 44px;      --target-defense: 48px;
+}
+
+/* Dark theme (UX-D-01): warm neutrals, not an inversion. Start set for UX-P-01, not approved. */
+.dark {
+  --background: #161112;
+  --foreground: #F4EFEF;
+  --card: #1E1819;
+  --card-foreground: #F4EFEF;
+  --popover: #262021;
+  --popover-foreground: #F4EFEF;
+  --primary: #9E2B2B;
+  --primary-foreground: #FFFFFF;
+  --secondary: #120E0F;
+  --secondary-foreground: #F4EFEF;
+  --muted: #120E0F;
+  --muted-foreground: #B3A8AA;
+  --accent: #2A1414;
+  --accent-foreground: #E9BFBF;
+  --destructive: #F49A92;
+  --border: #3A3133;
+  --input: #8C8082;
+  --ring: #D69393;
+  --link: #D69393;
+  --text-secondary: #D6CDCE;
+  --divider-strong: #4D4345;
+  --progress: #F4C430;
+  --wordmark: #F4EFEF;
+  --sidebar: #120E0F;
+  --sidebar-foreground: #F4EFEF;
+  --sidebar-primary: #D69393;
+  --sidebar-primary-foreground: #161112;
+  --sidebar-accent: #2A1414;
+  --sidebar-accent-foreground: #E9BFBF;
+  --sidebar-border: #3A3133;
+  --sidebar-ring: #D69393;
+  --chart-1: #D69393;
+  --chart-2: #9DBDF0;
+  --chart-3: #84CFA4;
+  --chart-4: #F2B877;
+  --chart-5: #B3A8AA;
+
+  --tone-neutral-fg: #C9BFC0;  --tone-neutral-bg: #262021;  --tone-neutral-line: #3A3133;
+  --tone-active-fg: #9DBDF0;   --tone-active-bg: #14233A;   --tone-active-line: #2B4670;
+  --tone-pending-fg: #F2B877;  --tone-pending-bg: #33210D;  --tone-pending-line: #5C3D17;
+  --tone-done-fg: #84CFA4;     --tone-done-bg: #10291C;     --tone-done-line: #24503A;
+  --tone-returned-fg: #F49A92; --tone-returned-bg: #3A1412; --tone-returned-line: #6B2722;
+  --tone-locked-fg: #C9BFC0;   --tone-locked-bg: #2A2324;   --tone-locked-line: #4D4345;
+  --tone-achieved-fg: #3D0505; --tone-achieved-bg: #F4C430; --tone-achieved-line: #D9A600;
+}

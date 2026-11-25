@@ -24,6 +24,8 @@ const LAB_ROUNDS: Record<string, LabPage[]> = {
   r1: [
     { id: "foundations", path: "/lab/foundations" },
     { id: "glyphs", path: "/lab/glyphs" },
+    { id: "typography", path: "/lab/typography" },
+    { id: "brand", path: "/lab/brand" },
     ...["status", "blocked-action", "flag", "empty-state", "identity-line", "docket", "stepper", "theme-toggle"].map(
       (p) => ({ id: p, path: `/lab/patterns/${p}` }),
     ),

@@ -1,0 +1,118 @@
+/*
+ * Brand-aligned tokens, previewed in /lab only (Task R1.6, UX-D-10, UX-D-11).
+ * Source: docs/reference/brand/ThesIsko-Design-Principles-Brand-Guidelines.docx v1.0
+ * (Brand Colors, Supporting Colors, Color Combinations, Shapes and Buttons).
+ * The lab layout puts `.r1-preview` on its wrapper. R1.5 moves these values into src/styles/tokens.css,
+ * so no live page changes before the owner approves R1.
+ * Product refinements (not in the brand guide): the dark set, the `active`, `locked` and `neutral` tones,
+ * `pending` in orange, and an input edge of 3:1.
+ */
+
+/* `.r1-preview .light` too: the light panels must not fall back to the old values of tokens.css `.light`. */
+.r1-preview, .r1-preview .light {
+  /* Brand ramps: maroon and gold use the brand step names (500 = the brand color). */
+  --color-maroon-50: #F7F0F0;  --color-maroon-100: #EDDBDB; --color-maroon-200: #D9B3B3;
+  --color-maroon-300: #C28585; --color-maroon-400: #A64D4D; --color-maroon-500: #800000;
+  --color-maroon-600: #720406; --color-maroon-700: #5C0B0F; --color-maroon-800: #3C070A;
+  --color-maroon-900: #2A0507;
+  --color-gold-50: #FEFBF1;  --color-gold-100: #FDF5DF; --color-gold-200: #FCE9BA;
+  --color-gold-300: #FADB91; --color-gold-400: #F7CB5F; --color-gold-500: #F4B41A;
+  --color-gold-600: #CA9210; --color-gold-700: #8A5F00; --color-gold-800: #5A3E00;
+  /* Cool neutrals: Canvas, Line, Slate and Ink from the brand guide; the steps between follow the same family. */
+  --color-neutral-0: #FFFFFF;   --color-neutral-50: #F8FAFC;  --color-neutral-100: #F1F5F9;
+  --color-neutral-200: #E2E8F0; --color-neutral-300: #CBD5E1; --color-neutral-400: #94A3B8;
+  --color-neutral-500: #64748B; --color-neutral-600: #475569; --color-neutral-700: #334155;
+  --color-neutral-800: #1E293B; --color-neutral-900: #0F172A;
+
+  /* Shapes and Buttons: 6 px controls, 8 px cards, 12 px panels. */
+  --radius-stamp: 2px; --radius-control: 6px; --radius-card: 8px; --radius-panel: 12px; --radius: 6px;
+  --shadow-popover: 0 8px 24px rgb(15 23 42 / 0.12);
+
+  --background: var(--color-neutral-50);
+  --foreground: var(--color-neutral-900);
+  --card: #FFFFFF;
+  --card-foreground: var(--color-neutral-900);
+  --popover: #FFFFFF;
+  --popover-foreground: var(--color-neutral-900);
+  --primary: var(--color-maroon-500);
+  --primary-foreground: #FFFFFF;
+  --secondary: var(--color-neutral-100);
+  --secondary-foreground: var(--color-neutral-900);
+  --muted: var(--color-neutral-100);
+  --muted-foreground: var(--color-neutral-600);
+  --accent: var(--color-maroon-50);
+  --accent-foreground: var(--color-maroon-700);
+  --destructive: #B91C1C;
+  --border: var(--color-neutral-200);
+  --divider-strong: var(--color-neutral-300);
+  --progress: var(--color-gold-500);
+  --wordmark: var(--color-maroon-500);
+  --input: var(--color-neutral-500);
+  --ring: var(--color-maroon-500);
+  --link: var(--color-maroon-500);
+  --text-secondary: var(--color-neutral-700);
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: var(--color-neutral-900);
+  --sidebar-primary: var(--color-maroon-500);
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: var(--color-maroon-50);
+  --sidebar-accent-foreground: var(--color-maroon-700);
+  --sidebar-border: var(--color-neutral-200);
+  --sidebar-ring: var(--color-maroon-500);
+
+  --tone-neutral-fg: #475569;  --tone-neutral-bg: #F1F5F9;  --tone-neutral-line: #E2E8F0;
+  --tone-active-fg: #1E40AF;   --tone-active-bg: #EFF6FF;   --tone-active-line: #BFDBFE;
+  --tone-pending-fg: #8F4A06;  --tone-pending-bg: #FCEEDD;  --tone-pending-line: #F1CFA6;
+  --tone-done-fg: #15803D;     --tone-done-bg: #F0FDF4;     --tone-done-line: #BBF7D0;
+  --tone-returned-fg: #B91C1C; --tone-returned-bg: #FEF2F2; --tone-returned-line: #FECACA;
+  --tone-locked-fg: #334155;   --tone-locked-bg: #EEF2F6;   --tone-locked-line: #CBD5E1;
+  --tone-achieved-fg: #0F172A; --tone-achieved-bg: #F4B41A; --tone-achieved-line: #CA9210;
+}
+
+/* Dark: built from the brand colors ("White on Ink", "Golden Yellow on Ink"). Product refinement, UX-D-01. */
+.r1-preview .dark, .dark .r1-preview {
+  --background: #0F172A;
+  --foreground: #F8FAFC;
+  --card: #172033;
+  --card-foreground: #F8FAFC;
+  --popover: #1E293B;
+  --popover-foreground: #F8FAFC;
+  --primary: #A64D4D;
+  --primary-foreground: #FFFFFF;
+  --secondary: #0B1222;
+  --secondary-foreground: #F8FAFC;
+  --muted: #0B1222;
+  --muted-foreground: #94A3B8;
+  --accent: #3C070A;
+  --accent-foreground: #EDDBDB;
+  --destructive: #FCA5A5;
+  --border: #334155;
+  --divider-strong: #475569;
+  --progress: #F4B41A;
+  --wordmark: #F8FAFC;
+  --input: #7C8BA1;
+  --ring: #C28585;
+  --link: #D9B3B3;
+  --text-secondary: #CBD5E1;
+  --sidebar: #0B1222;
+  --sidebar-foreground: #F8FAFC;
+  --sidebar-primary: #D9B3B3;
+  --sidebar-primary-foreground: #0F172A;
+  --sidebar-accent: #3C070A;
+  --sidebar-accent-foreground: #EDDBDB;
+  --sidebar-border: #334155;
+  --sidebar-ring: #C28585;
+
+  --tone-neutral-fg: #CBD5E1;  --tone-neutral-bg: #1E293B;  --tone-neutral-line: #334155;
+  --tone-active-fg: #93C5FD;   --tone-active-bg: #172554;   --tone-active-line: #1E3A8A;
+  --tone-pending-fg: #F2B877;  --tone-pending-bg: #33210D;  --tone-pending-line: #5C3D17;
+  --tone-done-fg: #86EFAC;     --tone-done-bg: #052E16;     --tone-done-line: #166534;
+  --tone-returned-fg: #FCA5A5; --tone-returned-bg: #450A0A; --tone-returned-line: #7F1D1D;
+  --tone-locked-fg: #CBD5E1;   --tone-locked-bg: #1E293B;   --tone-locked-line: #475569;
+  --tone-achieved-fg: #0F172A; --tone-achieved-bg: #F4B41A; --tone-achieved-line: #CA9210;
+}
+
+/* Shapes and Buttons: keyboard focus is a maroon edge with a soft maroon ring. The outline stays (WCAG 2.4.7). */
+.r1-preview :focus-visible {
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--ring) 22%, transparent);
+}
