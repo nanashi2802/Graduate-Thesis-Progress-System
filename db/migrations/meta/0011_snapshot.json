@@ -1,5 +1,5 @@
 {
-  "id": "494983d9-828f-4dba-b88a-f076a2617015",
+  "id": "98a09f1f-14d8-4cda-a446-ffc18d3d3a66",
   "prevId": "6f738c94-52ee-4492-8608-ffb77c2f3ae1",
   "version": "7",
   "dialect": "postgresql",
@@ -3579,8 +3579,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "app.sign_in_failure": {
-      "name": "sign_in_failure",
+    "app.sign_in_attempt": {
+      "name": "sign_in_attempt",
       "schema": "app",
       "columns": {
         "id": {
@@ -3605,8 +3605,8 @@
         }
       },
       "indexes": {
-        "sign_in_failure_bucket_created_idx": {
-          "name": "sign_in_failure_bucket_created_idx",
+        "sign_in_attempt_bucket_created_idx": {
+          "name": "sign_in_attempt_bucket_created_idx",
           "columns": [
             {
               "expression": "bucket",
