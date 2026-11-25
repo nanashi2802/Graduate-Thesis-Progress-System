@@ -34,7 +34,7 @@ export function AppShell({
         <details className="relative lg:hidden">
           <summary
             aria-label="Menu"
-            className="flex size-9 cursor-pointer list-none items-center justify-center rounded-control outline-none hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring [&::-webkit-details-marker]:hidden"
+            className="flex size-9 cursor-pointer list-none items-center justify-center rounded-control outline-none hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring [&::-webkit-details-marker]:hidden"
           >
             <Menu aria-hidden="true" strokeWidth={1.5} className="size-5" />
           </summary>
@@ -47,7 +47,7 @@ export function AppShell({
         <div className="ml-auto flex items-center gap-2">
           <NotificationPanel items={notifications} unread={unread} />
           <details className="relative">
-            <summary className="flex h-9 max-w-[200px] cursor-pointer list-none items-center rounded-control px-2 text-sm outline-none hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring [&::-webkit-details-marker]:hidden">
+            <summary className="flex h-9 max-w-[200px] cursor-pointer list-none items-center rounded-control px-2 text-sm outline-none hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring [&::-webkit-details-marker]:hidden">
               <span className="truncate">{userName}</span>
             </summary>
             <div className="absolute right-0 z-20 mt-2 flex w-[min(92vw,320px)] flex-col gap-2 rounded-panel border border-border bg-popover p-3 shadow-md">

@@ -12,7 +12,7 @@ export function NotificationPanel({ items, unread }: { items: readonly Notificat
     <details className="relative" data-slot="notification-panel">
       <summary
         aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications, none unread"}
-        className="relative flex size-9 cursor-pointer list-none items-center justify-center rounded-control outline-none hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring [&::-webkit-details-marker]:hidden"
+        className="relative flex size-9 cursor-pointer list-none items-center justify-center rounded-control outline-none hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring [&::-webkit-details-marker]:hidden"
       >
         <Bell aria-hidden="true" strokeWidth={1.5} className="size-5" />
         {unread > 0 ? (

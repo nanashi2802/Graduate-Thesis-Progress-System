@@ -7,7 +7,7 @@ export type FormState = { ok?: string; error?: string };
 type Action = (prev: FormState, form: FormData) => Promise<FormState>;
 
 export const fieldClass =
-  "h-9 w-full rounded-control border border-input bg-card px-3 text-sm text-foreground outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
+  "h-9 w-full rounded-control border border-input bg-card px-3 text-sm text-foreground outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring";
 
 export function Field({ label, htmlFor, children, hint }: { label: string; htmlFor: string; children: ReactNode; hint?: string }) {
   return (
