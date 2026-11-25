@@ -29,3 +29,6 @@ tests/e2e/.auth/
 # Python caches from the ui-ux-pro-max skill scripts
 __pycache__/
 *.pyc
+
+# Screenshots of the UI/UX retrofit (docs/ui-ux-audit/)
+ui-shots/

@@ -1,7 +1,13 @@
 # DESIGN.md — PUP CpE Thesis Progress Monitoring System
 
-**Status:** Draft v0.2 (24 Nov 2026). The owner agreed to it in a grilling session. It is not yet built.
-**Change log:** v0.2, 24 Nov 2026:
+**Status:** Draft v0.3 (25 Nov 2026). v0.2 plus the retrofit decisions UX-D-01 to UX-D-05. It is not yet built.
+**Change log:** v0.3, 25 Nov 2026 (decisions in `docs/ui-ux-audit/DESIGN_DECISIONS.md`):
+- **Dark mode:** light and dark themes are both first-class. The OS setting is the default, and a manual toggle overrides it (§7.3, UX-D-01). D-04 is closed. The dark values come in preview round UX-P-01 (§12.5).
+- **References:** Linear, Notion and Stripe join the reference owners (§1.1, UX-D-03).
+- **System states:** loading blocks, inline errors and a Base UI toast (§7.4, UX-D-04). D-09 and D-11 are closed. D-10 closes in preview round UX-P-02.
+- **Registry:** new patterns `theme-toggle`, `loading` and `error` (§7.4).
+
+v0.2, 24 Nov 2026:
 - **Principles:** the Guided Ledger set (§2) replaces P1 to P8. It adds "Teach at the edges" and a text budget.
 - **Modular system:** a three-layer system (§7) and a Pattern registry (§7.4).
 - **Icons:** a domain glyph set replaces Lucide for thesis concepts (§6.2).
@@ -10,7 +16,8 @@
 - **Page references:** page references on comments (PRD D-26). This fixes the old §7.8 page-anchor note.
 - **Motion:** the motion duration rules are on hold (D-10).
 
-v0.1 is in `docs/stale/DESIGN_v0.1.md`.
+v0.2 is in `docs/stale/DESIGN_v0.2.md`. v0.1 is in `docs/stale/DESIGN_v0.1.md`.
+**Change path (UX-D-02):** a change to a rule in this file needs a preview, the owner's approval and a record in `docs/ui-ux-audit/DESIGN_DECISIONS.md`. Then it goes into a new version of this file.
 **Scope:** The visual and interaction design of the web app (31 routes) and the system emails. One spec for each screen is in `design/screens/<ID>.md`. This file holds the principles, the tokens, the patterns and the rules that all screens share.
 **Not a source:** The Google Stitch screens in `design/stitch/` are a prototype only. This file does not derive from them.
 **Fixed input from the owner:** Use the PUP colors (dark maroon and golden yellow). Do not use the PUP logo, seal or any image symbol (intellectual property constraint).
@@ -47,6 +54,9 @@ Each kind of screen borrows from one proven public system. The reference sets th
 | Student screens (S1, S3 to S6, PROCESS) | GOV.UK Design System, USWDS | Step-by-step navigation, task lists, plain words, one thing per page |
 | Coordinator, Adviser and Panel Member queues and lists | Linear, with IBM Carbon for table details | Dense queues, one action for each row, keyboard first, filters as chips |
 | Manuscript workspace and submission view (S2, A2, P2, SV) | GitHub Primer | Pull-request layout, merge box, commit list, comment threads |
+| App shell, sidebar and status marks (all signed-in screens) | Linear | The main reference for the shell, the sidebar and the status marks (UX-D-03) |
+| Reading in the workspace and the thread feed (S2, A2, P2, SV) | Notion | Reading comfort: measure, line height, calm comment threads (UX-D-03). Primer keeps the layout. |
+| Forms, validation messages and confirm dialogs | Stripe | Label above the field, helper text under it, the error under the field, short confirm dialogs (UX-D-03) |
 | Empty and first-day states | Vercel Geist | Empty states that teach the next step |
 | Review checklist | ui-ux-pro-max skill (`.claude/skills/ui-ux-pro-max/`) | "Accessible and ethical, minimalism and Swiss" checks. We do not use its palette, fonts or layout patterns. |
 
@@ -149,7 +159,7 @@ All text and fill pairs pass WCAG AA (4.5:1 or more). The lowest pair is `return
 
 ### 3.4 Colors in third-party components
 
-A component from a library (shadcn, React Bits or other) takes our tokens. It never keeps its own palette. Map its color props to the semantic tokens in §12: surface, ink, maroon for action, and the tone colors for status. If a component cannot take our tokens, do not use it.
+A component from a library (shadcn, Base UI or other) takes our tokens. It never keeps its own palette. Map its color props to the semantic tokens in §12: surface, ink, maroon for action, and the tone colors for status. If a component cannot take our tokens, do not use it.
 
 ### 3.5 Status mapping
 
@@ -309,7 +319,7 @@ Use a 4 px base. Tokens: `4, 8, 12, 16, 24, 32, 48, 64`. Each step is at least 2
 | Radius | Controls 4 px. Cards and dialogs 6 px. Status pills fully round. Document stamps 2 px. |
 | Borders | 1 px hairline `neutral-200` between regions. Inputs use `neutral-500` (3.80:1). |
 | Shadow | None on the page. Popovers, menus, toasts and dialogs only: `0 8px 24px rgb(30 22 23 / 0.12)`. |
-| Motion | Use the `motion` package (`motion/react`) for animation. Respect `prefers-reduced-motion`: every animation must have a reduced-motion path. No counting numbers. The durations and the entry-animation rule are **on hold** (D-10). |
+| Motion | Use the `motion` package (`motion/react`) for animation. Respect `prefers-reduced-motion`: every animation must have a reduced-motion path. No counting numbers. Use CSS for simple changes and `motion/react` only where CSS cannot do it (UX-D-04). The durations and the entry-animation rule are decided in preview round UX-P-02 (D-10). Until then, add no animation. |
 | Gradients | None. |
 
 ### 6.2 Icons: the domain glyph set
@@ -378,7 +388,13 @@ A lint rule can enforce layer 3: no import from `@/components/ui/*` or a library
 3. If the change concerns a pattern, change the pattern. Every screen in its registry row changes with it.
 4. If the change concerns a color or a size, change a token.
 
-There is no runtime theme switch.
+**Themes (UX-D-01):** the app has a light theme and a dark theme. Both are first-class.
+
+- The OS setting (`prefers-color-scheme`) is the default.
+- A manual toggle in the top bar overrides it: Light, Dark or System. The browser keeps the choice in `localStorage`.
+- A small inline script sets the theme before the first paint. The app does not use `next-themes`.
+- A theme changes only the semantic and status tokens (§12.2, §12.3, §12.5). A component never uses `dark:` classes for colors.
+- The PDF page, the emails and the printed views stay light.
 
 ### 7.4 Pattern registry
 
@@ -413,7 +429,10 @@ There is no runtime theme switch.
 | Flag line | `flag` | Own (BR-17) | S1, C1, C5, P4 |
 | Empty state | `empty-state` | Vercel Geist | All |
 | Glyph | `glyphs` | Own | All |
-| Toast | `toast` | [D-09, D-11] | All |
+| Theme toggle (Light, Dark, System) | `theme-toggle` | Own (UX-D-01) | Top bar of all signed-in screens, LOGIN |
+| Loading blocks | `loading` | Own (UX-D-04): blocks of the content's size, no shimmer | All |
+| Inline error with "Try again" | `error` | Own (UX-D-04) | All |
+| Toast | `toast` | Base UI Toast (`@base-ui/react/toast`, UX-D-04): 4 s, `role="status"`, a glyph and a label. Small actions only. | All |
 
 ---
 
@@ -630,6 +649,13 @@ All tokens live in `src/styles/tokens.css` (§7.1). `globals.css` imports it.
 }
 ```
 
+### 12.5 Dark tokens
+
+Values approved in UX-P-01. Task R1.5 of `docs/ui-ux-audit/IMPLEMENTATION_PLAN.md` fills this section.
+
+- The primitive ramps (§12.1) do not change between themes. The semantic tokens (§12.2) and the status tokens (§12.3) get a second value set under `.dark`.
+- The same contrast rules apply in dark: 4.5:1 for text, 3:1 for the input border and the focus ring.
+
 ---
 
 ## 13. Do and do not
@@ -652,19 +678,19 @@ All tokens live in `src/styles/tokens.css` (§7.1). `globals.css` imports it.
 
 ## 14. Open points
 
-The owner will decide D-06 to D-11 in a separate design-system session.
+The owner decides D-06 to D-08 and D-10 in the retrofit preview rounds (`docs/ui-ux-audit/IMPLEMENTATION_PLAN.md`).
 
 | ID | Point |
 | :---- | :---- |
 | D-01 | Closed (24 Nov 2026). The owner confirmed PUP Gold `#F4C430`. |
 | D-02 | Closed (24 Nov 2026). The owner confirmed IBM Plex Sans, warm neutrals and vermilion. |
 | D-03 | Closed. No PUP logo, seal or image symbol (F1). |
-| D-04 | Deferred. No dark mode yet. The tokens are semantic, so a dark theme can come later. |
+| D-04 | Closed (25 Nov 2026, UX-D-01). Light and dark themes now, with the OS default and a manual toggle (§7.3). The dark values close in UX-P-01 (§12.5). |
 | D-05 | Closed. Replaced by F1. |
 | D-06 | Status pill glyphs. Proposal: the pills use domain glyphs (`todo`, `done`, `return`, `lock`), plus new glyphs for `active`, `pending` and `achieved`. |
 | D-07 | Missing glyphs: Thesis process, Manuscript, Schedule, Defense results, Submission, Advisees, Review queue, Consultations, Availability, Assignments. Draw them for one approval. |
 | D-08 | Top-bar panels. Proposal: notifications in a right side sheet (Primer), search as a `/` command palette (Linear), preferences in a side sheet. |
-| D-09 | System states. Proposal: loading blocks of the content's size with no shimmer, inline errors with "Try again", and a 4 s `role="status"` toast with a glyph and a label. |
-| D-10 | Motion rules: the durations for state changes and dialogs, and whether entry animations are allowed. On hold by owner decision (24 Nov 2026). |
-| D-11 | React Bits components. Swipe Toast (toast), Status Mark (task-list status) and Glide Select (filter chips) are candidates. Call Chip is not recommended: it is made for AI tool calls (out of scope) and its progress is an estimate. Any adopted component takes our tokens (§3.4). |
+| D-09 | Closed (25 Nov 2026, UX-D-04). System states: loading blocks of the content's size with no shimmer, inline errors with "Try again", and a 4 s `role="status"` toast with a glyph and a label. A toast confirms small actions only. A workflow result (Returned, Endorsed, Scheduled, Verified) stays on the screen. |
+| D-10 | Motion rules: the durations for state changes and dialogs, and whether entry animations are allowed. Decided in preview round UX-P-02: the owner picks from 2 or 3 options. CSS for simple changes, `motion/react` only where CSS cannot do it, and a reduced-motion path for each animation (UX-D-04). |
+| D-11 | Closed (25 Nov 2026, UX-D-04). No React Bits. The toast uses Base UI Toast (`@base-ui/react/toast`, already installed). |
 | D-12 | Phone write access. Phones are read only for now. Upload on S3 from a phone can come later. |

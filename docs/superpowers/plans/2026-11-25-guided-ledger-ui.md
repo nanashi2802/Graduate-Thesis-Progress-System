@@ -1,5 +1,7 @@
 # Guided Ledger UI Implementation Plan
 
+> **Replaced (25 Nov 2026, UX-D-05):** use `docs/ui-ux-audit/IMPLEMENTATION_PLAN.md`. It keeps these tasks and adds the audit, the `/lab` showcase, dark mode and a preview gate before each round. Keep this file as history.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Rebuild the app's look and screens to the Guided Ledger design from the design session: three layers (tokens, patterns, pages), a domain icon set, and one screen spec for each route.

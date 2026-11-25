@@ -146,7 +146,7 @@ flowchart LR
 | Gate dialog | Names the gate, lists what it unlocks, asks for confirmation. |
 | Blocked-action note | Every disabled button shows why. |
 
-**Visual guidance:** `DESIGN.md` v0.2 (Guided Ledger) and one spec for each screen in `design/screens/`. Every record screen answers three questions: where am I, what blocks me, what can I do now.
+**Visual guidance:** `DESIGN.md` v0.3 (Guided Ledger) and one spec for each screen in `design/screens/`. Every record screen answers three questions: where am I, what blocks me, what can I do now.
 
 ## 7. Screen inventory
 
