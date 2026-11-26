@@ -18,6 +18,9 @@ export type ConfirmKind =
 
 export type ConfirmCopy = { title: string; body: string; confirmLabel: string };
 
+/** The Gate 1b label for every endorser, on the gate button and on the confirm button (UX-P-05, option A). */
+export const GATE1B_LABEL = "Endorse and lock manuscript";
+
 export function confirmCopy(k: ConfirmKind): ConfirmCopy {
   switch (k.kind) {
     case "verify":
@@ -29,14 +32,14 @@ export function confirmCopy(k: ConfirmKind): ConfirmCopy {
         confirmLabel: "Endorse (Gate 1a)",
       };
     case "endorse1b":
-      // R3.10: Gate 1b can need more than one endorsement. Only the last one locks the manuscript (BR-07), so only
-      // that endorser sees "Endorse and lock manuscript" (`gate1bLocksOnEndorse`).
+      // Gate 1b can need more than one endorsement. Only the last one locks the manuscript (BR-07). UX-P-05 (owner,
+      // "Lets do A"): every endorser sees the one label; the body says which case applies (`gate1bLocksOnEndorse`).
       return {
         title: k.student ? `Endorse ${k.student} for defense (Gate 1b)?` : "Endorse this commit for defense (Gate 1b)?",
         body: k.locks
           ? "Yours is the last endorsement, so this locks the manuscript until the defense closes."
           : "This records your endorsement, and the manuscript locks after the last endorsement.",
-        confirmLabel: k.locks ? "Endorse and lock manuscript" : "Endorse (Gate 1b)",
+        confirmLabel: GATE1B_LABEL,
       };
     case "gate2":
       return {

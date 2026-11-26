@@ -16,7 +16,7 @@ export const GATES: Record<string, GateState> = {
   "UX-P-02": "Approved",
   "UX-P-03": "Approved",
   "UX-P-04": "Approved",
-  "UX-P-05": "Not shown",
+  "UX-P-05": "Approved",
   "UX-P-06": "Not shown",
   "UX-P-07": "Not shown",
 };
@@ -46,4 +46,12 @@ export const LAB_PAGES: LabPage[] = [
   })),
   ...["task-list", "step-by-step"].map((p) => ({ path: `/lab/patterns/${p}`, title: `Pattern: ${p}`, round: "R4", gate: "UX-P-04", built: true })),
   { path: "/lab/screens/PROCESS", title: "Screen: PROCESS (Thesis process)", round: "R4", gate: "UX-P-04", built: true },
+  ...["merge-box", "gate-box", "commit-selector", "thread-feed", "pdf-viewer"].map((p) => ({ path: `/lab/patterns/${p}`, title: `Pattern: ${p}`, round: "R5", gate: "UX-P-05", built: true })),
+  ...(["student", "adviser", "panel"] as const).map((r) => ({
+    path: `/lab/patterns/workspace?role=${r}`,
+    title: `Pattern: workspace (${r === "student" ? "S2 Student" : r === "adviser" ? "A2 Adviser" : "P2 Panel Member"})`,
+    round: "R5",
+    gate: "UX-P-05",
+    built: true,
+  })),
 ];

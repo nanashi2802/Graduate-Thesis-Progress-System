@@ -14,7 +14,7 @@ import {
 } from "@/app/_lib/pr-actions";
 import type { Result } from "@/app/_lib/run";
 import { ActionButton } from "@/components/action-button";
-import { ConfirmDialog, confirmCopy } from "@/components/patterns/dialog";
+import { ConfirmDialog, confirmCopy, GATE1B_LABEL } from "@/components/patterns/dialog";
 import { Button } from "@/components/ui/button";
 
 function useRun() {
@@ -55,7 +55,8 @@ export function ReadyButton({ milestoneId, commitId, moveToReady, blockedReason 
 
 const ENDORSE = {
   gate1a: { label: "Endorse (Gate 1a)", copy: "endorse1a", act: endorseGate1a },
-  gate1b: { label: "Endorse this commit (Gate 1b)", copy: "endorse1b", act: endorseCommit },
+  // UX-P-05 (owner, option A): the opener and the confirm button say the same words for every endorser.
+  gate1b: { label: GATE1B_LABEL, copy: "endorse1b", act: endorseCommit },
   // The opener keeps its label until the owner decides UX-X-05. The dialog says Endorse (Gate 2).
   gate2: { label: "Approve the final manuscript (Gate 2)", copy: "gate2", act: approveFinalAction },
 } as const;

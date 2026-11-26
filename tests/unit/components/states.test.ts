@@ -125,3 +125,21 @@ describe("form-feedback contract (R2.4)", () => {
     expect(render({ status: "idle" })).not.toMatch(/role="alert"|role="status"/);
   });
 });
+
+// Task R5.7 (UX-D-15): the workspace shape and page preset: the header, the box, the viewer block and the feed lines.
+describe("loading: the workspace (R5.7)", () => {
+  it("draws the workspace shape: header, box, a viewer block and feed lines, split at laptop", () => {
+    const out = renderToStaticMarkup(createElement(LoadingBlocks, { shape: "workspace" }));
+    expect(out).toMatch(/data-shape="workspace"/);
+    expect(out).toMatch(/data-part="box"/);
+    expect(out).toMatch(/data-part="viewer"/);
+    expect(out).toMatch(/data-part="feed"/);
+    expect(out).toMatch(/lg:grid-cols-\[minmax\(0,1fr\)_400px\]/);
+  });
+
+  it("has a workspace page preset with one busy region", () => {
+    const out = renderToStaticMarkup(createElement(PageLoadingBlocks, { kind: "workspace" }));
+    expect(out).toMatch(/data-page="workspace"/);
+    expect(out.match(/aria-busy="true"/g)).toHaveLength(1);
+  });
+});

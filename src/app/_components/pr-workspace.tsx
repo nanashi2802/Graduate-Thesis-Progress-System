@@ -71,7 +71,7 @@ export async function PrWorkspace({ portal, prId, commit, page }: { portal: User
   }
   let gate1bReason: string | undefined;
   if ((role === "adviser" || role === "panel_member") && gate1bOpen) gate1bReason = (await gate1bBlock(ctx, milestone.id)) ?? undefined;
-  // R3.10: the Gate 1b dialog says "Endorse and lock manuscript" only when this endorsement is the last one (BR-07).
+  // R3.10: the Gate 1b dialog body says the lock happens now only when this endorsement is the last one (BR-07).
   const gate1bLocks = (role === "adviser" || role === "panel_member") && gate1bOpen && !gate1bReason ? await gate1bLocksOnEndorse(ctx, milestone.id) : false;
   const gate2Open = milestone.milestoneCode === "final" && status === "CLOSED" && role === "panel_member";
   const gate2Reason = gate2Open ? ((await gate2Block(ctx, milestone.id)) ?? undefined) : undefined;

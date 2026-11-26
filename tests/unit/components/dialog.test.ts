@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { ConfirmBody, confirmCopy } from "@/components/patterns/dialog";
+import { ConfirmBody, confirmCopy, GATE1B_LABEL } from "@/components/patterns/dialog";
 
 const src = readFileSync("src/components/patterns/dialog/index.tsx", "utf8");
 
@@ -36,7 +36,9 @@ describe("confirm dialog copy (R3.5)", () => {
       expect(c.confirmLabel).not.toMatch(/approve|reject|sign/i);
     }
     expect(confirmCopy({ kind: "endorse1b", student: "Dino Aquino", locks: true }).confirmLabel).toBe("Endorse and lock manuscript");
-    expect(confirmCopy({ kind: "endorse1b", student: "Dino Aquino" }).confirmLabel).toBe("Endorse (Gate 1b)");
+    // UX-P-05 (owner, 26 Nov 2026: "Lets do A"): one label for every Gate 1b endorser. The body states the fact.
+    expect(confirmCopy({ kind: "endorse1b", student: "Dino Aquino" }).confirmLabel).toBe("Endorse and lock manuscript");
+    expect(GATE1B_LABEL).toBe("Endorse and lock manuscript");
   });
 
   it("states the facts of the domain: only the last Gate 1b endorsement locks, and a verdict can change until held (R3.10)", () => {

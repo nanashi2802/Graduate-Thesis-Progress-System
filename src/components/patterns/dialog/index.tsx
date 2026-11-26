@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ConfirmCopy } from "./copy";
 
-export { confirmCopy, type ConfirmCopy, type ConfirmKind } from "./copy";
+export { confirmCopy, GATE1B_LABEL, type ConfirmCopy, type ConfirmKind } from "./copy";
 
 export type ConfirmResult = { error?: string } | void;
 

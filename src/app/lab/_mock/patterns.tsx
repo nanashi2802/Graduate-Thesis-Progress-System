@@ -59,7 +59,7 @@ export const PATTERNS: Record<string, { title: string; states: string[]; body: R
     body: (
       <>
         <Demo title="Open">
-          <BlockedAction>Endorse (Gate 1b)</BlockedAction>
+          <BlockedAction>Endorse and lock manuscript</BlockedAction>
           <BlockedAction variant="secondary">Download form</BlockedAction>
           <BlockedAction variant="return">Return</BlockedAction>
           <BlockedAction variant="text">See the whole process</BlockedAction>

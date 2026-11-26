@@ -298,7 +298,7 @@ const KINDS: { k: ConfirmKind; opener: string; unlocks?: string[] }[] = [
   { k: { kind: "verify", form: "TDW_12", student: "Dino Aquino" }, opener: "Verify" },
   {
     k: { kind: "endorse1b", student: "Dino Aquino" },
-    opener: "Endorse this commit (Gate 1b)",
+    opener: "Endorse and lock manuscript",
     unlocks: ["After the last endorsement, the Student can propose a defense date."],
   },
   { k: { kind: "endorse1a", student: "Bea Santos" }, opener: "Endorse (Gate 1a)" },

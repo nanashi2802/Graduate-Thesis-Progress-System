@@ -60,6 +60,14 @@ const LAB_ROUNDS: Record<string, LabPage[]> = {
     { id: "PROCESS-forms-c", path: "/lab/screens/PROCESS?forms=c" },
     { id: "PROCESS-phone-current", path: "/lab/screens/PROCESS?phone=current" },
   ],
+  // R5 (§4.5.1, owner 26 Nov 2026): no batch by default. Run it only when the owner asks and the pages are confirmed.
+  r5: [
+    ...["merge-box", "gate-box", "commit-selector", "thread-feed", "pdf-viewer"].map((p) => ({ id: p, path: `/lab/patterns/${p}` })),
+    ...["student", "adviser", "panel"].flatMap((r) =>
+      ["first-day", "working", "ready", "locked"].map((s) => ({ id: `workspace-${r}-${s}`, path: `/lab/patterns/workspace?role=${r}&state=${s}` })),
+    ),
+    { id: "workspace-identity", path: "/lab/patterns/workspace?identity=proposed" },
+  ],
 };
 
 // Live routes of spec/SITEMAP.md (LAB_LIVE=1), with the saved session of the role.
