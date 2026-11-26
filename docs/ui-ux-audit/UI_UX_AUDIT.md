@@ -60,6 +60,13 @@ Score each factor from 0 to 5, then add the weighted values: user impact 30%, wo
 
 ---
 
+### 1.5 Live screenshots in later rounds (26 Nov 2026)
+
+The Stage 1 screenshots (`ui-shots/audit/`) stay the baseline. The owner deferred the next full live audit to R7d, when every sitemap route exists. Until then, each round shoots only the screens it changed, on the production build. The schedule and the run rules are in `IMPLEMENTATION_PLAN.md` §4.5.1.
+
+- A shot that Playwright marks "ok" only means the picture was saved. Check the HTTP status and the console errors in `manifest.jsonl` before you use a shot as evidence.
+- The R3.10 live run (`ui-shots/r3-live/`, 80 shots, stopped) is not evidence: it ran on the dev server while files changed.
+
 ## 2. Layer 1: design foundations
 
 Facts known on 25 Nov 2026 (checked again in Task 1.2, all still true):

@@ -138,6 +138,21 @@ Then stop and wait. The owner gives feedback in words or on annotated screenshot
 | Reduced motion | Playwright with `reducedMotion: "reduce"` in `lab:shots` | No animation runs |
 | Accessibility | `@axe-core/playwright` on the round's `/lab` pages, if the owner approves the package (§4 of `DESIGN_DECISIONS.md`) | No serious or critical issue |
 
+#### 4.5.1 Screenshot schedule (owner, 26 Nov 2026)
+
+The full live audit (`LAB_LIVE=1 … pnpm lab:shots audit`) is deferred to R7d. Before R7d, many routes and links do not exist yet (C10, PROCESS, Audit), so the audit repeats known errors. Each round shoots only what it changed.
+
+| Round | Shots |
+| :---- | :---- |
+| R4, R5, R6 | The `/lab` shots of the round (`pnpm lab:shots r4`, and so on). Then live shots of the screens the round changed, only. R4: PROCESS (after R4.6) and S3. |
+| R7a, R7b, R7c | Live shots of the screens of that role only, at the end of each sub-round |
+| R7d | **The full live audit**, light and dark, all viewports. Every sitemap route exists by then, so a 404 or an error in a shot is a real finding. Compare with `ui-shots/r2-live/`. |
+| R8 | One last full live audit, after the old components are removed |
+
+- Take every live shot on the production build (`pnpm build`, `pnpm start -p 3100`, `LAB_PORT=3100`), not the dev server. The dev server shows its own error screens and reloads on each file change.
+- Change no files during a run.
+- A shot that passes in Playwright only means the picture was saved. Read `manifest.jsonl` (HTTP status, console errors) before you write a result.
+
 Write the results in §13. Do not write "pass" for a check that you did not run.
 
 ---
@@ -881,7 +896,7 @@ Read this before you start R3.10. It holds what the R3 preview session learned.
 
 **Gaps.**
 
-- The live audit shots were stopped by the owner after 80 of about 350 (26 Nov 2026). To finish them later, with the dev server on port 3000 and no file changes during the run: `LAB_LIVE=1 LAB_PORT=3000 LAB_CORS_RELAY=1 LAB_MILESTONE_ID=3371ed7d-8833-49ac-bf2a-57dfd691d5c1 LAB_DEFENSE_ID=fb4a0ce9-4de2-4966-ba5a-a92608fd6fd0 LAB_OUT=ui-shots/r3-live pnpm lab:shots audit`. Then compare the forms with `ui-shots/r2-live/` and update the §13 row.
+- The live audit shots were stopped by the owner after 80 of about 350 (26 Nov 2026). Many of the 80 pages show errors (missing routes, and dev server error screens: files changed during the run). The owner deferred the full audit to R7d (§4.5.1). For R7d, with the dev server on port 3000 and no file changes during the run: `LAB_LIVE=1 LAB_PORT=3000 LAB_CORS_RELAY=1 LAB_MILESTONE_ID=3371ed7d-8833-49ac-bf2a-57dfd691d5c1 LAB_DEFENSE_ID=fb4a0ce9-4de2-4966-ba5a-a92608fd6fd0 LAB_OUT=ui-shots/r3-live pnpm lab:shots audit`. Then compare the forms with `ui-shots/r2-live/` and update the §13 row.
 
 - No e2e role has an open permanent action in the dev data (every C4 Verify is blocked, C6 has no defense, the PR workspace shows no Endorse). The e2e test ran the blocked path only; the dialog path is in the test and runs when the data has an open Verify. The `/lab` walk of R3.9 covers the dialog focus, Escape and focus return. Do not re-seed (UX-X-06).
 - The keyboard walk of a live dialog did not run, for the same reason.
@@ -892,7 +907,7 @@ Read this before you start R3.10. It holds what the R3 preview session learned.
 
 Read this before you start R4. It holds what the R1 to R3 sessions learned.
 
-**State on 26 Nov 2026:** branch `ui/r3-patterns`, with R3.10 committed on top of `020802c`. Nothing is pushed. R1 (UX-P-01), R2 (UX-P-02) and R3 (UX-P-03) are approved, integrated and committed. `DESIGN.md` is v0.6. PR #81 (`feat/guided-ledger`) was still open: check it first (§1 step 2).
+**State on 26 Nov 2026:** branch `ui/r3-patterns`, R3.10 committed as `1717690`, then the screenshot schedule (§4.5.1). Nothing is pushed. R1 (UX-P-01), R2 (UX-P-02) and R3 (UX-P-03) are approved, integrated and committed. `DESIGN.md` is v0.6. PR #81 (`feat/guided-ledger`) was still open: check it first (§1 step 2).
 
 **Branch:** make `ui/r4-student` from `ui/r3-patterns`. Commit only when the owner says so (AGENTS.md §2).
 
@@ -936,6 +951,8 @@ Read this before you start R4. It holds what the R1 to R3 sessions learned.
 | R4-c | Novie (mascot) in R4 (F1 exception, UX-D-11 item 7) | A: on the PROCESS first view and the S3 empty state only. B: no Novie until R7. Recommend B if the master artwork is still missing (UX-X-19). |
 | R4-d | Step-by-step on a phone | A: the same accordion, full width. B: the current step only, with a "Show all steps" link. Recommend A. |
 
+**Screenshots (§4.5.1):** `pnpm lab:shots r4` for the preview. After R4.6, live shots of PROCESS and S3 only, on the production build (port 3100). No full live audit until R7d.
+
 **Rules that bind every R4 pattern:** the R3 rules (§10.0) still apply: UX-D-16 fixed slots, UX-D-04 toasts, G1 and G8 one maroon button for each region, BR-17 and BR-18, both themes, WCAG 2.2 AA, tokens only, mock data only in `/lab`. Also: PROCESS has no action except form downloads; Stage 0 is not a step; show the Student's degree level only (G2).
 
 **R4 tasks.** Tests first for each pattern (the table below lists the tests that must fail first). Each pattern: `src/components/patterns/<name>/index.tsx`, first line `// Source: <reference>`, a typed props contract, a `/lab/patterns/<name>` page with every state in light and dark, a row in `_mock/pages.ts` and in `LAB_ROUNDS.r4`.
@@ -944,8 +961,8 @@ Read this before you start R4. It holds what the R1 to R3 sessions learned.
 - [ ] **R4.2 `step-by-step`.** "You are here" on the current step, expanded; the other steps collapsed; `done` glyph on done steps; each step lists the gates, who acts, the defense, then its forms (mono form number, name, "Download form").
 - [ ] **R4.3 PROCESS preview** at `/lab/screens/PROCESS` with mock data for a Master's and a Doctoral Student (2 and 3 Panel Members). 4 steps, no Stage 0.
 - [ ] **R4.4 loading shapes** for the task list and PROCESS, if needed (UX-D-15).
-- [ ] **R4.5 preview.** `pnpm lab:shots r4` (all viewports, light and dark, the reduced pass). Keyboard walk of the disclosure buttons and the step accordion. Then the gate message (§4.2) with R4-a to R4-d. Stop.
-- [ ] **R4.6 integrate (after "R4 approved" only).** The live route `/student/process` (Student only, the same role check as the other Student pages, FR-ACC-02). The sidebar item "Thesis process" (second Student item, `navFor` test first). S3 (and S1, S6 where the registry names them) move onto `task-list`; keep each call site's data and actions (§4.4 list first). e2e: the route opens for the Student and is refused for the other 3 roles. Validate (§4.5). `DESIGN.md` v0.7 (`git mv` v0.6 to `docs/stale/` first). This plan's §3, §13 and the R4 checkboxes; the UX-P-04 record.
+- [ ] **R4.5 preview.** `pnpm lab:shots r4` (all viewports, light and dark, the reduced pass; read `manifest.jsonl`). Keyboard walk of the disclosure buttons and the step accordion. Then the gate message (§4.2) with R4-a to R4-d. Stop.
+- [ ] **R4.6 integrate (after "R4 approved" only).** The live route `/student/process` (Student only, the same role check as the other Student pages, FR-ACC-02). The sidebar item "Thesis process" (second Student item, `navFor` test first). S3 (and S1, S6 where the registry names them) move onto `task-list`; keep each call site's data and actions (§4.4 list first). e2e: the route opens for the Student and is refused for the other 3 roles. Validate (§4.5; live shots of PROCESS and S3 only, §4.5.1). `DESIGN.md` v0.7 (`git mv` v0.6 to `docs/stale/` first). This plan's §3, §13 and the R4 checkboxes; the UX-P-04 record.
 
 **Facts from the R3 sessions (they add to §9.0 and §10.0):**
 
@@ -1054,7 +1071,7 @@ Fill one row for each validation run. Never write "pass" for a check you did not
 | 26 Nov 2026 | R2 (preview and R2.8 integrate) | `9d663dd` + uncommitted (`ui/r2-shell`) | Pass (0 errors, the same 1 warning) | Pass | Pass (77 files, 963 tests) | Pass (27, `E2E_PORT=3100`, with 4 new shell tests) | Pass | `pnpm lab:shots r2`: 121 shots, 0 errors. `LAB_LIVE=1` audit: 352 shots, light and dark (`ui-shots/r2-live/`). Only known errors: C10 and PROCESS 404, P2 storage 404. | Pass (`contrast.test.ts`) | e2e `shell.spec.ts`: skip link first, Escape closes the sheet and the drawer, focus returns | Pass (reduced-motion pass) | Not run (package not approved) | A first full unit run under load (screenshots in parallel) had 4 data-layer timeouts; alone it passes. UX-D-16 addition (fixed-height slot): 77 files, 969 tests; e2e 27; `lab:shots r2` 121 shots, 0 errors; before and after in `ui-shots/r2-feedback-compare.png`. |
 
 | 26 Nov 2026 | R3 (build preview) | `b72ff4a` + uncommitted (`ui/r3-patterns`) | Pass (0 errors, the same 1 warning) | Pass | Pass (84 files, 1030 tests; run alone) | Pass (27, `E2E_PORT=3100` on the new build; the top bar now imports `SheetPopup` from `side-sheet`) | Pass | `pnpm lab:shots r3`: 242 shots, 0 console errors, all HTTP 200 (`ui-shots/r3/`) | Not run again (no color token changed; `--scrim` is a backdrop) | Playwright walk of the 7 `/lab` pages: 33 of 33 checks (sort headers and `aria-sort`, row actions, blocked reason on focus, long title on focus, 48 px compact rows, KPI links, inbox list, dialog focus start A and B, focus trap, Escape, focus return, composer Escape and focus return, no layout move, sheet trap and focus return, field error link) | Pass (reduced-motion pass in `lab:shots`) | Not run (package not approved) | New R3-i (blocked action in a compact row). No live page changed except the top-bar import. After feedback passes 1 and 2 (collapsible groups, column widths, option-B pages removed): test 84 files, 1034 tests; walk 36 of 36; `lab:shots r3` 176 shots, 0 console errors, all HTTP 200. |
-| 26 Nov 2026 | R3.10 (integrate) | `020802c` + this commit (`ui/r3-patterns`) | Pass (0 errors, the same 1 warning) | Pass | Pass (85 files, 1053 tests, run alone, before the Gate 1b label fix; after it only `dialog`, `form-contract` and `milestones` data tests ran: all pass) | Pass (28, `E2E_PORT=3100` on the production build, with the new confirm-dialog test; blocked path only, see §10.2 gaps) | Pass | `LAB_LIVE=1` audit into `ui-shots/r3-live/`: **stopped by the owner after 80 shots** (desktop light and dark, part of laptop light), 0 failed. The rest and the before-and-after compare with `ui-shots/r2-live/` are not done: run them later. | Not run again (no color token changed) | Production walk of C2 and C4: labels, 44 px and 36 px fields, linked hints, 40 px slots, solid outlines (except the Chrome calendar button in the date field, as before), a blocked Verify takes focus and opens no dialog. No live dialog walk (no open permanent action in the dev data). | Not run (shots stopped) | Not run (package not approved) | Gate 1b: owner kept "Endorse and lock manuscript" and asked to fix the mismatch: new read-only `gate1bLocksOnEndorse`. |
+| 26 Nov 2026 | R3.10 (integrate) | `020802c` + this commit (`ui/r3-patterns`) | Pass (0 errors, the same 1 warning) | Pass | Pass (85 files, 1053 tests, run alone, before the Gate 1b label fix; after it only `dialog`, `form-contract` and `milestones` data tests ran: all pass) | Pass (28, `E2E_PORT=3100` on the production build, with the new confirm-dialog test; blocked path only, see §10.2 gaps) | Pass | `LAB_LIVE=1` audit into `ui-shots/r3-live/`: **stopped by the owner after 80 shots** (desktop light and dark, part of laptop light). "Saved" is not "passed": many pages show errors (missing routes; dev server error screens, because files changed during the run). The full audit is deferred to R7d (§4.5.1); these 80 shots are not evidence. | Not run again (no color token changed) | Production walk of C2 and C4: labels, 44 px and 36 px fields, linked hints, 40 px slots, solid outlines (except the Chrome calendar button in the date field, as before), a blocked Verify takes focus and opens no dialog. No live dialog walk (no open permanent action in the dev data). | Not run (shots stopped) | Not run (package not approved) | Gate 1b: owner kept "Endorse and lock manuscript" and asked to fix the mismatch: new read-only `gate1bLocksOnEndorse`. |
 ---
 
 ## 14. Definition of done
