@@ -40,6 +40,15 @@ const LAB_ROUNDS: Record<string, LabPage[]> = {
     { id: "motion", path: "/lab/motion" },
     { id: "glyphs", path: "/lab/glyphs" },
   ],
+  r3: [
+    ...["queue-table", "kpi-strip", "inbox", "return-composer", "dialog", "side-sheet", "form-field"].map((p) => ({ id: p, path: `/lab/patterns/${p}` })),
+    ...["return", "returned", "verified", "empty"].map((s) => ({ id: `inbox-${s}`, path: `/lab/patterns/inbox?state=${s}` })),
+    { id: "dialog-verify", path: "/lab/patterns/dialog?open=verify" },
+    { id: "dialog-gate1b", path: "/lab/patterns/dialog?open=endorse1b" },
+    { id: "side-sheet-open", path: "/lab/patterns/side-sheet?open=1" },
+    { id: "side-sheet-field-error", path: "/lab/patterns/side-sheet?open=1&error=1" },
+    { id: "states", path: "/lab/states" },
+  ],
 };
 
 // Live routes of spec/SITEMAP.md (LAB_LIVE=1), with the saved session of the role.

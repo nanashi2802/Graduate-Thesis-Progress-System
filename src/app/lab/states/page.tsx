@@ -1,5 +1,5 @@
 // /lab/states (Tasks R2.4 and R2.5, UX-011, UX-026): loading, error, empty, success toast, disabled with a reason,
-// and the one form-feedback contract. In both themes.
+// and the one form-feedback contract. In both themes. R3.7 adds the contract with the form-field pattern.
 import { BlockedAction } from "@/components/patterns/blocked-action";
 import { EmptyState } from "@/components/patterns/empty-state";
 import { ErrorState } from "@/components/patterns/error";
@@ -8,6 +8,7 @@ import { LoadingBlocks, PageLoadingBlocks, Spinner } from "@/components/patterns
 import { ToastCard } from "@/components/patterns/toast";
 import { Demo, LabHeader, ThemePanels } from "../_mock/panels";
 import { ErrorDemo, FormFeedbackDemo } from "../_mock/r2-demos";
+import { FormContractDemo } from "../_mock/r3-demos";
 
 export default function Page() {
   return (
@@ -115,6 +116,11 @@ export default function Page() {
           </div>
         </Demo>
       </ThemePanels>
+      <div className="mt-8">
+        <Demo title="R3.7: the one form-feedback contract with the form-field pattern (small action, workflow action, field error), lab theme">
+          <FormContractDemo />
+        </Demo>
+      </div>
     </>
   );
 }

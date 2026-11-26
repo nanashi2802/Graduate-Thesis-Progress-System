@@ -6,7 +6,7 @@
 import { cn } from "@/lib/utils";
 
 export type LoadingEffect = "pulse" | "shimmer";
-export type LoadingShape = "rows" | "cards" | "docket" | "form" | "list";
+export type LoadingShape = "rows" | "rows-compact" | "kpi" | "cards" | "docket" | "form" | "list" | "inbox";
 
 const EFFECT: Record<LoadingEffect, string> = {
   pulse: "bg-muted animate-skeleton",
@@ -31,6 +31,52 @@ function Shape({ shape, rows, effect }: { shape: LoadingShape; rows: number; eff
               {b("ml-auto h-(--row-action-h) w-(--row-action-w) rounded-control")}
             </div>
           ))}
+        </div>
+      );
+    case "rows-compact": // a compact queue table (R3.8): 48 px rows, the header row
+      return (
+        <div className="flex flex-col divide-y divide-border rounded-card border border-border bg-card">
+          <div className="flex h-10 items-center gap-4 bg-muted px-(--cell-pad-x)">{b("h-2.5 w-24")}</div>
+          {Array.from({ length: rows }, (_, i) => (
+            <div key={i} className="flex h-(--row-h-compact) items-center gap-4 px-(--cell-pad-x)">
+              {b("h-3 w-1/4")}
+              {b("hidden h-3 w-1/3 sm:block")}
+              {b("hidden h-3 w-12 sm:block")}
+              {b("ml-auto h-(--row-action-h) w-(--row-action-w) rounded-control")}
+            </div>
+          ))}
+        </div>
+      );
+    case "kpi": // the C1 KPI strip (R3.8): six cells of the strip height
+      return (
+        <div className="grid grid-cols-2 overflow-hidden rounded-card border border-border bg-card sm:grid-cols-3 lg:grid-cols-6">
+          {Array.from({ length: 6 }, (_, i) => (
+            <div key={i} className="-mt-px -ml-px flex h-[104px] flex-col justify-between border-t border-l border-border px-4 pt-3.5 pb-3">
+              {b("h-8 w-12")}
+              {b("h-3 w-2/3")}
+            </div>
+          ))}
+        </div>
+      );
+    case "inbox": // C4 and C5 (R3.8): list, viewer, record, the same grid as the inbox pattern
+      return (
+        <div className="grid min-h-[540px] overflow-hidden rounded-card border border-border bg-card sm:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[300px_minmax(0,1fr)_300px]">
+          <div className="flex flex-col divide-y divide-border border-border sm:border-r">
+            {Array.from({ length: rows }, (_, i) => (
+              <div key={i} className="flex flex-col gap-2 px-4 py-3.5">
+                {b("h-3 w-2/3")}
+                {b("h-3 w-1/2")}
+              </div>
+            ))}
+          </div>
+          <div className="hidden items-start justify-center bg-muted p-6 sm:flex">{b("h-[420px] w-full max-w-[360px] rounded-control")}</div>
+          <div className="hidden flex-col gap-3 border-l border-border p-4 lg:flex">
+            {b("h-5 w-24")}
+            {b("h-4 w-3/4")}
+            {b("h-1 w-full")}
+            {b("h-9 w-full rounded-control")}
+            {b("h-9 w-full rounded-control")}
+          </div>
         </div>
       );
     case "cards": // a KPI strip or up to 3 cards (G5)
@@ -100,7 +146,7 @@ export function LoadingBlocks({ rows = 4, label = "Loading", shape = "rows", eff
   );
 }
 
-export type PageKind = "dashboard" | "queue" | "record" | "form";
+export type PageKind = "dashboard" | "queue" | "record" | "form" | "overview" | "inbox";
 
 /** The fallback of a `loading.tsx`, by screen kind. One busy region with one hidden text. */
 export function PageLoadingBlocks({ kind = "queue", label = "Loading the page", effect = "pulse" }: { kind?: PageKind; label?: string; effect?: LoadingEffect }) {
@@ -109,6 +155,8 @@ export function PageLoadingBlocks({ kind = "queue", label = "Loading the page", 
     queue: [{ shape: "rows", rows: 6 }],
     record: [{ shape: "docket", rows: 1 }, { shape: "list", rows: 3 }],
     form: [{ shape: "form", rows: 3 }],
+    overview: [{ shape: "kpi", rows: 1 }, { shape: "rows-compact", rows: 6 }],
+    inbox: [{ shape: "inbox", rows: 5 }],
   };
   return (
     <div aria-busy="true" data-page={kind} className="flex flex-col gap-6">

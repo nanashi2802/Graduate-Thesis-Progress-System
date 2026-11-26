@@ -14,7 +14,7 @@ export type GateState = "Not shown" | "Waiting" | "Approved" | "Approved with ch
 export const GATES: Record<string, GateState> = {
   "UX-P-01": "Approved",
   "UX-P-02": "Approved",
-  "UX-P-03": "Not shown",
+  "UX-P-03": "Approved",
   "UX-P-04": "Not shown",
   "UX-P-05": "Not shown",
   "UX-P-06": "Not shown",
@@ -37,4 +37,11 @@ export const LAB_PAGES: LabPage[] = [
   { path: "/lab/states", title: "System states", round: "R2", gate: "UX-P-02", built: true },
   { path: "/lab/motion", title: "Motion options (D-10)", round: "R2", gate: "UX-P-02", built: true },
   { path: "/lab/glyphs#candidates", title: "Glyph candidates (D-06, D-07)", round: "R2", gate: "UX-P-02", built: true },
+  ...["queue-table", "kpi-strip", "inbox", "return-composer", "dialog", "side-sheet", "form-field"].map((p) => ({
+    path: `/lab/patterns/${p}`,
+    title: `Pattern: ${p}`,
+    round: "R3",
+    gate: "UX-P-03",
+    built: true,
+  })),
 ];

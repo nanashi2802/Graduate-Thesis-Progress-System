@@ -8,10 +8,11 @@
 import { Dialog } from "@base-ui/react/dialog";
 import { Drawer } from "@base-ui/react/drawer";
 import { Menu } from "@base-ui/react/menu";
-import { ChevronDown, X } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useId, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { Glyph } from "@/components/patterns/glyphs";
+import { SheetPopup } from "@/components/patterns/side-sheet";
 import type { NavItem } from "@/components/patterns/sidebar/nav";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -32,26 +33,6 @@ const ICON_BUTTON =
   "relative flex size-11 items-center justify-center rounded-control text-foreground outline-none hover:bg-muted focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring data-popup-open:bg-muted";
 
 const pht = (d: Date) => d.toLocaleString("en-PH", { timeZone: "Asia/Manila", dateStyle: "medium", timeStyle: "short" }) + " PHT";
-
-/** A right side sheet. Base UI gives the focus trap; Escape closes it; focus returns to the trigger. Motion: D-10 option A. */
-function SheetPopup({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <Drawer.Portal>
-      <Drawer.Backdrop className="fixed inset-0 bg-foreground/30 transition-opacity duration-(--motion-drawer) data-ending-style:opacity-0 data-starting-style:opacity-0 motion-reduce:transition-none" />
-      <Drawer.Viewport className="fixed inset-0 flex items-stretch justify-end">
-        <Drawer.Popup className="flex h-full w-[min(100vw,400px)] flex-col border-l border-border bg-popover text-popover-foreground shadow-[var(--shadow-popover)] outline-none [transform:translateX(var(--drawer-swipe-movement-x))] transition-transform duration-(--motion-drawer) ease-(--ease-drawer) data-ending-style:[transform:translateX(100%)] data-starting-style:[transform:translateX(100%)] motion-reduce:transition-none">
-          <div className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4">
-            <Drawer.Title className="text-base font-semibold">{title}</Drawer.Title>
-            <Drawer.Close aria-label="Close" className={ICON_BUTTON}>
-              <X aria-hidden="true" strokeWidth={1.75} className="size-5" />
-            </Drawer.Close>
-          </div>
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">{children}</div>
-        </Drawer.Popup>
-      </Drawer.Viewport>
-    </Drawer.Portal>
-  );
-}
 
 /** The unread badge: 12.8 px minimum (UX-005). The count is in the button name, so the badge is hidden. */
 function Badge({ n }: { n: number }) {

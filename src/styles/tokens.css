@@ -117,6 +117,9 @@
   --motion-toast: 160ms;
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   --motion-pulse: 1.6s;       /* loading blocks (UX-D-15) */
+
+  /* The backdrop of dialogs and side sheets (decision R3-g option A, proposed at UX-P-03). */
+  --scrim: rgb(15 23 42 / 0.45);
 }
 
 /* Dark theme (UX-D-01): built from the brand colors ("White on Ink", "Golden Yellow on Ink"). Approved in UX-P-01. */
@@ -165,4 +168,6 @@
   --tone-returned-fg: #FCA5A5; --tone-returned-bg: #450A0A; --tone-returned-line: #7F1D1D;
   --tone-locked-fg: #CBD5E1;   --tone-locked-bg: #1E293B;   --tone-locked-line: #475569;
   --tone-achieved-fg: #0F172A; --tone-achieved-bg: #F4B41A; --tone-achieved-line: #CA9210;
+
+  --scrim: rgb(2 6 23 / 0.6);
 }

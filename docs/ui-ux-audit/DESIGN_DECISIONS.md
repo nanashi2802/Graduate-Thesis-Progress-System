@@ -97,6 +97,26 @@ Copy this block for each round. Fill it after the owner reviews.
 - **What the approval covers:** the R2 preview on `ui/r2-shell` as shown after feedback pass 1: app shell, sidebar (R2-a A, R2-b A, R2-c A), top bar (D-08 A plus a palette with open scope), toast, loading (UX-D-15, pulse), error, form feedback (UX-D-16), motion (D-10 A), glyphs (D-06, D-07 as chosen), theme switch without "Use system" (UX-D-14).
 - **Rules changed in DESIGN.md:** at R2.8: §5.1 (sidebar look, content width 1280 px), §6.1 (motion tokens, loading motion), §6.2 (new glyphs), §7.3 and §7.4 (theme switch without "Use system"), §8.4 (reserved message space), §14 (D-06, D-07, D-08, D-10).
 
+### UX-P-03: Queues, inbox and dialogs (R3)
+
+- **Date shown:** 26 Nov 2026
+- **Branch and commit:** `ui/r3-patterns`, on top of `b72ff4a`, not committed
+- **Shown:** `/lab/patterns/{queue-table,kpi-strip,inbox,return-composer,dialog,side-sheet,form-field}` and `/lab/states` (R3.7 contract). Screenshots in `ui-shots/r3/` (5 viewports × light and dark, plus a reduced-motion pass). Mock data only. No live page changed.
+- **Decision points:** R3-a to R3-h (`IMPLEMENTATION_PLAN.md` §10.0), and R3-i (new, below). `form-field` in the registry (§6.1 row R3). The data facts of §10.0 (no new data function).
+- **R3-i (new, found in the preview):** a blocked row action in a compact (48 px) row. The reason under the button (`BlockedAction`) makes the row taller and breaks UX-D-16. Option A (built, recommended): the button shows a `lock` glyph, stays focusable with `aria-disabled`, and the reason is linked with `aria-describedby` and shown in a tooltip on hover and focus (the `DESIGN.md` §8.5 compact rule). Option B: the row grows to show the reason under the button. Comfortable rows keep the reason under the button.
+- **Contract detail (R3.7):** an error that the server names for a field shows under that field (`role="alert"`, linked, `aria-invalid`), per `DESIGN.md` §10. Every other error and every result show in the form's `FormFeedback` slot.
+- **Changes to approved R2 parts:** `SheetPopup` moved from `top-bar` into `side-sheet` (top bar unchanged: 400 px, R2 backdrop). `PendingButton` gets an optional `form` attribute (a footer button outside its form). The `--scrim` token is in `tokens.css` for the R3-g preview; nothing live uses it yet.
+- **Feedback:** (26 Nov 2026) "For the Queue table, I want to be able to collapse or expand the sub-headers (Check scans, Confirm dates, etc.). Then select A for R3-b,c,f. R3-a: Choose option A. R3-e: Choose A. R3-g: Choose A, scrim token. R3-d: Use 480px, as recommended."
+- **Decisions taken in this feedback:** R3-a A (late after 5 days, one value). R3-b A (stacked rows on a phone). R3-c A (one line, full text in a tooltip and on focus). R3-d B (480 px). R3-e A (focus starts on Cancel). R3-f A (outline row actions, maroon for the one next step). R3-g A (the `--scrim` token). New: collapsible group headers in `queue-table`.
+- **Closed at the gate:** R3-h A (wire `ConfirmDialog` to the live permanent actions at R3.10), R3-i A (a blocked row action in a compact row shows a `lock` glyph, and its reason in a tooltip linked with `aria-describedby`), `form-field` joins the `DESIGN.md` §7.4 registry.
+- **Revisions:** (26 Nov 2026, not committed) `queue-table`: `groupBy.collapsible` makes each group header a disclosure button (`aria-expanded`, `aria-controls` on the rows of the group, a chevron that turns with `--motion-state`, still with reduced motion); `groupBy.defaultCollapsed` starts groups closed; the count stays. The `/lab` pages show the chosen options by default (dialog and sheets with `--scrim`, the sheet at 480 px, the KPI strip with option A). The live top bar keeps the R2 backdrop until R3.10. New screenshots in `ui-shots/r3/`.
+- **Feedback 2:** (26 Nov 2026) "notice how the subheaders under student overlaps with the Form column. Can you widen the columns so it looks uniform?"
+- **Revisions 2:** (26 Nov 2026, not committed) The C1 Student column is 220 px, so every group label (chevron, glyph, label, count) ends inside it (12 px or more before the Form column). The pattern note says the first column must fit the longest group label. Found in the same check: at tablet width the fixed columns were wider than the table, and "Request" overlapped "Milestone". Fix: a compact table has a minimum width (its fixed columns plus 120 px for the flexible column) and scrolls inside its frame below that; a column can hide below 1024 px (`hideBelowLaptop`, G5), used for Milestone on C1. Phones keep the stacked rows (R3-b A).
+- **Result:** Approved
+- **Approved on:** 26 Nov 2026. Owner's words: "R3 approved, go with A, A and yes" (A for R3-h, A for R3-i, yes for `form-field` in the registry).
+- **What the approval covers:** the R3 preview on `ui/r3-patterns` after feedback pass 2: `queue-table` (collapsible groups, minimum width, laptop-only columns, R3-b A, R3-c A, R3-f A, R3-i A), `kpi-strip` (R3-a A, late after 5 days), `inbox`, `return-composer`, `dialog` (R3-e A), `side-sheet` (R3-d 480 px, R3-g A `--scrim`), `form-field` and the one form-feedback contract, the R3.8 loading shapes.
+- **Rules changed in DESIGN.md:** at R3.10 (`DESIGN.md` v0.6): §5.4 (row actions, blocked row action R3-i, collapsible groups), §5.6 (tables on a phone R3-b, tablet minimum width), §7.4 (new `form-field` row; `queue-table`, `side-sheet`, `dialog` details), §8.4 (field message slot), §8.9 (dialog focus R3-e, `--scrim` R3-g), §10 Forms (the contract), §12.4 (`--scrim`).
+
 **Sidebar data facts (Task R2.1).** No new data function. The role shell reads these at Integrate:
 
 | Fact | Role | Existing function | Field | Gap |
@@ -115,7 +135,7 @@ Copy this block for each round. Fill it after the owner reviews.
 | :---- | :---- | :---- |
 | UX-P-01 | Foundations: tokens in light and dark, the theme toggle, glyphs, base patterns | **Approved 26 Nov 2026** |
 | UX-P-02 | Shell and system states: app shell, sidebar, top-bar panels (D-08), status glyphs (D-06), sidebar glyphs (D-07), toast, loading and error, motion (D-10) | **Approved 26 Nov 2026** |
-| UX-P-03 | Queues, inbox and dialogs | Not shown |
+| UX-P-03 | Queues, inbox, dialogs, side sheet, form field (R3) | **Approved 26 Nov 2026** |
 | UX-P-04 | Student path: task list, step-by-step, Thesis process | Not shown |
 | UX-P-05 | Manuscript workspace | Not shown |
 | UX-P-06 | Forms and Defense Day | Not shown |
