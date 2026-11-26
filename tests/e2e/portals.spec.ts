@@ -20,5 +20,19 @@ for (const role of ROLES) {
       await page.goto(other.home);
       await expect(page.getByRole("heading", { name: "Access Denied" })).toBeVisible();
     });
+
+    // R4.6 (PROCESS, FR-ACC-02): the Thesis process page is for the Student only.
+    test(role.name === "student" ? "opens the Thesis process page" : "is refused the Thesis process page", async ({ page }) => {
+      await page.goto("/student/process");
+      if (role.name === "student") {
+        await expect(page.getByRole("heading", { level: 1, name: "Thesis process" })).toBeVisible();
+        await expect(page.getByText("You are here")).toBeVisible();
+        const nav = page.getByRole("navigation", { name: "Student menu" });
+        await expect(nav.getByRole("link", { name: "Thesis process" })).toHaveAttribute("aria-current", "page");
+      } else {
+        await expect(page.getByRole("heading", { name: "Access Denied" })).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Thesis process" })).toHaveCount(0);
+      }
+    });
   });
 }

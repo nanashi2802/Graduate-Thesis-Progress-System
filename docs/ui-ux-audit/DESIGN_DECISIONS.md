@@ -132,6 +132,7 @@ Copy this block for each round. Fill it after the owner reviews.
 - **Decisions closed:** R4-a B (a disclosure button with `aria-expanded`, the same as the `queue-table` groups). R4-b A (copy the blank `.doc` forms to `public/forms/`). R4-c B (no Novie until R7). R4-d A (the same accordion on a phone, full width). All four are the recommended options and the `/lab` defaults.
 - **What the approval covers:** the R4 preview on `ui/r4-student` as shown: `task-list`, `step-by-step`, the PROCESS view (`src/app/student/process/view.tsx`, `steps.ts`), the R4.4 loading shapes (`tasks`, `steps`, the `process` preset), and the PROCESS stepper hidden below 640 px.
 - **Still open (not answered at the gate):** facts (1) to (3) above. R4.6 keeps the shown behavior until the owner answers.
+- **Integrated (R4.6):** 26 Nov 2026, on `ui/r4-student`, not committed. Preview commit `8a24508`. `DESIGN.md` v0.7 is written (v0.6 in `docs/stale/`). As built: `IMPLEMENTATION_PLAN.md` §10.3.
 - **Rules to change in DESIGN.md at R4.6 (v0.7):** §7.4 rows `task-list` (disclosure button R4-a B, one stamp, the 2-line reason slot) and `step-by-step` (R4-d A, done mark as in the stepper), §8.12 (the blank forms are served from `public/forms/`, R4-b A), F1 (Novie not used before R7, R4-c B).
 
 **Sidebar data facts (Task R2.1).** No new data function. The role shell reads these at Integrate:

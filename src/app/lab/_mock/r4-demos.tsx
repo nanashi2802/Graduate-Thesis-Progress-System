@@ -7,18 +7,19 @@ import { EmptyState } from "@/components/patterns/empty-state";
 import type { Step } from "@/components/patterns/step-by-step";
 import type { TaskGroup } from "@/components/patterns/task-list";
 import { buttonVariants } from "@/components/ui/button";
+import { blankFormHref } from "@/lib/forms";
 import { cn } from "@/lib/utils";
 
 const RETURN_REASON =
   "The Dean's signature is missing on page 2, and the scan cuts off the bottom of page 3. Scan the full form again after the Dean signs it.";
 
 const download = (code: string) => (
-  <a href={`/forms/${code}.doc`} download className={buttonVariants({ variant: "outline", size: "sm" })}>
+  <a href={blankFormHref(code) ?? "/forms"} download className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
     Download form<span className="sr-only">, {code.replace("_", " ")}</span>
   </a>
 );
 const upload = (label = "Upload scan") => (
-  <button type="button" className={buttonVariants({ variant: "outline", size: "sm" })}>
+  <button type="button" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
     {label}
   </button>
 );

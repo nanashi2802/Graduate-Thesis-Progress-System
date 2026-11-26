@@ -80,7 +80,7 @@ Each round has the same 4 steps: **Build preview → Gate → Integrate → Vali
 | R1 | Foundations: tokens in light and dark, theme, glyphs, base patterns | 1, 2, 3 | Dark values (UX-P-01) | **Approved 26 Nov 2026** (UX-P-01). Preview committed (`6c5c9b5`, `c7b7a71`). R1.5 integrated and committed 26 Nov 2026 (`9d663dd`, `ui/r1-integrate`). |
 | R2 | Shell and system states: app shell, sidebar, top-bar panels, toast, loading and error, motion, glyphs | 4 | D-06, D-07, D-08, D-10, R2-a, R2-b, R2-c | **Approved 26 Nov 2026** (UX-P-02). R2.8 integrated 26 Nov 2026 on `ui/r2-shell`, not committed. |
 | R3 | Queues, inbox, dialogs, side sheet, form field, one form-feedback contract | 5, 6, part of 9 | R3-a to R3-i (§10.0, UX-P-03) | **Approved 26 Nov 2026** (UX-P-03): R3-a A, R3-b A, R3-c A, R3-d 480 px, R3-e A, R3-f A, R3-g A, R3-h A, R3-i A, `form-field` in the registry. Preview committed (`3b830d7`). **R3.10 integrated 26 Nov 2026** on `ui/r3-patterns`, not committed (§10.2). |
-| R4 | Student path: task list, step-by-step, Thesis process | 7 | R4-a B, R4-b A, R4-c B, R4-d A (UX-P-04) | **Approved 26 Nov 2026** (UX-P-04): "R4 approved, go with B, A, B, A". Preview on `ui/r4-student`, not committed. R4.6 not started. |
+| R4 | Student path: task list, step-by-step, Thesis process | 7 | R4-a B, R4-b A, R4-c B, R4-d A (UX-P-04) | **Approved 26 Nov 2026** (UX-P-04): "R4 approved, go with B, A, B, A". Preview committed (`8a24508`). **R4.6 integrated 26 Nov 2026** on `ui/r4-student`, not committed (§10.3). |
 | R5 | Manuscript workspace | 8 | — | Not started |
 | R6 | Forms and Defense Day | 9 | — | Not started |
 | R7a to R7d | Screens: Student, Adviser, Panel Member, Coordinator, with SV and LOGIN | 10 | — | Not started |
@@ -962,7 +962,7 @@ Read this before you start R4. It holds what the R1 to R3 sessions learned.
 - [x] **R4.3 PROCESS preview** at `/lab/screens/PROCESS` with mock data for a Master's and a Doctoral Student (2 and 3 Panel Members). 4 steps, no Stage 0.
 - [x] **R4.4 loading shapes** for the task list and PROCESS, if needed (UX-D-15).
 - [x] **R4.5 preview (26 Nov 2026: shots stopped by the owner, see §13; text checks and a DOM keyboard walk instead).** `pnpm lab:shots r4` (all viewports, light and dark, the reduced pass; read `manifest.jsonl`). Keyboard walk of the disclosure buttons and the step accordion. Then the gate message (§4.2) with R4-a to R4-d. Stop.
-- [ ] **R4.6 integrate (after "R4 approved" only).** The live route `/student/process` (Student only, the same role check as the other Student pages, FR-ACC-02). The sidebar item "Thesis process" (second Student item, `navFor` test first). S3 (and S1, S6 where the registry names them) move onto `task-list`; keep each call site's data and actions (§4.4 list first). e2e: the route opens for the Student and is refused for the other 3 roles. Validate (§4.5; live shots of PROCESS and S3 only, §4.5.1). `DESIGN.md` v0.7 (`git mv` v0.6 to `docs/stale/` first). This plan's §3, §13 and the R4 checkboxes; the UX-P-04 record.
+- [x] **R4.6 integrate (after "R4 approved" only). Built 26 Nov 2026, not committed: §10.3.** The live route `/student/process` (Student only, the same role check as the other Student pages, FR-ACC-02). The sidebar item "Thesis process" (second Student item, `navFor` test first). S3 (and S1, S6 where the registry names them) move onto `task-list`; keep each call site's data and actions (§4.4 list first). e2e: the route opens for the Student and is refused for the other 3 roles. Validate (§4.5; live shots of PROCESS and S3 only, §4.5.1). `DESIGN.md` v0.7 (`git mv` v0.6 to `docs/stale/` first). This plan's §3, §13 and the R4 checkboxes; the UX-P-04 record.
 
 **Facts from the R3 sessions (they add to §9.0 and §10.0):**
 
@@ -981,9 +981,42 @@ Read this before you start R4. It holds what the R1 to R3 sessions learned.
 | `task-list` | `TaskList(props: { groups: { label; collapsed?; items: { stamp?; label; reason?; actions? }[] }[] })` | A collapsed group ("Advising forms · optional") is a `<details>` or a disclosure button with `aria-expanded`. Each item has at most one stamp. |
 | `step-by-step` | `StepByStep(props: { steps: { title; current; done; body }[] })` | The current step shows "You are here" and is expanded. The other steps are collapsed. Done steps have the `done` glyph. |
 
-- [ ] Route `/student/process` (`spec/SITEMAP.md`, PROCESS spec): Student only (FR-ACC-02), with the same role check as the other Student pages. A Master's Student sees "2 Panel Members", a Doctoral Student "3". 4 steps, no Stage 0. Forms link to the blank forms in `docs/reference/tdw-forms` until Phase 4.
-- [ ] e2e: the route opens for the Student and is refused for the other 3 roles.
-- [ ] The route is new code, but it is in the sitemap. Its preview is `/lab/screens/PROCESS` with mock data. Build the live page only after the gate.
+- [x] Route `/student/process` (`spec/SITEMAP.md`, PROCESS spec): Student only (FR-ACC-02), with the same role check as the other Student pages. A Master's Student sees "2 Panel Members", a Doctoral Student "3". 4 steps, no Stage 0. Forms link to the blank forms in `docs/reference/tdw-forms` until Phase 4.
+- [x] e2e: the route opens for the Student and is refused for the other 3 roles.
+- [x] The route is new code, but it is in the sitemap. Its preview is `/lab/screens/PROCESS` with mock data. Build the live page only after the gate.
+
+
+### 10.3 R4.6 as built (26 Nov 2026)
+
+**Branch:** `ui/r4-student`, on top of `8a24508` (the approved preview), not committed. No server action, data function or access check changed. The live pages make the same data calls as before; PROCESS makes one existing call (`studentTracker`).
+
+**§4.4 lists, before the change.**
+
+| Component | Props and data | Actions | Blocked | Accessibility | Loading and error | After R4.6 |
+| :---- | :---- | :---- | :---- | :---- | :---- | :---- |
+| S3 list (`student/documents/page.tsx`) | `readableMilestones`, `deliverables`, `advisingCopies` | `ScanUploader` (required scan, advising copy) | `ActionButton` with the locked reason or "The Adviser/Coordinator uploads this form." | `<ul>` rows; advising forms in a `<details>` | `loading.tsx` (page preset); `EmptyState` | `task-list`: the same calls, uploaders and reasons. The advising forms are a collapsed group (R4-a B) with names. New: "Download form" on each TDW row (UX-032). The stamp uses `formLabel` (UX-016 on S3). The signer text shows as "On paper: …" (UX-020). |
+| S1 Readiness (`student/dashboard/page.tsx`) | `studentTracker().checklist` | none | none | `<ul>`, Lucide icons | `EmptyState` | `task-list` with a status stamp ("Done", "Not done"); the same data and empty state |
+| S6 checklist (`student/clearance/page.tsx`) | `clearanceView().rows` through `ClearanceList` | none | none | `<ul>`, Lucide icons | `EmptyState` | `task-list` with a status stamp ("Done", "Open") and the source as a note. C7 keeps `ClearanceList` until R7d. |
+| Student sidebar (`navFor`) | `NavFacts` | — | — | — | — | "Thesis process" second, always open (test first) |
+
+**What changed.**
+
+| Area | Change | IDs |
+| :---- | :---- | :---- |
+| Route | `/student/process`: `page.tsx` (role check before the data call, the same as S1), `loading.tsx` (the `process` preset), `view.tsx` and `steps.ts` from the preview. A Student with no thesis record sees an empty state. | FR-ACC-02, FR-TRK-01 |
+| Forms (R4-b A) | `public/forms/TDW-01.doc` to `TDW-13.doc`, byte copies of `docs/reference/tdw-forms` (already tracked in this public repository). `blankFormHref` in `src/lib/forms.ts`, with a test. | FR-DOC-01, UX-032 |
+| Fix found in the live check | A link with `buttonVariants({ variant: "outline" })` and no `cn()` keeps the base `border-transparent`, so the outline border did not show on S3. S3 and the `/lab` demos now use `cn()`. PROCESS already did. | — |
+| Tests | `sidebar.test.ts` (Thesis process second, always open), `tests/unit/lib/forms.test.ts`, e2e in `portals.spec.ts` (PROCESS opens for the Student with the sidebar item current; Access Denied for the Adviser, the Panel Member and the Coordinator). | FR-ACC-02 |
+
+**Left as they are (for R7a and R7d).**
+
+- S3 has no "Returned" reason under a row: `Deliverable.records` has no return reason. A data change (R7a).
+- S3 has no "Completed milestones" group and no History tab: both need data calls that the page does not make today (R7a).
+- The S3 upload buttons keep the full form name ("Upload Panel on Oral Defense …"), so their widths vary (UX audit, R7a).
+- S1 keeps its old Docket; "See the whole process" comes with the S1 screen in R7a. The sidebar item is the entry point now.
+- C7 keeps `ClearanceList` (R7d).
+- The blank `.doc` files carry the author names of university staff in their file metadata. The files were already public in `docs/reference/tdw-forms`.
+- Open facts (1) to (3) of UX-P-04: unchanged until the owner answers.
 
 ### R5: manuscript workspace (old Task 8)
 
@@ -1073,6 +1106,7 @@ Fill one row for each validation run. Never write "pass" for a check you did not
 | 26 Nov 2026 | R3 (build preview) | `b72ff4a` + uncommitted (`ui/r3-patterns`) | Pass (0 errors, the same 1 warning) | Pass | Pass (84 files, 1030 tests; run alone) | Pass (27, `E2E_PORT=3100` on the new build; the top bar now imports `SheetPopup` from `side-sheet`) | Pass | `pnpm lab:shots r3`: 242 shots, 0 console errors, all HTTP 200 (`ui-shots/r3/`) | Not run again (no color token changed; `--scrim` is a backdrop) | Playwright walk of the 7 `/lab` pages: 33 of 33 checks (sort headers and `aria-sort`, row actions, blocked reason on focus, long title on focus, 48 px compact rows, KPI links, inbox list, dialog focus start A and B, focus trap, Escape, focus return, composer Escape and focus return, no layout move, sheet trap and focus return, field error link) | Pass (reduced-motion pass in `lab:shots`) | Not run (package not approved) | New R3-i (blocked action in a compact row). No live page changed except the top-bar import. After feedback passes 1 and 2 (collapsible groups, column widths, option-B pages removed): test 84 files, 1034 tests; walk 36 of 36; `lab:shots r3` 176 shots, 0 console errors, all HTTP 200. |
 | 26 Nov 2026 | R3.10 (integrate) | `020802c` + this commit (`ui/r3-patterns`) | Pass (0 errors, the same 1 warning) | Pass | Pass (85 files, 1053 tests, run alone, before the Gate 1b label fix; after it only `dialog`, `form-contract` and `milestones` data tests ran: all pass) | Pass (28, `E2E_PORT=3100` on the production build, with the new confirm-dialog test; blocked path only, see §10.2 gaps) | Pass | `LAB_LIVE=1` audit into `ui-shots/r3-live/`: **stopped by the owner after 80 shots** (desktop light and dark, part of laptop light). "Saved" is not "passed": many pages show errors (missing routes; dev server error screens, because files changed during the run). The full audit is deferred to R7d (§4.5.1); these 80 shots are not evidence. | Not run again (no color token changed) | Production walk of C2 and C4: labels, 44 px and 36 px fields, linked hints, 40 px slots, solid outlines (except the Chrome calendar button in the date field, as before), a blocked Verify takes focus and opens no dialog. No live dialog walk (no open permanent action in the dev data). | Not run (shots stopped) | Not run (package not approved) | Gate 1b: owner kept "Endorse and lock manuscript" and asked to fix the mismatch: new read-only `gate1bLocksOnEndorse`. |
 | 26 Nov 2026 | R4 preview (R4.1 to R4.5) | not committed (`ui/r4-student`, on `a140e36`) | Pass (0 errors, the same 1 warning) | Pass | Pass (88 files, 1083 tests, run alone). The new R4 tests failed first with the patterns removed. | Not run (no live page changed) | Not run (no live page changed) | `pnpm lab:shots r4` **stopped by the owner** after 69 of 110 shots: not checked, not evidence. Owner, 26 Nov 2026: take shots only when the right interface is sure. Instead: a text check of the 10 R4 page links on the dev server (HTTP 200, the expected content, no error overlay) and 4 single shots that I looked at (PROCESS at 1280 px and 390 px, task list, step-by-step). | Not run (no color token changed; tone tokens only) | Pass (`/lab`, DOM checks): group and step buttons reachable in order, 2 px solid outline, Enter and Space toggle `aria-expanded` and the region, "Show all steps" opens 4 of 4, `<details>` opens from the keyboard | Pass (chevron transition 0 s with `reducedMotion: "reduce"`) | Not run (package not approved) | The dev server kept an old `loading/index.tsx` after an in-place Python write (HTTP 200 with an error overlay). An edit with the Edit tool reloaded it. The 390 px shot showed the stepper past the right edge: PROCESS hides it below 640 px. |
+| 26 Nov 2026 | R4.6 (integrate) | `8a24508` + not committed (`ui/r4-student`) | Pass (0 errors, the same 1 warning) | Pass | Pass (89 files, 1086 tests, run alone, before and after the S3 `cn()` fix) | Pass (32, `E2E_PORT=3100` on the production build, with the 4 new PROCESS role tests; run again after the fix: 32 pass) | Pass | No batch (owner rule, §13 R4 preview row). Live check on the production build, student session: PROCESS and S3 in light and dark, HTTP 200, no console error, DOM content as expected; 1 shot of each in light that I looked at. It found the S3 border defect, now fixed and checked again. | Not run (no color token changed) | Not run again on the live pages (the `/lab` walk covers the same patterns) | Not run on the live pages | Not run (package not approved) | `GET /forms/TDW-07.doc`: 200, `application/msword`. |
 ---
 
 ## 14. Definition of done

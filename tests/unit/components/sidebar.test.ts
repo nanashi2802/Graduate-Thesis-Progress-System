@@ -20,8 +20,13 @@ const labels = (role: Parameters<typeof navFor>[0], f: NavFacts = NO_FACTS, o?: 
 const item = (role: Parameters<typeof navFor>[0], f: NavFacts, label: string) => navFor(role, f).find((i) => i.label === label)!;
 
 describe("navFor (R2.1)", () => {
-  it("gives the Student the README items in order, without Thesis process until R4", () => {
-    expect(labels("student")).toEqual(["Dashboard", "Manuscript", "Documents", "Schedule", "Defense results", "Clearance", "Submission"]);
+  it("gives the Student the README items in order, with Thesis process second (R4.6)", () => {
+    expect(labels("student")).toEqual(["Dashboard", "Thesis process", "Manuscript", "Documents", "Schedule", "Defense results", "Clearance", "Submission"]);
+  });
+
+  it("keeps Thesis process open on every day, also before the thesis exists (PROCESS, G3)", () => {
+    expect(item("student", NO_FACTS, "Thesis process")).toMatchObject({ href: "/student/process", glyph: "process", lockedReason: null });
+    expect(item("student", M3, "Thesis process").href).toBe("/student/process");
   });
 
   it("locks Clearance before Milestone 3 with the SITEMAP reason", () => {

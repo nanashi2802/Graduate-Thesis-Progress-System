@@ -1,7 +1,7 @@
 // Source: design/screens/README.md (Sidebars), spec/SITEMAP.md §9, DESIGN.md §5.1. Task R2.1 (UX-027, UX-028).
 // The sidebar items of each role, in README order. Pure: no data access. The role shell computes `NavFacts`
 // from data functions that exist and check access (IMPLEMENTATION_PLAN.md §9, Task R2.1).
-// Left out until their routes exist: "Thesis process" (R4) and the Coordinator "Audit" (R7d).
+// Left out until its route exists: the Coordinator "Audit" (R7d). "Thesis process" joined in R4.6.
 // Left out because no list route exists (decision R2-b): the Coordinator "Defense" item; "Submission" for
 // the Adviser, the Panel Member and the Coordinator (they open SV from a record row).
 // Glyphs: D-07 as chosen at UX-P-02 (option A, Availability option B).
@@ -79,6 +79,8 @@ export function navFor(role: NavRole, f: NavFacts, opts: NavOptions = {}): NavIt
     case "student":
       return [
         open("Dashboard", "/student/dashboard", "overview"),
+        // PROCESS (R4.6): open on every day, so the Student sees the whole path from day one (G3).
+        open("Thesis process", "/student/process", "process"),
         gated("Manuscript", "manuscript", f.prId && `/student/pr/${f.prId}`, f.prId ? null : LOCKED.noThesis),
         open("Documents", "/student/documents", "template"),
         open("Schedule", "/student/schedule", "schedule"),

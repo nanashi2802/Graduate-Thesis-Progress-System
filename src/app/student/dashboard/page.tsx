@@ -2,11 +2,11 @@
 // The Docket is the next-action card. The other regions are ruled sections, not cards (DESIGN.md §5.2, §5.3).
 // The residency warning is a flag only (FR-WFL-12, BR-17). The portal layout checks the role.
 import Link from "next/link";
-import { CircleCheck, CircleDashed } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { FlagBanner } from "@/components/banners";
 import { Docket } from "@/components/docket";
 import { MilestoneStepper, type StepperStageIndex } from "@/components/milestone-stepper";
+import { TaskList } from "@/components/patterns/task-list";
 import { MilestoneStatusPill, OutsideChip } from "@/components/status";
 import { buttonVariants } from "@/components/ui/button";
 import { getRoleState } from "@/server/auth/session";
@@ -104,21 +104,22 @@ export default async function Page() {
       />
       {next.action !== null && href ? <p className="-mt-8 max-w-[72ch] text-base">{next.text}</p> : null}
 
-      <Section title={`Readiness · ${MILESTONE_LABEL[current.code]}`}>
-        {t.checklist.length === 0 ? (
-          <EmptyState title="No checklist for this step." detail="The list appears when a defense date is near." />
-        ) : (
-          <ul className="flex flex-col divide-y divide-border border-y border-border">
-            {t.checklist.map((i) => (
-              <li key={i.id} className="flex items-center gap-3 py-3 text-sm">
-                {i.done ? <CircleCheck aria-hidden="true" className="size-4 text-tone-done-fg" /> : <CircleDashed aria-hidden="true" className="size-4 text-muted-foreground" />}
-                <span>{i.label}</span>
-                <span className="ml-auto text-muted-foreground">{i.done ? "Done" : "Not done"}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Section>
+      {/* R4.6: the readiness items use the `task-list` pattern (DESIGN.md §7.4), with the same data. */}
+      <div className="border-t border-border pt-8">
+        <TaskList
+          groups={[
+            {
+              label: `Readiness · ${MILESTONE_LABEL[current.code]}`,
+              items: t.checklist.map((i) => ({
+                id: i.id,
+                stamp: { kind: "status", tone: i.done ? "done" : "neutral", label: i.done ? "Done" : "Not done" },
+                label: i.label,
+              })),
+              empty: <EmptyState title="No checklist for this step." detail="The list appears when a defense date is near." />,
+            },
+          ]}
+        />
+      </div>
 
       <Section title="Outside statuses">
         <div className="flex flex-wrap gap-3">

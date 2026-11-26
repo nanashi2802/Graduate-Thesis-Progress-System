@@ -1,8 +1,9 @@
 // `/student/clearance` (S6): the exit checklist of the Final milestone (FR-CLR-01, FR-CLR-02, FR-CLR-04).
 // The Student uploads evidence on the Documents page. The Coordinator verifies it. The portal layout checks the role.
+// R4.6: the rows use the `task-list` pattern (DESIGN.md §7.4) with the same data. C7 keeps `ClearanceList` until R7d.
 import Link from "next/link";
-import { ClearanceList } from "@/app/_components/clearance-list";
 import { EmptyState } from "@/components/empty-state";
+import { TaskList } from "@/components/patterns/task-list";
 import { getRoleState } from "@/server/auth/session";
 import { clearanceView } from "@/server/data/clearance";
 import { getDb } from "@/server/data/db";
@@ -25,7 +26,23 @@ export default async function Page() {
           </Link>
         </p>
       </header>
-      {view ? <ClearanceList rows={view.rows} /> : <EmptyState title="Clearance opens after the Final Defense." detail="Your checklist appears here." />}
+      {view ? (
+        <TaskList
+          groups={[
+            {
+              label: "Clearance items",
+              items: view.rows.map((r) => ({
+                id: r.kind,
+                stamp: { kind: "status", tone: r.done ? "done" : "neutral", label: r.done ? "Done" : "Open" },
+                label: r.label,
+                reason: { text: r.source === "record" ? "Comes from its own record." : "The Coordinator verifies it.", kind: "note" },
+              })),
+            },
+          ]}
+        />
+      ) : (
+        <EmptyState title="Clearance opens after the Final Defense." detail="Your checklist appears here." />
+      )}
     </div>
   );
 }

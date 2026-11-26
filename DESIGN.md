@@ -1,7 +1,13 @@
 # DESIGN.md — PUP CpE Thesis Progress Monitoring System
 
-**Status:** Draft v0.6 (26 Nov 2026). v0.5 plus the queues, inbox, dialogs, side sheet, form field and the one form-feedback contract of preview round UX-P-03 (R3-a to R3-i). Task R3.10 builds it.
-**Change log:** v0.6, 26 Nov 2026 (decisions in `docs/ui-ux-audit/DESIGN_DECISIONS.md`, approved in UX-P-03):
+**Status:** Draft v0.7 (26 Nov 2026). v0.6 plus the Student path of preview round UX-P-04 (R4-a to R4-d): the task list, the step-by-step and the Thesis process screen. Task R4.6 builds it.
+**Change log:** v0.7, 26 Nov 2026 (decisions in `docs/ui-ux-audit/DESIGN_DECISIONS.md`, approved in UX-P-04):
+- **Task list:** a collapsed group is a disclosure button with `aria-expanded`, the same look as the queue-table groups (R4-a B). One stamp for each item. A reason has a fixed 2-line slot with "Show more" (§7.4).
+- **Step-by-step:** the same accordion on a phone, full width (R4-d A). The step marks follow the stepper. PROCESS hides the stepper below 640 px (§7.4).
+- **Forms:** "Download form" links to the blank forms in `public/forms/` (R4-b A, §8.12).
+- **Novie:** not used before R7 (R4-c B, F1).
+
+v0.6, 26 Nov 2026 (decisions in `docs/ui-ux-audit/DESIGN_DECISIONS.md`, approved in UX-P-03):
 - **Tables:** compact rows have equal outline row actions, maroon only for the one next step (R3-f). A long title is one line with the full text in a tooltip and on focus (R3-c). A blocked row action in a compact row shows a `lock` glyph and its reason in a tooltip (R3-i). Group headers can collapse (§5.4).
 - **Breakpoints:** tables become stacked rows on a phone (R3-b). A compact table has a minimum width and scrolls in its frame below it; a minor column can hide below 1024 px (§5.6).
 - **Dialogs and sheets:** a permanent action opens a confirm dialog, and focus starts on Cancel (R3-e, R3-h). One `--scrim` backdrop for every dialog, sheet and drawer (R3-g). The side-sheet form is 480 px (R3-d) (§8.9, §12.4).
@@ -118,7 +124,7 @@ Each kind of screen borrows from one proven public system. The reference sets th
 
 | # | Rule | Source |
 | :---- | :---- | :---- |
-| F1 | Use no PUP logo or seal anywhere: app, emails, favicon, documents. No icon may copy or suggest a part of the PUP logo or seal (no star, laurel or torch). The ThesIsko mark is allowed: official artwork only, never redrawn or recolored (§7.4 `brand-mark`). Exception: the mascot Novie may appear in empty states and milestone moments (R4, R7), never on a serious outcome (Returned, a failed check). | Owner (intellectual property), UX-D-10, UX-D-11 items 6 and 7 |
+| F1 | Use no PUP logo or seal anywhere: app, emails, favicon, documents. No icon may copy or suggest a part of the PUP logo or seal (no star, laurel or torch). The ThesIsko mark is allowed: official artwork only, never redrawn or recolored (§7.4 `brand-mark`). Exception: the mascot Novie may appear in empty states and milestone moments (R7, not before: R4-c B), never on a serious outcome (Returned, a failed check). | Owner (intellectual property), UX-D-10, UX-D-11 items 6 and 7 |
 | F2 | A flag warns. It never blocks and never looks like a block. | BR-17 |
 | F3 | Nothing is deleted, so no solid red (destructive) button exists. | BR-19 |
 | F4 | Scores are numbers only. No grade, no grade equivalent, no color on scores. | BR-15 |
@@ -473,8 +479,8 @@ A lint rule can enforce layer 3: no import from `@/components/ui/*` or a library
 | Merge box | `merge-box` | Primer pull-request merge box | S2 |
 | Gate box | `gate-box` | Primer merge box with checks | A2, P2 |
 | Milestone stepper | `stepper` | Own (ledger) | S1, A1, P1, PROCESS |
-| Step-by-step | `step-by-step` | GOV.UK step-by-step navigation | PROCESS |
-| Task list | `task-list` | GOV.UK task list | S1, S3, S6, C7 |
+| Step-by-step | `step-by-step` | GOV.UK step-by-step navigation: a heading with a disclosure button for each step, "You are here" (`aria-current="step"`) open at first, the other steps closed, "Show all steps", step marks as in the stepper (done maroon with the `done` glyph, current gold), the same accordion on a phone (R4-d A) | PROCESS |
+| Task list | `task-list` | GOV.UK task list: groups with a heading and a count, at most one stamp for each item (document stamp, outside chip or status pill), the label, one reason in a fixed 2-line slot with "Show more" (the Coordinator's returned reason word for word), the actions on the right; a collapsed group is a disclosure button with `aria-expanded` (R4-a B) | S1, S3, S6 (integrated in R4.6), C7 (R7d) |
 | Queue table | `queue-table` | Linear, Carbon data table: compact 48 px or comfortable 56 px rows, `aria-sort`, equal row actions, collapsible groups, stacked rows on a phone, a minimum width on tablet | A1, P1, C1, C2, C3, C8, C9, C10 |
 | KPI strip | `kpi-strip` | Linear, own: a link for each queue, the count, the oldest age, late after 5 days (R3-a A, `LATE_POLICIES.A`) | C1 |
 | Inbox (list, viewer, record) | `inbox` | Linear triage, Primer file view | C4, C5, C6 |
@@ -607,7 +613,7 @@ Demo data stays empty, so the first day is a designed state on every screen. Eac
 ### 8.12 Forms (TDW)
 
 - The 13 TDW forms ship as defaults from `docs/reference/tdw-forms`. The Coordinator can replace each one on C8.
-- "Download form" gives the blank form now. After Phase 4 (FR-DOC-04, FR-DOC-05) it gives the prefilled form. The control does not change.
+- "Download form" gives the blank form now: a static file in `public/forms/` (`TDW-01.doc` to `TDW-13.doc`, a byte copy of `docs/reference/tdw-forms`, link from `blankFormHref` in `src/lib/forms.ts`; R4-b A). After Phase 4 (FR-DOC-04, FR-DOC-05) it gives the prefilled form. The control does not change. It is a secondary button with an accessible name that names the form.
 
 ---
 
