@@ -122,7 +122,7 @@ Copy this block for each round. Fill it after the owner reviews.
 ### UX-P-04: Student path (R4)
 
 - **Date shown:** 26 Nov 2026
-- **Branch and commit:** `ui/r4-student`, on top of `a140e36` (`ui/r3-patterns`), not committed. PR #81 is still open.
+- **Branch and commit:** `ui/r4-student`, on top of `a140e36` (`ui/r3-patterns`); preview `8a24508`, integration `f4f9ded`. PR #81 is still open.
 - **Shown:** `/lab/patterns/task-list`, `/lab/patterns/step-by-step`, `/lab/screens/PROCESS` (the real `src/app/student/process/view.tsx` with mock props, no `page.tsx`, so no live route). No screenshot set: the owner stopped `lab:shots r4` (26 Nov 2026, "we must proceed with the screenshot only if we are sure of grabbing the right interface"); the 69 partial shots in `ui-shots/r4/` are not checked. Mock data only. No live page changed.
 - **Decision points:** R4-a (collapsed group: A `<details>`, B disclosure button, recommend B), R4-b ("Download form": A static `public/forms/`, B Student-only route, C no download yet, recommend A), R4-c (Novie: A on the PROCESS first view and the S3 empty state, B none until R7, recommend B: no master artwork in the repository, UX-X-19), R4-d (step-by-step on a phone: A the same accordion, B the current step and "Show all steps", recommend A). `IMPLEMENTATION_PLAN.md` R4.0.
 - **Facts for the owner to check:** (1) The Final Panel counts are the template v1 values: 3 members (Master's) and 4 (Doctoral), with the Panel Chair. (2) PROCESS makes Clearance the current step at `FINAL_APPROVED`, the same rule as the S1 stepper. The Unified Thesis Process §2.9 starts the clearance work when the Final Defense closes, so Clearance could start at `CLOSED`. (3) The counts are the template v1 defaults. A template that the Coordinator changes on C8 does not change PROCESS; reading the template is a data call for R4.6 or later.
@@ -132,7 +132,7 @@ Copy this block for each round. Fill it after the owner reviews.
 - **Decisions closed:** R4-a B (a disclosure button with `aria-expanded`, the same as the `queue-table` groups). R4-b A (copy the blank `.doc` forms to `public/forms/`). R4-c B (no Novie until R7). R4-d A (the same accordion on a phone, full width). All four are the recommended options and the `/lab` defaults.
 - **What the approval covers:** the R4 preview on `ui/r4-student` as shown: `task-list`, `step-by-step`, the PROCESS view (`src/app/student/process/view.tsx`, `steps.ts`), the R4.4 loading shapes (`tasks`, `steps`, the `process` preset), and the PROCESS stepper hidden below 640 px.
 - **Still open (not answered at the gate):** facts (1) to (3) above. R4.6 keeps the shown behavior until the owner answers.
-- **Integrated (R4.6):** 26 Nov 2026, on `ui/r4-student`, not committed. Preview commit `8a24508`. `DESIGN.md` v0.7 is written (v0.6 in `docs/stale/`). As built: `IMPLEMENTATION_PLAN.md` §10.3.
+- **Integrated (R4.6):** 26 Nov 2026, on `ui/r4-student`, committed as `f4f9ded`. Preview commit `8a24508`. `DESIGN.md` v0.7 is written (v0.6 in `docs/stale/`). As built: `IMPLEMENTATION_PLAN.md` §10.3.
 - **Rules to change in DESIGN.md at R4.6 (v0.7):** §7.4 rows `task-list` (disclosure button R4-a B, one stamp, the 2-line reason slot) and `step-by-step` (R4-d A, done mark as in the stepper), §8.12 (the blank forms are served from `public/forms/`, R4-b A), F1 (Novie not used before R7, R4-c B).
 
 **Sidebar data facts (Task R2.1).** No new data function. The role shell reads these at Integrate:

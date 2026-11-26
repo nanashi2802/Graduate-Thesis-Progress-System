@@ -1,6 +1,6 @@
 # UI/UX retrofit implementation plan
 
-**Status:** v1.5, 26 Nov 2026. R3.10 integrated, not committed (§10.2). v1.4: R3 approved at UX-P-03 and committed (`3b830d7`); R3.10 was written for a new session (§10.1). v1.3: R1 and R2 approved, integrated and committed (`9d663dd`, `ad2c760`). R3 is written for a new session (§10.0). v1.2: R1 approved; R1.5 and R2 were written for a new session (§8 Task R1.5, §9). Round 0, Round 1, Round H, Round 2 and the R1 preview are committed (up to `c7b7a71`). v1.1 (25 Nov 2026) added Round H and the Stage 1 tasks (§6.1). Update the "State" column of §3 and the results log in §13 as you work.
+**Status:** v1.6, 26 Nov 2026. R4 approved (UX-P-04), integrated and committed (`8a24508`, `f4f9ded`); R5 is written for a new session (R5.0). v1.5: R3.10 integrated, not committed (§10.2). v1.4: R3 approved at UX-P-03 and committed (`3b830d7`); R3.10 was written for a new session (§10.1). v1.3: R1 and R2 approved, integrated and committed (`9d663dd`, `ad2c760`). R3 is written for a new session (§10.0). v1.2: R1 approved; R1.5 and R2 were written for a new session (§8 Task R1.5, §9). Round 0, Round 1, Round H, Round 2 and the R1 preview are committed (up to `c7b7a71`). v1.1 (25 Nov 2026) added Round H and the Stage 1 tasks (§6.1). Update the "State" column of §3 and the results log in §13 as you work.
 **Replaces:** `docs/superpowers/plans/2026-11-25-guided-ledger-ui.md`. This plan keeps its tasks and adds an audit, the `/lab` showcase, dark mode and a preview gate before each round.
 **Goal:** Make the app feel complete, consistent, accessible and easy to use in light and dark. Keep every screen, route, flow, role and data contract as it is. Usability first, consistency always, decoration last.
 
@@ -80,8 +80,8 @@ Each round has the same 4 steps: **Build preview → Gate → Integrate → Vali
 | R1 | Foundations: tokens in light and dark, theme, glyphs, base patterns | 1, 2, 3 | Dark values (UX-P-01) | **Approved 26 Nov 2026** (UX-P-01). Preview committed (`6c5c9b5`, `c7b7a71`). R1.5 integrated and committed 26 Nov 2026 (`9d663dd`, `ui/r1-integrate`). |
 | R2 | Shell and system states: app shell, sidebar, top-bar panels, toast, loading and error, motion, glyphs | 4 | D-06, D-07, D-08, D-10, R2-a, R2-b, R2-c | **Approved 26 Nov 2026** (UX-P-02). R2.8 integrated 26 Nov 2026 on `ui/r2-shell`, not committed. |
 | R3 | Queues, inbox, dialogs, side sheet, form field, one form-feedback contract | 5, 6, part of 9 | R3-a to R3-i (§10.0, UX-P-03) | **Approved 26 Nov 2026** (UX-P-03): R3-a A, R3-b A, R3-c A, R3-d 480 px, R3-e A, R3-f A, R3-g A, R3-h A, R3-i A, `form-field` in the registry. Preview committed (`3b830d7`). **R3.10 integrated 26 Nov 2026** on `ui/r3-patterns`, not committed (§10.2). |
-| R4 | Student path: task list, step-by-step, Thesis process | 7 | R4-a B, R4-b A, R4-c B, R4-d A (UX-P-04) | **Approved 26 Nov 2026** (UX-P-04): "R4 approved, go with B, A, B, A". Preview committed (`8a24508`). **R4.6 integrated 26 Nov 2026** on `ui/r4-student`, not committed (§10.3). |
-| R5 | Manuscript workspace | 8 | — | Not started |
+| R4 | Student path: task list, step-by-step, Thesis process | 7 | R4-a B, R4-b A, R4-c B, R4-d A (UX-P-04) | **Approved 26 Nov 2026** (UX-P-04): "R4 approved, go with B, A, B, A". Preview committed (`8a24508`). **R4.6 integrated and committed 26 Nov 2026** (`f4f9ded`, `ui/r4-student`, §10.3). |
+| R5 | Manuscript workspace | 8 | R5-a to R5-e (UX-P-05) | Not started. Brief: R5.0. |
 | R6 | Forms and Defense Day | 9 | — | Not started |
 | R7a to R7d | Screens: Student, Adviser, Panel Member, Coordinator, with SV and LOGIN | 10 | — | Not started |
 | R8 | Layer rule, clean-up, full validation | 11 | — | Not started |
@@ -988,7 +988,7 @@ Read this before you start R4. It holds what the R1 to R3 sessions learned.
 
 ### 10.3 R4.6 as built (26 Nov 2026)
 
-**Branch:** `ui/r4-student`, on top of `8a24508` (the approved preview), not committed. No server action, data function or access check changed. The live pages make the same data calls as before; PROCESS makes one existing call (`studentTracker`).
+**Branch:** `ui/r4-student`, on top of `8a24508` (the approved preview), committed as `f4f9ded`. No server action, data function or access check changed. The live pages make the same data calls as before; PROCESS makes one existing call (`studentTracker`).
 
 **§4.4 lists, before the change.**
 
@@ -1019,6 +1019,97 @@ Read this before you start R4. It holds what the R1 to R3 sessions learned.
 - Open facts (1) to (3) of UX-P-04: unchanged until the owner answers.
 
 ### R5: manuscript workspace (old Task 8)
+
+#### R5.0 Brief for R5 (new session)
+
+Read this before you start R5. It holds what the R1 to R4 sessions learned.
+
+**State on 26 Nov 2026:** branch `ui/r4-student`. R4 preview committed as `8a24508`, R4.6 (integrate) as `f4f9ded`. Nothing is pushed. R1 to R4 (UX-P-01 to UX-P-04) are approved, integrated and committed. `DESIGN.md` is v0.7. PR #81 (`feat/guided-ledger`) was still open: check it first (§1 step 2).
+
+**Branch:** make `ui/r5-workspace` from `ui/r4-student`. Commit only when the owner says so (AGENTS.md §2).
+
+**Read first, in this order:**
+
+1. `AGENTS.md` (§2, §5, §7 with BR-05, BR-06, BR-07, BR-19, §8, §9).
+2. `docs/ui-ux-audit/DESIGN_DECISIONS.md`: UX-D-01 to UX-D-16, the UX-P-03 record (R3.10 lines: the Gate 1b dialog and the missing Student name) and the UX-P-04 record (with the 3 open facts).
+3. `DESIGN.md` v0.7: §2 (G1, G4, G5, G10), §5.2 (identity line), §5.3 (S2, A2 and P2 forms of the Docket: merge box and gate box), §8.6 (locked banner), §8.9 (dialogs, Return composer), §10, §7.4 rows `workspace`, `pdf-viewer`, `commit-selector`, `thread-feed`, `merge-box`, `gate-box`.
+4. `design/screens/S2.md`, `A2.md`, `P2.md` (the three users of the workspace). `spec/SITEMAP.md` §9 (the blocked messages for Upload, Mark Ready, Gate 1a, Gate 1b, Gate 2 and Defense Day threads).
+5. `docs/ui-ux-audit/UI_UX_AUDIT.md`: UX-008, UX-009 (Critical, the PDF crash; Round H fixed the crash, R5 finishes it), UX-010, UX-030, UX-040.
+6. §10.0 to §10.3 and the R4.0 brief above. Their environment facts still apply.
+
+**What R1 to R4 built that R5 uses (do not rebuild):**
+
+| Part | Where | Use in R5 |
+| :---- | :---- | :---- |
+| Tokens, glyphs, status pill and stamp | `tokens.css`, `patterns/glyphs`, `patterns/status` | The Ready pill, gate glyphs, the `commit` glyph |
+| `identity-line` | `patterns/identity-line` | The workspace header (UX-030) |
+| `BlockedAction` | `patterns/blocked-action` | Mark Ready, Upload, the gate button, New thread, each with its SITEMAP §9 reason (BR-18) |
+| `ConfirmDialog`, `confirmCopy` | `patterns/dialog` | Endorse (Gate 1a, Gate 1b), Gate 2. Already live through `EndorseButton` (R3.10). Keep the copy and `gate1bLocksOnEndorse`. |
+| `ReturnComposer` | `patterns/return-composer` | Return in the gate box (R5-c) |
+| `SideSheet` | `patterns/side-sheet` | Only if R5-a picks B |
+| `FormFeedback`, `PendingButton`, `FormField` | `patterns/form-feedback`, `patterns/form-field` | The thread, reply, Ready and Return forms |
+| `task-list` collapsible group look | `patterns/task-list`, `patterns/queue-table` | The same disclosure button look, if a feed group collapses |
+| `LoadingBlocks` | `patterns/loading` | A new `workspace` shape (R5.7) |
+| Lab | `src/app/lab/`, `_mock/pages.ts`, `LAB_ROUNDS` | `/lab/patterns/<name>` for each pattern, `/lab/patterns/workspace?role=student\|adviser\|panel` |
+
+**Today's workspace (the §4.4 list starts here):**
+
+| File | Holds | Users |
+| :---- | :---- | :---- |
+| `src/app/_components/pr-workspace.tsx` (196 lines) | `PrWorkspace({ portal, prId, commit, page })`: the role check, `workspaceFor`, the gate blocks (`checkTransition`, `gate1bBlock`, `gate2Block`, `gate1bLocksOnEndorse`), `threadPostBlock`, `listAttempts`, then the markup | `student/pr/[prId]`, `adviser/pr/[prId]`, `panel/pr/[prId]` |
+| `src/app/_components/workspace-controls.tsx` (205 lines) | `ReadyButton`, `EndorseButton` (on `ConfirmDialog` since R3.10), `ReturnForm`, `NewThreadForm` (with the page number), `ReplyForm`, `ResolveButton`. All except `EndorseButton` still use the old `useRun` line (left for R5 in §10.2). | `pr-workspace.tsx` |
+| `src/components/pdf-viewer.tsx`, `src/app/_components/pdf-pane.tsx` | The react-pdf viewer, the Round H error state | `pr-workspace.tsx`, SV, C4 |
+| `src/app/_components/commit-uploader.tsx` | The upload of a new commit (write-once key, a status line) | S2 |
+| `src/app/_components/revision-panel.tsx` | The revision items (FR-REV-13) | A2, P2 |
+
+**Data facts (no new data function expected):**
+
+| Need | Existing source | Gap |
+| :---- | :---- | :---- |
+| Commits, the Ready mark, the lock | `workspaceFor(ctx, prId)` (through `submissionFor`) | None |
+| Threads with the page number, Outdated, replies with the author role, "addressed by" | `workspaceFor().threads` (`ThreadView`, D-26 page from 1 to 9999) | None |
+| Can this user resolve a thread (BR-05) | `thread.authorId === actor.id` | None (computed in the page) |
+| Gate checks for the gate box | `checkTransition`, `gate1bBlock`, `gate2Block` (each gives one reason or none) | The gate box shows one row for each check. Today each function gives only the first reason. List the rows that the reasons can name; a full list of checks is a data change for later. |
+| Thesis title and Student name in the identity line (UX-030) | `workspaceFor` has the milestone, not the thesis title or the Student name | **Gap.** A2 and P2 cannot name the Student before a gate action (also the R3.10 dialog gap). A read-only addition to `workspaceFor` (same access check) needs the owner's approval at UX-P-05. Do not add it in the preview. |
+
+**Decision points for the owner at gate UX-P-05 (show 2 or 3 options each, with a recommendation):**
+
+| ID | Decision | Options to show |
+| :---- | :---- | :---- |
+| R5-a | The thread feed below 1024 px | A: a tab "Threads" beside "Manuscript" (the plan's interface). B: a "Threads" button that opens a `side-sheet`. Recommend A: no overlay over the PDF, and the tab keeps the count. |
+| R5-b | The upload on S2 | A: a sticky bottom bar (S2 spec). B: the upload inside the merge box. Recommend A: the S2 spec, and the merge box keeps one action. |
+| R5-c | Return in the gate box (A2, Gate 1a) | A: `ReturnComposer` inline under the gate box (the same as C4). B: a dialog with a reason field. Recommend A: one Return look in the app. |
+| R5-d | "p. 14" on a thread | A: the viewer moves to the page in place, and focus moves to the viewer. B: a link to `?page=14` (the page already reads `page`), so Back returns. Recommend B: Back works and the link can be shared. |
+| R5-e | Integrate scope at R5.10 | A: re-exports, `pdf-viewer` moved, the `workspace-controls` forms on the form-feedback contract; the S2, A2 and P2 markup waits for R7. B: also move `PrWorkspace` onto the patterns now (one file serves 3 routes). Recommend A: "R3 to R6 build only patterns" (§10). |
+
+**Screenshots (§4.5.1 and the owner's rule of 26 Nov 2026):** no `lab:shots` batch by default. Check each `/lab` page with a text check (HTTP 200, the expected content, no error text) and look at one shot yourself. Run a batch only when the owner asks and the pages are confirmed. Edit files with the Edit tool: an in-place Python write was not reloaded by the dev server in R4.
+
+**Rules that bind every R5 pattern:** the R3 and R4 rules still apply (UX-D-16 fixed slots, UX-D-04 toasts, G1 and G8, BR-17, BR-18, both themes, WCAG 2.2 AA, tokens only, mock data only in `/lab`). Also: the student replies and never resolves (BR-05); no edit or delete control on a commit or a scan (BR-19); the lock banner after Gate 1b (BR-07); the PDF page stays white in dark (UX-D-01); no pin or highlight on the PDF (ADR-009, D-26); Return is never a solid red fill and never disabled in the gate box (F3).
+
+**R5 tasks.** Tests first for each pattern (the table under this brief). Each pattern: `src/components/patterns/<name>/index.tsx`, first line `// Source: <reference>`, a typed props contract, a `/lab/patterns/<name>` page with every state in light and dark, a row in `_mock/pages.ts` and in `LAB_ROUNDS.r5`.
+
+- [ ] **R5.1 `merge-box`.** One sentence, at most one action, the locked reason in place of the action (S2 states: first day, Ready, locked).
+- [ ] **R5.2 `gate-box`.** One row for each check with a pass or fail glyph and the reason; the gate button `aria-disabled` with the failing reason; Return per R5-c. The gate button opens the existing `ConfirmDialog` copy.
+- [ ] **R5.3 `commit-selector`.** `v3` in mono, the short hash, the date (PHT), the uploader, the Ready pill. A list of links that sets `?commit=` (the page reads it today). No edit or delete.
+- [ ] **R5.4 `thread-feed`.** Tabs Open (first), All, Resolved with counts; "p. 14" per R5-d; Outdated tag (BR-06); "Addressed by v4" (FR-REV-08); Reply for all, Resolve only for the author (BR-05); the amber edge on the viewer's own open threads; a 65-character measure (UX-D-03). New thread and Reply on the form-feedback contract.
+- [ ] **R5.5 `pdf-viewer`.** Move `src/components/pdf-viewer.tsx` into the pattern folder with a re-export at the old path; the same props. Page Up and Page Down; the lock banner; the Round H error state (UX-009) and no "Page 1 of 0" (UX-040); white page in dark. In `/lab`, a mock file or the error state only (no storage call).
+- [ ] **R5.6 `workspace`.** Header (identity line), box (merge box or gate box), commit selector, viewer and feed: split at laptop (feed 400 px), R5-a below 1024 px; the S2 upload bar per R5-b.
+- [ ] **R5.7 loading shape** `workspace` (header, box, viewer block, feed lines), if needed (UX-D-15).
+- [ ] **R5.8 preview.** `/lab/patterns/workspace?role=student|adviser|panel` with the first-day, working, Ready and locked states. Text checks, one shot of each page that you look at, a keyboard walk (tabs, thread forms, "p. 14", Page Up and Page Down, the gate dialog: focus on Cancel, Escape, focus return). Then the gate message (§4.2) with R5-a to R5-e and the identity-line data gap. Stop.
+- [ ] **R5.9 integrate (after "R5 approved" only).** Per R5-e. List the §4.4 items of each changed component first. The `workspace-controls` forms move onto `FormFeedback` and `PendingButton` (keep each server action, its result shape and `router.refresh()`). Validate (§4.5): lint, typecheck, the full unit suite alone, build, e2e on the production build. Live check of S2, A2 and P2 on the production build (text checks and one shot each). `DESIGN.md` v0.8 (`git mv` v0.7 to `docs/stale/` first). This plan's §3, §13 and the R5 checkboxes; the UX-P-05 record.
+
+**Facts from the R4 session (they add to §9.0, §10.0 and R4.0):**
+
+| Topic | Fact |
+| :---- | :---- |
+| Stale module | The dev server kept an old `loading/index.tsx` after an in-place Python write: HTTP 200, but an error overlay in the picture. An edit with the Edit tool reloaded it. Check the content, not only the status. |
+| Error text in HTML | Every page has "This page could not be found." inside the Next.js page data (the built-in not-found fallback). A text check must not count it as an error. |
+| `buttonVariants` on a link | `buttonVariants({ variant: "outline" })` without `cn()` keeps the base `border-transparent`, and the border does not show. Wrap it in `cn()`. |
+| `useId` in tests | React 19 ids look like `_R_a6f5…_`. Tests that build a regex from `aria-controls` work, but do not hard-code an id. |
+| Server view, client pattern | A server `view.tsx` can pass functions to its own server helpers (`formHref`), but only elements and plain data into a client pattern. |
+| Student session file | `tests/e2e/.auth/student.json` (made by `auth.setup.ts`) lets a small Playwright script open live Student pages on port 3100. |
+
+
 
 | Pattern | Interface | Tests |
 | :---- | :---- | :---- |
@@ -1105,8 +1196,8 @@ Fill one row for each validation run. Never write "pass" for a check you did not
 
 | 26 Nov 2026 | R3 (build preview) | `b72ff4a` + uncommitted (`ui/r3-patterns`) | Pass (0 errors, the same 1 warning) | Pass | Pass (84 files, 1030 tests; run alone) | Pass (27, `E2E_PORT=3100` on the new build; the top bar now imports `SheetPopup` from `side-sheet`) | Pass | `pnpm lab:shots r3`: 242 shots, 0 console errors, all HTTP 200 (`ui-shots/r3/`) | Not run again (no color token changed; `--scrim` is a backdrop) | Playwright walk of the 7 `/lab` pages: 33 of 33 checks (sort headers and `aria-sort`, row actions, blocked reason on focus, long title on focus, 48 px compact rows, KPI links, inbox list, dialog focus start A and B, focus trap, Escape, focus return, composer Escape and focus return, no layout move, sheet trap and focus return, field error link) | Pass (reduced-motion pass in `lab:shots`) | Not run (package not approved) | New R3-i (blocked action in a compact row). No live page changed except the top-bar import. After feedback passes 1 and 2 (collapsible groups, column widths, option-B pages removed): test 84 files, 1034 tests; walk 36 of 36; `lab:shots r3` 176 shots, 0 console errors, all HTTP 200. |
 | 26 Nov 2026 | R3.10 (integrate) | `020802c` + this commit (`ui/r3-patterns`) | Pass (0 errors, the same 1 warning) | Pass | Pass (85 files, 1053 tests, run alone, before the Gate 1b label fix; after it only `dialog`, `form-contract` and `milestones` data tests ran: all pass) | Pass (28, `E2E_PORT=3100` on the production build, with the new confirm-dialog test; blocked path only, see §10.2 gaps) | Pass | `LAB_LIVE=1` audit into `ui-shots/r3-live/`: **stopped by the owner after 80 shots** (desktop light and dark, part of laptop light). "Saved" is not "passed": many pages show errors (missing routes; dev server error screens, because files changed during the run). The full audit is deferred to R7d (§4.5.1); these 80 shots are not evidence. | Not run again (no color token changed) | Production walk of C2 and C4: labels, 44 px and 36 px fields, linked hints, 40 px slots, solid outlines (except the Chrome calendar button in the date field, as before), a blocked Verify takes focus and opens no dialog. No live dialog walk (no open permanent action in the dev data). | Not run (shots stopped) | Not run (package not approved) | Gate 1b: owner kept "Endorse and lock manuscript" and asked to fix the mismatch: new read-only `gate1bLocksOnEndorse`. |
-| 26 Nov 2026 | R4 preview (R4.1 to R4.5) | not committed (`ui/r4-student`, on `a140e36`) | Pass (0 errors, the same 1 warning) | Pass | Pass (88 files, 1083 tests, run alone). The new R4 tests failed first with the patterns removed. | Not run (no live page changed) | Not run (no live page changed) | `pnpm lab:shots r4` **stopped by the owner** after 69 of 110 shots: not checked, not evidence. Owner, 26 Nov 2026: take shots only when the right interface is sure. Instead: a text check of the 10 R4 page links on the dev server (HTTP 200, the expected content, no error overlay) and 4 single shots that I looked at (PROCESS at 1280 px and 390 px, task list, step-by-step). | Not run (no color token changed; tone tokens only) | Pass (`/lab`, DOM checks): group and step buttons reachable in order, 2 px solid outline, Enter and Space toggle `aria-expanded` and the region, "Show all steps" opens 4 of 4, `<details>` opens from the keyboard | Pass (chevron transition 0 s with `reducedMotion: "reduce"`) | Not run (package not approved) | The dev server kept an old `loading/index.tsx` after an in-place Python write (HTTP 200 with an error overlay). An edit with the Edit tool reloaded it. The 390 px shot showed the stepper past the right edge: PROCESS hides it below 640 px. |
-| 26 Nov 2026 | R4.6 (integrate) | `8a24508` + not committed (`ui/r4-student`) | Pass (0 errors, the same 1 warning) | Pass | Pass (89 files, 1086 tests, run alone, before and after the S3 `cn()` fix) | Pass (32, `E2E_PORT=3100` on the production build, with the 4 new PROCESS role tests; run again after the fix: 32 pass) | Pass | No batch (owner rule, §13 R4 preview row). Live check on the production build, student session: PROCESS and S3 in light and dark, HTTP 200, no console error, DOM content as expected; 1 shot of each in light that I looked at. It found the S3 border defect, now fixed and checked again. | Not run (no color token changed) | Not run again on the live pages (the `/lab` walk covers the same patterns) | Not run on the live pages | Not run (package not approved) | `GET /forms/TDW-07.doc`: 200, `application/msword`. |
+| 26 Nov 2026 | R4 preview (R4.1 to R4.5) | `8a24508` (`ui/r4-student`, on `a140e36`) | Pass (0 errors, the same 1 warning) | Pass | Pass (88 files, 1083 tests, run alone). The new R4 tests failed first with the patterns removed. | Not run (no live page changed) | Not run (no live page changed) | `pnpm lab:shots r4` **stopped by the owner** after 69 of 110 shots: not checked, not evidence. Owner, 26 Nov 2026: take shots only when the right interface is sure. Instead: a text check of the 10 R4 page links on the dev server (HTTP 200, the expected content, no error overlay) and 4 single shots that I looked at (PROCESS at 1280 px and 390 px, task list, step-by-step). | Not run (no color token changed; tone tokens only) | Pass (`/lab`, DOM checks): group and step buttons reachable in order, 2 px solid outline, Enter and Space toggle `aria-expanded` and the region, "Show all steps" opens 4 of 4, `<details>` opens from the keyboard | Pass (chevron transition 0 s with `reducedMotion: "reduce"`) | Not run (package not approved) | The dev server kept an old `loading/index.tsx` after an in-place Python write (HTTP 200 with an error overlay). An edit with the Edit tool reloaded it. The 390 px shot showed the stepper past the right edge: PROCESS hides it below 640 px. |
+| 26 Nov 2026 | R4.6 (integrate) | `f4f9ded` (`ui/r4-student`) | Pass (0 errors, the same 1 warning) | Pass | Pass (89 files, 1086 tests, run alone, before and after the S3 `cn()` fix) | Pass (32, `E2E_PORT=3100` on the production build, with the 4 new PROCESS role tests; run again after the fix: 32 pass) | Pass | No batch (owner rule, §13 R4 preview row). Live check on the production build, student session: PROCESS and S3 in light and dark, HTTP 200, no console error, DOM content as expected; 1 shot of each in light that I looked at. It found the S3 border defect, now fixed and checked again. | Not run (no color token changed) | Not run again on the live pages (the `/lab` walk covers the same patterns) | Not run on the live pages | Not run (package not approved) | `GET /forms/TDW-07.doc`: 200, `application/msword`. |
 ---
 
 ## 14. Definition of done
