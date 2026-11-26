@@ -19,9 +19,9 @@ export default async function Page() {
   const milestone = (await readableMilestones(ctx)).at(-1);
   if (!milestone) {
     return (
-      <main className="mx-auto max-w-[960px] px-4 py-8 sm:px-8">
+      <div className="mx-auto max-w-[960px]">
         <EmptyState title="No milestone yet." detail="Your Coordinator makes your account with its first milestone." />
-      </main>
+      </div>
     );
   }
   const slots = (await listSlots(ctx, { slotType: "consultation" })).filter((s) => s.status === "available");
@@ -42,7 +42,7 @@ export default async function Page() {
   const proposeBlock = canPropose ? undefined : milestone.status === "DATE_PROPOSED" || milestone.status === "DEFENSE_SCHEDULED" ? "A date is proposed already." : "Locked until Gate 1b.";
 
   return (
-    <main className="mx-auto flex max-w-[960px] flex-col gap-10 px-4 py-8 sm:px-8">
+    <div className="mx-auto flex max-w-[960px] flex-col gap-10">
       <header className="flex flex-col gap-2">
         <h1 className="text-2xl font-semibold">Schedule</h1>
         <p className="max-w-[72ch] text-sm text-muted-foreground">Book a consultation with your Adviser and pick your defense date. All times are Philippine Standard Time.</p>
@@ -61,7 +61,7 @@ export default async function Page() {
                 <p className="text-sm font-medium">
                   {pstRange(s.startsAt, s.endsAt)} · {MODE[s.mode]}
                 </p>
-                <ActionForm action={requestBookingAction.bind(null, s.id)} submitLabel="Request this slot">
+                <ActionForm action={requestBookingAction.bind(null, s.id)} submitLabel="Request this slot" successToast="Slot requested.">
                   <Field label="Agenda (optional)">
                     <textarea name="agenda" className={areaClass} />
                   </Field>
@@ -130,7 +130,7 @@ export default async function Page() {
                     <p>Recommendations: {e.recommendations ?? "None."}</p>
                   </>
                 ) : (
-                  <ActionForm action={topicAction.bind(null, e.id)} submitLabel="Save topic" resetOnSuccess={false}>
+                  <ActionForm action={topicAction.bind(null, e.id)} submitLabel="Save topic" resetOnSuccess={false} successToast="Topic saved.">
                     <Field label="Topic">
                       <input name="topic" defaultValue={e.topic ?? ""} className={inputClass} />
                     </Field>
@@ -170,6 +170,6 @@ export default async function Page() {
           </Field>
         </ActionForm>
       </section>
-    </main>
+    </div>
   );
 }

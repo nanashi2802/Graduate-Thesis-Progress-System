@@ -27,7 +27,7 @@ export default async function Page({ params }: PageProps<"/coordinator/defense/[
   const mismatches = d.sheets.filter((s) => s.sheetMatch === "mismatch" && !s.verified);
 
   return (
-    <main className="mx-auto flex max-w-[1200px] flex-col gap-12 px-4 py-8 sm:px-8">
+    <div className="mx-auto flex flex-col gap-12">
       <PageHeader
         title={`${d.studentName} · ${MILESTONE_LABEL[d.milestone] ?? d.milestone} Defense, attempt ${d.attemptNo}`}
         detail={`${d.scheduledStartAt ? new Intl.DateTimeFormat("en-PH", PST).format(d.scheduledStartAt) : "No start time"} · ${d.roomOrLink ?? "No room"}`}
@@ -120,6 +120,6 @@ export default async function Page({ params }: PageProps<"/coordinator/defense/[
           <CertifyForm milestoneId={d.milestoneId} blockedReason={d.certifyBlockedReason} />
         </Section>
       ) : null}
-    </main>
+    </div>
   );
 }

@@ -2,7 +2,7 @@
 // Source: adapted from React Bits "SquishSwitch" (https://reactbits.dev/micro/squish-switch),
 // Copyright (c) 2026 David Haz, MIT + Commons Clause License Condition v1.0. Supplied by the owner (UX-D-13).
 // Changes: TypeScript, project tokens instead of fixed colors, Tailwind instead of a CSS file, the theme
-// logic of UX-D-01 (System by default, "Use system" after a choice), and a thumb that is a sun which morphs
+// logic of UX-D-01 (the OS setting until the first click; UX-D-14: only light or dark, no link back to the OS setting), and a thumb that is a sun which morphs
 // into a crescent moon (rays turn away, the disc grows, a cutout slides in). One shape, never two icons.
 // Motion: the thumb stretches with speed and squashes at the end (velocity spring). With
 // `prefers-reduced-motion: reduce`, it jumps and does not stretch or morph over time.
@@ -274,15 +274,6 @@ export function ThemeToggle({ compact = false }: ThemeToggleProps) {
           </motion.span>
         </span>
       </button>
-      {choice !== "system" ? (
-        <button
-          type="button"
-          onClick={() => writeChoice("system")}
-          className="text-[0.8rem] font-medium text-link underline-offset-4 outline-none hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid focus-visible:outline-ring"
-        >
-          Use system
-        </button>
-      ) : null}
     </span>
   );
 }

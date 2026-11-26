@@ -8,13 +8,16 @@ import { Glyph, GLYPH_NAMES, type GlyphName } from "@/components/patterns/glyphs
 const EXPECTED: GlyphName[] = [
   "scan", "verify", "flag", "return", "seat", "calendar", "defense", "gate", "commit", "clear", "template",
   "overview", "student", "users", "audit", "export", "search", "bell", "done", "todo", "lock", "received",
+  // UX-P-02 feedback, 26 Nov 2026: D-06 status glyphs (B, B, pending A) and D-07 sidebar glyphs (A, Availability B).
+  "active", "pending", "achieved",
+  "process", "manuscript", "schedule", "results", "submission", "advisees", "queue", "consult", "availability", "assignments",
 ];
 
 const svg = (name: GlyphName, props: Record<string, unknown> = {}) =>
   renderToStaticMarkup(createElement(Glyph, { name, ...props }));
 
 describe("Glyph set (R1.3)", () => {
-  it("holds exactly the 22 approved glyphs", () => {
+  it("holds exactly the 35 approved glyphs", () => {
     expect([...GLYPH_NAMES].sort()).toEqual([...EXPECTED].sort());
   });
 

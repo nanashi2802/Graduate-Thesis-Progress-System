@@ -9,7 +9,7 @@ export default async function Page() {
   if (!ctx) return null; // The portal layout shows Access Denied.
   const users = await listUsers(ctx);
   return (
-    <main className="mx-auto flex max-w-[1200px] flex-col gap-12 px-4 py-8 sm:px-8">
+    <div className="mx-auto flex flex-col gap-12">
       <PageHeader
         title="Users"
         detail="Each account has one role. A role cannot change after the account acts in it. Deactivate the account and make a new one instead."
@@ -30,6 +30,6 @@ export default async function Page() {
           ))}
         </ul>
       </Section>
-    </main>
+    </div>
   );
 }

@@ -10,10 +10,10 @@ export type LabPage = {
 
 export type GateState = "Not shown" | "Waiting" | "Approved" | "Approved with changes" | "Rejected";
 
-// Copy of the "Result" column of DESIGN_DECISIONS.md §3, 25 Nov 2026.
+// Copy of the "Result" column of DESIGN_DECISIONS.md §3, 26 Nov 2026.
 export const GATES: Record<string, GateState> = {
-  "UX-P-01": "Not shown",
-  "UX-P-02": "Not shown",
+  "UX-P-01": "Approved",
+  "UX-P-02": "Approved",
   "UX-P-03": "Not shown",
   "UX-P-04": "Not shown",
   "UX-P-05": "Not shown",
@@ -33,7 +33,8 @@ export const LAB_PAGES: LabPage[] = [
     gate: "UX-P-01",
     built: true,
   })),
-  ...["app-shell", "sidebar", "toast"].map((p) => ({ path: `/lab/patterns/${p}`, title: `Pattern: ${p}`, round: "R2", gate: "UX-P-02", built: false })),
-  { path: "/lab/states", title: "System states", round: "R2", gate: "UX-P-02", built: false },
-  { path: "/lab/motion", title: "Motion options (D-10)", round: "R2", gate: "UX-P-02", built: false },
+  ...["app-shell", "sidebar", "top-bar", "toast"].map((p) => ({ path: `/lab/patterns/${p}`, title: `Pattern: ${p}`, round: "R2", gate: "UX-P-02", built: true })),
+  { path: "/lab/states", title: "System states", round: "R2", gate: "UX-P-02", built: true },
+  { path: "/lab/motion", title: "Motion options (D-10)", round: "R2", gate: "UX-P-02", built: true },
+  { path: "/lab/glyphs#candidates", title: "Glyph candidates (D-06, D-07)", round: "R2", gate: "UX-P-02", built: true },
 ];

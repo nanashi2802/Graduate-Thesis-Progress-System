@@ -15,7 +15,7 @@ export default async function Page() {
   const final = (await readableMilestones(ctx)).find((m) => m.code === "final");
   const view = final ? await clearanceView(ctx, final.id) : null;
   return (
-    <main className="mx-auto flex max-w-[960px] flex-col gap-8 px-4 py-8 sm:px-8">
+    <div className="mx-auto flex max-w-[960px] flex-col gap-8">
       <header className="flex flex-col gap-2">
         <h1 className="text-2xl font-semibold">Clearance</h1>
         <p className="max-w-[72ch] text-sm text-muted-foreground">
@@ -26,6 +26,6 @@ export default async function Page() {
         </p>
       </header>
       {view ? <ClearanceList rows={view.rows} /> : <EmptyState title="Clearance opens after the Final Defense." detail="Your checklist appears here." />}
-    </main>
+    </div>
   );
 }

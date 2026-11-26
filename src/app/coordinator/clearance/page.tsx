@@ -23,7 +23,7 @@ export default async function Page({ searchParams }: PageProps<"/coordinator/cle
   const closeBlock = final && view && view.status !== "CLEARED" ? await checkTransition(ctx, final.id, "CLEARED") : null;
 
   return (
-    <main className="mx-auto flex max-w-[960px] flex-col gap-10 px-4 py-8 sm:px-8">
+    <div className="mx-auto flex max-w-[960px] flex-col gap-10">
       <PageHeader title="Clearance" detail="Verify the evidence of each item. Close the thesis as Cleared when every item is done." />
       {!student || !final || !view ? (
         students.length === 0 ? (
@@ -72,6 +72,6 @@ export default async function Page({ searchParams }: PageProps<"/coordinator/cle
           </Section>
         </>
       )}
-    </main>
+    </div>
   );
 }

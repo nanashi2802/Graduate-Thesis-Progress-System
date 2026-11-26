@@ -46,7 +46,7 @@ export async function PrWorkspace({ portal, prId, commit, page }: { portal: User
         />
       );
     }
-    if (e instanceof InputProblem) return <main className="mx-auto max-w-[960px] px-4 py-8"><EmptyState title="This manuscript was not found." detail="Go back to your dashboard and open it from there." /></main>;
+    if (e instanceof InputProblem) return <div className="mx-auto max-w-[960px]"><EmptyState title="This manuscript was not found." detail="Go back to your dashboard and open it from there." /></div>;
     throw e;
   }
   const { milestone, commits, pr, locked, threads } = ws;
@@ -81,7 +81,7 @@ export async function PrWorkspace({ portal, prId, commit, page }: { portal: User
   const openOwn = threads.filter((t) => t.thread.state === "OPEN").map((t) => ({ id: t.thread.id, label: `v${t.commitOrdinal}: ${t.thread.body.slice(0, 80)}` }));
 
   return (
-    <main className="mx-auto flex max-w-[1200px] flex-col gap-6 px-4 py-8 sm:px-8">
+    <div className="mx-auto flex flex-col gap-6">
       <header className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-2xl font-semibold">{MILESTONE_NAME[milestone.milestoneCode]} manuscript</h1>
@@ -189,6 +189,6 @@ export async function PrWorkspace({ portal, prId, commit, page }: { portal: User
         </section>
       </div>
       {itemsAttempt ? <RevisionPanel ctx={ctx} attemptId={itemsAttempt.attempt.id} commits={commits.map((c) => ({ id: c.id, ordinal: c.ordinal }))} /> : null}
-    </main>
+    </div>
   );
 }

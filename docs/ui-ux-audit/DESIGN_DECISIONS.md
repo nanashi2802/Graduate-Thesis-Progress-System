@@ -36,6 +36,9 @@
 | UX-D-12 | 26 Nov 2026 | **Theme toggle motion.** Owner's words: "use framer motion for the theme toggle, and only one of the icons can be seen at a time." The pill switch uses `motion/react` (the Framer Motion package, already installed): the thumb slides with a spring (stiffness 500, damping 32) and the icon turns and fades in 0.18 s; `AnimatePresence mode="wait"` keeps one icon at a time. With `prefers-reduced-motion: reduce`, every change is instant. | Wait for D-10 in UX-P-02. CSS only. | First motion in the app, ahead of D-10. D-10 still sets the other timings in UX-P-02 and can align this one. |
 
 | UX-D-13 | 26 Nov 2026 | **Squish switch with a sun-to-moon thumb.** Owner's words: "https://reactbits.dev/micro/squish-switch. Can you use this? but instead of a circle, it is a sun or a moon morphing into the other upon toggle" and "I can give you the component itself." The owner supplied the React Bits `SquishSwitch` source. `theme-toggle` adapts it: the velocity stretch and end squash, drag, tap, Escape to cancel, hover swell; the thumb is one SVG shape that morphs from a sun into a crescent moon (rays turn away, the disc grows, a mask cutout slides in). Theme logic, "Use system" and tokens stay. Reduced motion: no stretch, no swell, instant. Replaces UX-D-12. **Open risk:** React Bits is MIT + Commons Clause, which forbids redistributing the components themselves, and this repository is public. The file header keeps the copyright and license notice. **Risk accepted (26 Nov 2026):** the owner chose option A, "commit it as is", over B (make the repository private) and C (rewrite as original code). Owner's words: "do A." | Keep the UX-D-12 pill. Build the effect in-house with no React Bits code. | Reverses D-11 ("No React Bits", UX-D-04) for this one component. |
+| UX-D-14 | 26 Nov 2026 | **Theme switch: light or dark only.** Owner's words (UX-P-02): "Remove the \"Use System\" text on the theme toggle, just light or dark." The switch has no link back to the OS setting. The OS setting still applies until the first click (theme script, UX-D-01). | Keep "Use system" after a choice. | Built on `ui/r2-shell`. This changes the live shell and LOGIN at once (the switch is live since R1.5). `DESIGN.md` §7.3 and §7.4 change at R2.8. |
+| UX-D-15 | 26 Nov 2026 | **Loading blocks with motion, by screen kind.** Owner's words (UX-P-02): "for the loading skeletons, also do specific loading skeletons depending on what is in the screen, as well as loading skeleton animations and other loading animations". Replaces "no shimmer" of UX-D-04 (D-09). R2 gives the shapes (rows, cards, docket, form, list), 4 page presets (dashboard, queue, record, form), the effect (pulse, option A, or shimmer, option B; 1.6 s) and an inline spinner. With reduced motion, nothing moves. | Keep still blocks (UX-D-04). | Each screen composes its own `loading.tsx` from these in R3 to R7 (`IMPLEMENTATION_PLAN.md` §10, §11). The pulse or shimmer choice is open at UX-P-02. |
+| UX-D-16 | 26 Nov 2026 | **Reserve space for every message.** Owner's words (UX-P-02): "For the feedback (and anything that writes something or response to the user), make sure its shell/container has enough space/padding to include the message, so it wouldnt resize the whole container." A form message slot has one **fixed height** in every state (idle, pending, error, done): 3 lines by default (`h-15`), or 2 or 4 with `lines`. Size it for the longest message at the narrowest width. A longer message is clamped on the screen only (`line-clamp-*`); the full text stays in the DOM for screen readers and the field link, and a "Show more" toggle shows it all over the next content, so nothing moves. A pending button keeps its width (both labels in one grid cell). Addition (owner, 26 Nov 2026): "the message slot must keep one fixed height". | Let the layout grow when a message appears. Or a minimum height (`min-h-10`, the first build). | Applies to every later pattern that shows a result, an error or a count (R3 to R7). Clamp or shorten: both (owner, 26 Nov 2026: "keep both"). The clamp with "Show more" is the safety net; one fact in 25 words or fewer is the writing rule. |
 
 ### 2.1 Smaller points applied with the decisions above
 
@@ -79,10 +82,39 @@ Copy this block for each round. Fill it after the owner reviews.
 - **Not decided at this gate:** `@axe-core/playwright` (§4, still proposed). The master logo SVG files (still missing, UX-X-19).
 - **Rules changed in DESIGN.md:** in R1.5: a new `DESIGN.md` v0.4 (palette, dark tokens §12.5, fonts §1 and §4, type scale, icons §6.2, radii §6.1, focus §10, F1 narrowed, stepper §8.2, G8, theme toggle §7.3, brand mark in §7.4).
 
+### UX-P-02: Shell and system states (R2)
+
+- **Date shown:** 26 Nov 2026
+- **Branch and commit:** `ui/r2-shell`, on top of `9d663dd` (R1.5), not committed
+- **Shown:** `/lab/patterns/{app-shell,sidebar,top-bar,toast}`, `/lab/states`, `/lab/motion`, `/lab/glyphs#candidates`. Screenshots in `ui-shots/r2/` (5 viewports × light and dark, plus a reduced-motion pass). Mock data only. No live page changed.
+- **Decision points:** D-06, D-07, D-08, D-10, R2-a, R2-b, R2-c (`IMPLEMENTATION_PLAN.md` §9.0). Sidebar data facts of Task R2.1 (below).
+- **Feedback:** (26 Nov 2026) "Status Glyphs: Use option B, except for pending. Sidebar Glyphs: use option A except for Availability. Remove the \"Use System\" text on the theme toggle, just light or dark." Notifications: "let them be clickable so the user can just click the notification … and it will bring them to the matter. No need to implement, you can write this as a gh issue." "D-08: Lets also do a route/command palette. But for its features and scope, lets leave it for later discussion." Reserve space for messages, and loading skeletons for each screen with animations. "D-10: Lets do A. R2-a: Option A. R2-b: Option A. R2-c: A."
+- **Decisions taken in this feedback:** D-06: active B (arrow in a circle), pending A (hourglass), achieved B (trophy). D-07: option A for all, Availability B. D-08: option A plus a route or command palette; the palette scope is open (later discussion). D-10: option A. R2-a: A. R2-b: A. R2-c: A (1280 px). New: UX-D-14, UX-D-15, UX-D-16. Issue #82 (clickable notifications, a feature change).
+- **Revisions:** (26 Nov 2026, not committed) The 13 chosen glyphs are in `GLYPHS` and in the sidebar; the pills switch from Lucide at R2.8. `--motion-*` tokens (D-10 A) in `tokens.css`; the patterns use them. The theme switch has no "Use system" link (UX-D-14). Loading shapes, page presets, pulse or shimmer, spinner (UX-D-15). `FormFeedback` keeps two lines free and `PendingButton` keeps its width (UX-D-16). New screenshots in `ui-shots/r2/`.
+- **Open at the gate, closed with the recommendation:** the owner approved without an answer to the 2 open points, so the recommendations apply: the loading effect is the pulse (option A); the Student shell makes one more call, `submissionFor(ctx, milestoneId)` (Manuscript link), and derives `sheetsVerified` from the milestone status (CLOSED or later), with no `defenseDetail` call. The owner can change either at any time.
+- **Result:** Approved
+- **Approved on:** 26 Nov 2026. Owner's words: "R2 Approved".
+- **What the approval covers:** the R2 preview on `ui/r2-shell` as shown after feedback pass 1: app shell, sidebar (R2-a A, R2-b A, R2-c A), top bar (D-08 A plus a palette with open scope), toast, loading (UX-D-15, pulse), error, form feedback (UX-D-16), motion (D-10 A), glyphs (D-06, D-07 as chosen), theme switch without "Use system" (UX-D-14).
+- **Rules changed in DESIGN.md:** at R2.8: §5.1 (sidebar look, content width 1280 px), §6.1 (motion tokens, loading motion), §6.2 (new glyphs), §7.3 and §7.4 (theme switch without "Use system"), §8.4 (reserved message space), §14 (D-06, D-07, D-08, D-10).
+
+**Sidebar data facts (Task R2.1).** No new data function. The role shell reads these at Integrate:
+
+| Fact | Role | Existing function | Field | Gap |
+| :---- | :---- | :---- | :---- | :---- |
+| `milestone`, `milestoneId` | Student | `studentTracker(ctx)` | `current.code`, `current.milestoneId` | None |
+| `gate1bDone` | Student | `studentTracker(ctx)` | `keyDates.earliestDefenseDate !== null` (set from Gate 1b) | None |
+| `defenseId` | Student | `studentTracker(ctx)` | `defense.attemptId` | None |
+| `prId` | Student | `submissionFor(ctx, milestoneId)` | `pr.id` (the dashboard calls it today for "Open the manuscript") | One more call in the shell |
+| `sheetsVerified` | Student | `defenseDetail(ctx, attemptId)` | every `sheets[].verified` | One more call in the shell. Option: derive it from `current.status` (CLOSED or later), with no call |
+| `defenseId`, `prId` | Adviser | `adviserDashboard(ctx)` | `advisees[].attemptId`, `advisees[].prId` | Many advisees: R2-b picks the record |
+| `defenseStarted` | Adviser | none | `AdviseeRow` has no start time | Item shows open; the A5 page keeps its own block |
+| `prId`, `panelAccess`, `defenseId`, `defenseStarted` | Panel Member | `panelDashboard(ctx)` | `assignments[].prId`, `.access.open`, `.attemptId`, `.defense.startsAt <= now` | Many assignments: R2-b picks the record |
+| none | Coordinator | none | No locked item | None |
+
 | Round | Scope | Result |
 | :---- | :---- | :---- |
 | UX-P-01 | Foundations: tokens in light and dark, the theme toggle, glyphs, base patterns | **Approved 26 Nov 2026** |
-| UX-P-02 | Shell and system states: app shell, sidebar, top-bar panels (D-08), status glyphs (D-06), sidebar glyphs (D-07), toast, loading and error, motion (D-10) | Not shown |
+| UX-P-02 | Shell and system states: app shell, sidebar, top-bar panels (D-08), status glyphs (D-06), sidebar glyphs (D-07), toast, loading and error, motion (D-10) | **Approved 26 Nov 2026** |
 | UX-P-03 | Queues, inbox and dialogs | Not shown |
 | UX-P-04 | Student path: task list, step-by-step, Thesis process | Not shown |
 | UX-P-05 | Manuscript workspace | Not shown |

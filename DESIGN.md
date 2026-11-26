@@ -1,16 +1,28 @@
 # DESIGN.md — PUP CpE Thesis Progress Monitoring System
 
-**Status:** Draft v0.4 (26 Nov 2026). v0.3 plus the brand alignment of preview round UX-P-01 (UX-D-08 to UX-D-13). Task R1.5 builds it.
-**Change log:** v0.4, 26 Nov 2026 (decisions in `docs/ui-ux-audit/DESIGN_DECISIONS.md`, approved in UX-P-01):
+**Status:** Draft v0.5 (26 Nov 2026). v0.4 plus the shell and system states of preview round UX-P-02 (D-06, D-07, D-08, D-10, UX-D-14 to UX-D-16). Task R2.8 builds it.
+**Change log:** v0.5, 26 Nov 2026 (decisions in `docs/ui-ux-audit/DESIGN_DECISIONS.md`, approved in UX-P-02):
+- **Shell:** the sidebar is white with a maroon-50 active fill (R2-a). The content is 1280 px wide with 24 px gutters (R2-c). Record-based items stay out of the Adviser, Panel Member and Coordinator sidebars (R2-b) (§5.1).
+- **Top bar:** notifications in a right side sheet, a user menu with the email preferences in a side sheet. A route or command palette is decided; its scope is open (D-08, §5.1, §14).
+- **Motion:** option A timings as `--motion-*` tokens (D-10, §6.1, §12.4). Loading blocks pulse (UX-D-15).
+- **Glyphs:** 3 status glyphs and 10 sidebar glyphs (D-06, D-07, §6.2).
+- **Theme switch:** light or dark only, no "Use system" link (UX-D-14, §7.3).
+- **Messages:** every message slot has one fixed height; a long message is clamped on the screen with "Show more" (UX-D-16, §8.4).
+- **Registry:** new patterns `top-bar` and `form-feedback`; `loading` changes (§7.4).
+
+v0.4 is in `docs/stale/DESIGN_v0.4.md`.
+
+v0.4, 26 Nov 2026 (decisions in `docs/ui-ux-audit/DESIGN_DECISIONS.md`, approved in UX-P-01):
 - **Brand:** the ThesIsko brand guide v1.0 is the source for identity (§1, §1.1, UX-D-10). F1 narrows to the PUP logo and seal. The ThesIsko mark is allowed. Novie is an exception for R4 and R7 (§2, UX-D-11 items 6 and 7).
 - **Color:** the brand palette replaces D-01 and D-02: Golden Yellow, the brand maroon and gold ramps, cool neutrals, Success and Error (§3, §12, UX-D-11 item 1). The dark set is in §12.5.
 - **Type:** Poppins, Inter and JetBrains Mono replace Source Serif 4 and IBM Plex. The scale has a 16 px base and a ratio of 1.25 (§4, UX-D-11 item 3).
 - **Shape and icons:** radius 6, 8 and 12 px (§6.1). Glyphs have a 1.75 px stroke, outline only (§6.2, UX-D-11 items 4 and 5).
 - **Stepper:** completed steps maroon, the current step gold (§8.2, G8, UX-D-08, UX-D-11 item 2).
-- **Theme switch:** a squish switch with a sun-to-moon thumb and "Use system" (§7.3, UX-D-13). Focus adds a soft maroon ring (§10).
+- **Theme switch:** a squish switch with a sun-to-moon thumb (§7.3, UX-D-13). Focus adds a soft maroon ring (§10).
 - **Registry:** new pattern `brand-mark` (§7.4).
 
 v0.3 is in `docs/stale/DESIGN_v0.3.md`.
+
 
 v0.3, 25 Nov 2026:
 - **Dark mode:** light and dark themes are both first-class. The OS setting is the default, and a manual toggle overrides it (§7.3, UX-D-01). D-04 is closed. The dark values come in preview round UX-P-01 (§12.5).
@@ -274,9 +286,9 @@ The scale has a 16 px base (1 rem) and a ratio of 1.25. Line height is 1.2 for h
 | Region | Rule |
 | :---- | :---- |
 | Masthead rule | A 3 px PUP Maroon line at the top of every page. The only full-width brand color. |
-| Sidebar | 240 px, fill `neutral-100`. Each item has a domain glyph. The active item has a 3 px maroon left marker and maroon text. The sidebar shows **every** item of the role. An item that is not open yet shows a `lock` glyph, and its reason in a tooltip ("Opens at Gate 1b"). Below 1024 px, the sidebar becomes a drawer. |
-| Top bar | The brand mark (`brand-mark`, text treatment until the artwork arrives), the D-08 controls, the theme switch, the notification bell, the user menu. Card fill with a hairline bottom border. |
-| Content | Maximum 1200 px wide. Gutters: 32 px on desktop, 24 px on tablet, 16 px on phone. |
+| Sidebar | 240 px, card-white fill (`--sidebar`) with a hairline right border (R2-a). Each item has a 20 px domain glyph and a label. The active item has a maroon-50 fill (`--sidebar-accent`), maroon text and a 3 px maroon left marker. Items are 44 px high. The sidebar shows **every** item of the role. An item that is not open yet shows a `lock` glyph, and its reason in a tooltip ("Opens at Gate 1b"). Below 1024 px, the sidebar becomes a drawer (Base UI drawer: focus trap, Escape closes it, focus returns to the menu button). Items that need one record (Submission for the Adviser, the Panel Member and the Coordinator; the Coordinator Defense) are not in the sidebar: they open from a record row (R2-b). With many records, Defense Day and Manuscript link the record with the next defense, else the first. "Thesis process" and "Audit" join when their routes exist. |
+| Top bar | The brand mark (`brand-mark`, text treatment until the artwork arrives), the role label, the theme switch, the notification bell (a right side sheet), the user menu (Base UI menu: Email preferences in a side sheet, Sign out). Card fill with a hairline bottom border. A route or command palette comes later; its scope is open (D-08). |
+| Content | `<main id="main">`, maximum 1280 px wide (R2-c, brand guide Spacing and Layout). Gutters: 24 px from 640 px, 16 px on phone. Reading text keeps a 72ch measure. A skip link ("Skip to content") is the first focusable element. |
 
 ### 5.2 Identity line
 
@@ -341,7 +353,7 @@ Use a 4 px base. Tokens: `4, 8, 12, 16, 24, 32, 48, 64`. Each step is at least 2
 | Radius | Controls 6 px. Cards, popovers and menus 8 px. Panels and dialogs 12 px. Status pills and avatars fully round. Document stamps 2 px. (Brand guide, Shapes and Buttons; UX-D-11 item 5.) |
 | Borders | 1 px hairline `--border` between regions. Inputs use `--input` (3:1 or more on the card). |
 | Shadow | None on the page. Popovers, menus, toasts and dialogs only: `0 8px 24px rgb(15 23 42 / 0.12)`. |
-| Motion | Use the `motion` package (`motion/react`) for animation. Respect `prefers-reduced-motion`: every animation must have a reduced-motion path. No counting numbers. Use CSS for simple changes and `motion/react` only where CSS cannot do it (UX-D-04). The durations and the entry-animation rule are decided in preview round UX-P-02 (D-10). Until then, add no animation. One exception is approved: the theme switch (UX-D-13) uses a velocity spring, a squash at the end and a sun-to-moon morph. With reduced motion it changes at once. |
+| Motion | Use the `motion` package (`motion/react`) for animation. Respect `prefers-reduced-motion`: every animation must have a reduced-motion path. No counting numbers. Use CSS for simple changes and `motion/react` only where CSS cannot do it (UX-D-04). Timings (D-10 option A, UX-P-02): 120 ms for a state change (`--motion-state`), 160 ms for a dialog, menu or tooltip (`--motion-overlay`) and a toast (`--motion-toast`), 280 ms with a spring-like ease for the drawer and side sheets (`--motion-drawer`, `--ease-drawer`). No page entry animation. No decorative motion on working screens. Loading blocks pulse in 1.6 s (`--motion-pulse`, UX-D-15). The reduced-motion rule in `globals.css` sets every duration to 0. Also approved: the theme switch (UX-D-13) uses a velocity spring, a squash at the end and a sun-to-moon morph. With reduced motion it changes at once. |
 | Gradients | None. |
 
 ### 6.2 Icons: the domain glyph set
@@ -376,10 +388,23 @@ Thesis concepts use custom glyphs. Generic UI uses Lucide.
 | `clear` | Clearance | A checked stack of paper |
 | `template` | Template | A blank form |
 | `overview`, `student`, `users`, `audit`, `export`, `search`, `bell`, `done`, `todo`, `lock`, `received` | Shell and status | As drawn in the Coordinator mockup |
+| `active` | Status: in progress (D-06) | An arrow in a circle |
+| `pending` | Status: waiting for someone (D-06) | An hourglass |
+| `achieved` | Status: milestone achieved (D-06) | A trophy (not a star, seal or laurel) |
+| `process` | Thesis process (D-07) | A path between two nodes |
+| `manuscript` | Manuscript (D-07) | A page with a folded corner and lines |
+| `schedule` | Schedule (D-07) | A calendar with time marks |
+| `results` | Defense results (D-07) | A clipboard with a check |
+| `submission` | Submission (D-07) | An archive box |
+| `advisees` | Advisees (D-07) | Two people |
+| `queue` | Review queue (D-07) | An inbox tray |
+| `consult` | Consultations (D-07) | Two speech bubbles |
+| `availability` | Availability (D-07) | A calendar with a clock |
+| `assignments` | Assignments (D-07) | A clipboard with a person |
 
 The first SVG source of every approved glyph is in `design/mockups/coordinator-mockups.html` (the `<symbol>` elements). The `defense` glyph is `g-def-a`. Options B and C (`g-def-b`, `g-def-c`) were not chosen. R1.6 redrew them at 1.75 px with no tone fill (`src/components/patterns/glyphs/`).
 
-The glyphs for the Student, Adviser and Panel Member sidebars and three status glyphs are still to draw (D-06, D-07).
+The status pills use the domain glyphs for every tone: `todo`, `active`, `pending`, `done`, `return`, `lock`, `achieved` (D-06). The candidates that were not chosen are in `src/app/lab/_mock/glyph-candidates.tsx`.
 
 ---
 
@@ -414,7 +439,7 @@ A lint rule can enforce layer 3: no import from `@/components/ui/*` or a library
 **Themes (UX-D-01):** the app has a light theme and a dark theme. Both are first-class.
 
 - The OS setting (`prefers-color-scheme`) is the default.
-- A manual switch in the top bar and on LOGIN overrides it (`theme-toggle`, UX-D-13). It is a squish switch (`role="switch"`, name "Dark theme"). Its thumb is a sun in light and morphs into a crescent moon in dark. After a choice, a "Use system" link returns to the OS setting. The browser keeps the choice in `localStorage`.
+- A manual switch in the top bar and on LOGIN overrides it (`theme-toggle`, UX-D-13). It is a squish switch (`role="switch"`, name "Dark theme"). Its thumb is a sun in light and morphs into a crescent moon in dark. It offers light or dark only (UX-D-14): the OS setting applies until the first click, and no link returns to it. The browser keeps the choice in `localStorage`.
 - A small inline script (`THEME_SCRIPT` in `src/lib/theme.ts`) sets the theme before the first paint. It is the first child of `<head>` in `src/app/layout.tsx`. The app does not use `next-themes`. If a CSP with `script-src` is added later, it needs a hash for this script.
 - A theme changes only the semantic and status tokens (§12.2, §12.3, §12.5). A component never uses `dark:` classes for colors.
 - The PDF page, the emails and the printed views stay light. The PDF page uses `bg-white`, the one allowed exception.
@@ -423,8 +448,9 @@ A lint rule can enforce layer 3: no import from `@/components/ui/*` or a library
 
 | Pattern | Folder | Source | Screens |
 | :---- | :---- | :---- | :---- |
-| App shell | `app-shell` | Linear, Primer | All signed-in screens |
-| Sidebar with locked items | `sidebar` | Linear | All signed-in screens |
+| App shell (skip link, masthead, top bar, drawer) | `app-shell` | Linear, Primer | All signed-in screens |
+| Sidebar with locked items (`navFor` in `sidebar/nav.ts`) | `sidebar` | Linear | All signed-in screens |
+| Top bar: notification sheet, user menu, preferences sheet | `top-bar` | Primer side sheet, Base UI drawer and menu (D-08) | All signed-in screens |
 | Identity line | `identity-line` | Primer repository header | S1 to S6, A2, P2, C6, SV |
 | Docket | `docket` | GOV.UK notification banner, own | S1 |
 | Merge box | `merge-box` | Primer pull-request merge box | S2 |
@@ -452,10 +478,11 @@ A lint rule can enforce layer 3: no import from `@/components/ui/*` or a library
 | Flag line | `flag` | Own (BR-17) | S1, C1, C5, P4 |
 | Empty state | `empty-state` | Vercel Geist | All |
 | Glyph | `glyphs` | Own | All |
-| Theme switch (dark on or off, "Use system") | `theme-toggle` | React Bits SquishSwitch, adapted (UX-D-13) | Top bar of all signed-in screens, LOGIN |
+| Theme switch (light or dark) | `theme-toggle` | React Bits SquishSwitch, adapted (UX-D-13) | Top bar of all signed-in screens, LOGIN |
 | Brand mark (full logo, symbol, text treatment) | `brand-mark` | ThesIsko brand guide, Logo (UX-D-10, UX-D-11 item 6) | LOGIN (full), top bar of the role shells (text or symbol), compact navigation (symbol) |
-| Loading blocks | `loading` | Own (UX-D-04): blocks of the content's size, no shimmer | All |
+| Loading blocks (shapes, page presets, spinner) | `loading` | Own (UX-D-15): rows, cards, docket, form, list; presets dashboard, queue, record, form; a 1.6 s pulse; still with reduced motion | All |
 | Inline error with "Try again" | `error` | Own (UX-D-04) | All |
+| Form feedback (pending, error, result) | `form-feedback` | Own (UX-011, UX-D-16): a fixed-height message slot (3 lines by default), a pending button that keeps its width | All forms (R3 integrates) |
 | Toast | `toast` | Base UI Toast (`@base-ui/react/toast`, UX-D-04): 4 s, `role="status"`, a glyph and a label. Small actions only. | All |
 
 ---
@@ -500,6 +527,15 @@ The line between nodes is maroon after a completed node and `--divider-strong` a
 - Use `aria-disabled="true"`, not `disabled`, so the button stays in the tab order.
 - Show the reason under the button in `caption`, with a `lock` glyph. Example: "Locked until Gate 1b."
 - Link the reason with `aria-describedby`.
+
+**Reserve the message space (UX-D-16).** A region that shows a message, a result, an error or a count keeps the space for it, so the layout does not move.
+
+- A form message slot (`form-feedback`) has one fixed height in every state: idle, pending, error and done. The default is 3 lines (60 px). A form sets 2 or 4 lines with `lines`, sized for its longest message at its narrowest width. No minimum height.
+- A message never gets cut so that the user cannot read it. A longer message is clamped on the screen only. The full text stays in the DOM, so screen readers and the field link (`aria-describedby`) read all of it. A "Show more" toggle shows the full text over the next content.
+- Write each message as one fact in 25 words or fewer (§9), so it fits the slot in most cases.
+- An error keeps `role="alert"`; a result keeps `role="status"`. The glyph sits on the first line.
+- A pending button keeps its width (both labels in one grid cell) and shows a spinner.
+- A row that holds an action which can go away (for example "Mark all read") keeps its height.
 
 ### 8.5 Flags (BR-17)
 
@@ -671,6 +707,12 @@ Use `text-link` for text links, not `text-primary`. In dark, the primary fill is
   --glyph-stroke: 1.75;
   --sidebar-w: 240px;         --topbar-h: 56px;
   --target-tablet: 44px;      --target-defense: 48px;
+
+  /* Motion, D-10 option A (UX-P-02) */
+  --motion-state: 120ms;      --motion-overlay: 160ms;
+  --motion-drawer: 280ms;     --motion-toast: 160ms;
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --motion-pulse: 1.6s;
 }
 ```
 
@@ -730,7 +772,7 @@ Values approved in UX-P-01 (26 Nov 2026). The set is built from the brand colors
 
 ## 14. Open points
 
-The owner decides D-06 to D-08 and D-10 in the retrofit preview rounds (`docs/ui-ux-audit/IMPLEMENTATION_PLAN.md`).
+D-06 to D-08 and D-10 were decided in preview round UX-P-02 (26 Nov 2026).
 
 | ID | Point |
 | :---- | :---- |
@@ -739,10 +781,10 @@ The owner decides D-06 to D-08 and D-10 in the retrofit preview rounds (`docs/ui
 | D-03 | Closed. No PUP logo or seal (F1, narrowed in v0.4). |
 | D-04 | Closed (25 Nov 2026, UX-D-01). Light and dark themes, with the OS default and a manual switch (§7.3). The dark values were approved in UX-P-01 on 26 Nov 2026 (§12.5). |
 | D-05 | Closed. Replaced by F1. |
-| D-06 | Status pill glyphs. Proposal: the pills use domain glyphs (`todo`, `done`, `return`, `lock`), plus new glyphs for `active`, `pending` and `achieved`. |
-| D-07 | Missing glyphs: Thesis process, Manuscript, Schedule, Defense results, Submission, Advisees, Review queue, Consultations, Availability, Assignments. Draw them for one approval. |
-| D-08 | Top-bar panels. Proposal: notifications in a right side sheet (Primer), search as a `/` command palette (Linear), preferences in a side sheet. |
-| D-09 | Closed (25 Nov 2026, UX-D-04). System states: loading blocks of the content's size with no shimmer, inline errors with "Try again", and a 4 s `role="status"` toast with a glyph and a label. A toast confirms small actions only. A workflow result (Returned, Endorsed, Scheduled, Verified) stays on the screen. |
-| D-10 | Motion rules: the durations for state changes and dialogs, and whether entry animations are allowed. Decided in preview round UX-P-02: the owner picks from 2 or 3 options. CSS for simple changes, `motion/react` only where CSS cannot do it, and a reduced-motion path for each animation (UX-D-04). |
+| D-06 | Closed (26 Nov 2026, UX-P-02). The pills use domain glyphs; new `active` (arrow in a circle), `pending` (hourglass), `achieved` (trophy) (§6.2). |
+| D-07 | Closed (26 Nov 2026, UX-P-02). 10 sidebar glyphs drawn and approved (§6.2). |
+| D-08 | Closed in part (26 Nov 2026, UX-P-02). Notifications in a right side sheet, a user menu with preferences in a side sheet (§5.1). A route or command palette is decided, but its features and scope are open for a later discussion. Clickable notifications are a feature change: issue #82. |
+| D-09 | Closed (25 Nov 2026, UX-D-04; loading motion changed by UX-D-15). System states: loading blocks of the content's size (now with a 1.6 s pulse), inline errors with "Try again", and a 4 s `role="status"` toast with a glyph and a label. A toast confirms small actions only. A workflow result (Returned, Endorsed, Scheduled, Verified) stays on the screen. |
+| D-10 | Closed (26 Nov 2026, UX-P-02). Option A: 120, 160 and 280 ms, no page entry animation, a reduced-motion path for each animation (§6.1, §12.4). |
 | D-11 | Closed (25 Nov 2026, UX-D-04). No React Bits. The toast uses Base UI Toast (`@base-ui/react/toast`, already installed). |
 | D-12 | Phone write access. Phones are read only for now. Upload on S3 from a phone can come later. |

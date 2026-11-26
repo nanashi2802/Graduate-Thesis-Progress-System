@@ -19,8 +19,8 @@ export default defineConfig({
   projects: [
     // The setup project saves one session for each role (P1-E13-T02).
     { name: "setup", testMatch: /auth\.setup\.ts/ },
-    { name: "chromium", testIgnore: [/auth\.setup\.ts/, /portals\.spec\.ts/], use: { ...devices["Desktop Chrome"] } },
-    { name: "portals", testMatch: /portals\.spec\.ts/, dependencies: ["setup"], use: { ...devices["Desktop Chrome"] } },
+    { name: "chromium", testIgnore: [/auth\.setup\.ts/, /portals\.spec\.ts/, /shell\.spec\.ts/], use: { ...devices["Desktop Chrome"] } },
+    { name: "portals", testMatch: /(portals|shell)\.spec\.ts/, dependencies: ["setup"], use: { ...devices["Desktop Chrome"] } },
   ],
   webServer: {
     command: `pnpm build && pnpm start -p ${PORT}`,

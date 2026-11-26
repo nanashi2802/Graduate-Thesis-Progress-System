@@ -26,14 +26,14 @@ export default async function Page({ params }: PageProps<"/student/defense/[defe
     milestoneId = (await defensePage(ctx, defenseId)).milestone.id;
   } catch (e) {
     if (e instanceof AccessDeniedError) return <AccessDenied reason="You cannot open this defense. It belongs to another thesis." />;
-    if (e instanceof InputProblem) return <main className="mx-auto max-w-[960px] px-4 py-8"><EmptyState title="This defense was not found." detail="Open it from your dashboard." /></main>;
+    if (e instanceof InputProblem) return <div className="mx-auto max-w-[960px]"><EmptyState title="This defense was not found." detail="Open it from your dashboard." /></div>;
     throw e;
   }
   const attempts = await listAttempts(ctx, milestoneId);
   const current = attempts.find((a) => a.attempt.id === defenseId);
 
   return (
-    <main className="mx-auto flex max-w-[960px] flex-col gap-8 px-4 py-8 sm:px-8">
+    <div className="mx-auto flex max-w-[960px] flex-col gap-8">
       <header className="flex flex-col gap-2">
         <h1 className="text-2xl font-semibold">Defense results</h1>
         <p className="max-w-[72ch] text-sm text-muted-foreground">You see the results after the Coordinator verifies every signed sheet.</p>
@@ -90,6 +90,6 @@ export default async function Page({ params }: PageProps<"/student/defense/[defe
           ))}
         </ul>
       </section>
-    </main>
+    </div>
   );
 }

@@ -27,7 +27,7 @@ export default async function Page() {
   const scheduled = entries.filter((e) => e.milestone.status === "DEFENSE_SCHEDULED" || e.milestone.status === "DEFENSE_HELD");
 
   return (
-    <main className="mx-auto flex max-w-[1200px] flex-col gap-12 px-4 py-8 sm:px-8">
+    <div className="mx-auto flex flex-col gap-12">
       <PageHeader
         title="Schedule"
         detail="Confirm each defense date and room. Record the printed copies. A late receipt shows a warning and never blocks a step."
@@ -46,7 +46,7 @@ export default async function Page() {
           await Promise.all(scheduled.map((e) => <Scheduled key={e.milestone.id} entry={e} ctx={ctx} />))
         )}
       </Section>
-    </main>
+    </div>
   );
 }
 

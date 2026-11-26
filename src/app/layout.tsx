@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Poppins } from "next/font/google";
+import { ToastProvider } from "@/components/patterns/toast";
 import { THEME_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
@@ -43,7 +44,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       {/* Browser extensions add attributes to <body> before React loads. Ignore those attribute mismatches only. */}
       <body className="flex min-h-full flex-col" suppressHydrationWarning>
-        {children}
+        {/* R2.8 (UX-D-04): one toast region for small confirmations. */}
+        <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
   );

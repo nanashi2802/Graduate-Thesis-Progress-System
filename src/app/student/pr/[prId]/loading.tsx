@@ -1,1 +1,1 @@
-export { PageLoading as default } from "@/app/_components/page-loading";
+export { RecordLoading as default } from "@/app/_components/page-loading";

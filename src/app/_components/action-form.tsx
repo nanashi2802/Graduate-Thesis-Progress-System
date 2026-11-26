@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition, type ReactNode } from "react";
 import type { Result } from "@/app/_lib/run";
 import { ActionButton } from "@/components/action-button";
+import { useToast } from "@/components/patterns/toast";
 import { Button } from "@/components/ui/button";
 
 export function ActionForm({
@@ -13,6 +14,7 @@ export function ActionForm({
   variant = "default",
   className,
   resetOnSuccess = true,
+  successToast,
   children,
 }: {
   action: (form: FormData) => Promise<Result>;
@@ -21,9 +23,12 @@ export function ActionForm({
   variant?: "default" | "outline" | "return";
   className?: string;
   resetOnSuccess?: boolean;
+  /** A small confirmation only (UX-D-04), for example "Slot requested." A workflow result stays on the screen. */
+  successToast?: string;
   children?: ReactNode;
 }) {
   const router = useRouter();
+  const toast = useToast();
   const ref = useRef<HTMLFormElement>(null);
   const [pending, start] = useTransition();
   const [message, setMessage] = useState<{ text: string; error: boolean } | null>(null);
@@ -40,6 +45,7 @@ export function ActionForm({
           const res = await action(data);
           if (res.ok) {
             if (resetOnSuccess) ref.current?.reset();
+            if (successToast) toast.show({ label: successToast, tone: "done" });
             router.refresh();
           } else {
             setMessage({ text: res.error ?? "The change was not saved.", error: true });

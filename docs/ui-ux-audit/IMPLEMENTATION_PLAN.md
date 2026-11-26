@@ -77,8 +77,8 @@ Each round has the same 4 steps: **Build preview → Gate → Integrate → Vali
 | 1 | Stage 1 audit | — | — | Done 25 Nov 2026, not committed. 38 findings, 1 Critical (`UI_UX_AUDIT.md` §8). |
 | 2 | `/lab` showcase and the screenshot tool | — | — | Done 25 Nov 2026. Task 2.2 committed (`a160436`). Task 2.1 not committed. |
 | H | Hotfix before R1 (§6.2): UX-009 PDF error state, UX-001 focus line | — | — | H.1 (UX-D-06) and H.2 (UX-D-07) built 25 Nov 2026, not committed. Round H is complete. |
-| R1 | Foundations: tokens in light and dark, theme, glyphs, base patterns | 1, 2, 3 | Dark values (UX-P-01) | **Approved 26 Nov 2026** (UX-P-01). Preview committed (`6c5c9b5`, `c7b7a71`). R1.5 integrated 26 Nov 2026 on `ui/r1-integrate`, not committed. |
-| R2 | Shell and system states: app shell, sidebar, top-bar panels, toast, loading and error, motion, glyphs | 4 | D-06, D-07, D-08, D-10, R2-a, R2-b, R2-c | Not started. Brief for a new session: §9.0. |
+| R1 | Foundations: tokens in light and dark, theme, glyphs, base patterns | 1, 2, 3 | Dark values (UX-P-01) | **Approved 26 Nov 2026** (UX-P-01). Preview committed (`6c5c9b5`, `c7b7a71`). R1.5 integrated and committed 26 Nov 2026 (`9d663dd`, `ui/r1-integrate`). |
+| R2 | Shell and system states: app shell, sidebar, top-bar panels, toast, loading and error, motion, glyphs | 4 | D-06, D-07, D-08, D-10, R2-a, R2-b, R2-c | **Approved 26 Nov 2026** (UX-P-02). R2.8 integrated 26 Nov 2026 on `ui/r2-shell`, not committed. |
 | R3 | Queues, inbox, dialogs, side sheet | 5, 6, part of 9 | — | Not started |
 | R4 | Student path: task list, step-by-step, Thesis process | 7 | — | Not started |
 | R5 | Manuscript workspace | 8 | — | Not started |
@@ -564,44 +564,46 @@ Read this before you start R2. It holds what the earlier sessions learned.
 
 **Locked reasons (word for word, SITEMAP §9 style; check `spec/SITEMAP.md` §9 first):** Clearance "Opens at Milestone 3." Submission "Opens at Gate 1b." Defense results "Opens when the Coordinator verifies the sheets." Defense Day "Opens at the scheduled start." Manuscript (Panel Member) "Opens when your appointment and NDA are recorded." Thesis process (R4) and Audit (R7d) have no route yet: leave these two items out of the sidebar until their routes exist, and note it in the UX-P-02 block.
 
-- [ ] Tests first: `navFor("student", facts)` gives the README items in order ("Thesis process" left out until R4); Clearance locked before Milestone 3 with its reason; Submission locked until `gate1bDone`, then `href` `/student/submission/<milestoneId>`; Defense results links `/student/defense/<defenseId>` once `sheetsVerified`. Adviser and Panel Member: per README and decision R2-b. A locked item: `aria-disabled="true"`, focusable (`tabIndex=0`, not a link), `lock` glyph, reason linked with `aria-describedby` and shown in a tooltip on hover and focus (Base UI `tooltip`). The active item has `aria-current="page"`. The shell's first focusable element is a skip link to `#main`, and `<main id="main">`.
-- [ ] Build per `DESIGN.md` v0.4 §5.1 and decision R2-a: 3 px maroon masthead rule, 56 px top bar (brand mark text treatment, role label, the D-08 controls, the theme switch, user menu), 240 px sidebar, content width per R2-c. Below 1024 px the sidebar is a Base UI `drawer` (focus trap, Escape closes, focus returns to the menu button). Brand rule: 20 px icons in navigation, label with each icon.
-- [ ] `/lab/patterns/app-shell` and `/lab/patterns/sidebar`: each role's sidebar with mock facts (first day, Milestone 3, after the defense), desktop and tablet (drawer open and closed), light and dark.
+- [x] Tests first: `navFor("student", facts)` gives the README items in order ("Thesis process" left out until R4); Clearance locked before Milestone 3 with its reason; Submission locked until `gate1bDone`, then `href` `/student/submission/<milestoneId>`; Defense results links `/student/defense/<defenseId>` once `sheetsVerified`. Adviser and Panel Member: per README and decision R2-b. A locked item: `aria-disabled="true"`, focusable (`tabIndex=0`, not a link), `lock` glyph, reason linked with `aria-describedby` and shown in a tooltip on hover and focus (Base UI `tooltip`). The active item has `aria-current="page"`. The shell's first focusable element is a skip link to `#main`, and `<main id="main">`.
+- [x] Build per `DESIGN.md` v0.4 §5.1 and decision R2-a: 3 px maroon masthead rule, 56 px top bar (brand mark text treatment, role label, the D-08 controls, the theme switch, user menu), 240 px sidebar, content width per R2-c. Below 1024 px the sidebar is a Base UI `drawer` (focus trap, Escape closes, focus returns to the menu button). Brand rule: 20 px icons in navigation, label with each icon.
+- [x] `/lab/patterns/app-shell` and `/lab/patterns/sidebar`: each role's sidebar with mock facts (first day, Milestone 3, after the defense), desktop and tablet (drawer open and closed), light and dark.
 
 ### Task R2.2: top-bar panels (D-08)
 
-- [ ] Build the options of D-08 in `/lab/patterns/top-bar`. Keep the behavior of today's panels: `NotificationPanel` (`src/components/notification-panel.tsx`, mark read and mark all read via `src/app/_lib/notification-actions.ts`) and `PreferencesForm` (`src/components/preferences-form.tsx`, `savePreferencesAction`). In `/lab`, pass mock actions as props (server action modules cannot be imported in `/lab`; the lint rule refuses them).
-- [ ] The unread count badge: 12.8 px minimum (UX-005: `text-[11px]` today).
+- [x] Build the options of D-08 in `/lab/patterns/top-bar`. Keep the behavior of today's panels: `NotificationPanel` (`src/components/notification-panel.tsx`, mark read and mark all read via `src/app/_lib/notification-actions.ts`) and `PreferencesForm` (`src/components/preferences-form.tsx`, `savePreferencesAction`). In `/lab`, pass mock actions as props (server action modules cannot be imported in `/lab`; the lint rule refuses them).
+- [x] The unread count badge: 12.8 px minimum (UX-005: `text-[11px]` today).
 
 ### Task R2.3: toast
 
 **Files:** `src/components/patterns/toast/index.tsx`. Test: `tests/unit/components/toast.test.ts`.
 **Interfaces:** `ToastProvider` (root layout, Integrate only), `useToast(): { show(t: { label: string; tone: "done" | "returned" | "neutral"; glyph?: GlyphName }): void }`.
 
-- [ ] `@base-ui/react/toast` (installed, 1.9.0). 4 s timeout, `role="status"` (polite), glyph and label, tokens only, pause on hover and focus, motion per D-10 with a reduced-motion path.
-- [ ] Rule (UX-D-04): toast only for small confirmations (preferences saved, availability published, slot requested, file uploaded). A workflow result (Returned, Endorsed, Scheduled, Verified) stays on the screen.
+- [x] `@base-ui/react/toast` (installed, 1.9.0). 4 s timeout, `role="status"` (polite), glyph and label, tokens only, pause on hover and focus, motion per D-10 with a reduced-motion path.
+- [x] Rule (UX-D-04): toast only for small confirmations (preferences saved, availability published, slot requested, file uploaded). A workflow result (Returned, Endorsed, Scheduled, Verified) stays on the screen.
 
 ### Task R2.4: one form-feedback contract (UX-011)
 
-- [ ] Today there are two `ActionForm` components: `src/app/_components/action-form.tsx` (silent success, error `role="alert"`) and `src/app/coordinator/_lib/form-parts.tsx` (ok line in a polite status). Design one contract: pending (button label and `aria-busy`, button stays focusable), success (toast for small actions, on-screen result for workflow actions), error (`role="alert"` under the form, linked to the field when the server names one). Show both cases in `/lab/states`. Integrate in R3 with the form-field pattern (UX-012); in R2 only the contract and the preview.
+- [x] Today there are two `ActionForm` components: `src/app/_components/action-form.tsx` (silent success, error `role="alert"`) and `src/app/coordinator/_lib/form-parts.tsx` (ok line in a polite status). Design one contract: pending (button label and `aria-busy`, button stays focusable), success (toast for small actions, on-screen result for workflow actions), error (`role="alert"` under the form, linked to the field when the server names one). Show both cases in `/lab/states`. Integrate in R3 with the form-field pattern (UX-012); in R2 only the contract and the preview.
 
 ### Task R2.5: loading and error states (UX-026)
 
 **Files:** `src/components/patterns/{loading,error}/index.tsx`. Modify (Integrate): `src/app/_components/page-loading.tsx` (re-export).
 
-- [ ] Loading: blocks of the content's size, no shimmer, `aria-busy="true"` on the region, hidden text "Loading".
-- [ ] Error: inline, names what failed and what to do, "Try again" calls `reset()`; no stack trace, no internal code. Add `error.tsx` to each role segment (`src/app/{student,adviser,panel,coordinator}/error.tsx`, client components) at Integrate, so a server error stays inside the shell. Test with a page that throws in `/lab/states`.
-- [ ] `/lab/states`: loading, error, empty, success toast, disabled with a reason, in both themes.
+- [x] Loading: blocks of the content's size, no shimmer, `aria-busy="true"` on the region, hidden text "Loading".
+- [x] Error: inline, names what failed and what to do, "Try again" calls `reset()`; no stack trace, no internal code. Add `error.tsx` to each role segment (`src/app/{student,adviser,panel,coordinator}/error.tsx`, client components) at Integrate, so a server error stays inside the shell. Test with a page that throws in `/lab/states`.
+- [x] `/lab/states`: loading, error, empty, success toast, disabled with a reason, in both themes.
 
 ### Task R2.6: motion (D-10)
 
-- [ ] `/lab/motion`: 2 or 3 timing options side by side for a state change (pill, row), a dialog or side sheet, the drawer, the toast, with a reduced-motion switch. Entry animations of pages: none in every option. Show the theme switch springs (UX-D-13) next to them.
-- [ ] After the gate: `--motion-*` tokens in `tokens.css`, `DESIGN.md` §6.1. CSS transitions use the tokens; `motion/react` only where CSS cannot (springs, exit animations). The reduced-motion rule in `globals.css` stays.
+- [x] `/lab/motion`: 2 or 3 timing options side by side for a state change (pill, row), a dialog or side sheet, the drawer, the toast, with a reduced-motion switch. Entry animations of pages: none in every option. Show the theme switch springs (UX-D-13) next to them.
+- [x] After the gate: `--motion-*` tokens in `tokens.css`, `DESIGN.md` §6.1. CSS transitions use the tokens; `motion/react` only where CSS cannot (springs, exit animations). The reduced-motion rule in `globals.css` stays.
 
 ### Task R2.7: glyphs (D-06, D-07)
 
-- [ ] Draw the candidate glyphs as SVG paths on the 24 px grid, 1.75 px stroke, round caps and joins, outline only (brand guide, Icons). No star, seal, laurel or torch (F1). Show 2 options for each concept in `/lab/glyphs`.
-- [ ] After the gate: add the approved names to `GlyphName` in `src/components/patterns/glyphs/index.tsx` and to `tests/unit/components/glyphs.test.ts` (it checks the exact name list). Replace the Lucide icons in the status pills (`// D-06 open` comment in `src/components/patterns/status/index.tsx`).
+- [x] Draw the candidate glyphs as SVG paths on the 24 px grid, 1.75 px stroke, round caps and joins, outline only (brand guide, Icons). No star, seal, laurel or torch (F1). Show 2 options for each concept in `/lab/glyphs`.
+- [x] After the gate: add the approved names to `GlyphName` in `src/components/patterns/glyphs/index.tsx` and to `tests/unit/components/glyphs.test.ts` (it checks the exact name list). Replace the Lucide icons in the status pills (`// D-06 open` comment in `src/components/patterns/status/index.tsx`).
+
+**Suggestion for later rounds (UX-D-15, UX-D-16, from UX-P-02 feedback):** each screen gets its own `loading.tsx` from the R2 shapes and presets. R3: the queue and inbox rows. R4: the task list and the Thesis process. R5: the manuscript workspace (PDF area, threads list). R6: forms and the Defense Day sheet. R7: compose the `loading.tsx` of each screen and check that no message, count or result moves the layout. Other loading motion to consider then: a thin route-change bar in the top bar, and a progress bar for file uploads.
 
 ### Gate R2 → `UX-P-02`
 
@@ -609,13 +611,25 @@ Show the owner (§4.2): the `/lab` links, `ui-shots/r2/` (all viewports, both th
 
 ### Task R2.8: integrate R2 (after the gate only)
 
-- [ ] Draw the approved glyphs (Task R2.7).
-- [ ] Put `AppShell` and `Sidebar` on the four role layouts through `role-shell.tsx`: compute `NavFacts` with the approved data calls; keep `RoleGate` as it is (access).
-- [ ] `ToastProvider` in `src/app/layout.tsx`; toast on the small confirmations that exist today.
-- [ ] `error.tsx` and the new loading blocks in each role segment.
-- [ ] Fix e2e selectors that used the old navigation (`tests/e2e/portals.spec.ts`).
-- [ ] Validate (§4.5): lint, typecheck, full test, build, e2e on the production build, `LAB_LIVE=1` audit shots in light and dark, keyboard walk of the shell (skip link, sidebar, drawer, menus, Escape and focus return), reduced motion.
-- [ ] Update `DESIGN.md` (new version) for D-06, D-07, D-08, D-10 and the sidebar decisions; close them in §14.
+- [x] Draw the approved glyphs (Task R2.7).
+- [x] Put `AppShell` and `Sidebar` on the four role layouts through `role-shell.tsx`: compute `NavFacts` with the approved data calls; keep `RoleGate` as it is (access).
+- [x] `ToastProvider` in `src/app/layout.tsx`; toast on the small confirmations that exist today.
+- [x] `error.tsx` and the new loading blocks in each role segment.
+- [x] Fix e2e selectors that used the old navigation (`tests/e2e/portals.spec.ts`).
+- [x] Validate (§4.5): lint, typecheck, full test, build, e2e on the production build, `LAB_LIVE=1` audit shots in light and dark, keyboard walk of the shell (skip link, sidebar, drawer, menus, Escape and focus return), reduced motion.
+- [x] Update `DESIGN.md` (new version) for D-06, D-07, D-08, D-10 and the sidebar decisions; close them in §14.
+
+**As built (26 Nov 2026, branch `ui/r2-shell`, not committed):**
+
+| Item | Result |
+| :---- | :---- |
+| Shell | `role-shell.tsx` renders the `AppShell` pattern with `LiveSidebar` and `ShellTopBar` (`src/app/_components/shell-top-bar.tsx`). `RoleGate` is unchanged. The old `src/components/app-shell.tsx` and `nav-links.tsx` are not used any more (R8 removes them). |
+| Sidebar facts | `src/app/_lib/nav-facts.ts` (pure, tested): Student `studentTracker` + `submissionFor`, `sheetsVerified` from the status (CLOSED or later); Adviser `adviserDashboard`; Panel Member `panelDashboard`. A failed read gives the items with no facts; the shell never breaks. |
+| Page markup | The 22 role pages that rendered their own `<main>` render a `<div>` now (one main landmark, in the shell). Their padding and the 1200 px limit moved to the shell (1280 px, R2-c). The 960 px reading widths stay. A1 has `id="queue"` for the "Review queue" item. |
+| Toast | `ToastProvider` in the root layout. `useToast` outside a provider is a no-op. `ActionForm` takes `successToast`: "Slot requested.", "Topic saved.", "Availability published.", and the shell shows "Preferences saved.". File uploads use other components: no toast yet (R3). |
+| States | `error.tsx` in the 4 role folders (`SegmentError`). Each `loading.tsx` uses a page preset (dashboard, record, form, queue). |
+| Glyphs | The pills use the domain glyphs (D-06). The sidebar uses the D-07 glyphs. |
+| e2e | No old selector broke. New `tests/e2e/shell.spec.ts` (skip link, current page, locked reasons, Escape and focus return for the sheet and the drawer). |
 
 **Commit (when told):** `feat: app shell and sidebar with locked items, top-bar panels, toast, loading and error states, motion tokens (DESIGN.md §5.1, BR-18, UX-D-04, UX-027 to UX-029)`
 
@@ -732,6 +746,7 @@ Fill one row for each validation run. Never write "pass" for a check you did not
 | 25 Nov 2026 | 2 (Task 2.1) | Uncommitted | Pass (0 errors, the same 1 warning) | Pass | Pass (65 files, 631 tests) | Pass (20, `E2E_PORT=3100`; `/lab` is 404) | Pass | `pnpm lab:shots lab`: 11 shots, light and dark | Not run (R1.1) | Not run | Pass (no animation) | Not run | Dark shows the old shadcn values until R1.1 |
 | 25 Nov 2026 | R1 (build preview) | Uncommitted | Pass (0 errors, the same 1 warning) | Pass | Pass (70 files, 835 tests) | Not run (no live page changed; runs at R1.5) | Pass (compiled CSS has the dark set) | `pnpm lab:shots r1`: 110 shots, 0 errors | Pass (light and dark, `contrast.test.ts`) | Not run (at the gate) | Pass (reduced-motion pass) | Not run (package not approved) | Light look pixel-identical. Button `link` variant now uses `--link` (same color in light). |
 | 26 Nov 2026 | R1.5 (integrate) | `c7ddc09` + uncommitted (`ui/r1-integrate`) | Pass (0 errors, the same 1 warning) | Pass | Pass (71 files, 874 tests; `brand-tokens.test.ts` merged into `tokens.test.ts`) | Pass (23, `E2E_PORT=3100` on the new build, with 3 new theme tests) | Pass | Before and after of LOGIN, S1, A1, P1, C1 (`ui-shots/r1.5-before/`, `ui-shots/r1.5-compare/`). `LAB_LIVE=1` audit: 356 shots, light and dark, 5 viewports (`ui-shots/r1.5-live/`). Only known errors: C10 and PROCESS 404 (no route yet), P2 storage 404 (UX-009 demo commit). | Pass (light and dark, `contrast.test.ts`) | Probe on LOGIN and S1, both themes: every stop has a 2 px solid outline and the soft ring. The maroon "Sign in" button shows a maroon outline, not gold (§10): note for R7. No skip link yet (R2). | Pass (reduced-motion pass) | Not run (package not approved) | Every screen renders in dark with readable text. For R7: blocked buttons faded with `opacity-60` read weaker in dark (UX-008); the outline `Button` keeps shadcn `dark:` classes; "PST" labels (UX-021). |
+| 26 Nov 2026 | R2 (preview and R2.8 integrate) | `9d663dd` + uncommitted (`ui/r2-shell`) | Pass (0 errors, the same 1 warning) | Pass | Pass (77 files, 963 tests) | Pass (27, `E2E_PORT=3100`, with 4 new shell tests) | Pass | `pnpm lab:shots r2`: 121 shots, 0 errors. `LAB_LIVE=1` audit: 352 shots, light and dark (`ui-shots/r2-live/`). Only known errors: C10 and PROCESS 404, P2 storage 404. | Pass (`contrast.test.ts`) | e2e `shell.spec.ts`: skip link first, Escape closes the sheet and the drawer, focus returns | Pass (reduced-motion pass) | Not run (package not approved) | A first full unit run under load (screenshots in parallel) had 4 data-layer timeouts; alone it passes. UX-D-16 addition (fixed-height slot): 77 files, 969 tests; e2e 27; `lab:shots r2` 121 shots, 0 errors; before and after in `ui-shots/r2-feedback-compare.png`. |
 
 ---
 

@@ -14,7 +14,7 @@ export default async function Page() {
   if (!ctx) return null; // The portal layout shows Access Denied.
   const [students, advisers] = await Promise.all([listStudents(ctx), listActiveUsers(ctx, "adviser")]);
   return (
-    <main className="mx-auto flex max-w-[1200px] flex-col gap-12 px-4 py-8 sm:px-8">
+    <div className="mx-auto flex flex-col gap-12">
       <PageHeader
         title="Accounts"
         detail="Make a Student account only after the Student is eligible. The system then opens the Thesis Instance and Milestone 1."
@@ -68,6 +68,6 @@ export default async function Page() {
           </div>
         )}
       </Section>
-    </main>
+    </div>
   );
 }

@@ -46,13 +46,13 @@ export default async function Page() {
   const flagged = d.advisees.filter((a) => a.pacingFlag);
 
   return (
-    <main className="mx-auto flex max-w-[1200px] flex-col gap-12 px-4 py-8 sm:px-8">
+    <div className="mx-auto flex flex-col gap-12">
       <header className="flex flex-col gap-2">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
         <p className="max-w-[72ch] text-sm text-muted-foreground">Your action queue shows the oldest request first.</p>
       </header>
 
-      <DashSection title={`Action queue · ${d.queue.length}`}>
+      <DashSection id="queue" title={`Action queue · ${d.queue.length}`}>
         {d.queue.length === 0 ? (
           <EmptyState title="Nothing waits for you." detail="New requests from your advisees appear here." />
         ) : (
@@ -144,6 +144,6 @@ export default async function Page() {
           </div>
         )}
       </DashSection>
-    </main>
+    </div>
   );
 }

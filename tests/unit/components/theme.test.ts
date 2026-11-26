@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 // Task R1.2 (UX-D-01, DESIGN.md §7.3): the OS setting is the default, a stored choice overrides it,
 // and an inline script sets the theme before the first paint.
 import { runInNewContext } from "node:vm";
@@ -84,7 +85,9 @@ describe("ThemeToggle (squish switch with a sun-to-moon thumb, UX-D-13)", () => 
     expect(out).toMatch(/data-part="body"[^>]*stroke="var\(--color-gold-700\)"/);
   });
 
-  it("hides the Use system link while the OS setting is followed (UX-D-01 keeps System)", () => {
+  // UX-D-14 (owner, UX-P-02): the switch offers light or dark only. The OS setting applies until the first click.
+  it("has no Use system link", () => {
     expect(out).not.toContain("Use system");
+    expect(readFileSync("src/components/patterns/theme-toggle/index.tsx", "utf8")).not.toContain("Use system");
   });
 });

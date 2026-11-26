@@ -169,7 +169,7 @@ export const PATTERNS: Record<string, { title: string; states: string[]; body: R
   },
   "theme-toggle": {
     title: "Theme toggle: pill switch (UX-D-01, owner request)",
-    states: ["sun when light, moon when dark", "follows the OS until clicked", "Use system after a click", "default and compact sizes"],
+    states: ["sun when light, moon when dark", "follows the OS until clicked", "default and compact sizes"],
     body: (
       <>
         <Demo title="Default">

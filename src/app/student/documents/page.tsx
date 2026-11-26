@@ -28,7 +28,7 @@ export default async function Page() {
   const copies = proposal ? await advisingCopies(ctx, proposal.id) : [];
 
   return (
-    <main className="mx-auto flex max-w-[960px] flex-col gap-8 px-4 py-8 sm:px-8">
+    <div className="mx-auto flex max-w-[960px] flex-col gap-8">
       <header className="flex flex-col gap-2">
         <h1 className="text-2xl font-semibold">Documents</h1>
         <p className="max-w-[72ch] text-sm text-muted-foreground">
@@ -84,6 +84,6 @@ export default async function Page() {
           </ul>
         </details>
       ) : null}
-    </main>
+    </div>
   );
 }

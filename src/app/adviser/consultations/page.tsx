@@ -20,7 +20,7 @@ export default async function Page() {
   const toLog = bookings.filter((b) => !logged.has(b.booking.id));
 
   return (
-    <main className="mx-auto flex max-w-[960px] flex-col gap-10 px-4 py-8 sm:px-8">
+    <div className="mx-auto flex max-w-[960px] flex-col gap-10">
       <header className="flex flex-col gap-2">
         <h1 className="text-2xl font-semibold">Consultation log</h1>
         <p className="max-w-[72ch] text-sm text-muted-foreground">
@@ -92,6 +92,6 @@ export default async function Page() {
           </ul>
         )}
       </section>
-    </main>
+    </div>
   );
 }

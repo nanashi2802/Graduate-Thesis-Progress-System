@@ -83,6 +83,19 @@ describe("status shapes (DESIGN.md §7.1)", () => {
     }
   });
 
+  // D-06 (UX-P-02): the pills use the domain glyphs, not Lucide. Active, pending, achieved are the new glyphs.
+  it("uses the domain glyph set in every pill, with no Lucide icon", () => {
+    for (const tone of ALL_TONES) {
+      const html = renderToStaticMarkup(createElement(StatusPill, { tone, label: "Label" }));
+      expect(html).not.toContain("lucide");
+      expect(html).toMatch(/stroke-width="1.75"/);
+    }
+    const pending = renderToStaticMarkup(createElement(StatusPill, { tone: "pending", label: "Label" }));
+    expect(pending).toContain("M7 3h10M7 21h10"); // hourglass (D-06 option A)
+    const achieved = renderToStaticMarkup(createElement(StatusPill, { tone: "achieved", label: "Label" }));
+    expect(achieved).toContain("M8 4h8v5"); // trophy (D-06 option B)
+  });
+
   it("renders the milestone label in the pill", () => {
     const html = renderToStaticMarkup(createElement(MilestoneStatusPill, { status: "READY" }));
     expect(html).toContain("Ready for review");

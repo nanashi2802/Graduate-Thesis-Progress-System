@@ -43,6 +43,13 @@ const EXACT: Record<string, string> = {
   "--target-tablet": "44px",
   "--target-defense": "48px",
   "--radius-card": "8px",
+  // D-10 option A (owner, UX-P-02, 26 Nov 2026).
+  "--motion-state": "120ms",
+  "--motion-overlay": "160ms",
+  "--motion-drawer": "280ms",
+  "--motion-toast": "160ms",
+  "--ease-drawer": "cubic-bezier(0.32, 0.72, 0, 1)",
+  "--motion-pulse": "1.6s",
 };
 
 const SEMANTIC = [

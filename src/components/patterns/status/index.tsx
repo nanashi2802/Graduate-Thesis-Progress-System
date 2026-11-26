@@ -1,8 +1,9 @@
 // Source: own (DESIGN.md §3.3, §8.1). Three status shapes: status pill, document stamp, outside chip.
 // The same status looks the same on every screen (F5). Color is never the only cue: each tone has a glyph
 // and a label (WCAG 1.4.1). Tokens only, so both themes work.
-// D-06 open: the pills keep the Lucide icons until R2 draws the status glyphs.
-import { BadgeCheck, CircleCheck, CircleDashed, CircleDot, Clock, Lock, Undo2, type LucideIcon } from "lucide-react";
+// D-06 (UX-P-02): the pills use the domain glyphs. Active, pending and achieved are the R2 glyphs; the other
+// tones use the R1 glyphs of the same meaning.
+import { Glyph, type GlyphName } from "@/components/patterns/glyphs";
 import {
   documentStateView,
   milestoneStatusView,
@@ -19,14 +20,14 @@ import { formLabel } from "./labels";
 export { formLabel, gateLabel, gateResultLabel } from "./labels";
 export type { Tone, DocumentState, OutsideKind, OutsideValue };
 
-const TONE_ICON: Record<Tone, LucideIcon> = {
-  neutral: CircleDashed,
-  active: CircleDot,
-  pending: Clock,
-  done: CircleCheck,
-  returned: Undo2,
-  locked: Lock,
-  achieved: BadgeCheck,
+const TONE_GLYPH: Record<Tone, GlyphName> = {
+  neutral: "todo",
+  active: "active",
+  pending: "pending",
+  done: "done",
+  returned: "return",
+  locked: "lock",
+  achieved: "achieved",
 };
 
 const TONE_FILL: Record<Tone, string> = {
@@ -51,8 +52,11 @@ const TONE_TEXT: Record<Tone, string> = {
 };
 
 export function ToneIcon({ tone, className }: { tone: Tone; className?: string }) {
-  const Icon = TONE_ICON[tone];
-  return <Icon aria-hidden="true" strokeWidth={1.75} className={className ?? "size-4"} data-tone-icon={tone} />;
+  return (
+    <span data-tone-icon={tone} className="inline-flex shrink-0">
+      <Glyph name={TONE_GLYPH[tone]} className={className ?? "size-4"} />
+    </span>
+  );
 }
 
 export type StatusPillProps = { tone: Tone; label: string; className?: string };

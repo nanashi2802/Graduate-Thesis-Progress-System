@@ -24,7 +24,7 @@ export default async function Page() {
       .map((m) => ({ ...m, studentName: s.studentName })),
   );
   return (
-    <main className="mx-auto flex max-w-[1200px] flex-col gap-12 px-4 py-8 sm:px-8">
+    <div className="mx-auto flex flex-col gap-12">
       <PageHeader
         title="Templates"
         detail="A change makes a new template version. Running milestones keep the version they started with."
@@ -72,6 +72,6 @@ export default async function Page() {
           </ul>
         )}
       </Section>
-    </main>
+    </div>
   );
 }

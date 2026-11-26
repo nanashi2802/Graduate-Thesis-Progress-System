@@ -43,10 +43,10 @@ export default async function Page() {
   const t = await studentTracker(ctx);
   if (!t) {
     return (
-      <main className="mx-auto flex max-w-[1200px] flex-col gap-8 px-4 py-8 sm:px-8">
+      <div className="mx-auto flex flex-col gap-8">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
         <EmptyState title="Your thesis record is not open yet." detail="The Coordinator opens it when your account is ready." />
-      </main>
+      </div>
     );
   }
 
@@ -61,7 +61,7 @@ export default async function Page() {
   else if (next.action === "Open clearance") href = "/student/clearance";
 
   return (
-    <main className="mx-auto flex max-w-[1200px] flex-col gap-12 px-4 py-8 sm:px-8">
+    <div className="mx-auto flex flex-col gap-12">
       <header className="flex flex-col gap-1">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
         <p className="text-base font-medium">{t.identity.title ?? "Your thesis"}</p>
@@ -159,6 +159,6 @@ export default async function Page() {
         </dl>
         <p className="text-sm text-muted-foreground">These dates are information. They never block an action.</p>
       </Section>
-    </main>
+    </div>
   );
 }

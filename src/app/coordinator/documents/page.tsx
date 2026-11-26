@@ -32,7 +32,7 @@ export default async function Page({ searchParams }: PageProps<"/coordinator/doc
   const student = students.find((s) => s.thesisId === (Array.isArray(param) ? param[0] : param));
 
   return (
-    <main className="mx-auto flex max-w-[1200px] flex-col gap-12 px-4 py-8 sm:px-8">
+    <div className="mx-auto flex flex-col gap-12">
       <PageHeader
         title="Document review"
         detail="Compare each scan with the signed paper. Verify it, or return it with a reason."
@@ -125,6 +125,6 @@ export default async function Page({ searchParams }: PageProps<"/coordinator/doc
           )}
         </>
       )}
-    </main>
+    </div>
   );
 }

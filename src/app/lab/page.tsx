@@ -26,7 +26,7 @@ export default function LabIndex() {
             <tr key={p.path} className="h-12">
               <td className="border-b border-border px-3">
                 {p.built ? (
-                  <Link className="text-primary underline-offset-4 hover:underline" href={p.path}>
+                  <Link className="text-link underline-offset-4 hover:underline" href={p.path}>
                     {p.title}
                   </Link>
                 ) : (

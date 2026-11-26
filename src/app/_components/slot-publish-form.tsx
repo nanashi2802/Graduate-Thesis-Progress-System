@@ -8,7 +8,7 @@ import { ActionForm, Field, inputClass } from "@/app/_components/action-form";
 export function SlotPublishForm({ slotType }: { slotType: "consultation" | "defense" }) {
   const [mode, setMode] = useState<"in_person" | "online">("in_person");
   return (
-    <ActionForm action={slotType === "consultation" ? publishConsultation : publishDefense} submitLabel="Publish" className="flex max-w-lg flex-col gap-3">
+    <ActionForm action={slotType === "consultation" ? publishConsultation : publishDefense} submitLabel="Publish" successToast="Availability published." className="flex max-w-lg flex-col gap-3">
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label="Starts (PST)">
           <input name="startsAt" type="datetime-local" required className={inputClass} />

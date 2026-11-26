@@ -31,9 +31,14 @@ const LAB_ROUNDS: Record<string, LabPage[]> = {
     ),
   ],
   r2: [
-    ...["app-shell", "sidebar", "toast"].map((p) => ({ id: p, path: `/lab/patterns/${p}` })),
+    ...["app-shell", "sidebar", "top-bar", "toast"].map((p) => ({ id: p, path: `/lab/patterns/${p}` })),
+    { id: "app-shell-coordinator", path: "/lab/patterns/app-shell?role=coordinator" },
+    { id: "app-shell-drawer", path: "/lab/patterns/app-shell?drawer=open" },
+    { id: "app-shell-neutral", path: "/lab/patterns/app-shell?look=neutral&width=1200" },
+    { id: "top-bar-open", path: "/lab/patterns/top-bar?open=notifications" },
     { id: "states", path: "/lab/states" },
     { id: "motion", path: "/lab/motion" },
+    { id: "glyphs", path: "/lab/glyphs" },
   ],
 };
 

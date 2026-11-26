@@ -10,7 +10,7 @@ export function ThemePanels({ children }: { children: ReactNode }) {
         {children}
       </section>
       <section aria-label="Dark theme" className="dark rounded-card border border-border bg-background p-6 text-foreground">
-        <p className="mb-4 font-mono text-xs text-muted-foreground">Dark (proposal for UX-P-01)</p>
+        <p className="mb-4 font-mono text-xs text-muted-foreground">Dark</p>
         {children}
       </section>
     </div>

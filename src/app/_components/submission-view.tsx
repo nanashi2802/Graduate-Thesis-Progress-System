@@ -26,15 +26,15 @@ export async function SubmissionViewScreen({ milestoneId }: { milestoneId: strin
   } catch (e) {
     if (e instanceof AccessDeniedError)
       return <AccessDenied reason={role === "panel_member" ? "You cannot open this record. Panel Members need the verified appointment form and their own verified NDA." : "You cannot open this record. It belongs to another thesis."} />;
-    if (e instanceof InputProblem) return <main className="mx-auto max-w-[960px] px-4 py-8"><EmptyState title="This record was not found." detail="Go back to your dashboard and open it from there." /></main>;
+    if (e instanceof InputProblem) return <div className="mx-auto max-w-[960px]"><EmptyState title="This record was not found." detail="Go back to your dashboard and open it from there." /></div>;
     throw e;
   }
   if (!v.open)
-    return <main className="mx-auto max-w-[960px] px-4 py-8"><EmptyState title={`The ${NAME[v.milestone]} record is not open yet.`} detail={v.reason} /></main>;
+    return <div className="mx-auto max-w-[960px]"><EmptyState title={`The ${NAME[v.milestone]} record is not open yet.`} detail={v.reason} /></div>;
 
   const own = role === "coordinator" ? null : v.prId ? `${OWN_PR[role]}/${v.prId}${v.lockedCommit ? `?commit=${v.lockedCommit.ordinal}` : ""}` : null;
   return (
-    <main className="mx-auto flex max-w-[960px] flex-col gap-6 px-4 py-8">
+    <div className="mx-auto flex max-w-[960px] flex-col gap-6">
       <header className="flex flex-wrap items-center gap-3">
         <h1 className="text-xl font-semibold">{NAME[v.milestone]}: submission record</h1>
         <MilestoneStatusPill status={v.status} />
@@ -71,6 +71,6 @@ export async function SubmissionViewScreen({ milestoneId }: { milestoneId: strin
         <h2 id="sv-min" className="text-base font-semibold">Minutes</h2>
         {v.minutes ? <p className="whitespace-pre-wrap text-sm">{v.minutes.body}</p> : <p className="text-sm text-muted-foreground">The Minutes show after the stage closes.</p>}
       </section>
-    </main>
+    </div>
   );
 }
