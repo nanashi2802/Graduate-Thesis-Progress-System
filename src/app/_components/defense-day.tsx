@@ -4,6 +4,7 @@ import type { UserRole } from "@/server/data/schema";
 import Link from "next/link";
 import { ActionForm, areaClass, Field, inputClass } from "@/app/_components/action-form";
 import { ScoreSheet } from "@/app/_components/score-sheet";
+import { confirmCopy } from "@/components/patterns/dialog/copy";
 import { pst } from "@/app/_lib/format";
 import { markHeldAction, recordVerdictAction, saveSheetAction } from "@/app/_lib/defense-actions";
 import { AccessDenied } from "@/app/_components/access-denied";
@@ -122,7 +123,13 @@ export async function DefenseDay({ portal, attemptId }: { portal: UserRole; atte
               {page.warnings.length} member{page.warnings.length > 1 ? "s" : ""} chose an Action Taken that differs from the verdict. You can still continue.
             </FlagBanner>
           ) : null}
-          <ActionForm action={recordVerdictAction.bind(null, milestone.id)} submitLabel="Record verdict" blockedReason={page.verdictBlock ?? undefined} resetOnSuccess={false}>
+          <ActionForm
+            action={recordVerdictAction.bind(null, milestone.id)}
+            submitLabel="Record verdict"
+            blockedReason={page.verdictBlock ?? undefined}
+            resetOnSuccess={false}
+            confirm={confirmCopy({ kind: "verdict" })}
+          >
             <Field label="Collective verdict">
               <select name="verdict" defaultValue={attempt.verdict ?? ""} className={inputClass} required>
                 <option value="">Choose</option>

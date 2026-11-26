@@ -2,7 +2,8 @@
 // Client parts of C3 (DESIGN.md §5.3, §7.4). A blocked action shows its reason (BR-18).
 import { useActionState, type ReactNode } from "react";
 import { ActionButton } from "@/components/action-button";
-import { ActionForm, Field, fieldClass, type FormState } from "../_lib/form-parts";
+import { cn } from "@/lib/utils";
+import { ActionForm, Field, fieldClass, ResultSlot } from "../_lib/form-parts";
 import { advanceMilestoneAction, linkAppointmentAction, linkNdaAction, markAppointedAction, proposeSeatAction, seatAnswerAction } from "./actions";
 
 type Option = { id: string; label: string };
@@ -54,13 +55,8 @@ export function ProposeSeatForm({
   );
 }
 
-function Message({ state }: { state: FormState }) {
-  return (
-    <p role="status" aria-live="polite" className={state.error ? "text-xs text-destructive" : "text-xs text-muted-foreground"}>
-      {state.error ?? state.ok ?? ""}
-    </p>
-  );
-}
+// R3.10: the one form-feedback contract (UX-011). A result shows as "done", an error as role="alert".
+const Message = ResultSlot;
 
 export function SeatAnswerButtons({ seatId }: { seatId: string }) {
   const [state, run] = useActionState(seatAnswerAction, {});
@@ -108,7 +104,7 @@ export function LinkForm({
     <form action={run} className="flex flex-col gap-1">
       <input type="hidden" name={targetName} value={targetId} />
       <div className="flex flex-wrap gap-2">
-        <select name="documentId" required defaultValue={options[0]!.id} aria-label={`Record of the ${label}`} className={`${fieldClass} w-auto`}>
+        <select name="documentId" required defaultValue={options[0]!.id} aria-label={`Record of the ${label}`} className={cn(fieldClass, "w-auto")}>
           {options.map((o) => (
             <option key={o.id} value={o.id}>
               {o.label}

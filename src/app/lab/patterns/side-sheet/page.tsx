@@ -1,5 +1,5 @@
 // /lab/patterns/side-sheet (Task R3.6): the C2 "Add a Student" form in a side sheet. The page follows the lab theme.
-// Query: ?width=400|480|560 (R3-d), ?scrim=token (R3-g A), ?open=1 (open on load, for shots), ?error=1 (the server
+// Query: ?width=400|480|560 (R3-d), ?open=1 (open on load, for shots), ?error=1 (the server
 // names the email field).
 import { Suspense } from "react";
 import type { SheetWidth } from "@/components/patterns/side-sheet";
@@ -17,10 +17,7 @@ export default function Page(props: PageProps<"/lab/patterns/side-sheet">) {
 async function Variant({ searchParams }: PageProps<"/lab/patterns/side-sheet">) {
   const q = flat(await searchParams);
   const width: SheetWidth = q.width === "400" || q.width === "560" ? q.width : "480";
-  // R3-g A (chosen at UX-P-03). The query still reaches option B for a comparison.
-  const scrim = q.scrim === "foreground" ? "foreground" : "token";
-  const link = (extra: Record<string, string>) =>
-    `?${new URLSearchParams({ width, ...(q.scrim ? { scrim: q.scrim } : {}), open: "1", ...extra })}`;
+  const link = (extra: Record<string, string>) => `?${new URLSearchParams({ width, open: "1", ...extra })}`;
   return (
     <>
       <LabHeader
@@ -41,8 +38,8 @@ async function Variant({ searchParams }: PageProps<"/lab/patterns/side-sheet">) 
           },
         ]}
       />
-      <Demo title={`C2 Add a Student: ${width} px, ${scrim === "token" ? "--scrim token" : "R2 backdrop"} (follows the lab theme)`}>
-        <SideSheetDemo key={`${width}-${scrim}-${q.open}-${q.error}`} width={width} scrim={scrim} defaultOpen={q.open === "1"} fieldError={q.error === "1"} />
+      <Demo title={`C2 Add a Student: ${width} px, --scrim backdrop (follows the lab theme)`}>
+        <SideSheetDemo key={`${width}-${q.open}-${q.error}`} width={width} defaultOpen={q.open === "1"} fieldError={q.error === "1"} />
       </Demo>
     </>
   );

@@ -55,3 +55,55 @@ test.describe("shell", () => {
     });
   });
 });
+
+// R3.10 (R3-h A, UX-010, BR-18, BR-19): a permanent action asks once more. Escape closes the dialog, focus returns
+// to the opener, and nothing is recorded. A blocked action keeps its reason and never opens the dialog.
+// The dev data (UX-X-06: no re-seed) may have no open Verify; then only the blocked path runs, and the test says so.
+test.describe("confirm dialog on C4 Verify", () => {
+  test.use({ storageState: AUTH_FILE("coordinator") });
+
+  test("a blocked Verify names its reason; an open Verify opens the dialog, Escape records nothing", async ({ page }, info) => {
+    await page.goto("/coordinator/documents");
+    // The list streams in: wait for it before reading it.
+    const links = page.getByRole("link", { name: /^Review documents/ });
+    await expect(links.first()).toBeVisible();
+    const students = await links.all();
+    const hrefs = await Promise.all(students.map((l) => l.getAttribute("href")));
+    let checkedBlocked = false;
+    for (const href of hrefs) {
+      await page.goto(href!);
+      await expect(page.getByRole("link", { name: "All Students" })).toBeVisible();
+      await page.waitForLoadState("networkidle");
+      const verify = page.getByRole("button", { name: "Verify", exact: true });
+      if ((await verify.count()) === 0) continue;
+      const blocked = verify.and(page.locator('[aria-disabled="true"]'));
+      if (!checkedBlocked && (await blocked.count()) > 0) {
+        const b = blocked.first();
+        const id = await b.getAttribute("aria-describedby");
+        expect(id).toBeTruthy();
+        await expect(page.locator(`[id="${id}"]`)).not.toBeEmpty();
+        await b.click({ force: true });
+        await expect(page.getByRole("dialog")).toHaveCount(0);
+        checkedBlocked = true;
+      }
+      const open = verify.and(page.locator(':not([aria-disabled="true"])'));
+      if ((await open.count()) > 0) {
+        const before = await page.locator("main").innerText();
+        const opener = open.first();
+        await opener.focus();
+        await page.keyboard.press("Enter");
+        const dialog = page.getByRole("dialog", { name: /^Verify .+ for .+\?$/ });
+        await expect(dialog).toBeVisible();
+        await expect(dialog.getByRole("button", { name: "Cancel" })).toBeFocused();
+        await page.keyboard.press("Escape");
+        await expect(dialog).toBeHidden();
+        await expect(opener).toBeFocused();
+        await page.reload();
+        expect(await page.locator("main").innerText()).toBe(before);
+        return;
+      }
+    }
+    expect(checkedBlocked, "the dev data has no Verify on C4").toBe(true);
+    info.annotations.push({ type: "gap", description: "No open Verify in the dev data: the dialog path did not run (R3.10 notes)." });
+  });
+});

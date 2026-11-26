@@ -15,7 +15,7 @@ import { AccessDeniedError, type DataContext } from "@/server/data/access";
 import { InputProblem } from "@/server/data/coordinator";
 import { getDb } from "@/server/data/db";
 import { threadPostBlock, workspaceFor } from "@/server/data/manuscript";
-import { checkTransition, gate1bBlock, gate2Block } from "@/server/data/milestones";
+import { checkTransition, gate1bBlock, gate1bLocksOnEndorse, gate2Block } from "@/server/data/milestones";
 import { listAttempts } from "@/server/data/defense";
 
 const MILESTONE_NAME = { proposal: "Proposal", pre_final: "Pre-Final", final: "Final" } as const;
@@ -71,6 +71,8 @@ export async function PrWorkspace({ portal, prId, commit, page }: { portal: User
   }
   let gate1bReason: string | undefined;
   if ((role === "adviser" || role === "panel_member") && gate1bOpen) gate1bReason = (await gate1bBlock(ctx, milestone.id)) ?? undefined;
+  // R3.10: the Gate 1b dialog says "Endorse and lock manuscript" only when this endorsement is the last one (BR-07).
+  const gate1bLocks = (role === "adviser" || role === "panel_member") && gate1bOpen && !gate1bReason ? await gate1bLocksOnEndorse(ctx, milestone.id) : false;
   const gate2Open = milestone.milestoneCode === "final" && status === "CLOSED" && role === "panel_member";
   const gate2Reason = gate2Open ? ((await gate2Block(ctx, milestone.id)) ?? undefined) : undefined;
   const postBlock = role === "adviser" || role === "panel_member" ? ((await threadPostBlock(ctx, milestone.id)) ?? undefined) : undefined;
@@ -108,7 +110,7 @@ export async function PrWorkspace({ portal, prId, commit, page }: { portal: User
           </>
         ) : null}
         {gate2Open ? <EndorseButton milestoneId={milestone.id} kind="gate2" blockedReason={gate2Reason} /> : null}
-        {(role === "adviser" || role === "panel_member") && gate1bOpen ? <EndorseButton milestoneId={milestone.id} kind="gate1b" blockedReason={gate1bReason} /> : null}
+        {(role === "adviser" || role === "panel_member") && gate1bOpen ? <EndorseButton milestoneId={milestone.id} kind="gate1b" blockedReason={gate1bReason} locks={gate1bLocks} /> : null}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">

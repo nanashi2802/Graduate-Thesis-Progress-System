@@ -1,19 +1,18 @@
 "use client";
 // Client parts of C6. A blocked action shows its reason next to the action (BR-18, DESIGN.md §7.4).
+// R3.10 (R3-h A, UX-010, BR-19): "Scan matches" and "Close the stage" ask once more in a ConfirmDialog, then send the
+// same FormData to the same server action. "Mismatch", "Issue the Minutes" and "Certify" stay one step until R7d.
 import { useRouter } from "next/navigation";
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { ActionButton } from "@/components/action-button";
+import { confirmCopy } from "@/components/patterns/dialog/copy";
+import { control } from "@/components/patterns/form-field";
 import { Button } from "@/components/ui/button";
-import { Field, fieldClass, type FormState } from "../../_lib/form-parts";
+import { ConfirmButton, Field, ResultSlot, type FormState } from "../../_lib/form-parts";
 import { certifyAction, closeDefenseAction, confirmSheetScan, issueMinutesAction, requestSheetScan, verifySheetAction } from "./actions";
 
-function Message({ state }: { state: FormState }) {
-  return (
-    <p role="status" aria-live="polite" className={state.error ? "text-xs text-destructive" : "text-xs text-muted-foreground"}>
-      {state.error ?? state.ok ?? ""}
-    </p>
-  );
-}
+// The one form-feedback contract (UX-011). A result shows as "done", an error as role="alert".
+const Message = ResultSlot;
 
 async function sha256Hex(file: File): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", await file.arrayBuffer());
@@ -81,20 +80,30 @@ export function SheetScanUploader({ entryId, name, blockedReason }: { entryId: s
   );
 }
 
-export function VerifySheetForm({ entryId, blockedReason }: { entryId: string | null; blockedReason: string | null }) {
+export function VerifySheetForm({ entryId, blockedReason, form, student }: { entryId: string | null; blockedReason: string | null; form: string; student: string }) {
   const [state, run] = useActionState(verifySheetAction, {});
+  const ref = useRef<HTMLFormElement>(null);
+  const [confirmed, setConfirmed] = useState<FormState | null>(null);
   return (
-    <form action={run} className="flex flex-col gap-2">
+    <form ref={ref} action={run} onSubmit={() => setConfirmed(null)} className="flex flex-col gap-2">
       <input type="hidden" name="entryId" value={entryId ?? ""} />
       <div className="flex flex-wrap gap-2">
-        <ActionButton type="submit" name="result" value="matched" size="sm" blockedReason={blockedReason ?? undefined}>
+        <ConfirmButton
+          action={verifySheetAction}
+          formRef={ref}
+          fields={{ result: "matched" }}
+          copy={confirmCopy({ kind: "scanMatches", form, student })}
+          blockedReason={blockedReason ?? undefined}
+          onResult={setConfirmed}
+          size="sm"
+        >
           Scan matches
-        </ActionButton>
+        </ConfirmButton>
         <ActionButton type="submit" name="result" value="mismatch" size="sm" variant="outline" blockedReason={blockedReason ?? undefined}>
           Mismatch
         </ActionButton>
       </div>
-      <Message state={state} />
+      <Message state={confirmed ?? state} lines={3} />
     </form>
   );
 }
@@ -105,7 +114,7 @@ export function MinutesForm({ attemptId, blockedReason }: { attemptId: string; b
     <form action={run} className="flex max-w-[720px] flex-col gap-3">
       <input type="hidden" name="attemptId" value={attemptId} />
       <Field label="Minutes of the defense" htmlFor="minutes-body" hint="Issued once. The Minutes cannot change after that (BR-19).">
-        <textarea id="minutes-body" name="body" rows={6} required className={`${fieldClass} h-auto py-2`} />
+        <textarea id="minutes-body" name="body" rows={6} required className={control.textarea} />
       </Field>
       <ActionButton type="submit" blockedReason={blockedReason ?? undefined}>
         Issue the Minutes
@@ -115,14 +124,15 @@ export function MinutesForm({ attemptId, blockedReason }: { attemptId: string; b
   );
 }
 
-export function CloseForm({ milestoneId, blockedReason }: { milestoneId: string; blockedReason: string | null }) {
-  const [state, run] = useActionState(closeDefenseAction, {});
+export function CloseForm({ milestoneId, blockedReason, student }: { milestoneId: string; blockedReason: string | null; student: string }) {
+  const ref = useRef<HTMLFormElement>(null);
+  const [state, setState] = useState<FormState>({});
   return (
-    <form action={run} className="flex flex-col gap-2">
+    <form ref={ref} onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-2">
       <input type="hidden" name="milestoneId" value={milestoneId} />
-      <ActionButton type="submit" blockedReason={blockedReason ?? undefined}>
+      <ConfirmButton action={closeDefenseAction} formRef={ref} copy={confirmCopy({ kind: "closeStage", student })} blockedReason={blockedReason ?? undefined} onResult={setState}>
         Close the stage
-      </ActionButton>
+      </ConfirmButton>
       <Message state={state} />
     </form>
   );

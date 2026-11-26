@@ -2,6 +2,7 @@
 // The browser makes the SHA-256 hash and sends the file straight to storage (NFR-02, NFR-12).
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useToast } from "@/components/patterns/toast";
 import { Button } from "@/components/ui/button";
 import type { AdvisingForm } from "@/server/data/documents";
 import { confirmScan, requestAdvisingCopy, requestScan } from "./actions";
@@ -16,6 +17,7 @@ type Target = { milestoneId: string; requiredItemId: string; advisingForm?: unde
 
 export function ScanUploader({ label, ...target }: Target & { label: string }) {
   const router = useRouter();
+  const toast = useToast();
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -40,7 +42,12 @@ export function ScanUploader({ label, ...target }: Target & { label: string }) {
     setStatus("Checking the file…");
     const done = await confirmScan({ ...meta, documentId: req.documentId, key: req.link.key });
     if (!done.ok) return fail(done.error ?? "The file check failed.");
-    setStatus(target.advisingForm ? "Copy saved. It is kept for your record." : "Scan saved. It is now locked as submitted.");
+    // R3.10 (UX-D-04): an advising-form copy is a small confirmation with no workflow step, so a toast confirms it.
+    // A required scan starts the Coordinator's check: its result stays on the screen.
+    if (target.advisingForm) {
+      setStatus("");
+      toast.show({ label: "File uploaded.", tone: "done", glyph: "received" });
+    } else setStatus("Scan saved. It is now locked as submitted.");
     setBusy(false);
     router.refresh();
   }

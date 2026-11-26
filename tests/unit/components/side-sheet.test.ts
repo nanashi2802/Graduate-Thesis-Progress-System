@@ -22,9 +22,18 @@ describe("side sheet (R3.6)", () => {
     expect(src).toMatch(/data-slot="sheet-footer" className="[^"]*shrink-0[^"]*border-t/);
   });
 
-  it("offers the scrim token (R3-g A) and keeps the R2 backdrop as option B", () => {
-    expect(src).toContain("bg-(--scrim)");
-    expect(src).toContain("bg-foreground/30");
+  it("uses the scrim token as the one backdrop of every overlay (R3-g A, R3.10)", () => {
+    expect(src).toContain('SCRIM = "bg-(--scrim)"');
+    const overlays = [
+      src,
+      readFileSync("src/components/patterns/dialog/index.tsx", "utf8"),
+      readFileSync("src/components/patterns/app-shell/nav-drawer.tsx", "utf8"),
+      topBar,
+    ];
+    for (const o of overlays) {
+      expect(o).toMatch(/bg-\(--scrim\)|\bSCRIM\b/);
+      expect(o).not.toContain("bg-foreground/30");
+    }
     const tokens = readFileSync("src/styles/tokens.css", "utf8");
     expect(tokens).toMatch(/--scrim: rgb\(15 23 42 \/ 0\.45\)/);
     expect(tokens).toMatch(/--scrim: rgb\(2 6 23 \/ 0\.6\)/);

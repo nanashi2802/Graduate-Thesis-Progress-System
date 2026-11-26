@@ -235,7 +235,7 @@ export function RoutePalette({ items, defaultOpen }: { items: readonly NavItem[]
         <Glyph name="search" size={20} />
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 bg-foreground/30 transition-opacity duration-(--motion-overlay) data-ending-style:opacity-0 data-starting-style:opacity-0 motion-reduce:transition-none" />
+        <Dialog.Backdrop className="fixed inset-0 bg-(--scrim) transition-opacity duration-(--motion-overlay) data-ending-style:opacity-0 data-starting-style:opacity-0 motion-reduce:transition-none" />
         <Dialog.Popup className="fixed top-24 left-1/2 w-[min(92vw,480px)] -translate-x-1/2 rounded-panel border border-border bg-popover p-2 text-popover-foreground shadow-[var(--shadow-popover)] outline-none transition-opacity duration-(--motion-overlay) data-ending-style:opacity-0 data-starting-style:opacity-0 motion-reduce:transition-none">
           <Dialog.Title className="sr-only">Go to a page</Dialog.Title>
           <input

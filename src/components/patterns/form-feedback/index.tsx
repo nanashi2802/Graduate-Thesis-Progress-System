@@ -109,18 +109,23 @@ export function PendingButton({
   pendingLabel,
   variant = "default",
   form,
+  size = "default",
+  className,
   children,
 }: {
   pending: boolean;
   label: string;
   pendingLabel: string;
-  variant?: "default" | "outline" | "return";
+  variant?: "default" | "outline" | "return" | "link";
   /** The id of the form, when the button sits outside it (a side-sheet footer, R3.6). */
   form?: string;
+  /** "sm" keeps the small button of the old row forms until R7 (R3.10). */
+  size?: "default" | "sm";
+  className?: string;
   children?: ReactNode;
 }) {
   return (
-    <Button type="submit" form={form} variant={variant} disabled={pending} focusableWhenDisabled aria-busy={pending || undefined}>
+    <Button type="submit" form={form} variant={variant} size={size} className={className} disabled={pending} focusableWhenDisabled aria-busy={pending || undefined}>
       {children}
       <span className="grid">
         <span className={cn("col-start-1 row-start-1", pending && "invisible")}>{label}</span>

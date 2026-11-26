@@ -7,6 +7,7 @@ import { FlagBanner } from "@/components/banners";
 import { EmptyState } from "@/components/empty-state";
 import { InputProblem } from "@/server/data/coordinator";
 import { defenseDetail } from "@/server/data/defense-view";
+import { evaluationFormFor } from "@/server/domain/evaluation";
 import { RevisionItemsForm } from "@/app/_components/revision-panel";
 import { sessionContext } from "../../_lib/action";
 import { PageHeader, Section, td, th } from "../../_lib/page-header";
@@ -78,7 +79,7 @@ export default async function Page({ params }: PageProps<"/coordinator/defense/[
                       </div>
                     </td>
                     <td className={td}>
-                      <VerifySheetForm entryId={s.entryId} blockedReason={s.verifyBlockedReason} />
+                      <VerifySheetForm entryId={s.entryId} blockedReason={s.verifyBlockedReason} form={evaluationFormFor(d.milestone)} student={d.studentName} />
                     </td>
                   </tr>
                 ))}
@@ -109,7 +110,7 @@ export default async function Page({ params }: PageProps<"/coordinator/defense/[
         <p className="max-w-[72ch] text-sm text-muted-foreground">
           The stage closes after the verdict, each verified sheet and the Minutes. A returned document also blocks the close (BR-12).
         </p>
-        <CloseForm milestoneId={d.milestoneId} blockedReason={d.closeBlockedReason} />
+        <CloseForm milestoneId={d.milestoneId} blockedReason={d.closeBlockedReason} student={d.studentName} />
       </Section>
 
       {d.showCertify ? (

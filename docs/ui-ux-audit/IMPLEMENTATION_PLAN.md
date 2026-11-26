@@ -1,6 +1,6 @@
 # UI/UX retrofit implementation plan
 
-**Status:** v1.4, 26 Nov 2026. R3 approved at UX-P-03 and committed (`3b830d7`). R3.10 (integrate) is written for a new session (§10.1). v1.3: R1 and R2 approved, integrated and committed (`9d663dd`, `ad2c760`). R3 is written for a new session (§10.0). v1.2: R1 approved; R1.5 and R2 were written for a new session (§8 Task R1.5, §9). Round 0, Round 1, Round H, Round 2 and the R1 preview are committed (up to `c7b7a71`). v1.1 (25 Nov 2026) added Round H and the Stage 1 tasks (§6.1). Update the "State" column of §3 and the results log in §13 as you work.
+**Status:** v1.5, 26 Nov 2026. R3.10 integrated, not committed (§10.2). v1.4: R3 approved at UX-P-03 and committed (`3b830d7`); R3.10 was written for a new session (§10.1). v1.3: R1 and R2 approved, integrated and committed (`9d663dd`, `ad2c760`). R3 is written for a new session (§10.0). v1.2: R1 approved; R1.5 and R2 were written for a new session (§8 Task R1.5, §9). Round 0, Round 1, Round H, Round 2 and the R1 preview are committed (up to `c7b7a71`). v1.1 (25 Nov 2026) added Round H and the Stage 1 tasks (§6.1). Update the "State" column of §3 and the results log in §13 as you work.
 **Replaces:** `docs/superpowers/plans/2026-11-25-guided-ledger-ui.md`. This plan keeps its tasks and adds an audit, the `/lab` showcase, dark mode and a preview gate before each round.
 **Goal:** Make the app feel complete, consistent, accessible and easy to use in light and dark. Keep every screen, route, flow, role and data contract as it is. Usability first, consistency always, decoration last.
 
@@ -79,7 +79,7 @@ Each round has the same 4 steps: **Build preview → Gate → Integrate → Vali
 | H | Hotfix before R1 (§6.2): UX-009 PDF error state, UX-001 focus line | — | — | H.1 (UX-D-06) and H.2 (UX-D-07) built 25 Nov 2026, not committed. Round H is complete. |
 | R1 | Foundations: tokens in light and dark, theme, glyphs, base patterns | 1, 2, 3 | Dark values (UX-P-01) | **Approved 26 Nov 2026** (UX-P-01). Preview committed (`6c5c9b5`, `c7b7a71`). R1.5 integrated and committed 26 Nov 2026 (`9d663dd`, `ui/r1-integrate`). |
 | R2 | Shell and system states: app shell, sidebar, top-bar panels, toast, loading and error, motion, glyphs | 4 | D-06, D-07, D-08, D-10, R2-a, R2-b, R2-c | **Approved 26 Nov 2026** (UX-P-02). R2.8 integrated 26 Nov 2026 on `ui/r2-shell`, not committed. |
-| R3 | Queues, inbox, dialogs, side sheet, form field, one form-feedback contract | 5, 6, part of 9 | R3-a to R3-i (§10.0, UX-P-03) | **Approved 26 Nov 2026** (UX-P-03): R3-a A, R3-b A, R3-c A, R3-d 480 px, R3-e A, R3-f A, R3-g A, R3-h A, R3-i A, `form-field` in the registry. Preview on `ui/r3-patterns`, not committed. R3.10 (integrate) not started. **Brief for a new session: §10.1.** |
+| R3 | Queues, inbox, dialogs, side sheet, form field, one form-feedback contract | 5, 6, part of 9 | R3-a to R3-i (§10.0, UX-P-03) | **Approved 26 Nov 2026** (UX-P-03): R3-a A, R3-b A, R3-c A, R3-d 480 px, R3-e A, R3-f A, R3-g A, R3-h A, R3-i A, `form-field` in the registry. Preview committed (`3b830d7`). **R3.10 integrated 26 Nov 2026** on `ui/r3-patterns`, not committed (§10.2). |
 | R4 | Student path: task list, step-by-step, Thesis process | 7 | — | Not started |
 | R5 | Manuscript workspace | 8 | — | Not started |
 | R6 | Forms and Defense Day | 9 | — | Not started |
@@ -743,7 +743,7 @@ Use Base UI `dialog` for `dialog` and Base UI `drawer` for `side-sheet` (the R2 
 - [x] **R3.7 `form-field` and one form-feedback contract (UX-011, UX-012, UX-013).** `FormField({ label, hint?, error?, children })` gives ids and wires `aria-describedby` (hint and error) and `aria-invalid` on the control; the error slot under the field is fixed height (UX-D-16). One control class set (`inputClass`, `fieldClass` and the LOGIN classes become one) for input, select and textarea, 44 px high on tablet. In `/lab/states` and `/lab/patterns/form-field`: a side-sheet form with a hint, a field error from the server, a small-action toast and a workflow result. The owner decides at the gate if `form-field` joins the registry (§6.1 row R3).
 - [x] **R3.8 loading by screen (UX-D-15 suggestion).** Add the queue and inbox shapes to `loading` if R3.1 and R3.3 need them (for example an inbox preset: list, viewer block, record). The pulse is the approved effect.
 - [x] **R3.9 preview.** `pnpm lab:shots r3` (all viewports, light and dark, the reduced pass). Keyboard walk in `/lab`: table sort headers, row actions, KPI links, the inbox list, the dialog (Escape, focus return), the sheet (focus trap, Escape, focus return), the composer. Then the gate message (§10.0). Stop.
-- [ ] **R3.10 integrate (after "R3 approved" only). R3 is approved (UX-P-03, 26 Nov 2026). Read the brief in §10.1 first; it replaces the list below where they differ.**
+- [x] **R3.10 integrate (after "R3 approved" only). R3 is approved (UX-P-03, 26 Nov 2026). Read the brief in §10.1 first; it replaces the list below where they differ.** Built 26 Nov 2026, not committed: §10.2.
   - Re-export the new patterns where an old component has the same props (none expected; list what you leave).
   - Move both `ActionForm` components (`src/app/_components/action-form.tsx`, `src/app/coordinator/_lib/form-parts.tsx`) onto `FormFeedback`, `PendingButton` and `form-field`. Keep each call site's server action, props and reset behavior. Error: `role="alert"` under the form, linked to the field when the server names one. Success: `successToast` for small actions; the on-screen result for workflow actions (UX-D-04). Before the change, list each prop, callback, state, validation, accessibility, server-facing behavior, loading and error behavior and the call sites (§4.4).
   - If R3-h is A: wrap each permanent action in `ConfirmDialog` (Endorse in `src/app/_components/workspace-controls.tsx`, Gate 2, Record verdict in `src/app/_components/defense-day.tsx`, Verify on C4 (Return uses the composer, not a dialog), "Scan matches" and Close the stage on C6). The server actions and their access checks do not change.
@@ -841,7 +841,123 @@ Read this before you start R3.10. It holds what the R3 preview session learned.
 
 **Commit (when told):** `feat: integrate R3: one form-feedback contract on all forms, confirm dialog on permanent actions, scrim backdrop (DESIGN.md v0.6, BR-18, BR-19, UX-010 to UX-013)`
 
+### 10.2 R3.10 as built (26 Nov 2026)
+
+**Branch:** `ui/r3-patterns`, on top of `020802c`, not committed. The server actions, their access checks and their result shapes did not change. No data function or data call was added.
+
+**§4.4 lists, before the change.**
+
+| Component | Props and callbacks | State | Validation | Accessibility | Server-facing behavior | Loading and error | Call sites | After R3.10 |
+| :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
+| `ActionForm` (`_components/action-form.tsx`) | `action(form) → Result`, `submitLabel`, `blockedReason`, `variant`, `className`, `resetOnSuccess` (true), `successToast` | `useTransition` pending, one message | Native `required`, then the server | Error `role="alert"` under the button; blocked submit is `ActionButton` with its reason | Calls the action with the form data; `router.refresh()` after success | "Saving…" with `disabled`; error text in `text-destructive` | 9 files (§10.1 Task A) | All props kept. `PendingButton` (size `sm`), a `FormFeedback` slot of 2 lines, the same toast and refresh. New optional `confirm` (dialog copy) and `feedbackLines`. |
+| `Field`, `inputClass`, `areaClass` (same file) | `label`, one child | none | none | `<label>` wraps the control | none | none | 7 files | `Field` renders `FormField` (label `for` an id from `useId`). The classes are `control.input` and `control.textarea`. |
+| `ActionForm` (`coordinator/_lib/form-parts.tsx`) | `action(prev, form) → FormState`, `submit`, `variant`, `className` | `useActionState` | Native `required`, then the server | One `role="status"` polite line for both result and error | Form `action={run}` | "Saving…" with `disabled`; error and result in one line beside the button | 5 files (§10.1 Task A) | All props kept. `PendingButton`, then a 2-line `FormFeedback` slot under it: `ok` shows as "done" (`role="status"`), `error` as `role="alert"`. New optional `feedbackLines`. |
+| `Field`, `fieldClass` (same file) | `label`, `htmlFor`, `hint`, one child | none | none | Label `for` the id; hint not linked | none | none | 6 files | `Field` renders `FormField`: the hint is linked with `aria-describedby`; new optional `error`. `fieldClass` is `control.input`. |
+| Local `Message` / `note` lines (committees, schedule, clearance, C4 review, C6) | `state` | none | none | `role="status"` polite, also for errors | none | Error in `text-destructive` | 5 files | One `ResultSlot` (a `FormFeedback` slot): error `role="alert"`, result `role="status"`, fixed height. |
+| `EndorseButton` (`workspace-controls.tsx`) | `milestoneId`, `kind`, `blockedReason` | `useRun` | none | `ActionButton` with its reason | One click runs the gate action | "Saving…"; error line | `pr-workspace.tsx` (3) | The click opens `ConfirmDialog`; confirm runs the same action; the error stays in the dialog; refresh after success. |
+
+**What changed.**
+
+| Area | Change | IDs |
+| :---- | :---- | :---- |
+| Backdrop (R3-g A) | `SCRIM = "bg-(--scrim)"` is the one backdrop: `SheetPopup`, `SideSheet`, `ConfirmDialog`, the nav drawer, the route palette and the top-bar sheets. The `scrim` prop, the `"foreground"` option and the `SheetScrim` type are removed, also from `/lab`. | R3-g, UX-P-03 |
+| `PendingButton` | New optional `size` (`"sm"` for the old row forms until R7) and `className`; variant `"link"` for the coordinator forms. | UX-011 |
+| Shared forms | `ActionForm` (both), `Field` (both), the old class names and `ResultSlot` as in the table above. Three width overrides use `cn` so the width wins over `w-full` (committee record select, copies count, score inputs). The Minutes textarea uses `control.textarea`. | UX-011 to UX-013, UX-D-16 |
+| Permanent actions (R3-h A) | `ConfirmDialog` on Endorse (Gate 1a), Endorse this commit (Gate 1b), Gate 2 (A2, P2), Record verdict (A5, P4, through `ActionForm confirm`), Verify (C4), "Scan matches" and Close the stage (C6). The coordinator ones use one `ConfirmButton` in `form-parts.tsx`: it sends the form data with the same field (`to=verified`, `result=matched`) to the same action. | UX-010, BR-18, BR-19 |
+| Dialog copy (correction) | Gate 1b: the last endorser sees "Yours is the last endorsement, so this locks the manuscript until the defense closes." and "Endorse and lock manuscript" (the owner kept this label, 26 Nov 2026). The other endorsers see "This records your endorsement, and the manuscript locks after the last endorsement." and "Endorse (Gate 1b)". New read-only data function `gate1bLocksOnEndorse` (access check through `loadAllowed`, test in `milestones.test.ts`); the PR workspace calls it once when Gate 1b is open for the user. Record verdict: "… and you can change it only until the defense is held." (was "you cannot change it"). The approved copy stated wrong facts: `endorseGate1b` locks only on the last endorsement (BR-07), and `recordVerdict` allows a new verdict until the defense is held (FR-DEF-07). **For the owner to confirm.** | UX-P-03, BR-07, FR-DEF-07 |
+| Student name in dialogs | `confirmCopy` takes an optional `student` for Endorse, Gate 2 and Record verdict: the PR workspace and Defense Day data have no Student name, so the title names the record only ("Endorse this commit for defense (Gate 1b)?"). C4 and C6 pass the name and the form. | UX-010 |
+| Upload toast (Task C) | `ScanUploader`, advising-form copy: "File uploaded." toast (tone `done`, glyph `received`), no status line. Kept as status lines: a required scan (it starts the Coordinator's check), `SheetScanUploader` (C6: the row then shows "Waiting for the check"), `CommitUploader` (a new commit is a workflow result). | UX-D-04 |
+| Tests | New `tests/unit/components/form-contract.test.ts` (18 tests). `dialog.test.ts`: new copy and the record-only titles. `side-sheet.test.ts`: the scrim is the only backdrop of every overlay. New e2e test in `shell.spec.ts`: a blocked C4 Verify names its reason and opens no dialog; an open Verify opens the dialog, Cancel has focus, Escape closes it, focus returns, and a reload shows the same page. | UX-010, UX-011 |
+
+**Left as they are (for R5, R7d and R8).**
+
+- Old exports kept until R8: `Field`, `inputClass`, `areaClass` (`action-form.tsx`), `Field`, `fieldClass` (`form-parts.tsx`), `ActionButton` (`components/action-button.tsx`). No pattern has the same props as an old component, so no re-export was added.
+- Not wired in R3.10 (permanent too, for R7d): clearance "Close" (`coordinator/clearance/forms.tsx`), "Issue the Minutes" and "Record the Certification" on C6. Also "Return" on C4 and "Mismatch" on C6 (the composer comes with C4 and C6 in R7d).
+- The `workspace-controls.tsx` forms (Ready, Return to the Student, New thread, Reply, Resolve) keep their `useRun` line until R5 (manuscript workspace). LOGIN keeps its own markup until R7d.
+- The upload progress lines (`SheetScanUploader`, `ScanUploader`, `CommitUploader`) keep one `role="status"` line that also shows errors. R5 and R7d move them to the contract.
+- No server action returns a field name today, so no live form shows a field error yet. The form-level slot holds every error. A field error needs a server change (R7 or later).
+- C4: Verify is now a `type="button"` opener. Enter in the reason box submits the first submit button, which is now Return (before: Verify). Return still needs a reason.
+- The `FormFeedback` slot adds 40 px under each form (UX-D-16). This is the approved contract; the R7 screens can set `lines` per form.
+
+**Gaps.**
+
+- The live audit shots were stopped by the owner after 80 of about 350 (26 Nov 2026). To finish them later, with the dev server on port 3000 and no file changes during the run: `LAB_LIVE=1 LAB_PORT=3000 LAB_CORS_RELAY=1 LAB_MILESTONE_ID=3371ed7d-8833-49ac-bf2a-57dfd691d5c1 LAB_DEFENSE_ID=fb4a0ce9-4de2-4966-ba5a-a92608fd6fd0 LAB_OUT=ui-shots/r3-live pnpm lab:shots audit`. Then compare the forms with `ui-shots/r2-live/` and update the §13 row.
+
+- No e2e role has an open permanent action in the dev data (every C4 Verify is blocked, C6 has no defense, the PR workspace shows no Endorse). The e2e test ran the blocked path only; the dialog path is in the test and runs when the data has an open Verify. The `/lab` walk of R3.9 covers the dialog focus, Escape and focus return. Do not re-seed (UX-X-06).
+- The keyboard walk of a live dialog did not run, for the same reason.
+
 ### R4: Student path (old Task 7)
+
+#### R4.0 Brief for R4 (new session)
+
+Read this before you start R4. It holds what the R1 to R3 sessions learned.
+
+**State on 26 Nov 2026:** branch `ui/r3-patterns`, with R3.10 committed on top of `020802c`. Nothing is pushed. R1 (UX-P-01), R2 (UX-P-02) and R3 (UX-P-03) are approved, integrated and committed. `DESIGN.md` is v0.6. PR #81 (`feat/guided-ledger`) was still open: check it first (§1 step 2).
+
+**Branch:** make `ui/r4-student` from `ui/r3-patterns`. Commit only when the owner says so (AGENTS.md §2).
+
+**Read first, in this order:**
+
+1. `AGENTS.md` (§2, §5, §7, §8, §9).
+2. `docs/ui-ux-audit/DESIGN_DECISIONS.md`: UX-D-01 to UX-D-16, the UX-P-03 record (with the R3.10 lines).
+3. `DESIGN.md` v0.6: §2 (Guided Ledger, "Teach at the edges"), §2.1, §5.3 (Docket), §5.4, §6.2 (glyphs), §7.4 (rows `task-list`, `step-by-step`, `docket`, `stepper`), §8.2 (stepper), §8.11 (empty and first-day states), §8.12 (forms and "Download form"), F1 (the Novie exception).
+4. `design/screens/PROCESS.md`, `S1.md`, `S3.md`, `S6.md`, `C7.md` (the users of `task-list`), `spec/SITEMAP.md` (the `/student/process` row and §9 locked reasons).
+5. `docs/ui-ux-audit/UI_UX_AUDIT.md`: the findings for S1, S3 and S6.
+6. §10.0, §10.1 and §10.2 above (the environment facts and the R3 parts). They still apply.
+
+**What R1 to R3 built that R4 uses (do not rebuild):**
+
+| Part | Where | Use in R4 |
+| :---- | :---- | :---- |
+| Tokens, glyphs, status stamp and labels | `src/styles/tokens.css`, `patterns/glyphs`, `patterns/status` | Task-list stamps, step glyphs (`done`) |
+| `BlockedAction` | `patterns/blocked-action` | A blocked task-list action with its reason (BR-18) |
+| `stepper`, `docket` | `patterns/stepper`, `patterns/docket` | S1 (already live); keep their look |
+| `FormFeedback`, `PendingButton`, `FormField`, `ActionForm` (both, now on the contract) | `patterns/form-feedback`, `patterns/form-field`, `_components/action-form.tsx` | Any form on S1, S3, S6 |
+| `ConfirmDialog`, `SideSheet`, `queue-table` | `patterns/dialog`, `patterns/side-sheet`, `patterns/queue-table` | Only if a task needs them |
+| `LoadingBlocks` shapes and presets | `patterns/loading` | The task-list and PROCESS loading shapes (UX-D-15 suggestion) |
+| Sidebar `navFor` | `patterns/sidebar/nav.ts` | Add "Thesis process" as the second Student item when the route exists (now left out, see the comment at the top) |
+| Lab and shots | `src/app/lab/`, `_mock/pages.ts`, `LAB_ROUNDS` in `tests/lab/shots.spec.ts` | `/lab/patterns/task-list`, `/lab/patterns/step-by-step`, `/lab/screens/PROCESS` |
+
+**Data facts (no new data function expected):**
+
+| Need | Existing source | Gap |
+| :---- | :---- | :---- |
+| Degree level (2 or 3 Panel Members) | `studentTracker(ctx).degreeLevel` (`src/server/data/tracker.ts`) | None |
+| Current step, done steps | `studentTracker(ctx)` (`current`, milestones) | None. Clearance is the fourth step. |
+| Task-list items of S3 (required scans, advising forms) | the S3 page data today (`deliverables`, advising copies) | None |
+| "Download form" files | the blank forms are `.doc` files in `docs/reference/tdw-forms/`, not served by the app | Decision R4-b |
+
+**Decision points for the owner at gate UX-P-04 (show 2 or 3 options each, with a recommendation):**
+
+| ID | Decision | Options to show |
+| :---- | :---- | :---- |
+| R4-a | Collapsed group in `task-list` ("Advising forms · optional") | A: native `<details>` (no script, simple). B: a disclosure button with `aria-expanded`, the same as the `queue-table` groups. Recommend B, for one look with R3. |
+| R4-b | How "Download form" serves the blank TDW forms until Phase 4 | A: copy the `.doc` files to `public/forms/` (static, public). B: a Student-only route that streams the file after the role check. C: show the form number and name with no download yet. Recommend A: the blank forms are public university forms with no student data. |
+| R4-c | Novie (mascot) in R4 (F1 exception, UX-D-11 item 7) | A: on the PROCESS first view and the S3 empty state only. B: no Novie until R7. Recommend B if the master artwork is still missing (UX-X-19). |
+| R4-d | Step-by-step on a phone | A: the same accordion, full width. B: the current step only, with a "Show all steps" link. Recommend A. |
+
+**Rules that bind every R4 pattern:** the R3 rules (§10.0) still apply: UX-D-16 fixed slots, UX-D-04 toasts, G1 and G8 one maroon button for each region, BR-17 and BR-18, both themes, WCAG 2.2 AA, tokens only, mock data only in `/lab`. Also: PROCESS has no action except form downloads; Stage 0 is not a step; show the Student's degree level only (G2).
+
+**R4 tasks.** Tests first for each pattern (the table below lists the tests that must fail first). Each pattern: `src/components/patterns/<name>/index.tsx`, first line `// Source: <reference>`, a typed props contract, a `/lab/patterns/<name>` page with every state in light and dark, a row in `_mock/pages.ts` and in `LAB_ROUNDS.r4`.
+
+- [ ] **R4.1 `task-list`** (interface and tests in the table below). Stamp, label, reason, actions; a collapsed group per R4-a; at most one stamp for each item.
+- [ ] **R4.2 `step-by-step`.** "You are here" on the current step, expanded; the other steps collapsed; `done` glyph on done steps; each step lists the gates, who acts, the defense, then its forms (mono form number, name, "Download form").
+- [ ] **R4.3 PROCESS preview** at `/lab/screens/PROCESS` with mock data for a Master's and a Doctoral Student (2 and 3 Panel Members). 4 steps, no Stage 0.
+- [ ] **R4.4 loading shapes** for the task list and PROCESS, if needed (UX-D-15).
+- [ ] **R4.5 preview.** `pnpm lab:shots r4` (all viewports, light and dark, the reduced pass). Keyboard walk of the disclosure buttons and the step accordion. Then the gate message (§4.2) with R4-a to R4-d. Stop.
+- [ ] **R4.6 integrate (after "R4 approved" only).** The live route `/student/process` (Student only, the same role check as the other Student pages, FR-ACC-02). The sidebar item "Thesis process" (second Student item, `navFor` test first). S3 (and S1, S6 where the registry names them) move onto `task-list`; keep each call site's data and actions (§4.4 list first). e2e: the route opens for the Student and is refused for the other 3 roles. Validate (§4.5). `DESIGN.md` v0.7 (`git mv` v0.6 to `docs/stale/` first). This plan's §3, §13 and the R4 checkboxes; the UX-P-04 record.
+
+**Facts from the R3 sessions (they add to §9.0 and §10.0):**
+
+| Topic | Fact |
+| :---- | :---- |
+| Build type-checks tests | `pnpm build` type-checks `tests/` too. Run `pnpm typecheck` and `pnpm lint` after the last test edit, not only before. |
+| `createElement` children | Passing `children` in the props object breaks the lint rule `react/no-children-prop`. Pass it as the third argument, or call a component with no hooks as a function. |
+| e2e on streamed pages | `locator.all()` does not wait. Wait for the first item (`await expect(list.first()).toBeVisible()`) before you read a streamed list. |
+| Sign-in on the dev server | `auth.setup.ts` can time out (5 s) on the dev server. Run e2e on the production build (`E2E_PORT=3100`). |
+| Demo data | No e2e role has an open permanent action (UX-X-06: no re-seed). A test of an action that needs open data must also pass on the blocked path, and record the gap. |
+| Dialog copy | Check each text against the data layer, not only the spec: R3.10 found two approved texts that stated wrong facts (Gate 1b lock, verdict change). |
+
 
 | Pattern | Interface | Tests |
 | :---- | :---- | :---- |
@@ -938,6 +1054,7 @@ Fill one row for each validation run. Never write "pass" for a check you did not
 | 26 Nov 2026 | R2 (preview and R2.8 integrate) | `9d663dd` + uncommitted (`ui/r2-shell`) | Pass (0 errors, the same 1 warning) | Pass | Pass (77 files, 963 tests) | Pass (27, `E2E_PORT=3100`, with 4 new shell tests) | Pass | `pnpm lab:shots r2`: 121 shots, 0 errors. `LAB_LIVE=1` audit: 352 shots, light and dark (`ui-shots/r2-live/`). Only known errors: C10 and PROCESS 404, P2 storage 404. | Pass (`contrast.test.ts`) | e2e `shell.spec.ts`: skip link first, Escape closes the sheet and the drawer, focus returns | Pass (reduced-motion pass) | Not run (package not approved) | A first full unit run under load (screenshots in parallel) had 4 data-layer timeouts; alone it passes. UX-D-16 addition (fixed-height slot): 77 files, 969 tests; e2e 27; `lab:shots r2` 121 shots, 0 errors; before and after in `ui-shots/r2-feedback-compare.png`. |
 
 | 26 Nov 2026 | R3 (build preview) | `b72ff4a` + uncommitted (`ui/r3-patterns`) | Pass (0 errors, the same 1 warning) | Pass | Pass (84 files, 1030 tests; run alone) | Pass (27, `E2E_PORT=3100` on the new build; the top bar now imports `SheetPopup` from `side-sheet`) | Pass | `pnpm lab:shots r3`: 242 shots, 0 console errors, all HTTP 200 (`ui-shots/r3/`) | Not run again (no color token changed; `--scrim` is a backdrop) | Playwright walk of the 7 `/lab` pages: 33 of 33 checks (sort headers and `aria-sort`, row actions, blocked reason on focus, long title on focus, 48 px compact rows, KPI links, inbox list, dialog focus start A and B, focus trap, Escape, focus return, composer Escape and focus return, no layout move, sheet trap and focus return, field error link) | Pass (reduced-motion pass in `lab:shots`) | Not run (package not approved) | New R3-i (blocked action in a compact row). No live page changed except the top-bar import. After feedback passes 1 and 2 (collapsible groups, column widths, option-B pages removed): test 84 files, 1034 tests; walk 36 of 36; `lab:shots r3` 176 shots, 0 console errors, all HTTP 200. |
+| 26 Nov 2026 | R3.10 (integrate) | `020802c` + this commit (`ui/r3-patterns`) | Pass (0 errors, the same 1 warning) | Pass | Pass (85 files, 1053 tests, run alone, before the Gate 1b label fix; after it only `dialog`, `form-contract` and `milestones` data tests ran: all pass) | Pass (28, `E2E_PORT=3100` on the production build, with the new confirm-dialog test; blocked path only, see §10.2 gaps) | Pass | `LAB_LIVE=1` audit into `ui-shots/r3-live/`: **stopped by the owner after 80 shots** (desktop light and dark, part of laptop light), 0 failed. The rest and the before-and-after compare with `ui-shots/r2-live/` are not done: run them later. | Not run again (no color token changed) | Production walk of C2 and C4: labels, 44 px and 36 px fields, linked hints, 40 px slots, solid outlines (except the Chrome calendar button in the date field, as before), a blocked Verify takes focus and opens no dialog. No live dialog walk (no open permanent action in the dev data). | Not run (shots stopped) | Not run (package not approved) | Gate 1b: owner kept "Endorse and lock manuscript" and asked to fix the mismatch: new read-only `gate1bLocksOnEndorse`. |
 ---
 
 ## 14. Definition of done

@@ -8,7 +8,7 @@
 import { Dialog } from "@base-ui/react/dialog";
 import { useId, useRef, useState, useTransition, type Ref } from "react";
 import { FormFeedback, PendingButton, type FormFeedbackState } from "@/components/patterns/form-feedback";
-import { SCRIM, type SheetScrim } from "@/components/patterns/side-sheet";
+import { SCRIM } from "@/components/patterns/side-sheet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ConfirmCopy } from "./copy";
@@ -62,10 +62,9 @@ export type ConfirmDialogProps = ConfirmCopy & {
   unlocks?: readonly string[];
   /** Decision R3-e. A: Cancel (default). B: the confirm button. */
   focus?: "cancel" | "confirm";
-  scrim?: SheetScrim;
 };
 
-export function ConfirmDialog({ title, body, confirmLabel, open, onOpenChange, onConfirm, unlocks, focus = "cancel", scrim = "foreground" }: ConfirmDialogProps) {
+export function ConfirmDialog({ title, body, confirmLabel, open, onOpenChange, onConfirm, unlocks, focus = "cancel" }: ConfirmDialogProps) {
   const formId = useId();
   const cancelRef = useRef<HTMLButtonElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -81,7 +80,7 @@ export function ConfirmDialog({ title, body, confirmLabel, open, onOpenChange, o
         <Dialog.Backdrop
           className={cn(
             "fixed inset-0 z-50 transition-opacity duration-(--motion-overlay) data-ending-style:opacity-0 data-starting-style:opacity-0 motion-reduce:transition-none",
-            SCRIM[scrim],
+            SCRIM,
           )}
         />
         <Dialog.Popup

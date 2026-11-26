@@ -2,8 +2,8 @@
 // Source: Primer side sheet (DESIGN.md §7.4 side-sheet), Base UI drawer, Task R3.6. Screens: C2, C3, C8, C9, A4, P3,
 // and the top-bar sheets (notifications, email preferences).
 // A right side sheet. Base UI gives the focus trap; Escape closes it; focus returns to the trigger. Motion: D-10 A.
-// Width (decision R3-d): 400, 480 or 560 px, full width below 640 px. Backdrop (decision R3-g): the `--scrim` token
-// (option A) or the R2 `bg-foreground/30` (option B, the default until the gate, so the top bar does not change).
+// Width (decision R3-d B): 480 px by default, 400 px for the top-bar panels, full width below 640 px. Backdrop
+// (decision R3-g A): the `--scrim` token, the one backdrop of every dialog, sheet and drawer.
 import { Drawer } from "@base-ui/react/drawer";
 import { X } from "lucide-react";
 import type { ReactElement, ReactNode } from "react";
@@ -11,9 +11,9 @@ import { cn } from "@/lib/utils";
 
 export const SHEET_WIDTH = { "400": "w-full sm:w-[400px]", "480": "w-full sm:w-[480px]", "560": "w-full sm:w-[560px]" } as const;
 export type SheetWidth = keyof typeof SHEET_WIDTH;
-export type SheetScrim = "token" | "foreground";
 
-export const SCRIM: Record<SheetScrim, string> = { token: "bg-(--scrim)", foreground: "bg-foreground/30" };
+/** The one backdrop (R3-g A): dialogs, sheets, the nav drawer and the route palette. */
+export const SCRIM = "bg-(--scrim)";
 
 const CLOSE =
   "relative flex size-11 items-center justify-center rounded-control text-foreground outline-none hover:bg-muted focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring";
@@ -24,17 +24,16 @@ export type SheetPopupProps = {
   /** The sticky footer: the one primary action of the sheet, then Cancel. */
   footer?: ReactNode;
   width?: SheetWidth;
-  scrim?: SheetScrim;
 };
 
 /** The popup part, for a caller that owns its own `Drawer.Root` (the top bar). */
-export function SheetPopup({ title, children, footer, width = "400", scrim = "foreground" }: SheetPopupProps) {
+export function SheetPopup({ title, children, footer, width = "400" }: SheetPopupProps) {
   return (
     <Drawer.Portal>
       <Drawer.Backdrop
         className={cn(
           "fixed inset-0 transition-opacity duration-(--motion-drawer) data-ending-style:opacity-0 data-starting-style:opacity-0 motion-reduce:transition-none",
-          SCRIM[scrim],
+          SCRIM,
         )}
       />
       <Drawer.Viewport className="fixed inset-0 flex items-stretch justify-end">
@@ -71,11 +70,11 @@ export type SideSheetProps = SheetPopupProps & {
   trigger?: ReactElement;
 };
 
-export function SideSheet({ open, onOpenChange, defaultOpen, trigger, width = "480", scrim = "foreground", ...popup }: SideSheetProps) {
+export function SideSheet({ open, onOpenChange, defaultOpen, trigger, width = "480", ...popup }: SideSheetProps) {
   return (
     <Drawer.Root open={open} onOpenChange={(o) => onOpenChange?.(o)} defaultOpen={defaultOpen} swipeDirection="right">
       {trigger ? <Drawer.Trigger render={trigger} /> : null}
-      <SheetPopup width={width} scrim={scrim} {...popup} />
+      <SheetPopup width={width} {...popup} />
     </Drawer.Root>
   );
 }

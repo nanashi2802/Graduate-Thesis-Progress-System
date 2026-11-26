@@ -2,16 +2,12 @@
 // Client parts of C5. A blocked action shows its reason next to the action (BR-18, DESIGN.md §7.4).
 import { useActionState } from "react";
 import { ActionButton } from "@/components/action-button";
-import { ActionForm, Field, fieldClass, type FormState } from "../_lib/form-parts";
+import { cn } from "@/lib/utils";
+import { ActionForm, Field, fieldClass, ResultSlot } from "../_lib/form-parts";
 import { checkCopiesAction, confirmDateAction, recordCopiesAction, returnDateAction } from "./actions";
 
-function Message({ state }: { state: FormState }) {
-  return (
-    <p role="status" aria-live="polite" className={state.error ? "text-xs text-destructive" : "text-xs text-muted-foreground"}>
-      {state.error ?? state.ok ?? ""}
-    </p>
-  );
-}
+// R3.10: the one form-feedback contract (UX-011). A result shows as "done", an error as role="alert".
+const Message = ResultSlot;
 
 export function ConfirmDateForm({ milestoneId, proposedDate, blockedReason }: { milestoneId: string; proposedDate: string; blockedReason: string | null }) {
   const [state, run] = useActionState(confirmDateAction, {});
@@ -60,7 +56,7 @@ export function RecordCopiesForm({ attemptId, expected, blockedReason }: { attem
       <input type="hidden" name="attemptId" value={attemptId} />
       <div className="flex flex-wrap items-end gap-2">
         <Field label="Copies received" htmlFor={`copies-${attemptId}`} hint={`Expected: ${expected}.`}>
-          <input id={`copies-${attemptId}`} name="copyCount" type="number" min={1} required defaultValue={expected || undefined} className={`${fieldClass} w-28`} />
+          <input id={`copies-${attemptId}`} name="copyCount" type="number" min={1} required defaultValue={expected || undefined} className={cn(fieldClass, "w-28")} />
         </Field>
         <ActionButton type="submit" size="sm" variant="outline" blockedReason={blockedReason}>
           Record receipt

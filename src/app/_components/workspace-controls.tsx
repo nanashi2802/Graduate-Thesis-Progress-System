@@ -14,6 +14,7 @@ import {
 } from "@/app/_lib/pr-actions";
 import type { Result } from "@/app/_lib/run";
 import { ActionButton } from "@/components/action-button";
+import { ConfirmDialog, confirmCopy } from "@/components/patterns/dialog";
 import { Button } from "@/components/ui/button";
 
 function useRun() {
@@ -52,18 +53,34 @@ export function ReadyButton({ milestoneId, commitId, moveToReady, blockedReason 
   );
 }
 
-export function EndorseButton({ milestoneId, kind, blockedReason }: { milestoneId: string; kind: "gate1a" | "gate1b" | "gate2"; blockedReason?: string }) {
-  const { pending, run, line } = useRun();
+const ENDORSE = {
+  gate1a: { label: "Endorse (Gate 1a)", copy: "endorse1a", act: endorseGate1a },
+  gate1b: { label: "Endorse this commit (Gate 1b)", copy: "endorse1b", act: endorseCommit },
+  // The opener keeps its label until the owner decides UX-X-05. The dialog says Endorse (Gate 2).
+  gate2: { label: "Approve the final manuscript (Gate 2)", copy: "gate2", act: approveFinalAction },
+} as const;
+
+// R3.10 (R3-h A, UX-010, BR-19): a gate endorsement asks once more in a ConfirmDialog, then runs the same server
+// action. An error stays in the dialog. On success the page refreshes, as before.
+export function EndorseButton({ milestoneId, kind, blockedReason, locks }: { milestoneId: string; kind: "gate1a" | "gate1b" | "gate2"; blockedReason?: string; /** Gate 1b: this endorsement is the last one (BR-07). */ locks?: boolean }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const e = ENDORSE[kind];
   return (
     <div className="flex flex-col gap-1">
-      <ActionButton
-        type="button"
-        blockedReason={blockedReason}
-        onClick={() => !pending && run(() => (kind === "gate1a" ? endorseGate1a(milestoneId) : kind === "gate2" ? approveFinalAction(milestoneId) : endorseCommit(milestoneId)))}
-      >
-        {pending ? "Saving…" : kind === "gate1a" ? "Endorse (Gate 1a)" : kind === "gate2" ? "Approve the final manuscript (Gate 2)" : "Endorse this commit (Gate 1b)"}
+      <ActionButton type="button" blockedReason={blockedReason} onClick={() => blockedReason === undefined && setOpen(true)}>
+        {e.label}
       </ActionButton>
-      {line}
+      <ConfirmDialog
+        {...confirmCopy(e.copy === "endorse1b" ? { kind: e.copy, locks } : { kind: e.copy })}
+        open={open}
+        onOpenChange={setOpen}
+        onConfirm={async () => {
+          const res = await e.act(milestoneId);
+          if (!res.ok) return { error: res.error ?? "The change was not saved." };
+          router.refresh();
+        }}
+      />
     </div>
   );
 }

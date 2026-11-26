@@ -2,13 +2,11 @@
 // C7 forms: one verify button for each Coordinator item and the close button. A blocked action shows its reason (BR-18).
 import { useActionState } from "react";
 import { ActionButton } from "@/components/action-button";
+import { ResultSlot } from "../_lib/form-parts";
 import { closeClearanceAction, verifyItemAction } from "./actions";
 
-const note = (s: { ok?: string; error?: string }) => (
-  <p role="status" aria-live="polite" className={s.error ? "text-xs text-destructive" : "text-xs text-muted-foreground"}>
-    {s.error ?? s.ok ?? ""}
-  </p>
-);
+// R3.10: the one form-feedback contract (UX-011). A result shows as "done", an error as role="alert".
+const note = (s: { ok?: string; error?: string }) => <ResultSlot state={s} />;
 
 export function VerifyForm({ milestoneId, kind, blockedReason }: { milestoneId: string; kind: string; blockedReason?: string }) {
   const [state, run] = useActionState(verifyItemAction, {});

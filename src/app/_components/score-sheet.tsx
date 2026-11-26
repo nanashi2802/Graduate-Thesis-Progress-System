@@ -2,6 +2,7 @@
 // The rubric inputs of TDW 08 and TDW 13 with a running total (FR-DEF-05). The total is the plain sum. No grade equivalent (BR-15).
 import { useState } from "react";
 import { inputClass } from "@/app/_components/action-form";
+import { cn } from "@/lib/utils";
 
 type Line = { id: string; code: string; label: string; weightPct: number };
 
@@ -27,7 +28,7 @@ export function ScoreSheet({ rubric, initial, readOnly }: { rubric: Line[]; init
               max={r.weightPct}
               value={values[r.id]}
               onChange={(e) => setValues({ ...values, [r.id]: e.target.value })}
-              className={`${inputClass} w-24`}
+              className={cn(inputClass, "w-24")}
             />
           </li>
         ))}

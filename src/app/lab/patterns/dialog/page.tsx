@@ -1,5 +1,5 @@
 // /lab/patterns/dialog (Task R3.5): the ConfirmDialog for each permanent action of UX-010. The page follows the lab
-// theme. Query: ?focus=confirm (R3-e B), ?scrim=token (R3-g A), ?open=verify|endorse1b|… (open on load, for shots).
+// theme. Query: ?focus=confirm (R3-e B), ?open=verify|endorse1b|… (open on load, for shots).
 import { Suspense } from "react";
 import { confirmCopy } from "@/components/patterns/dialog/copy";
 import { Demo, LabHeader, OptionGroups, flat } from "../../_mock/panels";
@@ -25,10 +25,9 @@ const SAMPLES = [
 
 async function Variant({ searchParams }: PageProps<"/lab/patterns/dialog">) {
   const q = flat(await searchParams);
-  // R3-e A and R3-g A (chosen at UX-P-03). The query still reaches option B for a comparison.
+  // R3-e A (chosen at UX-P-03). The query still reaches option B for a comparison. R3-g A is the one backdrop (R3.10).
   const focus = q.focus === "confirm" ? "confirm" : "cancel";
-  const scrim = q.scrim === "foreground" ? "foreground" : "token";
-  const keep = (extra: string) => `?${new URLSearchParams({ ...(q.focus ? { focus: q.focus } : {}), ...(q.scrim ? { scrim: q.scrim } : {}), ...Object.fromEntries(new URLSearchParams(extra)) })}`;
+  const keep = (extra: string) => `?${new URLSearchParams({ ...(q.focus ? { focus: q.focus } : {}), ...Object.fromEntries(new URLSearchParams(extra)) })}`;
   return (
     <>
       <LabHeader
@@ -51,7 +50,7 @@ async function Variant({ searchParams }: PageProps<"/lab/patterns/dialog">) {
       />
       <div className="flex flex-col gap-8">
         <Demo title="Open each dialog (follows the lab theme). Confirm waits 0.7 s; the last one shows a server error.">
-          <DialogDemo key={`${focus}-${scrim}-${q.open ?? ""}`} focus={focus} scrim={scrim} initialOpen={q.open} />
+          <DialogDemo key={`${focus}-${q.open ?? ""}`} focus={focus} initialOpen={q.open} />
         </Demo>
         <Demo title="The copy of each dialog (title, one-sentence body, confirm label)">
           <table className="w-full max-w-[960px] text-left text-sm">

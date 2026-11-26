@@ -8,6 +8,7 @@ import {
   approveGate2,
   checkTransition,
   endorseGate1b,
+  gate1bLocksOnEndorse,
   transitionMilestone,
   TransitionRefused,
 } from "@/server/data/milestones";
@@ -175,6 +176,16 @@ describe("endorseGate1b (FR-WFL-04, INV-21, BR-07)", () => {
     // BR-08 and FR-CMT-04: the appointment form and every NDA are recorded.
     return t;
   }
+
+  it("gate1bLocksOnEndorse is true only for the endorser whose endorsement is the last (R3.10, BR-07)", async () => {
+    const t = await atGate1b();
+    for (const u of [t.adviser, t.lead, t.chair]) expect(await gate1bLocksOnEndorse(as(u), t.milestone.id)).toBe(false);
+    await endorseGate1b(as(t.adviser), t.milestone.id);
+    expect(await gate1bLocksOnEndorse(as(t.lead), t.milestone.id)).toBe(false);
+    await endorseGate1b(as(t.lead), t.milestone.id);
+    expect(await gate1bLocksOnEndorse(as(t.chair), t.milestone.id)).toBe(true);
+    expect(await gate1bLocksOnEndorse(as(t.adviser), t.milestone.id)).toBe(false);
+  });
 
   it("moves to COMMITTEE_ENDORSED and locks the manuscript after the last endorsement", async () => {
     const t = await atGate1b();

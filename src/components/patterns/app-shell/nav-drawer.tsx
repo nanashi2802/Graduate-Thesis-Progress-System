@@ -26,7 +26,7 @@ export function NavDrawer({ label, children, defaultOpen = false }: { label: str
         <Menu aria-hidden="true" strokeWidth={1.75} className="size-5" />
       </Drawer.Trigger>
       <Drawer.Portal>
-        <Drawer.Backdrop className="fixed inset-0 bg-foreground/30 transition-opacity duration-(--motion-drawer) data-ending-style:opacity-0 data-starting-style:opacity-0 motion-reduce:transition-none lg:hidden" />
+        <Drawer.Backdrop className="fixed inset-0 bg-(--scrim) transition-opacity duration-(--motion-drawer) data-ending-style:opacity-0 data-starting-style:opacity-0 motion-reduce:transition-none lg:hidden" />
         <Drawer.Viewport className="fixed inset-0 flex items-stretch justify-start lg:hidden">
           <Drawer.Popup className="h-full w-72 max-w-[calc(100vw-3rem)] overflow-y-auto overscroll-contain border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-[var(--shadow-popover)] outline-none [transform:translateX(var(--drawer-swipe-movement-x))] transition-transform duration-(--motion-drawer) ease-(--ease-drawer) data-ending-style:[transform:translateX(-100%)] data-starting-style:[transform:translateX(-100%)] data-swiping:select-none motion-reduce:transition-none">
             <div className="flex h-14 items-center justify-between border-b border-sidebar-border px-4">

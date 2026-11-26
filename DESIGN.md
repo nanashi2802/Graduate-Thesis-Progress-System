@@ -1,7 +1,17 @@
 # DESIGN.md — PUP CpE Thesis Progress Monitoring System
 
-**Status:** Draft v0.5 (26 Nov 2026). v0.4 plus the shell and system states of preview round UX-P-02 (D-06, D-07, D-08, D-10, UX-D-14 to UX-D-16). Task R2.8 builds it.
-**Change log:** v0.5, 26 Nov 2026 (decisions in `docs/ui-ux-audit/DESIGN_DECISIONS.md`, approved in UX-P-02):
+**Status:** Draft v0.6 (26 Nov 2026). v0.5 plus the queues, inbox, dialogs, side sheet, form field and the one form-feedback contract of preview round UX-P-03 (R3-a to R3-i). Task R3.10 builds it.
+**Change log:** v0.6, 26 Nov 2026 (decisions in `docs/ui-ux-audit/DESIGN_DECISIONS.md`, approved in UX-P-03):
+- **Tables:** compact rows have equal outline row actions, maroon only for the one next step (R3-f). A long title is one line with the full text in a tooltip and on focus (R3-c). A blocked row action in a compact row shows a `lock` glyph and its reason in a tooltip (R3-i). Group headers can collapse (§5.4).
+- **Breakpoints:** tables become stacked rows on a phone (R3-b). A compact table has a minimum width and scrolls in its frame below it; a minor column can hide below 1024 px (§5.6).
+- **Dialogs and sheets:** a permanent action opens a confirm dialog, and focus starts on Cancel (R3-e, R3-h). One `--scrim` backdrop for every dialog, sheet and drawer (R3-g). The side-sheet form is 480 px (R3-d) (§8.9, §12.4).
+- **Forms:** one form-feedback contract and the `form-field` pattern (UX-011 to UX-013, §8.4, §10).
+- **KPI strip:** an age is late after 5 days (R3-a, §7.4).
+- **Registry:** new pattern `form-field`; `queue-table`, `side-sheet`, `dialog` and `form-feedback` change (§7.4).
+
+v0.5 is in `docs/stale/DESIGN_v0.5.md`.
+
+v0.5, 26 Nov 2026 (decisions in `docs/ui-ux-audit/DESIGN_DECISIONS.md`, approved in UX-P-02):
 - **Shell:** the sidebar is white with a maroon-50 active fill (R2-a). The content is 1280 px wide with 24 px gutters (R2-c). Record-based items stay out of the Adviser, Panel Member and Coordinator sidebars (R2-b) (§5.1).
 - **Top bar:** notifications in a right side sheet, a user menu with the email preferences in a side sheet. A route or command palette is decided; its scope is open (D-08, §5.1, §14).
 - **Motion:** option A timings as `--motion-*` tokens (D-10, §6.1, §12.4). Loading blocks pulse (UX-D-15).
@@ -322,6 +332,13 @@ The Docket is the first card of a record screen.
 
 All row actions in one table have the same width. Only the single next step on a first-day screen is maroon.
 
+| Rule (UX-P-03) | Detail |
+| :---- | :---- |
+| Row action look (R3-f A) | A compact outline button. Maroon only for the one primary row action of the screen. |
+| Long text (R3-c A) | One line in a compact row. The full text is in the DOM, in a tooltip on hover and on focus. |
+| Blocked row action (R3-i A) | In a compact row, the button shows a `lock` glyph, keeps `aria-disabled`, and links its reason with `aria-describedby`. The reason shows in a tooltip on hover and focus, so the row keeps 48 px (UX-D-16). A comfortable row keeps the reason under the button (§8.4). |
+| Group headers | A group header is a row header of its `<tbody>`. It can be a disclosure button (`aria-expanded`, `aria-controls`) with a chevron and the count. The first column is wide enough for the longest group label (C1: 220 px). |
+
 ### 5.5 Spacing
 
 Use a 4 px base. Tokens: `4, 8, 12, 16, 24, 32, 48, 64`. Each step is at least 25% larger than the last one.
@@ -338,8 +355,8 @@ Use a 4 px base. Tokens: `4, 8, 12, 16, 24, 32, 48, 64`. Each step is at least 2
 
 | Name | Width | Change |
 | :---- | :---- | :---- |
-| phone | < 640 | One column. Tables become stacked rows. **Read only on every screen for now** (D-12). |
-| tablet | 640 to 1023 | Sidebar drawer. Thread feed tab. Defense Day is fully supported. 44 px targets. |
+| phone | < 640 | One column. Tables become stacked rows: label and value pairs, the action last (R3-b A). **Read only on every screen for now** (D-12). |
+| tablet | 640 to 1023 | Sidebar drawer. Thread feed tab. Defense Day is fully supported. 44 px targets. A compact table has a minimum width (its fixed columns plus 120 px for the flexible column) and scrolls inside its frame below that. A minor column can hide below 1024 px (`hideBelowLaptop`). |
 | laptop | ≥ 1024 | Full shell. Split workspace. |
 
 ---
@@ -458,10 +475,10 @@ A lint rule can enforce layer 3: no import from `@/components/ui/*` or a library
 | Milestone stepper | `stepper` | Own (ledger) | S1, A1, P1, PROCESS |
 | Step-by-step | `step-by-step` | GOV.UK step-by-step navigation | PROCESS |
 | Task list | `task-list` | GOV.UK task list | S1, S3, S6, C7 |
-| Queue table | `queue-table` | Linear, Carbon data table | A1, P1, C1, C2, C3, C8, C9, C10 |
-| KPI strip | `kpi-strip` | Linear, own | C1 |
+| Queue table | `queue-table` | Linear, Carbon data table: compact 48 px or comfortable 56 px rows, `aria-sort`, equal row actions, collapsible groups, stacked rows on a phone, a minimum width on tablet | A1, P1, C1, C2, C3, C8, C9, C10 |
+| KPI strip | `kpi-strip` | Linear, own: a link for each queue, the count, the oldest age, late after 5 days (R3-a A, `LATE_POLICIES.A`) | C1 |
 | Inbox (list, viewer, record) | `inbox` | Linear triage, Primer file view | C4, C5, C6 |
-| Side-sheet form | `side-sheet` | Primer side sheet | C2, C3, C8, C9, A4, P3 |
+| Side-sheet form | `side-sheet` | Primer side sheet, Base UI drawer: 480 px forms (R3-d), 400 px top-bar panels, full width below 640 px, a sticky footer, the `--scrim` backdrop | C2, C3, C8, C9, A4, P3, top bar |
 | Manuscript workspace | `workspace` | Primer pull request | S2, A2, P2 |
 | PDF viewer | `pdf-viewer` | Own (react-pdf) | S2, A2, P2, C4, SV |
 | Commit selector | `commit-selector` | Primer commit list | S2, A2, P2, SV |
@@ -472,7 +489,7 @@ A lint rule can enforce layer 3: no import from `@/components/ui/*` or a library
 | Defense Day form | `defense-form` | GOV.UK form, own | A5, P4 |
 | Verdict panel | `verdict` | Own | P4, C6 |
 | Return composer (inline reason) | `return-composer` | Own | C4, C5, C6, C7 |
-| Dialog (gate, Return, Verify) | `dialog` | Primer dialog | A2, P2, C4 to C7 |
+| Dialog (gate, Return, Verify) | `dialog` | Primer dialog, Base UI dialog: `ConfirmDialog` and `confirmCopy`, focus starts on Cancel (R3-e A), the error stays in the dialog | A2, P2, A5, P4, C4 to C7 |
 | Status pill, document stamp, outside chip | `status` | Own | All |
 | Disabled action with reason | `blocked-action` | Own (BR-18) | All |
 | Flag line | `flag` | Own (BR-17) | S1, C1, C5, P4 |
@@ -482,7 +499,8 @@ A lint rule can enforce layer 3: no import from `@/components/ui/*` or a library
 | Brand mark (full logo, symbol, text treatment) | `brand-mark` | ThesIsko brand guide, Logo (UX-D-10, UX-D-11 item 6) | LOGIN (full), top bar of the role shells (text or symbol), compact navigation (symbol) |
 | Loading blocks (shapes, page presets, spinner) | `loading` | Own (UX-D-15): rows, cards, docket, form, list; presets dashboard, queue, record, form; a 1.6 s pulse; still with reduced motion | All |
 | Inline error with "Try again" | `error` | Own (UX-D-04) | All |
-| Form feedback (pending, error, result) | `form-feedback` | Own (UX-011, UX-D-16): a fixed-height message slot (3 lines by default), a pending button that keeps its width | All forms (R3 integrates) |
+| Form feedback (pending, error, result) | `form-feedback` | Own (UX-011, UX-D-16): a fixed-height message slot (3 lines by default, 2 in the row forms), a pending button that keeps its width | All forms (integrated in R3.10) |
+| Form field (label, control, hint, field error) | `form-field` | Stripe forms (UX-012, UX-013): the label above, one fixed-height slot for the hint or the field error, `aria-describedby` and `aria-invalid`, one control class set (44 px on tablet, 36 px at laptop) | All forms except LOGIN (R7d) |
 | Toast | `toast` | Base UI Toast (`@base-ui/react/toast`, UX-D-04): 4 s, `role="status"`, a glyph and a label. Small actions only. | All |
 
 ---
@@ -536,6 +554,7 @@ The line between nodes is maroon after a completed node and `--divider-strong` a
 - An error keeps `role="alert"`; a result keeps `role="status"`. The glyph sits on the first line.
 - A pending button keeps its width (both labels in one grid cell) and shows a spinner.
 - A row that holds an action which can go away (for example "Mark all read") keeps its height.
+- A field message slot (`form-field`) is 1 line (20 px) or 2 lines, the same height in every state. It holds the field error, else the hint. With an error, the hint stays in the DOM for screen readers.
 
 ### 8.5 Flags (BR-17)
 
@@ -564,7 +583,9 @@ Each commit shows `v3` in JetBrains Mono, the short hash in muted mono, the date
 
 | Item | Rule |
 | :---- | :---- |
-| Gate dialog | The title names the gate. A list shows what the gate unlocks. The confirm button repeats the action: "Endorse and lock manuscript". |
+| Confirm dialog (R3-e A, R3-h A) | Every permanent action (BR-19) asks once more: Endorse (Gate 1a, Gate 1b), Gate 2, Record verdict, Verify, "Scan matches", Close the stage. The title names the action and the record; the body is one sentence on the effect; the confirm button repeats the verb; then Cancel. Focus starts on Cancel. Escape closes it, and focus returns to the opener. A server error stays in the dialog. A blocked action never opens it. |
+| Gate dialog | The title names the gate. A list can show what the gate unlocks. The confirm button repeats the action. Gate 1b: only the last endorsement locks the manuscript (BR-07), so the last endorser sees "Endorse and lock manuscript" and the others see "Endorse (Gate 1b)" (R3.10). |
+| Backdrop (R3-g A) | The `--scrim` token, for every dialog, side sheet, the nav drawer and the route palette. |
 | Verify dialog | Verify is permanent (BR-19), so it opens a small dialog: "Verify TDW 12 for Dino Aquino? This locks the document." Buttons: Verify, Cancel. |
 | Return dialog (A2, P2) | A required reason. The label says "The Student sees this reason." The confirm button stays disabled with a reason until the field has text. |
 | Return composer (C4 to C7) | Inline in the record panel, no dialog. One free-text field, "Reason for return", with one placeholder example. "Send return" stays disabled with "Write a reason first" until the field has text. The Student sees the reason word for word. No preset reasons. |
@@ -611,7 +632,7 @@ Demo data stays empty, so the first day is a designed state on every screen. Eac
 | Targets | 24 × 24 px minimum. 32 px for compact row actions. 44 px on tablet. 48 px on Defense Day. |
 | Color | Every status has a glyph and a label (§3.3). |
 | Tables | Real `<table>` markup. Sortable headers use `aria-sort`. |
-| Forms | Labels are visible. Errors sit under the field, are linked with `aria-describedby`, and name the fix. |
+| Forms | Labels are visible. Errors sit under the field, are linked with `aria-describedby`, and name the fix. One contract (UX-011): pending is a `PendingButton` (keeps its width, `aria-busy`, stays focusable); an error the server names for a field shows under that field (`role="alert"`, `aria-invalid`); every other error shows in the form's `FormFeedback` slot (`role="alert"`); a small action gets a toast (UX-D-04); a workflow result stays on the screen in the slot (`role="status"`). |
 | Live updates | Toasts and saved states use `role="status"`. |
 | Motion | Every animation has a `prefers-reduced-motion` path. |
 | Keyboard | All actions work with the keyboard. The PDF viewer supports page up and page down. A skip link goes to the main content. |
@@ -713,6 +734,9 @@ Use `text-link` for text links, not `text-primary`. In dark, the primary fill is
   --motion-drawer: 280ms;     --motion-toast: 160ms;
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   --motion-pulse: 1.6s;
+
+  /* Backdrop, R3-g option A (UX-P-03). Dark: rgb(2 6 23 / 0.6) */
+  --scrim: rgb(15 23 42 / 0.45);
 }
 ```
 

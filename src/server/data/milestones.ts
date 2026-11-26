@@ -342,6 +342,31 @@ export async function gate1bBlock(ctx: DataContext, milestoneId: string): Promis
   }
 }
 
+// Read only. True when this user's Gate 1b endorsement is the last one, so it locks the manuscript (BR-07, INV-21).
+// The same rule as `gate1bComplete`: the Adviser and every accepted member endorse the Ready commit. The endorse
+// dialog uses it to name the real effect (R3.10, UX-010).
+export async function gate1bLocksOnEndorse(ctx: DataContext, milestoneId: string): Promise<boolean> {
+  const mctx = await loadAllowed(ctx, milestoneId);
+  const commitId = mctx.pr?.readyCommitId;
+  if (!commitId || mctx.memberIds.length === 0) return false;
+  const sinceReturn = await lastReturnGateId(ctx.db, milestoneId);
+  const rows = await ctx.db
+    .select({ actor: gateAction.actorUserId })
+    .from(gateAction)
+    .where(
+      and(
+        eq(gateAction.milestoneInstanceId, milestoneId),
+        eq(gateAction.gate, "gate_1b"),
+        eq(gateAction.result, "endorsed"),
+        eq(gateAction.commitId, commitId),
+        gt(gateAction.id, sinceReturn),
+      ),
+    );
+  const endorsers = [mctx.thesis.adviserUserId, ...mctx.memberIds];
+  if (!endorsers.includes(ctx.actor.userId)) return false;
+  return endorsers.filter((id) => id !== ctx.actor.userId).every((id) => rows.some((r) => r.actor === id));
+}
+
 // Gate 1b: the Adviser or one accepted Panel Member endorses the Ready commit (FR-WFL-04, INV-21).
 // The last endorsement moves the milestone to COMMITTEE_ENDORSED and locks the manuscript (BR-07).
 export async function endorseGate1b(ctx: DataContext, milestoneId: string): Promise<{ completed: boolean }> {

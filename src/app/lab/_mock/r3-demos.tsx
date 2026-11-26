@@ -10,7 +10,7 @@ import { Glyph } from "@/components/patterns/glyphs";
 import { Inbox, InboxList, InboxRecord, type StateStep } from "@/components/patterns/inbox";
 import { QueueTable, type QueueColumn, type SortState } from "@/components/patterns/queue-table";
 import { ReturnComposer, ReturnResult } from "@/components/patterns/return-composer";
-import { SheetClose, SideSheet, type SheetScrim, type SheetWidth } from "@/components/patterns/side-sheet";
+import { SheetClose, SideSheet, type SheetWidth } from "@/components/patterns/side-sheet";
 import { formLabel, StatusPill } from "@/components/patterns/status";
 import { ToastProvider, useToast } from "@/components/patterns/toast";
 import { Button } from "@/components/ui/button";
@@ -260,7 +260,6 @@ export function InboxDemo({ initial, selectedId = "d2" }: { initial: InboxState;
       />
       <ConfirmDialog
         {...copy}
-        scrim="token"
         open={verifyOpen}
         onOpenChange={setVerifyOpen}
         onConfirm={async () => {
@@ -300,7 +299,7 @@ const KINDS: { k: ConfirmKind; opener: string; unlocks?: string[] }[] = [
   {
     k: { kind: "endorse1b", student: "Dino Aquino" },
     opener: "Endorse this commit (Gate 1b)",
-    unlocks: ["The manuscript locks until the defense closes.", "The Student can propose a defense date."],
+    unlocks: ["After the last endorsement, the Student can propose a defense date."],
   },
   { k: { kind: "endorse1a", student: "Bea Santos" }, opener: "Endorse (Gate 1a)" },
   { k: { kind: "gate2", student: "Dino Aquino" }, opener: "Approve the final manuscript (Gate 2)" },
@@ -309,7 +308,7 @@ const KINDS: { k: ConfirmKind; opener: string; unlocks?: string[] }[] = [
   { k: { kind: "closeStage", student: "Hugo Ramos" }, opener: "Close the stage" },
 ];
 
-export function DialogDemo({ focus, scrim, initialOpen }: { focus: "cancel" | "confirm"; scrim: SheetScrim; initialOpen?: string }) {
+export function DialogDemo({ focus, initialOpen }: { focus: "cancel" | "confirm"; initialOpen?: string }) {
   const [open, setOpen] = useState<string | null>(initialOpen ?? null);
   const [done, setDone] = useState<string | null>(null);
   return (
@@ -333,7 +332,6 @@ export function DialogDemo({ focus, scrim, initialOpen }: { focus: "cancel" | "c
           {...confirmCopy(k)}
           unlocks={unlocks}
           focus={focus}
-          scrim={scrim}
           open={open === k.kind}
           onOpenChange={(o) => setOpen(o ? k.kind : null)}
           onConfirm={async () => {
@@ -345,7 +343,6 @@ export function DialogDemo({ focus, scrim, initialOpen }: { focus: "cancel" | "c
       <ConfirmDialog
         {...confirmCopy(KINDS[0]!.k)}
         focus={focus}
-        scrim={scrim}
         open={open === "error"}
         onOpenChange={(o) => setOpen(o ? "error" : null)}
         onConfirm={async () => {
@@ -401,14 +398,13 @@ function AddStudentForm({ fieldError, onChange }: { fieldError?: boolean; onChan
   );
 }
 
-export function SideSheetDemo({ width, scrim, defaultOpen, fieldError }: { width: SheetWidth; scrim: SheetScrim; defaultOpen?: boolean; fieldError?: boolean }) {
+export function SideSheetDemo({ width, defaultOpen, fieldError }: { width: SheetWidth; defaultOpen?: boolean; fieldError?: boolean }) {
   const [open, setOpen] = useState(!!defaultOpen);
   const [form, setForm] = useState<SheetFormState>({ state: { status: "idle" } });
   return (
     <SideSheet
       title="Add a Student"
       width={width}
-      scrim={scrim}
       open={open}
       onOpenChange={setOpen}
       trigger={<Button>Add a Student</Button>}
