@@ -129,3 +129,51 @@ describe("permanent actions ask once more (R3-h A, UX-010, BR-19)", () => {
     expect(formParts).toMatch(/const res = await action\(\{\}, data\);\s*if \(res\.error\) return \{ error: res\.error \};/);
   });
 });
+
+// Task R5.9 (UX-011, UX-D-16, UX-P-05): the PR workspace forms on the form-feedback contract. Each keeps its server
+// action, its result shape and router.refresh(). Return is the ReturnComposer pattern (R5-c A).
+describe("PR workspace forms (R5.9)", () => {
+  const src = read("src/app/_components/workspace-controls.tsx");
+  const part = (from: string, to?: string) => src.slice(src.indexOf(from), to ? src.indexOf(to) : undefined);
+
+  it("has no old useRun error line and no ad-hoc error text", () => {
+    expect(src).not.toMatch(/function useRun/);
+    expect(src).not.toContain("text-destructive");
+    expect(src).toMatch(/FormFeedback/);
+  });
+
+  it.each([
+    ["ReadyButton", "export function ReadyButton", "const ENDORSE", /markReady\(milestoneId, commitId, moveToReady\)/],
+    ["NewThreadForm", "export function NewThreadForm", "export function ReplyForm", /postThreadAction\(commitId, body\.trim\(\), pageNo\)/],
+    ["ReplyForm", "export function ReplyForm", "export function ResolveButton", /replyAction\(threadId, body\.trim\(\)\)/],
+    ["ResolveButton", "export function ResolveButton", undefined, /resolveAction\(threadId\)/],
+  ] as const)("%s keeps its server action and uses PendingButton and FormFeedback", (_name, from, to, action) => {
+    const body = part(from, to);
+    expect(body).toMatch(action);
+    expect(body).toMatch(/<PendingButton/);
+    expect(body).toMatch(/<FormFeedback/);
+  });
+
+  it("every form refreshes the page after a saved action", () => {
+    expect(part("function useAction", "export function ReadyButton")).toMatch(/router\.refresh\(\)/);
+  });
+
+  it("Return is the ReturnComposer pattern and still calls returnToStudent", () => {
+    const body = part("export function ReturnForm", "export function NewThreadForm");
+    expect(body).toMatch(/<ReturnComposer/);
+    expect(body).toMatch(/returnToStudent\(milestoneId, reason\)/);
+    expect(body).toMatch(/variant="return"/);
+  });
+
+  it("the gate dialog can name the Student (R3.10 gap, UX-P-05 identity data)", () => {
+    expect(part("export function EndorseButton", "export function ReturnForm")).toMatch(/student/);
+  });
+});
+
+describe("PDF pane: the next step after a failed retry (UX-P-05: yes)", () => {
+  it("passes the role's next step and the retry flag to the viewer", () => {
+    const pane = read("src/app/_components/pdf-pane.tsx");
+    expect(pane).toMatch(/nextStep=\{pdfNextStep\(role\)\}/);
+    expect(pane).toMatch(/retried=\{attempt > 0\}/);
+  });
+});

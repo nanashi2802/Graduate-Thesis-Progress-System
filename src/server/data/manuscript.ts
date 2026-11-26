@@ -24,6 +24,7 @@ import {
   milestoneInstance,
   submissionPr,
   threadAddressTag,
+  thesisInstance,
   threadReply,
   type MilestoneStatusValue,
   type UserRole,
@@ -443,10 +444,18 @@ export async function threadPostBlock(ctx: DataContext, milestoneId: string): Pr
 }
 
 // Everything the PR workspace screen shows: the milestone, the commits, the Ready mark, the lock and the threads.
+// R5.9 (UX-P-05, UX-030): also the thesis title and the Student name, so the screen and the gate dialogs name the
+// thesis before a gate action. Read only. It runs after `submissionFor` and `listThreads`, which check access first.
 export async function workspaceFor(ctx: DataContext, prId: string) {
   const { milestoneId } = await milestoneOfPr(ctx, prId);
   const milestone = await loadMilestone(ctx, milestoneId);
   const view = await submissionFor(ctx, milestoneId);
   const threads = await listThreads(ctx, milestoneId);
-  return { milestone, ...view, threads };
+  const [row] = await ctx.db
+    .select({ title: thesisInstance.title, studentName: appUser.fullName })
+    .from(thesisInstance)
+    .innerJoin(appUser, eq(appUser.id, thesisInstance.studentUserId))
+    .where(eq(thesisInstance.id, milestone.thesisInstanceId));
+  if (!row) throw new InputProblem("The thesis of this manuscript was not found.");
+  return { milestone, ...view, threads, identity: { title: row.title, studentName: row.studentName } };
 }

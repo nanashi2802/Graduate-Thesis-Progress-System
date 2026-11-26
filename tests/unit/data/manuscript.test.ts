@@ -14,6 +14,7 @@ import {
   requestCommitUpload,
   resolveThread,
   submissionFor,
+  workspaceFor,
 } from "@/server/data/manuscript";
 import * as s from "@/server/data/schema";
 import { makeThesisChain, makeUser } from "../../support/fixtures";
@@ -282,5 +283,34 @@ describe("events of the manuscript (C1, C2, C3, C4)", () => {
     expect(await who("C3", threadId)).toEqual([t.adviser.id]);
     await resolveThread(as(t.adviser), threadId);
     expect(await who("C4", threadId)).toEqual([t.student.id]);
+  });
+});
+
+// Task R5.9 (UX-P-05, UX-030): the workspace names the thesis and the Student before a gate action. Read only, after
+// the same access checks as the rest of the workspace.
+describe("workspaceFor identity (R5.9)", () => {
+  it("gives the thesis title and the Student name to the Student, the Adviser and a member with access", async () => {
+    const t = await setup();
+    await giveAccess(t);
+    await db.update(s.thesisInstance).set({ title: "Edge scheduling for campus networks" }).where(eq(s.thesisInstance.id, t.thesis.id));
+    const [student] = await db.select().from(s.appUser).where(eq(s.appUser.id, t.student.id));
+    for (const who of [t.student, t.adviser, t.member]) {
+      const ws = await workspaceFor(as(who), t.pr.id);
+      expect(ws.identity).toEqual({ title: "Edge scheduling for campus networks", studentName: student!.fullName });
+    }
+  });
+
+  it("gives a null title when the record has none", async () => {
+    const t = await setup();
+    const ws = await workspaceFor(as(t.adviser), t.pr.id);
+    expect(ws.identity.title).toBeNull();
+    expect(ws.identity.studentName.length).toBeGreaterThan(0);
+  });
+
+  it("refuses a member without access and another thesis's Adviser, so no identity leaks (NFR-01, BR-08)", async () => {
+    const t = await setup();
+    const other = await setup();
+    await expect(workspaceFor(as(t.member), t.pr.id)).rejects.toBeInstanceOf(AccessDeniedError);
+    await expect(workspaceFor(as(other.adviser), t.pr.id)).rejects.toBeInstanceOf(AccessDeniedError);
   });
 });

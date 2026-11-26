@@ -49,7 +49,9 @@ export async function PrWorkspace({ portal, prId, commit, page }: { portal: User
     if (e instanceof InputProblem) return <div className="mx-auto max-w-[960px]"><EmptyState title="This manuscript was not found." detail="Go back to your dashboard and open it from there." /></div>;
     throw e;
   }
-  const { milestone, commits, pr, locked, threads } = ws;
+  const { milestone, commits, pr, locked, threads, identity } = ws;
+  // R5.9 (UX-P-05): the gate dialogs name the Student. The header identity line comes with the R7 screens (R5-e A).
+  const student = identity.studentName;
   const newest = commits.at(-1) ?? null;
   const selected = commits.find((c) => String(c.ordinal) === commit) ?? newest;
   // FR-REV-04, D-26: `?page=` comes from the page link of a thread. The viewer clamps it to the last page.
@@ -105,12 +107,12 @@ export async function PrWorkspace({ portal, prId, commit, page }: { portal: User
         {role === "student" ? <ReadyButton milestoneId={milestone.id} commitId={newest?.id ?? null} moveToReady={status === "DRAFT"} blockedReason={readyBlock} /> : null}
         {role === "adviser" && status === "READY" ? (
           <>
-            <EndorseButton milestoneId={milestone.id} kind="gate1a" blockedReason={gate1aBlock} />
+            <EndorseButton milestoneId={milestone.id} kind="gate1a" blockedReason={gate1aBlock} student={student} />
             <ReturnForm milestoneId={milestone.id} />
           </>
         ) : null}
-        {gate2Open ? <EndorseButton milestoneId={milestone.id} kind="gate2" blockedReason={gate2Reason} /> : null}
-        {(role === "adviser" || role === "panel_member") && gate1bOpen ? <EndorseButton milestoneId={milestone.id} kind="gate1b" blockedReason={gate1bReason} locks={gate1bLocks} /> : null}
+        {gate2Open ? <EndorseButton milestoneId={milestone.id} kind="gate2" blockedReason={gate2Reason} student={student} /> : null}
+        {(role === "adviser" || role === "panel_member") && gate1bOpen ? <EndorseButton milestoneId={milestone.id} kind="gate1b" blockedReason={gate1bReason} locks={gate1bLocks} student={student} /> : null}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
@@ -137,7 +139,7 @@ export async function PrWorkspace({ portal, prId, commit, page }: { portal: User
                   v{selected.ordinal}, uploaded {when(selected.uploadedAt)}. {selected.changeNote ? `Change note: ${selected.changeNote}` : ""}
                 </p>
               ) : null}
-              {selected ? <PdfPane key={selected.id} commitId={selected.id} page={viewPage} /> : null}
+              {selected ? <PdfPane key={selected.id} commitId={selected.id} page={viewPage} role={role} /> : null}
             </>
           )}
           {canUpload ? <CommitUploader milestoneId={milestone.id} openThreads={openOwn} /> : null}

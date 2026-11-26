@@ -1,7 +1,14 @@
 # DESIGN.md — PUP CpE Thesis Progress Monitoring System
 
-**Status:** Draft v0.7 (26 Nov 2026). v0.6 plus the Student path of preview round UX-P-04 (R4-a to R4-d): the task list, the step-by-step and the Thesis process screen. Task R4.6 builds it.
-**Change log:** v0.7, 26 Nov 2026 (decisions in `docs/ui-ux-audit/DESIGN_DECISIONS.md`, approved in UX-P-04):
+**Status:** Draft v0.8 (26 Nov 2026). v0.7 plus the manuscript workspace of preview round UX-P-05 (R5-a to R5-e): merge box, gate box, commit selector, thread feed, PDF viewer and workspace. Task R5.9 integrates the forms; the S2, A2 and P2 screens move in R7.
+**Change log:** v0.8, 26 Nov 2026 (decisions in `docs/ui-ux-audit/DESIGN_DECISIONS.md`, approved in UX-P-05):
+- **Workspace:** a split view at laptop (feed 400 px); below 1024 px a "Threads" tab with the count (R5-a A). Nothing in the workspace is sticky or fixed. The S2 upload is a plain region at the foot of the Manuscript column (R5-b A, adapted by the owner) (§5.6, §7.4).
+- **Gate box:** one row for each check with a pass or fail glyph; the gate button is blocked with the first failing reason; Return opens the inline Return composer, the same as C4 (R5-c A); P2 has no Return for now (issue #84) (§5.3, §8.9).
+- **Thread feed:** tabs Open, All, Resolved; "p. 14" is a link to `?commit=&page=`, so Back returns (R5-d B); Reply is a disclosure button; Resolve only for the author (§8.8).
+- **Gate 1b label:** every Gate 1b endorser sees "Endorse and lock manuscript" on the gate button and the confirm button; the dialog body says whether this endorsement locks now (owner, option A) (§8.3, §8.9).
+- **PDF viewer:** Page Up, Page Down, Home and End; no page controls until the page count is known or under a load error (UX-040); after a failed "Try again", the role's next step (§8.6).
+
+v0.7, 26 Nov 2026 (decisions in `docs/ui-ux-audit/DESIGN_DECISIONS.md`, approved in UX-P-04):
 - **Task list:** a collapsed group is a disclosure button with `aria-expanded`, the same look as the queue-table groups (R4-a B). One stamp for each item. A reason has a fixed 2-line slot with "Show more" (§7.4).
 - **Step-by-step:** the same accordion on a phone, full width (R4-d A). The step marks follow the stepper. PROCESS hides the stepper below 640 px (§7.4).
 - **Forms:** "Download form" links to the blank forms in `public/forms/` (R4-b A, §8.12).
@@ -362,8 +369,8 @@ Use a 4 px base. Tokens: `4, 8, 12, 16, 24, 32, 48, 64`. Each step is at least 2
 | Name | Width | Change |
 | :---- | :---- | :---- |
 | phone | < 640 | One column. Tables become stacked rows: label and value pairs, the action last (R3-b A). **Read only on every screen for now** (D-12). |
-| tablet | 640 to 1023 | Sidebar drawer. Thread feed tab. Defense Day is fully supported. 44 px targets. A compact table has a minimum width (its fixed columns plus 120 px for the flexible column) and scrolls inside its frame below that. A minor column can hide below 1024 px (`hideBelowLaptop`). |
-| laptop | ≥ 1024 | Full shell. Split workspace. |
+| tablet | 640 to 1023 | Sidebar drawer. Thread feed tab ("Manuscript" and "Threads", R5-a A). Defense Day is fully supported. 44 px targets. A compact table has a minimum width (its fixed columns plus 120 px for the flexible column) and scrolls inside its frame below that. A minor column can hide below 1024 px (`hideBelowLaptop`). |
+| laptop | ≥ 1024 | Full shell. Split workspace: the viewer and a 400 px thread feed. Nothing in the workspace is sticky. |
 
 ---
 
@@ -476,8 +483,8 @@ A lint rule can enforce layer 3: no import from `@/components/ui/*` or a library
 | Top bar: notification sheet, user menu, preferences sheet | `top-bar` | Primer side sheet, Base UI drawer and menu (D-08) | All signed-in screens |
 | Identity line | `identity-line` | Primer repository header | S1 to S6, A2, P2, C6, SV |
 | Docket | `docket` | GOV.UK notification banner, own | S1 |
-| Merge box | `merge-box` | Primer pull-request merge box | S2 |
-| Gate box | `gate-box` | Primer merge box with checks | A2, P2 |
+| Merge box | `merge-box` | Primer pull-request merge box: one sentence, one action or its reason in its place | S2 |
+| Gate box | `gate-box` | Primer merge box with checks: one row for each check (pass or fail glyph and reason), the gate button blocked with the first failing reason, Return as the inline Return composer (R5-c A), never disabled | A2, P2 |
 | Milestone stepper | `stepper` | Own (ledger) | S1, A1, P1, PROCESS |
 | Step-by-step | `step-by-step` | GOV.UK step-by-step navigation: a heading with a disclosure button for each step, "You are here" (`aria-current="step"`) open at first, the other steps closed, "Show all steps", step marks as in the stepper (done maroon with the `done` glyph, current gold), the same accordion on a phone (R4-d A) | PROCESS |
 | Task list | `task-list` | GOV.UK task list: groups with a heading and a count, at most one stamp for each item (document stamp, outside chip or status pill), the label, one reason in a fixed 2-line slot with "Show more" (the Coordinator's returned reason word for word), the actions on the right; a collapsed group is a disclosure button with `aria-expanded` (R4-a B) | S1, S3, S6 (integrated in R4.6), C7 (R7d) |
@@ -485,10 +492,10 @@ A lint rule can enforce layer 3: no import from `@/components/ui/*` or a library
 | KPI strip | `kpi-strip` | Linear, own: a link for each queue, the count, the oldest age, late after 5 days (R3-a A, `LATE_POLICIES.A`) | C1 |
 | Inbox (list, viewer, record) | `inbox` | Linear triage, Primer file view | C4, C5, C6 |
 | Side-sheet form | `side-sheet` | Primer side sheet, Base UI drawer: 480 px forms (R3-d), 400 px top-bar panels, full width below 640 px, a sticky footer, the `--scrim` backdrop | C2, C3, C8, C9, A4, P3, top bar |
-| Manuscript workspace | `workspace` | Primer pull request | S2, A2, P2 |
-| PDF viewer | `pdf-viewer` | Own (react-pdf) | S2, A2, P2, C4, SV |
-| Commit selector | `commit-selector` | Primer commit list | S2, A2, P2, SV |
-| Thread feed | `thread-feed` | Primer review comments | S2, A2, P2 |
+| Manuscript workspace | `workspace` | Primer pull request: header, box, commit selector, viewer and feed; split at laptop (feed 400 px); a Threads tab below 1024 px (R5-a A); the S2 upload at the foot of the Manuscript column, never sticky (R5-b A adapted) | S2, A2, P2 |
+| PDF viewer | `pdf-viewer` | Own (react-pdf): Page Up, Page Down, Home, End; the locked banner; the in-place load error with "Try again" and, after a failed retry, the role's next step; the page stays white in dark | S2, A2, P2, C4, SV |
+| Commit selector | `commit-selector` | Primer commit list: newest first, 3 shown, older commits behind a disclosure button; links set `?commit=` | S2, A2, P2, SV |
+| Thread feed | `thread-feed` | Primer review comments: tabs Open, All, Resolved with counts; "p. 14" as a link (R5-d B); Reply as a disclosure button; Resolve for the author only | S2, A2, P2 |
 | Slot list | `slot-list` | GOV.UK radios, Linear list | S4, A4, P3 |
 | Date picker with limits | `date-picker` | USWDS date picker | S4 |
 | Consultation log | `consultation-log` | Carbon table | A3 |
@@ -544,7 +551,7 @@ The line between nodes is maroon after a completed node and `--divider-strong` a
 
 - Heights: 36 px default, 32 px for compact row actions, 48 px on Defense Day.
 - No gold button for now (UX-D-11 item 5).
-- Labels are verbs that name the result: "Endorse for defense", not "Submit". Gate buttons name the gate: "Endorse (Gate 1b)".
+- Labels are verbs that name the result: "Endorse for defense", not "Submit". Gate buttons name the gate: "Endorse (Gate 1a)". Exception: every Gate 1b endorser sees "Endorse and lock manuscript" (UX-P-05, owner option A).
 
 ### 8.4 Disabled action with a reason
 
@@ -570,6 +577,8 @@ A flag is a `pending` line with the `flag` glyph. It sits near the record it con
 
 When the manuscript is locked (BR-07), the viewer shows a `locked` banner across its top: "Locked at Gate 1b on Mon 4 Jan 2027. Unlocks when the defense closes." The upload control shows its reason (8.4).
 
+**A file that does not load (UX-009, UX-P-05).** The viewer shows the error in place: "The manuscript did not load. The link can expire. Try again to get a new link." and "Try again" (a new signed link). After a failed retry it adds the role's next step: the Student sees "If it still does not load, upload the file again as a new version."; the other roles see "If it still does not load, ask the Student to upload it again." The page controls hide while the file opens and under the error, so no "Page 1 of 0" shows (UX-040).
+
 ### 8.7 Commit selector
 
 Each commit shows `v3` in JetBrains Mono, the short hash in muted mono, the date and the uploader. The commit marked Ready has an `active` pill. No commit has a delete or edit control (BR-19).
@@ -590,7 +599,7 @@ Each commit shows `v3` in JetBrains Mono, the short hash in muted mono, the date
 | Item | Rule |
 | :---- | :---- |
 | Confirm dialog (R3-e A, R3-h A) | Every permanent action (BR-19) asks once more: Endorse (Gate 1a, Gate 1b), Gate 2, Record verdict, Verify, "Scan matches", Close the stage. The title names the action and the record; the body is one sentence on the effect; the confirm button repeats the verb; then Cancel. Focus starts on Cancel. Escape closes it, and focus returns to the opener. A server error stays in the dialog. A blocked action never opens it. |
-| Gate dialog | The title names the gate. A list can show what the gate unlocks. The confirm button repeats the action. Gate 1b: only the last endorsement locks the manuscript (BR-07), so the last endorser sees "Endorse and lock manuscript" and the others see "Endorse (Gate 1b)" (R3.10). |
+| Gate dialog | The title names the gate. A list can show what the gate unlocks. The confirm button repeats the action. Gate 1b: every endorser sees "Endorse and lock manuscript" (UX-P-05, owner option A). Only the last endorsement locks the manuscript (BR-07), so the body says which case applies: "Yours is the last endorsement, so this locks the manuscript until the defense closes." or "This records your endorsement, and the manuscript locks after the last endorsement." With the identity data (R5.9), the title names the Student. |
 | Backdrop (R3-g A) | The `--scrim` token, for every dialog, side sheet, the nav drawer and the route palette. |
 | Verify dialog | Verify is permanent (BR-19), so it opens a small dialog: "Verify TDW 12 for Dino Aquino? This locks the document." Buttons: Verify, Cancel. |
 | Return dialog (A2, P2) | A required reason. The label says "The Student sees this reason." The confirm button stays disabled with a reason until the field has text. |

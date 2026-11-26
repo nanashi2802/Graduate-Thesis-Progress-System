@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 export const PDF_LOAD_ERROR = "The manuscript did not load.";
 
 /**
- * UX-P-05 (approved 26 Nov 2026; the live viewer passes it at R5.9): the next step after "Try again" also fails. "Try again" fixes an
+ * UX-P-05 (approved 26 Nov 2026; live since R5.9 through `PdfPane`): the next step after "Try again" also fails. "Try again" fixes an
  * expired link only. A broken file needs a new version; the old commit stays (BR-19).
  */
 export function pdfNextStep(role: "student" | "adviser" | "panel_member" | "coordinator"): string {
@@ -28,7 +28,7 @@ export function PdfLoadError({ onRetry, nextStep, retried = false }: { onRetry: 
 }
 
 // A backstop for errors that react-pdf or pdf.js throw during render.
-export class PdfErrorBoundary extends Component<{ onRetry: () => void; children: ReactNode }, { failed: boolean }> {
+export class PdfErrorBoundary extends Component<{ onRetry: () => void; children: ReactNode; nextStep?: string; retried?: boolean }, { failed: boolean }> {
   state = { failed: false };
 
   static getDerivedStateFromError(): { failed: boolean } {
@@ -36,7 +36,7 @@ export class PdfErrorBoundary extends Component<{ onRetry: () => void; children:
   }
 
   render() {
-    if (this.state.failed) return <PdfLoadError onRetry={this.props.onRetry} />;
+    if (this.state.failed) return <PdfLoadError onRetry={this.props.onRetry} nextStep={this.props.nextStep} retried={this.props.retried} />;
     return this.props.children;
   }
 }

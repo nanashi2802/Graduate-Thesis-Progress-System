@@ -43,6 +43,8 @@ describe("confirm dialog copy (R3.5)", () => {
 
   it("states the facts of the domain: only the last Gate 1b endorsement locks, and a verdict can change until held (R3.10)", () => {
     expect(confirmCopy({ kind: "endorse1b" }).body).toMatch(/the manuscript locks after the last endorsement/);
+    // R5.9: Gate 1a happens at Proposal and at Pre-Final, so the title names the manuscript, not "the proposal".
+    expect(confirmCopy({ kind: "endorse1a", student: "Dino Aquino" }).title).toBe("Endorse the manuscript of Dino Aquino (Gate 1a)?");
     expect(confirmCopy({ kind: "endorse1b", locks: true }).body).toMatch(/this locks the manuscript until the defense closes/);
     expect(confirmCopy({ kind: "verdict" }).body).toMatch(/change it only until the defense is held/);
     expect(confirmCopy({ kind: "verdict" }).body).not.toMatch(/cannot change/);

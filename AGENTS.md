@@ -101,7 +101,7 @@ The human must also require the CI check and pull requests on `main` in the repo
 | Functional Requirements | `docs/PUP_CpE_Thesis_Progress_System_Functional_Requirements_v1.2.md` | FR, BR, NFR and AS IDs. The spec. |
 | Operational Flow, DFD and Sitemap | `docs/PUP_CpE_Thesis_Progress_System_Operational_Flow_DFD_Sitemap_v3.1.md` | Process, data flows, 30 routes |
 | Unified Thesis Process | `docs/PUP_CpE_Thesis_Progress_System_Unified_Thesis_Process_v1.2.md` | Source of truth for the thesis process |
-| Design system | `DESIGN.md` (repository root) | Visual and interaction design: colors, type, layout, components, tokens. Draft v0.7. |
+| Design system | `DESIGN.md` (repository root) | Visual and interaction design: colors, type, layout, components, tokens. Draft v0.8. |
 | UI/UX retrofit | `docs/ui-ux-audit/` (`UI_UX_AUDIT.md`, `IMPLEMENTATION_PLAN.md`, `DESIGN_DECISIONS.md`) | Audit, build order and the approval log of the retrofit |
 | AGENTS.md reference | `docs/reference/AGENTS_md_Reference.md` | Read it before you change the structure of this file |
 

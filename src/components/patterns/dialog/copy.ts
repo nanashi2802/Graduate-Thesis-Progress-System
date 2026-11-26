@@ -27,7 +27,8 @@ export function confirmCopy(k: ConfirmKind): ConfirmCopy {
       return { title: `Verify ${formLabel(k.form)} for ${k.student}?`, body: "This locks the document.", confirmLabel: "Verify" };
     case "endorse1a":
       return {
-        title: k.student ? `Endorse the proposal of ${k.student} (Gate 1a)?` : "Endorse this commit (Gate 1a)?",
+        // R5.9: Gate 1a is at Proposal and at Pre-Final, so the title says "the manuscript", not "the proposal".
+        title: k.student ? `Endorse the manuscript of ${k.student} (Gate 1a)?` : "Endorse this commit (Gate 1a)?",
         body: "This records your endorsement, and you cannot undo it.",
         confirmLabel: "Endorse (Gate 1a)",
       };
