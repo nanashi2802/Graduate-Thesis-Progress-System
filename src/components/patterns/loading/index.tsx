@@ -3,10 +3,11 @@
 // Blocks of the content's shape while a region loads. The region is aria-busy and has a hidden text.
 // Effect: "pulse" (option A, recommended: calm, 1.6 s) or "shimmer" (option B). With reduced motion, the blocks
 // stand still. Each screen composes its own loading.tsx from these shapes (R3 to R7, see IMPLEMENTATION_PLAN.md).
+// R4.4: the task list ("tasks") and the PROCESS steps ("steps") shapes, and the "process" page preset.
 import { cn } from "@/lib/utils";
 
 export type LoadingEffect = "pulse" | "shimmer";
-export type LoadingShape = "rows" | "rows-compact" | "kpi" | "cards" | "docket" | "form" | "list" | "inbox";
+export type LoadingShape = "rows" | "rows-compact" | "kpi" | "cards" | "docket" | "form" | "list" | "inbox" | "tasks" | "steps";
 
 const EFFECT: Record<LoadingEffect, string> = {
   pulse: "bg-muted animate-skeleton",
@@ -79,6 +80,41 @@ function Shape({ shape, rows, effect }: { shape: LoadingShape; rows: number; eff
           </div>
         </div>
       );
+    case "tasks": // the task list (R4.4): a group label, then rows with a stamp, a label and the action on the right
+      return (
+        <div className="flex flex-col gap-3">
+          {b("h-5 w-40")}
+          <div className="flex flex-col divide-y divide-border border-y border-border">
+            {Array.from({ length: rows }, (_, i) => (
+              <div key={i} className="flex min-h-(--row-h-comfortable) items-center gap-3 py-4">
+                {b("h-6 w-28")}
+                {b("h-4 w-1/3")}
+                {b("ml-auto hidden h-8 w-32 rounded-control sm:block")}
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    case "steps": // the PROCESS step-by-step (R4.4): numbered marks on a line, the current step open with its list
+      return (
+        <div className="flex flex-col gap-6">
+          {Array.from({ length: rows }, (_, i) => (
+            <div key={i} className="grid grid-cols-[2rem_minmax(0,1fr)] gap-x-4">
+              {b("size-8 rounded-full")}
+              <div className="flex flex-col gap-3 pt-1.5">
+                {b("h-5 w-32")}
+                {i === 0 ? (
+                  <>
+                    {b("h-3 w-3/4")}
+                    {b("h-3 w-2/3")}
+                    {b("h-3 w-1/2")}
+                  </>
+                ) : null}
+              </div>
+            </div>
+          ))}
+        </div>
+      );
     case "cards": // a KPI strip or up to 3 cards (G5)
       return (
         <div className="grid gap-4 sm:grid-cols-3">
@@ -146,7 +182,7 @@ export function LoadingBlocks({ rows = 4, label = "Loading", shape = "rows", eff
   );
 }
 
-export type PageKind = "dashboard" | "queue" | "record" | "form" | "overview" | "inbox";
+export type PageKind = "dashboard" | "queue" | "record" | "form" | "overview" | "inbox" | "process";
 
 /** The fallback of a `loading.tsx`, by screen kind. One busy region with one hidden text. */
 export function PageLoadingBlocks({ kind = "queue", label = "Loading the page", effect = "pulse" }: { kind?: PageKind; label?: string; effect?: LoadingEffect }) {
@@ -157,6 +193,7 @@ export function PageLoadingBlocks({ kind = "queue", label = "Loading the page", 
     form: [{ shape: "form", rows: 3 }],
     overview: [{ shape: "kpi", rows: 1 }, { shape: "rows-compact", rows: 6 }],
     inbox: [{ shape: "inbox", rows: 5 }],
+    process: [{ shape: "steps", rows: 4 }],
   };
   return (
     <div aria-busy="true" data-page={kind} className="flex flex-col gap-6">

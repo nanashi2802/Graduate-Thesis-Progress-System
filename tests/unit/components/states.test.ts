@@ -23,13 +23,14 @@ describe("LoadingBlocks (R2.5, UX-D-15)", () => {
     expect(b).toContain("motion-reduce:animate-none");
   });
 
-  it.each(["rows", "rows-compact", "kpi", "cards", "docket", "form", "list", "inbox"] as const)("draws the %s shape", (shape) => {
+  it.each(["rows", "rows-compact", "kpi", "cards", "docket", "form", "list", "inbox", "tasks", "steps"] as const)("draws the %s shape", (shape) => {
     const out = renderToStaticMarkup(createElement(LoadingBlocks, { shape }));
     expect(out).toMatch(new RegExp(`data-shape="${shape}"`));
     expect(out).toMatch(/aria-busy="true"/);
+    expect(out).toMatch(/data-block/);
   });
 
-  it.each(["dashboard", "queue", "record", "form", "overview", "inbox"] as const)("has a page preset for a %s screen", (kind) => {
+  it.each(["dashboard", "queue", "record", "form", "overview", "inbox", "process"] as const)("has a page preset for a %s screen", (kind) => {
     const out = renderToStaticMarkup(createElement(PageLoadingBlocks, { kind }));
     expect(out).toMatch(new RegExp(`data-page="${kind}"`));
     expect(out.match(/aria-busy="true"/g)).toHaveLength(1);

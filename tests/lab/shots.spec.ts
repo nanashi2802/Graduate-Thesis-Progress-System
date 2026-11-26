@@ -49,6 +49,17 @@ const LAB_ROUNDS: Record<string, LabPage[]> = {
     { id: "side-sheet-field-error", path: "/lab/patterns/side-sheet?open=1&error=1" },
     { id: "states", path: "/lab/states" },
   ],
+  r4: [
+    ...["task-list", "step-by-step"].map((p) => ({ id: p, path: `/lab/patterns/${p}` })),
+    { id: "task-list-details", path: "/lab/patterns/task-list?disclosure=details" },
+    { id: "step-by-step-phone-current", path: "/lab/patterns/step-by-step?phone=current" },
+    { id: "PROCESS-masters", path: "/lab/screens/PROCESS" },
+    { id: "PROCESS-doctoral-first-day", path: "/lab/screens/PROCESS?degree=doctoral&at=1" },
+    { id: "PROCESS-masters-clearance", path: "/lab/screens/PROCESS?at=4" },
+    { id: "PROCESS-cleared", path: "/lab/screens/PROCESS?at=cleared" },
+    { id: "PROCESS-forms-c", path: "/lab/screens/PROCESS?forms=c" },
+    { id: "PROCESS-phone-current", path: "/lab/screens/PROCESS?phone=current" },
+  ],
 };
 
 // Live routes of spec/SITEMAP.md (LAB_LIVE=1), with the saved session of the role.

@@ -119,6 +119,21 @@ Copy this block for each round. Fill it after the owner reviews.
 - **Integrated (R3.10):** 26 Nov 2026, on `ui/r3-patterns`, not committed. `DESIGN.md` v0.6 is written (v0.5 in `docs/stale/`). As built: `IMPLEMENTATION_PLAN.md` §10.2.
 - **Changes at R3.10 for the owner to confirm:** (1) Gate 1b dialog: the body is "This records your endorsement, and the last endorsement locks the manuscript until the defense closes." The approved copy said every endorsement locks; the data layer locks only on the last one (BR-07). The confirm label stays "Endorse and lock manuscript" (owner, 26 Nov 2026: "change Gate1b back to Endorse and Lock Manuscript since it is more intuitive"), and the owner asked to fix the mismatch ("fix the mismatch"): only the last endorser sees that label and the lock text; the others see "Endorse (Gate 1b)" and "the manuscript locks after the last endorsement". A new read-only data function, `gate1bLocksOnEndorse`, tells the screen which case applies. (2) Record verdict dialog: the body is "The Coordinator sees the verdict, and you can change it only until the defense is held." The approved copy said "you cannot change it"; FR-DEF-07 allows a new verdict until the defense is held. (3) The PR workspace and Defense Day have no Student name in their data, so those dialog titles name the record only. Adding the name is a data change for R5 or R7.
 
+### UX-P-04: Student path (R4)
+
+- **Date shown:** 26 Nov 2026
+- **Branch and commit:** `ui/r4-student`, on top of `a140e36` (`ui/r3-patterns`), not committed. PR #81 is still open.
+- **Shown:** `/lab/patterns/task-list`, `/lab/patterns/step-by-step`, `/lab/screens/PROCESS` (the real `src/app/student/process/view.tsx` with mock props, no `page.tsx`, so no live route). No screenshot set: the owner stopped `lab:shots r4` (26 Nov 2026, "we must proceed with the screenshot only if we are sure of grabbing the right interface"); the 69 partial shots in `ui-shots/r4/` are not checked. Mock data only. No live page changed.
+- **Decision points:** R4-a (collapsed group: A `<details>`, B disclosure button, recommend B), R4-b ("Download form": A static `public/forms/`, B Student-only route, C no download yet, recommend A), R4-c (Novie: A on the PROCESS first view and the S3 empty state, B none until R7, recommend B: no master artwork in the repository, UX-X-19), R4-d (step-by-step on a phone: A the same accordion, B the current step and "Show all steps", recommend A). `IMPLEMENTATION_PLAN.md` R4.0.
+- **Facts for the owner to check:** (1) The Final Panel counts are the template v1 values: 3 members (Master's) and 4 (Doctoral), with the Panel Chair. (2) PROCESS makes Clearance the current step at `FINAL_APPROVED`, the same rule as the S1 stepper. The Unified Thesis Process §2.9 starts the clearance work when the Final Defense closes, so Clearance could start at `CLOSED`. (3) The counts are the template v1 defaults. A template that the Coordinator changes on C8 does not change PROCESS; reading the template is a data call for R4.6 or later.
+- **Feedback:** none before the approval.
+- **Result:** Approved
+- **Approved on:** 26 Nov 2026. Owner's words: "R4 approved, go with B, A, B, A".
+- **Decisions closed:** R4-a B (a disclosure button with `aria-expanded`, the same as the `queue-table` groups). R4-b A (copy the blank `.doc` forms to `public/forms/`). R4-c B (no Novie until R7). R4-d A (the same accordion on a phone, full width). All four are the recommended options and the `/lab` defaults.
+- **What the approval covers:** the R4 preview on `ui/r4-student` as shown: `task-list`, `step-by-step`, the PROCESS view (`src/app/student/process/view.tsx`, `steps.ts`), the R4.4 loading shapes (`tasks`, `steps`, the `process` preset), and the PROCESS stepper hidden below 640 px.
+- **Still open (not answered at the gate):** facts (1) to (3) above. R4.6 keeps the shown behavior until the owner answers.
+- **Rules to change in DESIGN.md at R4.6 (v0.7):** §7.4 rows `task-list` (disclosure button R4-a B, one stamp, the 2-line reason slot) and `step-by-step` (R4-d A, done mark as in the stepper), §8.12 (the blank forms are served from `public/forms/`, R4-b A), F1 (Novie not used before R7, R4-c B).
+
 **Sidebar data facts (Task R2.1).** No new data function. The role shell reads these at Integrate:
 
 | Fact | Role | Existing function | Field | Gap |
@@ -138,7 +153,7 @@ Copy this block for each round. Fill it after the owner reviews.
 | UX-P-01 | Foundations: tokens in light and dark, the theme toggle, glyphs, base patterns | **Approved 26 Nov 2026** |
 | UX-P-02 | Shell and system states: app shell, sidebar, top-bar panels (D-08), status glyphs (D-06), sidebar glyphs (D-07), toast, loading and error, motion (D-10) | **Approved 26 Nov 2026** |
 | UX-P-03 | Queues, inbox, dialogs, side sheet, form field (R3) | **Approved 26 Nov 2026** |
-| UX-P-04 | Student path: task list, step-by-step, Thesis process | Not shown |
+| UX-P-04 | Student path: task list, step-by-step, Thesis process | **Approved 26 Nov 2026** |
 | UX-P-05 | Manuscript workspace | Not shown |
 | UX-P-06 | Forms and Defense Day | Not shown |
 | UX-P-07a to 07d | Screens by role: Student, Adviser, Panel Member, Coordinator (with SV and LOGIN) | Not shown |
