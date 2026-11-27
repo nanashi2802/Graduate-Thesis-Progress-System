@@ -9,6 +9,7 @@
 // "p. 14" is a link to `?commit=3&page=14` (R5-d B, UX-P-05), so Back returns and the link can be shared.
 // No pin or highlight on the PDF (ADR-009). Every form is on the form-feedback contract (UX-011, UX-D-16).
 import { useId, useRef, useState, useTransition, type KeyboardEvent } from "react";
+import Link from "next/link";
 import { BlockedAction } from "@/components/patterns/blocked-action";
 import { EmptyState } from "@/components/patterns/empty-state";
 import { FormFeedback, PendingButton, type FormFeedbackState } from "@/components/patterns/form-feedback";
@@ -95,9 +96,9 @@ function PageRef({ t, pageHref }: { t: FeedThread; pageHref?: ThreadFeedProps["p
   if (t.page === null) return null;
   const label = `Show page ${t.page} of v${t.commitOrdinal}`;
   return (
-    <a href={pageHref ? pageHref(t.page, t.commitOrdinal) : `?commit=${t.commitOrdinal}&page=${t.page}`} aria-label={label} className={LINK}>
+    <Link href={pageHref ? pageHref(t.page, t.commitOrdinal) : `?commit=${t.commitOrdinal}&page=${t.page}`} aria-label={label} className={LINK}>
       p. {t.page}
-    </a>
+    </Link>
   );
 }
 

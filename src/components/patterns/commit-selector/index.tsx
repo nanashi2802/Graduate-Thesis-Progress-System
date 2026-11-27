@@ -6,6 +6,7 @@
 // The 3 newest commits show. Older ones sit behind a disclosure button with `aria-expanded` and the count, the same
 // look as the task-list groups (R4-a B). The group opens when the selected commit is in it.
 import { useId, useState } from "react";
+import Link from "next/link";
 import { StatusPill } from "@/components/patterns/status";
 import { cn } from "@/lib/utils";
 
@@ -40,7 +41,7 @@ const FOCUS = "outline-none focus-visible:outline-2 focus-visible:outline-solid 
 function Row({ c, selected, ready, href }: { c: CommitEntry; selected: boolean; ready: boolean; href: string }) {
   return (
     <li data-slot="commit-row">
-      <a
+      <Link
         href={href}
         aria-current={selected ? "true" : undefined}
         className={cn(
@@ -58,7 +59,7 @@ function Row({ c, selected, ready, href }: { c: CommitEntry; selected: boolean; 
         </span>
         <span className="justify-self-end">{ready ? <StatusPill tone="active" label="Ready" /> : null}</span>
         {c.changeNote ? <span className="col-start-2 col-end-4 truncate text-[0.8rem] text-muted-foreground">{c.changeNote}</span> : null}
-      </a>
+      </Link>
     </li>
   );
 }

@@ -43,7 +43,7 @@ describe("commit selector (R5.3)", () => {
     const html = render();
     expect(html).toMatch(/<nav[^>]*aria-label="Commits"/);
     expect(html).toMatch(/<a[^>]*href="\?commit=1"/);
-    expect(html).toMatch(/<a[^>]*href="\?commit=3"[^>]*aria-current="true"/);
+    expect(html).toMatch(/<a(?=[^>]*href="\?commit=3")(?=[^>]*aria-current="true")[^>]*>/);
     expect(html.match(/aria-current=/g)).toHaveLength(1);
   });
 

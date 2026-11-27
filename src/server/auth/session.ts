@@ -2,6 +2,7 @@
 import "server-only";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
+import { cache } from "react";
 import type { Actor } from "@/server/data/access";
 import { resolveActor } from "@/server/data/actors";
 import { getDb } from "@/server/data/db";
@@ -13,13 +14,14 @@ export type SessionState =
   | { status: "no_account" }
   | { status: "ok"; actor: Actor };
 
-export async function getSessionState(): Promise<SessionState> {
+// One session read per request: the role gate, the shell and the page share it (React cache).
+export const getSessionState = cache(async (): Promise<SessionState> => {
   await connection(); // Per request: never prerender a session read.
   const { data } = await getAuth().getSession();
   const user = data?.user;
   if (!user) return { status: "signed_out" };
   return stateFor(user);
-}
+});
 
 async function stateFor(user: { id: string; email: string; emailVerified?: boolean }): Promise<SessionState> {
   const actor = await resolveActor(getDb(), { authUserId: user.id, email: user.email,

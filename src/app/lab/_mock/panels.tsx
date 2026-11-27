@@ -1,6 +1,7 @@
 // Lab-only layout parts: show one demo in light and in dark side by side (Task R1.4).
 // The `.dark` class on a wrapper sets the dark tokens for everything inside it.
 import type { ReactNode } from "react";
+import Link from "next/link";
 
 export function ThemePanels({ children }: { children: ReactNode }) {
   return (
@@ -57,9 +58,9 @@ export function OptionLinks({ base, links }: { base: string; links: { label: str
   return (
     <nav aria-label="Options" className="mb-4 flex flex-wrap gap-x-4 gap-y-2 text-sm">
       {links.map((l) => (
-        <a key={l.label} href={`${base}${l.query}`} aria-current={l.current ? "page" : undefined} className="text-link underline-offset-4 hover:underline aria-[current=page]:font-semibold">
+        <Link key={l.label} href={`${base}${l.query}`} aria-current={l.current ? "page" : undefined} className="text-link underline-offset-4 hover:underline aria-[current=page]:font-semibold">
           {l.label}
-        </a>
+        </Link>
       ))}
     </nav>
   );
@@ -86,7 +87,7 @@ export function OptionGroups({
         <div key={g.label} className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
           <span className="w-44 shrink-0 font-semibold text-foreground">{g.label}</span>
           {g.links.map((l) => (
-            <a
+            <Link
               key={l.label}
               href={`${base}${l.query}`}
               aria-current={l.current ? "true" : undefined}
@@ -95,7 +96,7 @@ export function OptionGroups({
               {l.label}
               {l.recommended ? <span className="text-[0.8rem] font-normal text-muted-foreground">(recommended)</span> : null}
               {l.current ? <span className="text-[0.8rem] font-normal">· shown now</span> : null}
-            </a>
+            </Link>
           ))}
           {g.note ? <span className="basis-full pl-0 text-[0.8rem] text-muted-foreground sm:pl-48">{g.note}</span> : null}
         </div>
