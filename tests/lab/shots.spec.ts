@@ -68,6 +68,7 @@ const LAB_ROUNDS: Record<string, LabPage[]> = {
     ),
     { id: "workspace-identity", path: "/lab/patterns/workspace?identity=proposed" },
   ],
+  r6: ["slot-list", "date-picker", "defense-form", "verdict", "consultation-log"].map((p) => ({ id: p, path: `/lab/patterns/${p}` })),
 };
 
 // Live routes of spec/SITEMAP.md (LAB_LIVE=1), with the saved session of the role.

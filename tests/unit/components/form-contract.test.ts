@@ -83,7 +83,7 @@ describe("no live form keeps an ad-hoc error line (UX-011)", () => {
     it(f, () => {
       const src = read(f);
       // The uploader on C6 keeps its progress line until R7d (R3.10 notes). Every other message is the slot.
-      const rest = src.replace(/export function SheetScanUploader[\s\S]*?\n}\n/, "");
+      const rest = src.replace(/export function SheetScanUploader[\s\S]*?\r?\n}\r?\n/, "");
       expect(rest).not.toMatch(/role="status" aria-live="polite"/);
       expect(src).toMatch(/ResultSlot/);
     });
@@ -103,9 +103,15 @@ describe("permanent actions ask once more (R3-h A, UX-010, BR-19)", () => {
     expect(src).toMatch(/gate2: \{[^}]*copy: "gate2", act: approveFinalAction/);
   });
 
-  it("Record verdict passes the verdict copy to ActionForm", () => {
-    const src = read("src/app/_components/defense-day.tsx");
-    expect(src).toMatch(/submitLabel="Record verdict"[\s\S]{0,200}confirm=\{confirmCopy\(\{ kind: "verdict" \}\)\}/);
+  it("Record verdict asks once more: A5 and P4 use the verdict pattern, which opens the ConfirmDialog with the verdict copy (R6.9)", () => {
+    const page = read("src/app/_components/defense-day.tsx");
+    expect(page).toMatch(/<VerdictPanel[\s\S]{0,400}record=\{recordVerdictAction\.bind\(null, milestone\.id\)\}/);
+    const verdict = read("src/components/patterns/verdict/index.tsx");
+    expect(verdict).toMatch(/confirmCopy\(\{ kind: "verdict"/);
+    expect(verdict).toMatch(/<ConfirmDialog[\s\S]{0,200}onConfirm=/);
+    // The action runs only from the dialog: the Record verdict button only opens it.
+    expect(verdict).toMatch(/setOpen\(true\)/);
+    expect(verdict).not.toMatch(/onClick=\{[^}]*onRecord/);
   });
 
   it("Verify on C4 is a ConfirmButton with to=verified; Return stays a submit", () => {

@@ -26,6 +26,7 @@ import { expectedEvaluatorsFor, loadMilestoneContext, type MilestoneContext } fr
 import { emitSafely } from "./recipients";
 import { checkTransition, disapproveToDraft, openMilestone, transitionMilestone } from "./milestones";
 import {
+  appUser,
   committeeMember,
   defenseAttempt,
   evaluationComment,
@@ -495,6 +496,8 @@ export async function defensePage(ctx: DataContext, attemptId: string, now: Date
     if (!d.ok) heldBlock = d.reason;
   }
   const sheets = await ctx.db.select().from(evaluationEntry).where(eq(evaluationEntry.defenseAttemptId, attempt.id));
+  // R6.9 (FR-DEF-07, BR-17): the verdict panel lists each expected member. Only the verdict seat reads it.
+  const members = verdictSeat ? await verdictMembers(ctx.db, mctx, expected, sheets, attempt.verdict) : [];
   const [pr] = await ctx.db.select({ id: submissionPr.id }).from(submissionPr).where(eq(submissionPr.milestoneInstanceId, mctx.milestone.id));
   // BR-11: a Student sees the verdict only when every expected sheet is verified, as in `listAttempts`.
   const hideVerdict = ctx.actor.role === "student" && !resultsVisible(expected, sheets);
@@ -521,7 +524,54 @@ export async function defensePage(ctx: DataContext, attemptId: string, now: Date
     warnings: verdictSeat ? actionTakenWarnings(attempt.verdict, sheets) : [],
     sheetsSaved: sheets.length,
     sheetsExpected: expected.length,
+    /** The verdict seat only (R6.9): each expected member with the total (plain sum, BR-15) and Action Taken. */
+    members,
   };
+}
+
+const DESIGNATION = { lead_panel_member: "Lead Panel Member", panel_chair: "Panel Chair", none: "Panel Member" } as const;
+
+export type VerdictMemberRow = {
+  userId: string;
+  name: string;
+  designation: string;
+  /** null: no sheet saved yet (a flag on the screen, never a block: BR-17). */
+  total: number | null;
+  actionTaken: Verdict | null;
+  /** FR-DEF-07: the Action Taken differs from the recorded verdict. */
+  differs: boolean;
+};
+
+async function verdictMembers(
+  db: DataContext["db"],
+  mctx: MilestoneContext,
+  expected: string[],
+  sheets: (typeof evaluationEntry.$inferSelect)[],
+  verdict: Verdict | null,
+): Promise<VerdictMemberRow[]> {
+  if (expected.length === 0) return [];
+  const users = await db.select({ id: appUser.id, name: appUser.fullName }).from(appUser).where(inArray(appUser.id, expected));
+  const seats = mctx.committeeId
+    ? await db
+        .select({ userId: committeeMember.memberUserId, designation: committeeMember.designation })
+        .from(committeeMember)
+        .where(and(eq(committeeMember.committeeId, mctx.committeeId), inArray(committeeMember.memberUserId, expected)))
+    : [];
+  const ids = sheets.map((e) => e.id);
+  const scores = ids.length ? await db.select().from(evaluationScore).where(inArray(evaluationScore.evaluationEntryId, ids)) : [];
+  return expected.map((userId) => {
+    const entry = sheets.find((e) => e.memberUserId === userId);
+    const mine = entry ? scores.filter((x) => x.evaluationEntryId === entry.id).map((x) => ({ indicatorId: x.rubricIndicatorId, score: Number(x.score) })) : [];
+    const actionTaken = entry?.actionTaken ?? null;
+    return {
+      userId,
+      name: users.find((u) => u.id === userId)?.name ?? "Unknown member",
+      designation: userId === mctx.thesis.adviserUserId ? "Adviser" : DESIGNATION[seats.find((x) => x.userId === userId)?.designation ?? "none"],
+      total: mine.length ? rubricTotal(mine) : null,
+      actionTaken,
+      differs: verdict !== null && actionTaken !== null && actionTaken !== verdict,
+    };
+  });
 }
 
 // ---- Read ----

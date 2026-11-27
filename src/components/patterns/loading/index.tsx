@@ -5,10 +5,11 @@
 // stand still. Each screen composes its own loading.tsx from these shapes (R3 to R7, see IMPLEMENTATION_PLAN.md).
 // R4.4: the task list ("tasks") and the PROCESS steps ("steps") shapes, and the "process" page preset.
 // R5.7: the manuscript workspace ("workspace") shape and the "workspace" page preset.
+// R6.6: the Defense Day sheet ("defense") and the slot list ("slots") shapes.
 import { cn } from "@/lib/utils";
 
 export type LoadingEffect = "pulse" | "shimmer";
-export type LoadingShape = "rows" | "rows-compact" | "kpi" | "cards" | "docket" | "form" | "list" | "inbox" | "tasks" | "steps" | "workspace";
+export type LoadingShape = "rows" | "rows-compact" | "kpi" | "cards" | "docket" | "form" | "list" | "inbox" | "tasks" | "steps" | "workspace" | "defense" | "slots";
 
 const EFFECT: Record<LoadingEffect, string> = {
   pulse: "bg-muted animate-skeleton",
@@ -161,6 +162,36 @@ function Shape({ shape, rows, effect }: { shape: LoadingShape; rows: number; eff
             {b("h-4 w-3/4")}
             {b("ml-auto h-10 w-40 rounded-control")}
           </div>
+        </div>
+      );
+    case "defense": // the Defense Day sheet (R6.6): code, name and a 48 px stepper in each row, the total, a 48 px button
+      return (
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col divide-y divide-border border-y border-border">
+            {Array.from({ length: rows }, (_, i) => (
+              <div key={i} data-part="indicator" className="flex items-center gap-4 py-3">
+                {b("h-3 w-10")}
+                {b("h-3 w-1/3")}
+                {b("ml-auto h-12 w-44 rounded-control")}
+              </div>
+            ))}
+          </div>
+          <div data-part="total">{b("h-6 w-36")}</div>
+          {b("h-12 w-48 rounded-control")}
+        </div>
+      );
+    case "slots": // the slot list (R6.6): comfortable rows with the time, the place and the state pill
+      return (
+        <div className="flex flex-col divide-y divide-border rounded-card border border-border bg-card">
+          {Array.from({ length: rows }, (_, i) => (
+            <div key={i} className="flex min-h-(--row-h-comfortable) items-center gap-4 px-(--cell-pad-x) py-3">
+              <div className="flex flex-1 flex-col gap-2">
+                {b("h-3 w-1/2")}
+                {b("h-3 w-1/4")}
+              </div>
+              {b("h-6 w-24 rounded-stamp")}
+            </div>
+          ))}
         </div>
       );
     case "form": // labels above fields, then the button

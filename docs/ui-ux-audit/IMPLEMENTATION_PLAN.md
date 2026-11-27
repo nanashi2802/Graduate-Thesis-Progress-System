@@ -1,6 +1,6 @@
 # UI/UX retrofit implementation plan
 
-**Status:** v1.6, 26 Nov 2026. R4 approved (UX-P-04), integrated and committed (`8a24508`, `f4f9ded`); R5 is written for a new session (R5.0). v1.5: R3.10 integrated, not committed (§10.2). v1.4: R3 approved at UX-P-03 and committed (`3b830d7`); R3.10 was written for a new session (§10.1). v1.3: R1 and R2 approved, integrated and committed (`9d663dd`, `ad2c760`). R3 is written for a new session (§10.0). v1.2: R1 approved; R1.5 and R2 were written for a new session (§8 Task R1.5, §9). Round 0, Round 1, Round H, Round 2 and the R1 preview are committed (up to `c7b7a71`). v1.1 (25 Nov 2026) added Round H and the Stage 1 tasks (§6.1). Update the "State" column of §3 and the results log in §13 as you work.
+**Status:** v1.7, 27 Nov 2026. R5 approved (UX-P-05), integrated and committed (`eff07da`, `8b020e8`); R6 is written for a new session (R6.0). v1.6, 26 Nov 2026: R4 approved (UX-P-04), integrated and committed (`8a24508`, `f4f9ded`); R5 is written for a new session (R5.0). v1.5: R3.10 integrated, not committed (§10.2). v1.4: R3 approved at UX-P-03 and committed (`3b830d7`); R3.10 was written for a new session (§10.1). v1.3: R1 and R2 approved, integrated and committed (`9d663dd`, `ad2c760`). R3 is written for a new session (§10.0). v1.2: R1 approved; R1.5 and R2 were written for a new session (§8 Task R1.5, §9). Round 0, Round 1, Round H, Round 2 and the R1 preview are committed (up to `c7b7a71`). v1.1 (25 Nov 2026) added Round H and the Stage 1 tasks (§6.1). Update the "State" column of §3 and the results log in §13 as you work.
 **Replaces:** `docs/superpowers/plans/2026-11-25-guided-ledger-ui.md`. This plan keeps its tasks and adds an audit, the `/lab` showcase, dark mode and a preview gate before each round.
 **Goal:** Make the app feel complete, consistent, accessible and easy to use in light and dark. Keep every screen, route, flow, role and data contract as it is. Usability first, consistency always, decoration last.
 
@@ -81,8 +81,8 @@ Each round has the same 4 steps: **Build preview → Gate → Integrate → Vali
 | R2 | Shell and system states: app shell, sidebar, top-bar panels, toast, loading and error, motion, glyphs | 4 | D-06, D-07, D-08, D-10, R2-a, R2-b, R2-c | **Approved 26 Nov 2026** (UX-P-02). R2.8 integrated 26 Nov 2026 on `ui/r2-shell`, not committed. |
 | R3 | Queues, inbox, dialogs, side sheet, form field, one form-feedback contract | 5, 6, part of 9 | R3-a to R3-i (§10.0, UX-P-03) | **Approved 26 Nov 2026** (UX-P-03): R3-a A, R3-b A, R3-c A, R3-d 480 px, R3-e A, R3-f A, R3-g A, R3-h A, R3-i A, `form-field` in the registry. Preview committed (`3b830d7`). **R3.10 integrated 26 Nov 2026** on `ui/r3-patterns`, not committed (§10.2). |
 | R4 | Student path: task list, step-by-step, Thesis process | 7 | R4-a B, R4-b A, R4-c B, R4-d A (UX-P-04) | **Approved 26 Nov 2026** (UX-P-04): "R4 approved, go with B, A, B, A". Preview committed (`8a24508`). **R4.6 integrated and committed 26 Nov 2026** (`f4f9ded`, `ui/r4-student`, §10.3). |
-| R5 | Manuscript workspace | 8 | R5-a A, R5-b A adapted (no sticky), R5-c A, R5-d B, R5-e A (UX-P-05, feedback pass 1) | **Preview built 26 Nov 2026** (R5.1 to R5.8) on `ui/r5-workspace`, not committed. Revised after feedback pass 1. **Approved 26 Nov 2026** (UX-P-05: "accept R5"). Preview committed (`eff07da`). **R5.9 integrated 26 Nov 2026**, not committed (§10.5). |
-| R6 | Forms and Defense Day | 9 | — | Not started |
+| R5 | Manuscript workspace | 8 | R5-a A, R5-b A adapted (no sticky), R5-c A, R5-d B, R5-e A (UX-P-05, feedback pass 1) | **Preview built 26 Nov 2026** (R5.1 to R5.8) on `ui/r5-workspace`, not committed. Revised after feedback pass 1. **Approved 26 Nov 2026** (UX-P-05: "accept R5"). Preview committed (`eff07da`). **R5.9 integrated 26 Nov 2026** (§10.5) and committed (`8b020e8`). |
+| R6 | Forms and Defense Day | 9 | R6-a A, R6-b A, R6-c A with a Refresh button, R6-d A (owner, 27 Nov 2026, before the build) | **Brief written 27 Nov 2026** (R6.0). **Preview built 27 Nov 2026** (R6.1 to R6.7) on `ui/r6-forms`, not committed (§10.6). **Approved 27 Nov 2026** (UX-P-06: "Accept R6"), after the stepper focus fix. **R6.9 integrated 27 to 28 Nov 2026** (§10.7) and committed on `ui/r6-forms`. |
 | R7a to R7d | Screens: Student, Adviser, Panel Member, Coordinator, with SV and LOGIN | 10 | — | Not started |
 | R8 | Layer rule, clean-up, full validation | 11 | — | Not started |
 
@@ -1176,6 +1176,123 @@ No pins or highlights on the PDF (ADR-009).
 
 ### R6: forms and Defense Day (rest of old Task 9)
 
+#### R6.0 Brief for R6 (new session)
+
+Read this before you start R6. It holds what the R1 to R5 sessions learned.
+
+**State on 27 Nov 2026:** branch `ui/r5-workspace`. R5 preview committed as `eff07da`, R5.9 (integrate) as `8b020e8`. Both are pushed to `origin/ui/r5-workspace`. No pull request is open for it. R1 to R5 (UX-P-01 to UX-P-05) are approved and integrated. `DESIGN.md` is v0.8. PR #81 (`feat/guided-ledger`) is still open: check it first (§1 step 2).
+
+**Uncommitted on `ui/r5-workspace` (27 Nov 2026, GitHub issue #85):** one session read for each request (`getSessionState` in React `cache()`, `src/server/auth/session.ts`), `<Link>` in `commit-selector`, `thread-feed` and the lab `panels.tsx`, and 2 test fixes (CRLF line ends in `form-contract.test.ts`, attribute order in `commit-selector.test.ts`). Ask the owner to commit them before you make the R6 branch.
+
+**Branch:** make `ui/r6-forms` from `ui/r5-workspace`. Commit only when the owner says so (AGENTS.md §2).
+
+**Read first, in this order:**
+
+1. `AGENTS.md` (§2, §5, §7 with BR-01, BR-09, BR-15, BR-17, BR-19, §8, §9: no Defense Day autosave, no grading, no calendar file).
+2. `docs/ui-ux-audit/DESIGN_DECISIONS.md`: UX-D-01 to UX-D-16 and the UX-P-05 record.
+3. `DESIGN.md` v0.8: §2 (G1, G4, G5, G10, F2, F4), §7.3 (button size `defense`), §7.4 rows `slot-list`, `date-picker`, `consultation-log`, `defense-form`, `verdict`, §8.3, §8.9 (Record verdict dialog), §10.
+4. `design/screens/S4.md`, `A4.md`, `P3.md` (slots and booking), `A3.md` (consultations), `A5.md`, `P4.md` (Defense Day), `C6.md` (the verdict on the Coordinator side). `spec/SITEMAP.md` §9 (the blocked messages for booking and Defense Day).
+5. `docs/ui-ux-audit/UI_UX_AUDIT.md`: UX-022 (native date inputs), UX-023 (closed defense forms look editable), UX-025 (Defense Day targets below 48 px), UX-039 (a slot row does not name the Student), UX-011.
+6. §10.0 to §10.5 and the R5.0 brief above. Their environment facts still apply.
+
+**What R1 to R5 built that R6 uses (do not rebuild):**
+
+| Part | Where | Use in R6 |
+| :---- | :---- | :---- |
+| `Button` size `defense` (48 px) | `src/components/ui/button.tsx` | Every Defense Day control (UX-025) |
+| `BlockedAction` | `patterns/blocked-action` | Book, Save my sheet, Record verdict, each with its SITEMAP §9 reason (BR-18) |
+| `ConfirmDialog`, `confirmCopy({ kind: "verdict" })` | `patterns/dialog` | Record verdict. Already live through `ActionForm` (R3.10). Keep the copy. |
+| `FormFeedback`, `PendingButton`, `FormField` | `patterns/form-feedback`, `patterns/form-field` | Every R6 form |
+| `queue-table` | `patterns/queue-table` | The base of `consultation-log` |
+| `flag` | `patterns/flag` | "1 sheet is not saved yet." (F2, BR-17) |
+| `status`, `glyphs` | `patterns/status`, `patterns/glyphs` | The `done` stamp on a verified sheet, the slot states |
+| `LoadingBlocks` | `patterns/loading` | New shapes: the Defense Day sheet and the slot list (UX-D-15) |
+| `@base-ui/react` | `package.json` | The `date-picker` parts. No new package. |
+| Lab | `src/app/lab/`, `_mock/pages.ts`, `LAB_ROUNDS` | `/lab/patterns/<name>` for each pattern |
+
+**Today's markup (the §4.4 list starts here):**
+
+| File | Holds | Users |
+| :---- | :---- | :---- |
+| `src/app/_components/slot-list.tsx` (32 lines) | `WithdrawButton({ slotId })` and the slot rows | `availability-page.tsx` (A4, P3), `student/schedule/page.tsx` (S4) |
+| `src/app/_components/slot-publish-form.tsx` (36 lines) | Publish a slot: 2 `datetime-local` inputs | A4, P3 |
+| `src/app/student/schedule/page.tsx` (175 lines) | S4: the BR-09 earliest date text, a native `type="date"` input, the free periods | Student |
+| `src/app/_components/score-sheet.tsx` (41 lines) | The criteria rows and the total | `defense-day.tsx` |
+| `src/app/_components/defense-day.tsx` (149 lines) | A5 and P4: the sheet, `actionTaken` select, the save and the verdict | `adviser/defense/[defenseId]`, `panel/defense/[defenseId]` |
+| `src/app/adviser/consultations/page.tsx` (97 lines) | A3: the consultation table | Adviser |
+| `src/app/coordinator/schedule/schedule-forms.tsx`, `students/create-student-form.tsx`, `templates/template-forms.tsx` | Coordinator `date` and `datetime-local` inputs | Coordinator. Not in R6 unless R6-a picks B. |
+
+**Tasks (build preview, §4.1). Write each test first.**
+
+| Task | Pattern | Done when |
+| :---- | :---- | :---- |
+| R6.1 | `slot-list` | Same props as today. A confirmed slot names the Student (UX-039). No repeated "Confirmed" word. |
+| R6.2 | `date-picker` | The interface and tests in the table below. Days before `earliest` have `aria-disabled` and the BR-09 reason. Dates in PST (UTC+8). |
+| R6.3 | `defense-form` | The table below. A read-only state after the verify or the close: values as text, no field (UX-023). |
+| R6.4 | `verdict` | The table below. A read-only state after the close. |
+| R6.5 | `consultation-log` | On `queue-table`, comfortable density. |
+| R6.6 | Loading shapes | `LoadingBlocks` shapes for the Defense Day sheet and the slot list. No layout move when the data arrives. |
+| R6.7 | Lab pages | `/lab/patterns/slot-list`, `date-picker`, `defense-form`, `verdict`, `consultation-log`, each with every state in light and dark. Rows in `_mock/pages.ts` with gate `UX-P-06`. |
+| R6.8 | Validate and show | §4.5 checks. The issue #85 items for R6 (shell streaming, `RoleGate` fallback, lab `<Suspense>` fallbacks, a browser timing of client navigation). Then §4.2: show the owner and stop. |
+| R6.9 | Integrate (after the gate only) | §4.4 list first. Move the A3, A4, P3, S4, A5 and P4 markup that R6 owns onto the patterns. |
+
+**Decision points for UX-P-06 (show these at the gate, each with a recommendation):**
+
+| ID | Question | Options | Recommended |
+| :---- | :---- | :---- | :---- |
+| R6-a | Where does `date-picker` replace the native input? | A: S4 only (the BR-09 case). B: S4 and the Coordinator date fields. | A. The Coordinator fields have no earliest-date rule. |
+| R6-b | How does a closed or verified sheet show? | A: the values as text with a `done` stamp. B: disabled fields. | A. Disabled fields still look editable (UX-023). |
+| R6-c | How does the verdict panel stay current? | A: refresh every 30 s while mounted, "Updated hh:mm" (plan). B: a Refresh button only. | A, with a Refresh button as well |
+| R6-d | Score input | A: a number field with 48 px minus and plus buttons. B: a number field only. | A (UX-025, tablet use) |
+
+**Environment facts:** one `pnpm dev` at a time (§13 R4 and R5 rows). No screenshot batch without the owner (owner rule, §13 R4 preview row): check the lab links as text, then take single shots and look at them. The first dev visit to `/lab/typography` takes about 20 s (12 fonts).
+
+#### 10.6 R6 preview as built (27 Nov 2026)
+
+**Branch:** `ui/r6-forms`, on `8b020e8` and the uncommitted issue #85 fixes. Not committed. No live page changed.
+
+| Task | Pattern | As built | IDs |
+| :---- | :---- | :---- | :---- |
+| R6.1 | `slot-list` | `SlotList({ label, slots, empty, action? })`. 3 facts: the PHT time range, the place (and the meeting link only when the page passes it), one state pill. "Requested by" or "Confirmed with" names the Student. | UX-039, G5, FR-SCH-03 |
+| R6.2 | `date-picker` | `DatePicker({ id, label, name?, earliest, value, onChange, today? })`. An inline month grid, Sunday first. **Change from the R6 table:** `value` and `onChange` use a PHT day string ("yyyy-mm-dd"), not a `Date`, so no day moves across UTC+8, and the hidden input sends the format that `proposeDateAction` reads. Blocked days: `aria-disabled`, focusable, a 2 px strike, linked to "At least 7 days after Gate 1b.". No new package (Base UI 1.9 has no calendar). | BR-09, BR-18, UX-022, R6-a A |
+| R6.3 | `defense-form` | `DefenseForm({ rows, mode, onSave, blockedReason?, legend?, children })`. Base UI `NumberField` steppers (48 px minus and plus), inputs named `score_<id>` (fits `saveSheetAction`). The total is the plain sum. "Saved. Sign the paper sheet." in the feedback slot after a save only. `verified` and `closed`: values as text and a `done` stamp, no field. **Change from the R6 table:** no `saved` prop: the pattern shows the line after its own save. `noValidate` on the form (the hidden step=1 input refused 12.5 and blocked the submit; found in the keyboard walk). | FR-DEF-05, BR-01, BR-15, F4, UX-023, UX-025, R6-b A, R6-d A |
+| R6.4 | `verdict` | `Verdict({ members, canRecord, recordReason?, recorded?, closed?, updatedAt, onRefresh, onRecord, student? })`. A table of member, total (ink), Action Taken. "n sheet(s) not saved yet." and the "differs" row flag never block. Refresh every 30 s while mounted, a 48 px Refresh button, "Updated hh:mm PHT". Record verdict opens the R3 `ConfirmDialog` (verdict copy). Closed: the recorded verdict as text with a `done` stamp. | FR-DEF-07, BR-17, BR-18, F2, F4, R6-b A, R6-c A |
+| R6.5 | `consultation-log` | `ConsultationLog({ rows, empty, action?, caption? })` on `queue-table`, comfortable: Date and time, Place or platform, Topics (one line, full text on hover and focus), Adviser confirmation (pill). | FR-SCH-05, FR-SCH-06 |
+| R6.6 | Loading | `LoadingBlocks` shapes `defense` (48 px stepper rows, total, 48 px button) and `slots` (56 px rows). | UX-D-15 |
+| R6.7 | Lab | `/lab/patterns/{slot-list,date-picker,defense-form,verdict,consultation-log}`, rows in `_mock/pages.ts` (UX-P-06), `pnpm lab:shots r6`. | — |
+| — | `PendingButton` | New size `defense` (48 px). | UX-025 |
+
+**Gaps for R6.9 (integrate):** (1) `defensePage` gives the verdict seat no per-member totals or names; the live verdict panel needs a read-only addition after the same access checks, like `workspaceFor().identity` in R5.9. (2) A4 slot rows need the Student name for a requested or confirmed slot; `listSlots` must give it (read only). (3) The S4 date picker needs the earliest date from the tracker (`keyDates.earliestDefenseDate`). Each needs the owner's approval as a data addition (§2).
+
+**Environment fact:** the running dev server kept the old `loading/index.tsx` after an edit and a `touch`, so the server and the client disagreed (a hydration error on 2 pages). A content change in the file reloaded it. If a `/lab` page shows a hydration error after an edit, change the file again before you look for a bug.
+
+#### 10.7 R6.9 integrate (27 to 28 Nov 2026)
+
+**Data additions approved:** 27 Nov 2026, owner's words "start R6.9", in answer to the question on the 3 read-only additions (§10.6). No server action, route or write changed.
+
+**§4.4 list, before the change.**
+
+| Component | Props and data | Server action and result | Blocked | Loading and error | After R6.9 |
+| :---- | :---- | :---- | :---- | :---- | :---- |
+| `AvailabilityPage` own slots (A4, P3) | `listSlots` rows: time, mode, status, link | `withdrawSlotAction` through `WithdrawButton` | none | none | `SlotList` with `WithdrawButton` as the row action. The Student shows on a requested or confirmed slot (`studentName`, UX-039). |
+| S4 "My requests" | `listBookings` | none | none | none | One state word (the booking state); the slot state is gone (UX-039). The markup moves in R7. |
+| S4 defense date | native `type="date"` in `ActionForm` | `proposeDateAction` (`date`, yyyy-mm-dd) | "Locked until Gate 1b." or "A date is proposed already." | the `ActionForm` slot | `DefenseDateField` (`date-picker`, R6-a A) with `studentTracker().keyDates.earliestDefenseDate`; the same field name and action. Blocked: no calendar, the button shows its reason. |
+| `ScoreSheet` and the sheet `ActionForm` (A5, P4) | `defensePage().rubric`, `own` | `saveSheetAction` → `Result`; refresh on ok | `editBlock` | the `ActionForm` slot | `DefenseSheet` (`defense-form`): verified or closed as text (R6-b A), else the form with `editBlock` as the reason; refresh on ok. TDW 10 (comments only, no scores) keeps `ActionForm` until R7. The header line "Encode your own sheet and sign the paper …" is removed (G4: the paper line shows after the save). |
+| Verdict `ActionForm` and `FlagBanner` (P4) | `attempt.verdict`, `warnings`, `verdictBlock` | `recordVerdictAction` through `ConfirmDialog` (R3.10) | `verdictBlock` | the `ActionForm` slot | `VerdictPanel` (`verdict`) with `defensePage().members` (verdict seat only), the same action through `ConfirmDialog`, refresh every 30 s and on Refresh, read only after the scheduled state. "Mark the defense held" stays `ActionForm`. |
+| A3 TDW 03 log | `listLogEntries` | `confirmLogAction` | "The Student adds the topic first." | the `ActionForm` slot | `ConsultationLog` table for every entry, then "Entries to confirm" with the same forms. **For the owner at R7:** a confirmed entry's recommendations show in the Topics cell (the approved columns have no Recommendations column). |
+
+**Data (read only, with tests):**
+
+| Function | Addition | Access | Tests |
+| :---- | :---- | :---- | :---- |
+| `defensePage` | `members`: each expected member's name, designation (Adviser, Lead Panel Member, Panel Chair, Panel Member), total (plain sum), Action Taken, `differs` | The verdict seat only; `[]` for every other actor | `defense.test.ts`: the seat gets 3 rows with the right values; the Panel Chair seat, the Adviser and the Student get `[]` |
+| `listSlots` | `studentName` for a pending or confirmed booking | The slot owner only; `null` for the Student and for a declined booking | `consultations.test.ts` |
+| S4 page | calls `studentTracker` (existing, with its own checks) for `earliestDefenseDate` | — | — |
+
+**Live check (dev server, saved sessions):** A4, P3, S4 and A3: HTTP 200, no console error. A4 shows "Confirmed with Fake Student" (UX-039). The first S4 visit with the 23 Nov student session threw "Cookies can only be modified in a Server Action or Route Handler" once; the next visits of S4, S1 and PROCESS loaded clean (a session refresh during render, not this change). Not checked live: the S4 calendar (no thesis past Gate 1b in the dev data), A5 and P4 (no defense in the dev data, UX-X-06: no re-seed). The `/lab` walk covers those patterns.
+
+**Left for R7 and R8:** the S4 open-slot request forms and "My requests" rows on `slot-list`; TDW 10 on a comments pattern; `score-sheet.tsx` has no caller now (remove at R8).
+
 | Pattern | Interface | Tests |
 | :---- | :---- | :---- |
 | `slot-list` | Move `src/app/_components/slot-list.tsx`. Same props. | Check against S4, A4 and P3 |
@@ -1253,6 +1370,8 @@ Fill one row for each validation run. Never write "pass" for a check you did not
 | 26 Nov 2026 | R5 preview (R5.1 to R5.8) | Uncommitted (`ui/r5-workspace`, on `86738b9`) | Pass (0 errors, the same 1 warning) | Pass | Pass (95 files, 1144 tests, run alone). The new R5 tests failed first (no pattern yet). | Not run (no live page changed) | Pass (production build, before the last pattern fixes; `/lab` is 404 there by design) | No batch (owner rule). Text check of 24 `/lab` links on the dev server: HTTP 200, the expected content, no error text. 1 shot of each page that I looked at (6 pages; the workspace as S2, A2 and P2; 800 px with R5-a A and B). | Not run (no color token changed) | Pass, 21 of 21 (Playwright on `/lab`): feed tabs (arrows, Home, End), Reply open, focus, Escape, focus return, pending, "p. 14" link (B) and in place (A, clamped, focus on the page), gate dialog focus on Cancel, Escape, focus return, blocked gate opens nothing, Return composer focus and Escape, Page Up, Page Down, Home, End, white page in dark, load error with no page controls, 800 px tabs and side sheet | Not run (no batch) | Not run (package not approved) | The old dev server on port 3000 (not started by me) logs `EPIPE` errors and compiles the viewer chunk slowly; it works after a wait. |
 | 26 Nov 2026 | R5 feedback pass 1 | Uncommitted (`ui/r5-workspace`) | Pass (0 errors, the same 1 warning) | Pass | Pass (95 files, 1144 tests, run alone) | Not run (no live page changed) | Not run again | Text check of 21 `/lab` links: HTTP 200, the expected content, no `sticky` or `fixed` class in the workspace. 2 shots that I looked at (S2 working at 1280 px, S2 first day at 800 px). | Not run (no color token changed) | Not run again (the removed options had their own checks; the kept paths did not change) | Not run | Not run (package not approved) | Upload not sticky; options not chosen removed. |
 | 26 Nov 2026 | R5.9 (integrate) | `eff07da` + uncommitted (`ui/r5-workspace`) | Pass (0 errors, the same 1 warning) | Pass | Pass (95 files, 1159 tests, run alone). The new contract, title and identity tests failed first. | Pass (32, `E2E_PORT=3100` on the production build) | Pass | No batch (owner rule). Live check on the production build with the saved sessions: S2, A2 and P2 HTTP 200, no console error, one shot of each that I looked at. Forms on the contract, blocked reasons shown. P2 demo commit has no stored file (known since R1.5): the error shows, "Try again" fails, then "If it still does not load, ask the Student to upload it again." shows and the page controls stay hidden. | Not run (no color token changed) | Not run on the live forms (no open action in the dev data); the `/lab` walk covers the patterns | Not run | Not run (package not approved) | Gate 1a dialog title fixed ("the manuscript", not "the proposal"). |
+| 27 Nov 2026 | R6 preview (R6.1 to R6.7) | Uncommitted (`ui/r6-forms`, on `8b020e8`) | Pass (0 errors, the same 1 warning) | Pass | **Part only:** the 5 new R6 test files, `states`, `contrast`, `patterns`, `form-contract`, `commit-selector` (10 files, 218 tests, all pass). The new R6 tests failed first (no pattern yet). The full run is not done. | Not run (no live page changed) | Not run | No batch (owner rule). The 5 pages on the dev server: HTTP 200, no console error. One viewport shot of 4 pages that I looked at; it found the hidden strike on the mono digits 3 to 6 (fixed: text font, 2 px strike). | Not run (no color token changed) | Pass, 15 of 15 (Playwright on `/lab`): date grid focus start, arrows, Home, PageDown, Enter on a blocked day does nothing, Enter chooses, hidden input value, solid focus outline; stepper + and the total, 48 px stepper, Save then the paper line; verdict dialog title, focus on Cancel, Escape and focus return, a blocked Record verdict opens nothing | Not run | Not run (package not approved) | The walk found the `noValidate` bug in `defense-form`. |
+| 28 Nov 2026 | R6.9 (integrate) | This commit (`ui/r6-forms`, on `8b020e8`) | Pass (0 errors, the same 1 warning) | Pass | **Pass (full run: 100 files, 1212 tests).** The new `defensePage` members and `listSlots` names tests failed first. `form-contract`: the Record verdict check now follows the `verdict` pattern (same rule: the action runs only from the `ConfirmDialog`). | Pass (32, `E2E_PORT=3100` on the production build) | Pass (inside `test:e2e`) | No batch (owner rule). Live on the dev server with the saved sessions: A4, P3, S4, A3 HTTP 200, no console error; one A4 shot that I looked at (UX-039 fixed). A5 and P4 not reachable (no defense in the dev data). | Not run (no color token changed) | The `/lab` walk (R6 preview row) covers the patterns; not run on the live pages | Not run | Not run (package not approved) | One-time S4 cookie error with the old student session (§10.7). |
 ---
 
 ## 14. Definition of done

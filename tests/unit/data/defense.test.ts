@@ -367,6 +367,29 @@ describe("defensePage (A5, P4, BR-18)", () => {
   });
 });
 
+describe("defensePage members for the verdict panel (R6.9, FR-DEF-07, BR-17, NFR-01)", () => {
+  it("gives the verdict seat each expected member with the name, designation, total, Action Taken and the differs flag", async () => {
+    const w = await scheduled();
+    await saveSheet(as(w.adviser), w.attempt.id, await sheet(w, "approved"), new Date());
+    await saveSheet(as(w.lead), w.attempt.id, await sheet(w, "approved_with_revisions"), new Date());
+    await recordVerdict(as(w.lead), w.milestone.id, "approved_with_revisions");
+    const page = await defensePage(as(w.lead), w.attempt.id);
+    const byId = Object.fromEntries(page.members.map((m) => [m.userId, m]));
+    expect(page.members).toHaveLength(3);
+    const [adviser] = await db.select().from(s.appUser).where(eq(s.appUser.id, w.adviser.id));
+    expect(byId[w.adviser.id]).toMatchObject({ name: adviser!.fullName, designation: "Adviser", total: 100, actionTaken: "approved", differs: true });
+    expect(byId[w.lead.id]).toMatchObject({ designation: "Lead Panel Member", total: 100, actionTaken: "approved_with_revisions", differs: false });
+    // The Panel Chair has not saved a sheet: no total, no Action Taken (a flag on the screen, never a block).
+    expect(byId[w.chair.id]).toMatchObject({ designation: "Panel Member", total: null, actionTaken: null, differs: false });
+  });
+
+  it("gives no members to anyone but the verdict seat", async () => {
+    const w = await scheduled();
+    await allSheets(w);
+    for (const u of [w.chair, w.adviser, w.student]) expect((await defensePage(as(u), w.attempt.id)).members).toEqual([]);
+  });
+});
+
 describe("a Disapproved attempt stays open for sheets and Minutes (FR-DEF-12, FR-WFL-09, BR-11)", () => {
   it("takes a late sheet, the scans and the Minutes after the milestone is back in DRAFT", async () => {
     const w = await scheduled();

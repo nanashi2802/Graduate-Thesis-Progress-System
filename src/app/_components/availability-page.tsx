@@ -3,9 +3,10 @@ import type { UserRole } from "@/server/data/schema";
 import { ActionForm } from "@/app/_components/action-form";
 import { SlotPublishForm } from "@/app/_components/slot-publish-form";
 import { WithdrawButton } from "@/app/_components/slot-list";
-import { MODE, pst, pstRange, SLOT_STATUS } from "@/app/_lib/format";
+import { pst, pstRange } from "@/app/_lib/format";
 import { decideBookingAction } from "@/app/_lib/schedule-actions";
 import { EmptyState } from "@/components/empty-state";
+import { SlotList } from "@/components/patterns/slot-list";
 import { getRoleState } from "@/server/auth/session";
 import { listBookings, listSlots } from "@/server/data/consultations";
 import { getDb } from "@/server/data/db";
@@ -19,25 +20,15 @@ export async function AvailabilityPage({ portal, withConsultations }: { portal: 
   const consultation = slots.filter((s) => s.slotType === "consultation");
   const defense = slots.filter((s) => s.slotType === "defense");
 
-  const list = (rows: typeof slots, empty: string) =>
-    rows.length === 0 ? (
-      <EmptyState title={empty} detail="Published slots appear here." />
-    ) : (
-      <ul className="flex flex-col divide-y divide-border border-y border-border">
-        {rows.map((s) => (
-          <li key={s.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
-            <div className="flex flex-col gap-0.5 text-sm">
-              <p className="font-medium">{pstRange(s.startsAt, s.endsAt)}</p>
-              <p className="text-muted-foreground">
-                {MODE[s.mode]} · {SLOT_STATUS[s.status]}
-                {s.meetingLink ? ` · ${s.meetingLink}` : ""}
-              </p>
-            </div>
-            {s.status === "available" ? <WithdrawButton slotId={s.id} /> : null}
-          </li>
-        ))}
-      </ul>
-    );
+  // R6.9 (UX-P-06, UX-039): the own slots on the `slot-list` pattern. A requested or confirmed slot names the Student.
+  const list = (rows: typeof slots, label: string, empty: string) => (
+    <SlotList
+      label={label}
+      slots={rows.map((s) => ({ id: s.id, startsAt: s.startsAt, endsAt: s.endsAt, mode: s.mode, meetingLink: s.meetingLink, status: s.status, student: s.studentName }))}
+      empty={<EmptyState title={empty} detail="Published slots appear here." />}
+      action={(s) => (s.status === "available" ? <WithdrawButton slotId={s.id} /> : null)}
+    />
+  );
 
   return (
     <div className="mx-auto flex max-w-[960px] flex-col gap-10">
@@ -80,7 +71,7 @@ export async function AvailabilityPage({ portal, withConsultations }: { portal: 
             Consultation slots
           </h2>
           <SlotPublishForm slotType="consultation" />
-          {list(consultation, "No consultation slots.")}
+          {list(consultation, "Consultation slots", "No consultation slots.")}
         </section>
       ) : null}
 
@@ -89,7 +80,7 @@ export async function AvailabilityPage({ portal, withConsultations }: { portal: 
           Defense availability
         </h2>
         <SlotPublishForm slotType="defense" />
-        {list(defense, "No defense availability.")}
+        {list(defense, "Defense availability", "No defense availability.")}
       </section>
     </div>
   );

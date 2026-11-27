@@ -154,6 +154,22 @@ Copy this block for each round. Fill it after the owner reviews.
 - **Integrated (R5.9):** 26 Nov 2026, on `ui/r5-workspace`, not committed. Preview commit `eff07da`. `DESIGN.md` v0.8 is written (v0.7 in `docs/stale/`). As built: `IMPLEMENTATION_PLAN.md` §10.5.
 - **Change at R5.9 for the owner to confirm:** the approved Gate 1a dialog title "Endorse the proposal of {Student} (Gate 1a)?" showed no name before R5.9, so the wording was never seen. Gate 1a is also at Pre-Final, so the title is now "Endorse the manuscript of {Student} (Gate 1a)?".
 
+### UX-P-06: Forms and Defense Day (R6)
+
+- **Decisions taken before the build:** 27 Nov 2026. Owner's words: "proceed with your recommendations for the R6-a to d questions". R6-a **A** (`date-picker` replaces the native input on S4 only; the Coordinator date fields stay native). R6-b **A** (a verified or closed sheet shows its values as text with a `done` stamp, no fields). R6-c **A** with a Refresh button (the verdict refreshes every 30 s while mounted, shows "Updated hh:mm", and has a Refresh button). R6-d **A** (a score is a number field with 48 px minus and plus buttons). These choose the build only. The round still needs the gate.
+- **Date shown:** 27 Nov 2026
+- **Branch and commit:** `ui/r6-forms`, on top of `8b020e8` (`ui/r5-workspace`) and the uncommitted issue #85 fixes.
+- **Shown:** `/lab/patterns/{slot-list,date-picker,defense-form,verdict,consultation-log}`, light and dark. No screenshot batch (owner rule): text checks, one shot of 4 pages, a keyboard walk (`IMPLEMENTATION_PLAN.md` §10.6, §13). Mock data only. No live page changed.
+- **Facts for the owner to check:** (1) `date-picker` takes a PHT day string, not a `Date` (§10.6). (2) The R6.9 data gaps: per-member totals for the verdict seat, the Student name on A4 slots, the earliest date on S4 (§10.6). Each is a read-only addition that needs approval.
+- **Feedback:** (27 Nov 2026) The focus border of the score stepper on `defense-form`: an inner outline on the button borders, and a soft ring cut on one side.
+- **Revisions:** (27 Nov 2026, not committed) The focus ring sits around the whole stepper, outside it, like every field (2 px maroon outline, 2 px out, the soft ring); the input draws no ring. A test checks it.
+- **Result:** Approved
+- **Approved on:** 27 Nov 2026. Owner's words: "Accept R6".
+- **What the approval covers:** the R6 preview on `ui/r6-forms`: `slot-list`, `date-picker` (PHT day string), `defense-form` (with the focus fix and `noValidate`), `verdict`, `consultation-log`, the `defense` and `slots` loading shapes, `PendingButton` size `defense`. It does not cover the 3 data additions for R6.9 (`IMPLEMENTATION_PLAN.md` §10.6): they still need the owner's approval.
+- **Data additions approved:** 27 Nov 2026. Owner's words: "start R6.9" (the answer to the question on the 3 read-only additions).
+- **Integrated (R6.9):** 27 to 28 Nov 2026, on `ui/r6-forms`, not committed. As built: `IMPLEMENTATION_PLAN.md` §10.7. **For the owner at R7:** A3 shows a confirmed entry's recommendations in the Topics cell.
+- **Rules changed in DESIGN.md:**
+
 **Sidebar data facts (Task R2.1).** No new data function. The role shell reads these at Integrate:
 
 | Fact | Role | Existing function | Field | Gap |
@@ -175,7 +191,7 @@ Copy this block for each round. Fill it after the owner reviews.
 | UX-P-03 | Queues, inbox, dialogs, side sheet, form field (R3) | **Approved 26 Nov 2026** |
 | UX-P-04 | Student path: task list, step-by-step, Thesis process | **Approved 26 Nov 2026** |
 | UX-P-05 | Manuscript workspace | **Approved 26 Nov 2026** |
-| UX-P-06 | Forms and Defense Day | Not shown |
+| UX-P-06 | Forms and Defense Day | **Approved 27 Nov 2026** |
 | UX-P-07a to 07d | Screens by role: Student, Adviser, Panel Member, Coordinator (with SV and LOGIN) | Not shown |
 
 ### Notes for UX-P-07 (from Task R1.5, 26 Nov 2026)

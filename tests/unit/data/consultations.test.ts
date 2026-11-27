@@ -105,6 +105,29 @@ describe("publishSlots and listSlots (FR-SCH-01, INV-28)", () => {
   });
 });
 
+describe("listSlots names the Student for the slot owner (R6.9, UX-039, NFR-01)", () => {
+  it("gives the owner the Student of a requested or confirmed slot, and nobody else sees a name", async () => {
+    const t = await makeThesisChain(db);
+    const { slotIds } = await publishSlots(as(t.adviser), slotIn(2, { repeatWeeks: 2 }), NOW);
+    const [requested, confirmed, open] = slotIds as [string, string, string];
+    await requestBooking(as(t.student), { slotId: requested }, NOW);
+    const { bookingId } = await requestBooking(as(t.student), { slotId: confirmed }, NOW);
+    await decideBooking(as(t.adviser), bookingId, "confirm");
+    const [student] = await db.select().from(s.appUser).where(eq(s.appUser.id, t.student.id));
+    const own = Object.fromEntries((await listSlots(as(t.adviser), {}, NOW)).map((x) => [x.id, x.studentName]));
+    expect(own[requested]).toBe(student!.fullName);
+    expect(own[confirmed]).toBe(student!.fullName);
+    expect(own[open]).toBeNull();
+    // A declined booking names nobody.
+    const [later] = (await publishSlots(as(t.adviser), slotIn(30), NOW)).slotIds;
+    const declined = await requestBooking(as(t.student), { slotId: later! }, NOW);
+    await decideBooking(as(t.adviser), declined.bookingId, "decline");
+    expect((await listSlots(as(t.adviser), {}, NOW)).find((x) => x.id === later)!.studentName).toBeNull();
+    // The Student's own list has no names (the Student knows their own booking).
+    for (const x of await listSlots(as(t.student), {}, NOW)) expect(x.studentName).toBeNull();
+  });
+});
+
 describe("bookings (FR-SCH-02 to 04, INV-28)", () => {
   it("runs request, decline, request again, confirm, and gives the link to the booked Student only", async () => {
     const t = await setup();

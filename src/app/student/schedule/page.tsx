@@ -1,7 +1,7 @@
 // `/student/schedule` (S4): book consultations, add log topics, and propose the defense date
 // (FR-SCH-02 to 05, FR-SCH-08, FR-DEF-01, BR-09, BR-16, INV-28).
 import { ActionForm, areaClass, Field, inputClass } from "@/app/_components/action-form";
-import { MODE, pst, pstRange, SLOT_STATUS } from "@/app/_lib/format";
+import { MODE, pst, pstRange } from "@/app/_lib/format";
 import { proposeDateAction, requestBookingAction, topicAction } from "@/app/_lib/schedule-actions";
 import { EmptyState } from "@/components/empty-state";
 import { getRoleState } from "@/server/auth/session";
@@ -11,6 +11,8 @@ import { getDb } from "@/server/data/db";
 import { listAttempts } from "@/server/data/defense";
 import { readableMilestones } from "@/server/data/documents";
 import { listThreads } from "@/server/data/manuscript";
+import { studentTracker } from "@/server/data/tracker";
+import { DefenseDateField } from "./defense-date-field";
 
 export default async function Page() {
   const state = await getRoleState("student");
@@ -36,6 +38,9 @@ export default async function Page() {
   const windows = await commonDefenseWindows(ctx, milestone.thesisId);
   const attempts = await listAttempts(ctx, milestone.id);
   const proposed = attempts.at(-1)?.attempt;
+  // R6.9 (BR-09): the earliest defense date, from Gate 1b plus the notice period, in PHT.
+  const earliestDay = (await studentTracker(ctx))?.keyDates.earliestDefenseDate ?? null;
+  const earliest = earliestDay ? new Date(`${earliestDay}T00:00:00+08:00`) : null;
 
   // BR-09: show the earliest date and why a date can be blocked.
   const canPropose = milestone.status === "COMMITTEE_ENDORSED";
@@ -97,7 +102,8 @@ export default async function Page() {
               <li key={b.booking.id} className="flex flex-col gap-1 py-3 text-sm">
                 <p className="font-medium">{pstRange(b.slot.startsAt, b.slot.endsAt)}</p>
                 <p className="text-muted-foreground">
-                  {b.booking.status === "pending" ? "Waiting for your Adviser" : b.booking.status === "confirmed" ? "Confirmed" : "Declined"} · {MODE[b.slot.mode]} · {SLOT_STATUS[b.slot.status]}
+                  {/* UX-039: one state word only (the booking state). */}
+                  {b.booking.status === "pending" ? "Waiting for your Adviser" : b.booking.status === "confirmed" ? "Confirmed" : "Declined"} · {MODE[b.slot.mode]}
                 </p>
                 {b.slot.meetingLink ? (
                   <p>
@@ -165,9 +171,8 @@ export default async function Page() {
           </ul>
         )}
         <ActionForm action={proposeDateAction.bind(null, milestone.id)} submitLabel="Propose this date" blockedReason={proposeBlock} resetOnSuccess={false}>
-          <Field label="Defense date">
-            <input name="date" type="date" required className={inputClass} />
-          </Field>
+          {/* Blocked: the button shows its reason (BR-18), so no calendar shows. */}
+          {canPropose ? earliest ? <DefenseDateField earliest={earliest} /> : <p className="text-sm text-muted-foreground">The earliest date is not known yet. Ask the Coordinator.</p> : null}
         </ActionForm>
       </section>
     </div>

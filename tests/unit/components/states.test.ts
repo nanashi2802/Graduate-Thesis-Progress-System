@@ -143,3 +143,22 @@ describe("loading: the workspace (R5.7)", () => {
     expect(out.match(/aria-busy="true"/g)).toHaveLength(1);
   });
 });
+
+// Task R6.6 (UX-D-15): the Defense Day sheet and the slot list shapes. The blocks keep the real heights (48 px
+// steppers, 56 px slot rows), so nothing moves when the data arrives.
+describe("loading: Defense Day sheet and slot list (R6.6)", () => {
+  it("draws the Defense Day sheet: a row for each indicator with a 48 px stepper, the total and a 48 px button", () => {
+    const out = renderToStaticMarkup(createElement(LoadingBlocks, { shape: "defense", rows: 3 }));
+    expect(out).toMatch(/data-shape="defense"/);
+    expect(out.match(/data-part="indicator"/g)).toHaveLength(3);
+    expect(out.match(/h-12 w-44/g)).toHaveLength(3);
+    expect(out).toMatch(/data-part="total"/);
+    expect(out).toMatch(/h-12 w-48 rounded-control/);
+  });
+
+  it("draws the slot list: comfortable rows with the time, the place and the state", () => {
+    const out = renderToStaticMarkup(createElement(LoadingBlocks, { shape: "slots", rows: 2 }));
+    expect(out).toMatch(/data-shape="slots"/);
+    expect(out.match(/min-h-\(--row-h-comfortable\)/g)).toHaveLength(2);
+  });
+});

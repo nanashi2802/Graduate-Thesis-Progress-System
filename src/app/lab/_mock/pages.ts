@@ -17,7 +17,7 @@ export const GATES: Record<string, GateState> = {
   "UX-P-03": "Approved",
   "UX-P-04": "Approved",
   "UX-P-05": "Approved",
-  "UX-P-06": "Not shown",
+  "UX-P-06": "Approved",
   "UX-P-07": "Not shown",
 };
 
@@ -54,4 +54,5 @@ export const LAB_PAGES: LabPage[] = [
     gate: "UX-P-05",
     built: true,
   })),
+  ...["slot-list", "date-picker", "defense-form", "verdict", "consultation-log"].map((p) => ({ path: `/lab/patterns/${p}`, title: `Pattern: ${p}`, round: "R6", gate: "UX-P-06", built: true })),
 ];

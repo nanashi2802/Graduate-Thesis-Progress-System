@@ -119,8 +119,8 @@ export function PendingButton({
   variant?: "default" | "outline" | "return" | "link";
   /** The id of the form, when the button sits outside it (a side-sheet footer, R3.6). */
   form?: string;
-  /** "sm" keeps the small button of the old row forms until R7 (R3.10). */
-  size?: "default" | "sm";
+  /** "sm" keeps the small button of the old row forms until R7 (R3.10). "defense": 48 px on Defense Day (R6.3). */
+  size?: "default" | "sm" | "defense";
   className?: string;
   children?: ReactNode;
 }) {

@@ -10,6 +10,7 @@ import { emitSafely } from "./recipients";
 import { InputProblem } from "./coordinator";
 import { commonFree, expandWeekly, slotProblem, type Interval, type SlotInput } from "./schedule-rules";
 import {
+  appUser,
   booking,
   bookingThreadLink,
   committee,
@@ -25,7 +26,11 @@ import {
 import { requireThesisRead } from "./scope";
 
 type Slot = typeof slot.$inferSelect;
-export type SlotView = Omit<Slot, "meetingLink"> & { meetingLink: string | null };
+export type SlotView = Omit<Slot, "meetingLink"> & {
+  meetingLink: string | null;
+  /** R6.9 (UX-039): the Student of a pending or confirmed booking, for the slot owner only. Else null. */
+  studentName: string | null;
+};
 
 // ---- Publish ----
 
@@ -109,9 +114,22 @@ async function withLinkRule(ctx: DataContext, rows: Slot[]): Promise<SlotView[]>
       );
     for (const m of mine) confirmedFor.add(m.slotId);
   }
+  // The owner sees who requested or holds each own slot (UX-039). A declined booking names nobody.
+  const owned = rows.filter((r) => r.ownerUserId === ctx.actor.userId).map((r) => r.id);
+  const names = new Map<string, string>();
+  if (owned.length > 0) {
+    const held = await ctx.db
+      .select({ slotId: booking.slotId, name: appUser.fullName })
+      .from(booking)
+      .innerJoin(thesisInstance, eq(thesisInstance.id, booking.thesisInstanceId))
+      .innerJoin(appUser, eq(appUser.id, thesisInstance.studentUserId))
+      .where(and(inArray(booking.slotId, owned), inArray(booking.status, ["pending", "confirmed"])));
+    for (const h of held) names.set(h.slotId, h.name);
+  }
   return rows.map((r) => ({
     ...r,
     meetingLink: r.ownerUserId === ctx.actor.userId || confirmedFor.has(r.id) ? r.meetingLink : null,
+    studentName: names.get(r.id) ?? null,
   }));
 }
 

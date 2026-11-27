@@ -3,6 +3,7 @@ import { ActionForm, areaClass, Field, inputClass } from "@/app/_components/acti
 import { MODE, pst, pstRange } from "@/app/_lib/format";
 import { confirmLogAction, draftLogAction } from "@/app/_lib/schedule-actions";
 import { EmptyState } from "@/components/empty-state";
+import { ConsultationLog } from "@/components/patterns/consultation-log";
 import { getRoleState } from "@/server/auth/session";
 import { listBookings, listLogEntries } from "@/server/data/consultations";
 import { getDb } from "@/server/data/db";
@@ -18,6 +19,7 @@ export default async function Page() {
   const logged = new Set(entries.map((e) => e.bookingId));
   const now = new Date();
   const toLog = bookings.filter((b) => !logged.has(b.booking.id));
+  const toConfirm = entries.filter((e) => e.confirmedAt === null);
 
   return (
     <div className="mx-auto flex max-w-[960px] flex-col gap-10">
@@ -64,34 +66,43 @@ export default async function Page() {
         <h2 id="log" className="text-lg font-semibold">
           TDW 03 log
         </h2>
-        {entries.length === 0 ? (
-          <EmptyState title="The log is empty." detail="An entry appears after you add a held consultation." />
-        ) : (
+        {/* R6.9 (UX-P-06): the TDW 03 log on the `consultation-log` pattern. */}
+        <ConsultationLog
+          // The recommendations stay visible in the Topics cell (full text on hover and focus); the approved columns have
+          // no Recommendations column. For the owner at R7 (IMPLEMENTATION_PLAN.md §10.7).
+          rows={entries.map((e) => ({
+            id: e.id,
+            heldAt: e.heldAt,
+            place: e.placeOrPlatform ?? "Not recorded",
+            topics: e.topic && e.confirmedAt ? `${e.topic}. Recommendations: ${e.recommendations ?? "None."}` : e.topic,
+            confirmed: e.confirmedAt !== null,
+          }))}
+          empty={<EmptyState title="No consultations yet." detail="Entries appear here after each booked consultation." />}
+        />
+      </section>
+
+      {toConfirm.length > 0 ? (
+        <section aria-labelledby="confirm" className="flex flex-col gap-3">
+          <h2 id="confirm" className="text-lg font-semibold">
+            Entries to confirm
+          </h2>
           <ul className="flex flex-col divide-y divide-border border-y border-border">
-            {entries.map((e) => (
+            {toConfirm.map((e) => (
               <li key={e.id} className="flex flex-col gap-2 py-3 text-sm">
                 <p className="font-medium">
                   {pst(e.heldAt)} · {e.placeOrPlatform}
                 </p>
                 <p>Topic: {e.topic ?? "The Student has not added the topic."}</p>
-                {e.confirmedAt ? (
-                  <p>Recommendations: {e.recommendations ?? "None."} (confirmed {pst(e.confirmedAt)})</p>
-                ) : (
-                  <ActionForm
-                    action={confirmLogAction.bind(null, e.id)}
-                    submitLabel="Confirm entry"
-                    blockedReason={e.topic ? undefined : "The Student adds the topic first."}
-                  >
-                    <Field label="Recommendations">
-                      <textarea name="recommendations" className={areaClass} />
-                    </Field>
-                  </ActionForm>
-                )}
+                <ActionForm action={confirmLogAction.bind(null, e.id)} submitLabel="Confirm entry" blockedReason={e.topic ? undefined : "The Student adds the topic first."}>
+                  <Field label="Recommendations">
+                    <textarea name="recommendations" className={areaClass} />
+                  </Field>
+                </ActionForm>
               </li>
             ))}
           </ul>
-        )}
-      </section>
+        </section>
+      ) : null}
     </div>
   );
 }
